@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdInvoker", "LdInvoker\LdInvoker.vcxproj", "{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdShellExtend", "LdShellExtend\LdShellExtend.vcxproj", "{7969E738-7CA6-4219-9923-0841066FC844}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdShellExtendPS", "LdShellExtend\LdShellExtendPS.vcxproj", "{BA455777-3F93-4441-9150-DF436C87904B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7969E738-7CA6-4219-9923-0841066FC844} = {7969E738-7CA6-4219-9923-0841066FC844}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}.Debug|Win32.Build.0 = Debug|Win32
+		{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}.Release|Win32.ActiveCfg = Release|Win32
+		{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}.Release|Win32.Build.0 = Release|Win32
+		{7969E738-7CA6-4219-9923-0841066FC844}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7969E738-7CA6-4219-9923-0841066FC844}.Debug|Win32.Build.0 = Debug|Win32
+		{7969E738-7CA6-4219-9923-0841066FC844}.Release|Win32.ActiveCfg = Release|Win32
+		{7969E738-7CA6-4219-9923-0841066FC844}.Release|Win32.Build.0 = Release|Win32
+		{BA455777-3F93-4441-9150-DF436C87904B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA455777-3F93-4441-9150-DF436C87904B}.Release|Win32.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
