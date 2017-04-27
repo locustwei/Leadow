@@ -18,6 +18,9 @@ class ATL_NO_VTABLE CLdContextMenu :
 public:
 	CLdContextMenu()
 	{
+		 m_ContextMenuType = SHELL_EXTEND_TYPE_NONE;
+		 m_SelectFiles = NULL;
+		 m_SelectCount = 0;
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_LDCONTEXTMENU)
@@ -34,6 +37,12 @@ END_COM_MAP()
 
 	HRESULT FinalConstruct()
 	{
+		for(int i=0; i<m_SelectCount; i++)
+			delete [] m_SelectFiles[i];
+		if(m_SelectFiles)
+			delete [] m_SelectFiles;
+		m_SelectFiles = NULL;
+		m_SelectCount = 0;
 		return S_OK;
 	}
 
@@ -48,11 +57,16 @@ END_COM_MAP()
 	virtual HRESULT STDMETHODCALLTYPE InvokeCommand(__in CMINVOKECOMMANDINFO *pici);
 
 	virtual HRESULT STDMETHODCALLTYPE GetCommandString(__in UINT_PTR idCmd, __in UINT uType, __reserved UINT *pReserved, __out_awcount(!(uType & GCS_UNICODE) , cchMax) LPSTR pszName, __in UINT cchMax);
-
 public:
+private:
+	SHELL_EXTEND_TYPE m_ContextMenuType;
+	LPTSTR* m_SelectFiles;
+	int m_SelectCount;
 
-
-
+	HMENU CreateAllFileMenum(UINT& idCmdFirst);
+	HMENU CreateFolderMenum(UINT& idCmdFirst);
+	HMENU CreateDriveMenum(UINT& idCmdFirst);
+	HMENU CreateDirbkgMenum(UINT& idCmdFirst);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(LdContextMenu), CLdContextMenu)

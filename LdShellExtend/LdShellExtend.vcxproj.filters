@@ -54,6 +54,9 @@
     <ClInclude Include="LdContextMenu.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LdShellExtend.rc">
