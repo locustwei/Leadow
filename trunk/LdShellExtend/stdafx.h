@@ -25,3 +25,4 @@
 #include <atlctl.h>
 #include <ShObjIdl.h>
 #include <Shlobj.h>
+#include "common.h"

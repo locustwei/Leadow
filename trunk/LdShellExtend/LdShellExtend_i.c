@@ -6,7 +6,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Wed Apr 26 17:33:26 2017
+/* at Thu Apr 27 10:51:24 2017
  */
 /* Compiler settings for LdShellExtend.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 

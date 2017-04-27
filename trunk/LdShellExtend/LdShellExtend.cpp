@@ -6,56 +6,63 @@
 #include "LdShellExtend_i.h"
 #include "dllmain.h"
 
-#define KEYNAME _T("Leadow Shell Extend")
-#define GUID_STR _T("{7C4429E3-0593-45DC-BF37-F2CBCEFB27F2}")
-
 bool RegContexMenu()
 {
 	ATL::CRegKey reg;
-	LONG    lRet;
+	LONG    lRet = ERROR_SUCCESS;
 	
-	lRet = reg.Open ( HKEY_LOCAL_MACHINE,
-		_T("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"),
-		KEY_SET_VALUE );
-	if ( ERROR_SUCCESS != lRet )
-		return false;
-	lRet = reg.SetStringValue ( KEYNAME, GUID_STR );
-	if ( ERROR_SUCCESS != lRet )
-		return false;
+	do 
+	{
+		lRet = reg.Open(HKEY_LOCAL_MACHINE, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Shell Extensions\\Approved"), KEY_SET_VALUE );
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetStringValue (GUID_STR, REG_KEYNAME);
+		if ( ERROR_SUCCESS != lRet )
+			break;
 
-	lRet = reg.Create( HKEY_CLASSES_ROOT,
-		_T("*\\shellex\\ContextMenuHandlers\\" KEYNAME));
-	if ( ERROR_SUCCESS != lRet )
-		return false;
-	lRet = reg.SetStringValue (GUID_STR, NULL);
-	if ( ERROR_SUCCESS != lRet )
-		return false;
+		lRet = reg.Create( HKEY_CLASSES_ROOT, _T("*\\shellex\\ContextMenuHandlers\\" REG_KEYNAME));
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetStringValue (NULL, GUID_STR);
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetDWORDValue(REG_TYPE_VALUE, CONTEX_MENU_ALLFILE);
+		if ( ERROR_SUCCESS != lRet )
+			break;
 
-	lRet = reg.Create ( HKEY_CLASSES_ROOT,
-		_T("Folder\\shellex\\ContextMenuHandlers\\" KEYNAME));
-	if ( ERROR_SUCCESS != lRet )
-		return false;
-	lRet = reg.SetStringValue (GUID_STR, NULL);
-	if ( ERROR_SUCCESS != lRet )
-		return false;
+		lRet = reg.Create( HKEY_CLASSES_ROOT, _T("Folder\\shellex\\ContextMenuHandlers\\" REG_KEYNAME));
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetStringValue (NULL, GUID_STR);
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetDWORDValue(REG_TYPE_VALUE, CONTEX_MENU_FOLDER);
+		if ( ERROR_SUCCESS != lRet )
+			break;
 
-	lRet = reg.Create ( HKEY_CLASSES_ROOT,
-		_T("\\Directory\\Background\\shellex\\ContextMenuHandlers\\" KEYNAME));
-	if ( ERROR_SUCCESS != lRet )
-		return false;
-	lRet = reg.SetStringValue (GUID_STR, NULL);
-	if ( ERROR_SUCCESS != lRet )
-		return false;
+		lRet = reg.Create ( HKEY_CLASSES_ROOT, _T("Directory\\Background\\shellex\\ContextMenuHandlers\\" REG_KEYNAME));
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetStringValue (NULL, GUID_STR);
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetDWORDValue(REG_TYPE_VALUE, CONTEX_MENU_DIR_BKG);
+		if ( ERROR_SUCCESS != lRet )
+			break;
 
-	lRet = reg.Create ( HKEY_CLASSES_ROOT,
-		_T("\\Drive\\shellex\\ContextMenuHandlers\\" KEYNAME));
-	if ( ERROR_SUCCESS != lRet )
-		return false;
-	lRet = reg.SetStringValue (GUID_STR, NULL);
-	if ( ERROR_SUCCESS != lRet )
-		return false;
+		lRet = reg.Create ( HKEY_CLASSES_ROOT, _T("Drive\\shellex\\ContextMenuHandlers\\" REG_KEYNAME));
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetStringValue (NULL, GUID_STR);
+		if ( ERROR_SUCCESS != lRet )
+			break;
+		lRet = reg.SetDWORDValue(REG_TYPE_VALUE, CONTEX_MENU_DRIVE);
+		if ( ERROR_SUCCESS != lRet )
+			break;
 
-	return true;
+	} while (false);
+
+	return lRet == ERROR_SUCCESS;
 }
 
 void UnRegContextMenu()
@@ -67,7 +74,7 @@ void UnRegContextMenu()
 		_T("*\\shellex\\ContextMenuHandlers"));
 	if ( ERROR_SUCCESS != lRet )
 		return ;
-	lRet = reg.DeleteSubKey ( KEYNAME);
+	lRet = reg.DeleteSubKey ( REG_KEYNAME);
 	if ( ERROR_SUCCESS != lRet )
 		return ;
 
@@ -75,19 +82,19 @@ void UnRegContextMenu()
 		_T("Folder\\shellex\\ContextMenuHandlers"));
 	if ( ERROR_SUCCESS != lRet )
 		return ;
-	lRet = reg.DeleteSubKey (KEYNAME);
+	lRet = reg.DeleteSubKey (REG_KEYNAME);
 
 	lRet = reg.Open ( HKEY_CLASSES_ROOT,
-		_T("\\Directory\\Background\\shellex\\ContextMenuHandlers"));
+		_T("Directory\\Background\\shellex\\ContextMenuHandlers"));
 	if ( ERROR_SUCCESS != lRet )
 		return ;
-	lRet = reg.DeleteSubKey (KEYNAME);
+	lRet = reg.DeleteSubKey (REG_KEYNAME);
 
 	lRet = reg.Create ( HKEY_CLASSES_ROOT,
-		_T("\\Drive\\shellex\\ContextMenuHandlers"));
+		_T("Drive\\shellex\\ContextMenuHandlers"));
 	if ( ERROR_SUCCESS != lRet )
 		return ;
-	lRet = reg.DeleteSubKey (KEYNAME);
+	lRet = reg.DeleteSubKey (REG_KEYNAME);
 }
 
 // 用于确定 DLL 是否可由 OLE 卸载。
@@ -109,7 +116,7 @@ STDAPI DllRegisterServer(void)
 		return E_ACCESSDENIED;
 	// 注册对象、类型库和类型库中的所有接口
 	HRESULT hr = _AtlModule.DllRegisterServer();
-		return hr;
+	return hr;
 }
 
 // DllUnregisterServer - 在系统注册表中移除项。

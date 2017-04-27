@@ -2,34 +2,45 @@
 
 #include "stdafx.h"
 #include "LdContextMenu.h"
-
+#define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
 // CLdContextMenu
 
 HRESULT STDMETHODCALLTYPE CLdContextMenu::QueryContextMenu(__in HMENU hmenu, __in UINT indexMenu, __in UINT idCmdFirst, __in UINT idCmdLast, __in UINT uFlags)
 {
-	// If the flags include CMF_DEFAULTONLY then we shouldn't do anything.
+	HMENU hSubmenu;
+	UINT id = idCmdFirst;
+
 	if ( uFlags & CMF_DEFAULTONLY )
 		return MAKE_HRESULT ( SEVERITY_SUCCESS, FACILITY_NULL, 0 );
 
-	// First, create and populate a submenu.
-	HMENU hSubmenu = CreatePopupMenu();
-	UINT uID = idCmdFirst;
+	
+	switch(m_ContextMenuType){
+	case CONTEX_MENU_ALLFILE:
+		hSubmenu = CreateAllFileMenum(id);
+		break;
+	case CONTEX_MENU_FOLDER:
+		hSubmenu = CreateFolderMenum(id);
+		break;
+	case CONTEX_MENU_DRIVE: 
+		hSubmenu = CreateDriveMenum(id);
+		break;
+	case CONTEX_MENU_DIR_BKG:
+		hSubmenu = CreateDirbkgMenum(id);
+		break;
+	default:
+		return MAKE_HRESULT ( SEVERITY_SUCCESS, FACILITY_NULL, 0 );
+	}
 
-	InsertMenu ( hSubmenu, 0, MF_BYPOSITION, uID++, _T("&Notepad") );
-	InsertMenu ( hSubmenu, 1, MF_BYPOSITION, uID++, _T("&Internet Explorer") );
-
-	// Insert the submenu into the ctx menu provided by Explorer.
 	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };
-
 	mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID;
-	mii.wID = uID++;
+	mii.wID = id++;
 	mii.hSubMenu = hSubmenu;
-	mii.dwTypeData = _T("C&P Open With");
+	mii.dwTypeData = LD_CONTEXT_MENU;
 
 	InsertMenuItem ( hmenu, indexMenu, TRUE, &mii );
-
-	return MAKE_HRESULT ( SEVERITY_SUCCESS, FACILITY_NULL, uID - idCmdFirst );
+	
+	return MAKE_HRESULT ( SEVERITY_SUCCESS, FACILITY_NULL, id - idCmdFirst );
 
 }
 
@@ -39,26 +50,25 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	if ( 0 != HIWORD( pici->lpVerb ) )
 		return E_INVALIDARG;
 
-	// Get the command index - the only valid one is 0.
-	switch ( LOWORD( pici->lpVerb) )
-	{
-	case 0:
-		{
-			TCHAR szMsg [MAX_PATH + 32];
+	switch(m_ContextMenuType){
+	case CONTEX_MENU_ALLFILE:
+		switch(LOWORD(pici->lpVerb)){
+		case 0: //Hide
 
-			wsprintf ( szMsg, _T("The selected file was:\n\n%s"), L"m_szFile" );
-
-			MessageBox ( pici->hwnd, szMsg, _T("SimpleShlExt"),
-				MB_ICONINFORMATION );
-
-			return S_OK;
+			break;
 		}
 		break;
-
+	case CONTEX_MENU_FOLDER:
+		break;
+	case CONTEX_MENU_DRIVE: 
+		break;
+	case CONTEX_MENU_DIR_BKG:
+		break;
 	default:
 		return E_INVALIDARG;
-		break;
 	}
+
+	return S_OK;
 }
 //显示提示信息
 HRESULT STDMETHODCALLTYPE CLdContextMenu::GetCommandString(__in UINT_PTR idCmd, __in UINT uType, __reserved UINT *pReserved, __out_awcount(!(uType & GCS_UNICODE) , cchMax) LPSTR pszName, __in UINT cchMax)
@@ -92,63 +102,178 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::GetCommandString(__in UINT_PTR idCmd, 
 
 	return E_INVALIDARG;
 }
+/*
+LPWSTR GetKeyPathFromKKEY(HKEY key)
+{
+	LPWSTR keyPath = NULL;
+	if (key != NULL)
+	{
+		HMODULE dll = LoadLibrary(L"ntdll.dll");
+		if (dll != NULL) {
+			typedef DWORD (__stdcall *NtQueryKey)(
+				HANDLE  KeyHandle,
+				int KeyInformationClass,
+				PVOID  KeyInformation,
+				ULONG  Length,
+				PULONG  ResultLength);
 
+			NtQueryKey func = reinterpret_cast<NtQueryKey>(::GetProcAddress(dll, "NtQueryKey"));
 
+			if (func != NULL) {
+				DWORD size = 0;
+				DWORD result = 0;
+				result = func(key, 3, 0, 0, &size);
+				if (result != 0)
+				{
+					size = size + 2;
+					wchar_t* buffer = new wchar_t[size/sizeof(wchar_t)]; // size is in bytes
+					if (buffer != NULL)
+					{
+						result = func(key, 3, buffer, size, &size);
+						if (result == 0)
+						{
+							buffer[size / sizeof(wchar_t)] = L'\0';
+							keyPath = buffer + 2;
+						}
+					}
+				}
+			}
+
+			FreeLibrary(dll);
+		}
+	}
+	return keyPath;
+}
+*/
 HRESULT STDMETHODCALLTYPE CLdContextMenu::Initialize(__in_opt PCIDLIST_ABSOLUTE pidlFolder, __in_opt IDataObject *pDataObj, __in_opt HKEY hkeyProgID)
 {
 	FORMATETC fmt = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 	STGMEDIUM stg = { TYMED_HGLOBAL };
-	HDROP     hDrop;
-	TCHAR m_szSelectedFile[MAX_PATH+2] = {0};
+	DWORD lRet, cb = sizeof(DWORD);
+	HDROP hDrop;
+	int uNumFiles;
 
-	if(!pidlFolder && !pDataObj)
+	if(NULL == hkeyProgID)
+		return E_INVALIDARG;
+	lRet = RegGetValue(hkeyProgID, _T("shellex\\ContextMenuHandlers\\") REG_KEYNAME,  REG_TYPE_VALUE, RRF_RT_REG_DWORD, NULL, (LPBYTE)&m_ContextMenuType, &cb);
+	if(lRet != ERROR_SUCCESS)
 		return E_INVALIDARG;
 
-	if(!pDataObj){
-		if(SHGetPathFromIDList(pidlFolder, m_szSelectedFile )){
-			OutputDebugString(m_szSelectedFile);
-			return S_OK;
-		}else
+	switch(m_ContextMenuType){
+	case CONTEX_MENU_ALLFILE:
+	case CONTEX_MENU_FOLDER:
+	case CONTEX_MENU_DRIVE:
+		if(!pDataObj)
 			return E_INVALIDARG;
-	}
-	// Look for CF_HDROP data in the data object.
-	if ( FAILED( pDataObj->GetData ( &fmt, &stg )))
-	{
-		// Nope! Return an "invalid argument" error back to Explorer.
-		return E_INVALIDARG;
-	}
+		if ( FAILED( pDataObj->GetData( &fmt, &stg )))
+		{
+			return E_INVALIDARG;
+		}
 
-	// Get a pointer to the actual data.
-	hDrop = (HDROP) GlobalLock ( stg.hGlobal );
+		hDrop = (HDROP) GlobalLock ( stg.hGlobal );
+		if ( NULL == hDrop )
+			return E_INVALIDARG;
 
-	// Make sure it worked.
-	if ( NULL == hDrop )
-		return E_INVALIDARG;
+		uNumFiles = DragQueryFile ( hDrop, 0xFFFFFFFF, NULL, 0 );
+		if ( 0 == uNumFiles )
+		{
+			GlobalUnlock ( stg.hGlobal );
+			ReleaseStgMedium ( &stg );
+			return E_INVALIDARG;
+		}
 
-	// Sanity check - make sure there is at least one filename.
-	UINT uNumFiles = DragQueryFile ( hDrop, 0xFFFFFFFF, NULL, 0 );
+		m_SelectFiles = new LPTSTR[uNumFiles];
+		ZeroMemory(m_SelectFiles, uNumFiles * sizeof(LPTSTR));
 
-	if ( 0 == uNumFiles )
-	{
+		for(int i=0; i<uNumFiles; i++)
+		{
+			m_SelectFiles[i] = new TCHAR[MAX_PATH];
+			ZeroMemory(m_SelectFiles[i], MAX_PATH * sizeof(TCHAR));
+			if (!DragQueryFile ( hDrop, i, m_SelectFiles[i], MAX_PATH )){
+				delete m_SelectFiles[i];
+				m_SelectFiles[i] = NULL;
+				break;
+			}
+		}
+		m_SelectCount = uNumFiles;
+
 		GlobalUnlock ( stg.hGlobal );
 		ReleaseStgMedium ( &stg );
+
+		break;
+	case CONTEX_MENU_DIR_BKG:
+		if(!pidlFolder)
+			return E_INVALIDARG;
+
+		m_SelectCount = 1;
+		m_SelectFiles = new LPTSTR[m_SelectCount];
+		m_SelectFiles[0] = new TCHAR[MAX_PATH];
+		ZeroMemory(m_SelectFiles[0], (MAX_PATH) * sizeof(WCHAR));
+
+		if(!SHGetPathFromIDList(pidlFolder, m_SelectFiles[0] )){
+			delete [] m_SelectFiles[0];
+			delete [] m_SelectFiles;
+			m_SelectFiles = NULL;
+			m_SelectCount = 0;
+			return E_INVALIDARG;
+		}
+		break;
+	default:
 		return E_INVALIDARG;
 	}
 
-	HRESULT hr = S_OK;
+	return S_OK;
+}
 
-	// Get the name of the first file and store it in our member variable m_szFile.
-	if ( 0 == DragQueryFile ( hDrop, 0, m_szSelectedFile, MAX_PATH ))
-		hr = E_INVALIDARG;
-	else
+HMENU CLdContextMenu::CreateAllFileMenum(UINT& idCmdFirst)
+{
+	HMENU hSubmenu = CreatePopupMenu();
+	int pos = 0;
+
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Hide") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION | MF_SEPARATOR, 0, _T("-") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&ForceDelete") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&SafeDelete") );
+	if(m_SelectCount == 1)
 	{
-		// Quote the name if it contains spaces (needed so the cmd line is built properly)
-		PathQuoteSpaces ( m_szSelectedFile );
-		OutputDebugString(m_szSelectedFile);
+		InsertMenu( hSubmenu, pos++, MF_BYPOSITION | MF_SEPARATOR, 0, _T("-") );
+		InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("Extend Property") );
 	}
+	return hSubmenu;
+}
 
-	GlobalUnlock ( stg.hGlobal );
-	ReleaseStgMedium ( &stg );
+HMENU CLdContextMenu::CreateFolderMenum(UINT& idCmdFirst)
+{
+	HMENU hSubmenu = CreatePopupMenu();
+	int pos = 0;
 
-	return hr;
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Hide") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION | MF_SEPARATOR, 0, _T("-") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&ForceDelete") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&SafeDelete") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION | MF_SEPARATOR, 0, _T("-") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Seach File") );
+
+	return hSubmenu;
+}
+
+HMENU CLdContextMenu::CreateDriveMenum(UINT& idCmdFirst)
+{
+	HMENU hSubmenu = CreatePopupMenu();
+	int pos = 0;
+
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Disk Clean") );
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Disk Erase") );
+
+	return hSubmenu;
+}
+
+HMENU CLdContextMenu::CreateDirbkgMenum(UINT& idCmdFirst)
+{
+	HMENU hSubmenu = CreatePopupMenu();
+	int pos = 0;
+
+	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Seach File") );
+
+	return hSubmenu;
 }
