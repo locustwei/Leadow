@@ -1,10 +1,22 @@
-// LdShellExtend.cpp : DLL 导出的实现。
-
-
+/*!
+ * \file LdShellExtend.cpp
+ * 
+ *
+ * \author asa
+ * 
+ * Windows 资源管理器扩展插件注册
+ * 
+ *
+ * 
+ *
+ * 
+*/
 #include "stdafx.h"
 #include "resource.h"
 #include "LdShellExtend_i.h"
 #include "dllmain.h"
+
+//注册右键菜单
 
 bool RegContexMenu()
 {
