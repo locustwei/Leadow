@@ -2,6 +2,8 @@
 
 #include "stdafx.h"
 #include "LdContextMenu.h"
+
+
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
 // CLdContextMenu
@@ -46,7 +48,6 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::QueryContextMenu(__in HMENU hmenu, __i
 
 HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO *pici)
 {
-	// If lpVerb really points to a string, ignore this function call and bail out.
 	if ( 0 != HIWORD( pici->lpVerb ) )
 		return E_INVALIDARG;
 
@@ -225,6 +226,14 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::Initialize(__in_opt PCIDLIST_ABSOLUTE 
 	return S_OK;
 }
 
+//************************************
+// Method:    CreateAllFileMenum
+// FullName:  CLdContextMenu::CreateAllFileMenum
+// Access:    private 
+// Returns:   HMENU
+// Qualifier: 所有文件（*）右键菜单
+// Parameter: UINT & idCmdFirst
+//************************************
 HMENU CLdContextMenu::CreateAllFileMenum(UINT& idCmdFirst)
 {
 	HMENU hSubmenu = CreatePopupMenu();
@@ -242,6 +251,14 @@ HMENU CLdContextMenu::CreateAllFileMenum(UINT& idCmdFirst)
 	return hSubmenu;
 }
 
+//************************************
+// Method:    CreateFolderMenum
+// FullName:  CLdContextMenu::CreateFolderMenum
+// Access:    private 
+// Returns:   HMENU
+// Qualifier: 目录右键菜单
+// Parameter: UINT & idCmdFirst
+//************************************
 HMENU CLdContextMenu::CreateFolderMenum(UINT& idCmdFirst)
 {
 	HMENU hSubmenu = CreatePopupMenu();
@@ -257,6 +274,14 @@ HMENU CLdContextMenu::CreateFolderMenum(UINT& idCmdFirst)
 	return hSubmenu;
 }
 
+//************************************
+// Method:    CreateDriveMenum
+// FullName:  CLdContextMenu::CreateDriveMenum
+// Access:    private 
+// Returns:   HMENU
+// Qualifier: 磁盘驱动器右键菜单
+// Parameter: UINT & idCmdFirst
+//************************************
 HMENU CLdContextMenu::CreateDriveMenum(UINT& idCmdFirst)
 {
 	HMENU hSubmenu = CreatePopupMenu();
@@ -268,6 +293,14 @@ HMENU CLdContextMenu::CreateDriveMenum(UINT& idCmdFirst)
 	return hSubmenu;
 }
 
+//************************************
+// Method:    CreateDirbkgMenum
+// FullName:  CLdContextMenu::CreateDirbkgMenum
+// Access:    private 
+// Returns:   HMENU
+// Qualifier: 未选中文件（目录空白处）右键菜单
+// Parameter: UINT & idCmdFirst
+//************************************
 HMENU CLdContextMenu::CreateDirbkgMenum(UINT& idCmdFirst)
 {
 	HMENU hSubmenu = CreatePopupMenu();

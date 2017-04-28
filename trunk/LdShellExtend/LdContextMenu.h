@@ -1,4 +1,16 @@
-// LdContextMenu.h : CLdContextMenu 的声明
+/*!
+ * \file LdContextMenu.h
+ * \date 2017/04/28 11:25
+ *
+ * \author asa
+ * 
+ *
+ * Windows右键菜单插件。
+ *
+ * 
+ *
+ * 
+*/
 
 #pragma once
 #include "resource.h"       // 主符号
@@ -18,9 +30,19 @@ class ATL_NO_VTABLE CLdContextMenu :
 public:
 	CLdContextMenu()
 	{
-		 m_ContextMenuType = SHELL_EXTEND_TYPE_NONE;
-		 m_SelectFiles = NULL;
-		 m_SelectCount = 0;
+		m_ContextMenuType = SHELL_EXTEND_TYPE_NONE;
+		m_SelectFiles = NULL;
+		m_SelectCount = 0;
+	}
+
+	~CLdContextMenu()
+	{
+		for(int i=0; i<m_SelectCount; i++)
+			delete [] m_SelectFiles[i];
+		if(m_SelectFiles)
+			delete [] m_SelectFiles;
+		m_SelectFiles = NULL;
+		m_SelectCount = 0;
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_LDCONTEXTMENU)
@@ -37,12 +59,6 @@ END_COM_MAP()
 
 	HRESULT FinalConstruct()
 	{
-		for(int i=0; i<m_SelectCount; i++)
-			delete [] m_SelectFiles[i];
-		if(m_SelectFiles)
-			delete [] m_SelectFiles;
-		m_SelectFiles = NULL;
-		m_SelectCount = 0;
 		return S_OK;
 	}
 
