@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{55055AB2-8705-4F35-B9FA-271C09C35A8C}</ProjectGuid>
+    <ProjectGuid>{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>LbLib</RootNamespace>
+    <RootNamespace>FileIndexLib</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -40,7 +40,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -70,18 +70,37 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LdNamedPipe.h" />
+    <ClInclude Include="DiskVolume.h" />
+    <ClInclude Include="Fat.h" />
+    <ClInclude Include="FatMftReader.h" />
+    <ClInclude Include="Hardisk.h" />
+    <ClInclude Include="MD5.h" />
+    <ClInclude Include="MftReader.h" />
+    <ClInclude Include="ntfs.h" />
+    <ClInclude Include="NtfsMtfReader.h" />
+    <ClInclude Include="RecordFile.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="string_x.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Thread.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LdNamedPipe.cpp" />
+    <ClCompile Include="DiskVolume.cpp" />
+    <ClCompile Include="FatMftReader.cpp" />
+    <ClCompile Include="Hardisk.cpp" />
+    <ClCompile Include="MD5.cpp" />
+    <ClCompile Include="MftReader.cpp" />
+    <ClCompile Include="NtfsMtfReader.cpp" />
+    <ClCompile Include="RecordFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LbLib\LbLib.vcxproj">
+      <Project>{55055ab2-8705-4f35-b9fa-271c09c35a8c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

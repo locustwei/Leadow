@@ -12,6 +12,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdShellExtendPS", "LdShellE
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LbLib", "LbLib\LbLib.vcxproj", "{55055AB2-8705-4F35-B9FA-271C09C35A8C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileSearch", "LdFileSearch\LdFileSearch.vcxproj", "{4D6A02B5-C261-4D39-8055-C225C6ED5E77}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileIndexLib", "FileIndexLib\FileIndexLib.vcxproj", "{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -46,6 +50,18 @@ Global
 		{55055AB2-8705-4F35-B9FA-271C09C35A8C}.Release|Win32.ActiveCfg = Release|Win32
 		{55055AB2-8705-4F35-B9FA-271C09C35A8C}.Release|Win32.Build.0 = Release|Win32
 		{55055AB2-8705-4F35-B9FA-271C09C35A8C}.Release|x64.ActiveCfg = Release|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|Win32.Build.0 = Debug|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|x64.ActiveCfg = Debug|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Release|Win32.ActiveCfg = Release|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Release|Win32.Build.0 = Release|Win32
+		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Release|x64.ActiveCfg = Release|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Debug|Win32.Build.0 = Debug|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Debug|x64.ActiveCfg = Debug|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|Win32.ActiveCfg = Release|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|Win32.Build.0 = Release|Win32
+		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
