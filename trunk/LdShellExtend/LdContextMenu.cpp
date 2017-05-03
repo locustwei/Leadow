@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "LdContextMenu.h"
-#include "..\LbLib\LdFunction.h"
+#include "LdFunction.h"
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
@@ -59,6 +59,9 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 			break;
 		case 1: //Force Delete
 			InvokeLdFunc(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN, this);
+			break;
+		case 2: //earse file
+			InvokeInProcess(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN);
 			break;
 		}
 		break;

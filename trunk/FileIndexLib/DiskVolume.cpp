@@ -1,6 +1,6 @@
 #include "DiskVolume.h"
 #include <Shlwapi.h>
-
+#include "Thread.h"
 /*
  *	线程类型
  */

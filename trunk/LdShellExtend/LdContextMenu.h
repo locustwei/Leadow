@@ -15,7 +15,7 @@
 #pragma once
 #include "resource.h"       // Ö÷·ûºÅ
 #include "LdShellExtend_i.h"
-#include "..\LbLib\LdStructs.h"
+#include "LdStructs.h"
 
 using namespace ATL;
 
