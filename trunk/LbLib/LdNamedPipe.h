@@ -1,22 +1,5 @@
 #pragma once
-
-#define PIPENAME_PREFIX _T("\\\\.\\pipe\\")
-
-typedef enum PIPE_FOLW_ACTION
-{
-	PFA_ERROR,
-	PFA_CONNECTED,
-	PFA_READ,
-	PFA_WRITE,
-	PFA_DONE
-};
-
-#pragma warning(disable:4091)
-
-typedef struct IPipeDataProvider
-{
-	virtual PIPE_FOLW_ACTION PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize) = 0;
-};
+#include "LdStructs.h"
 
 class CLdNamedPipe
 {

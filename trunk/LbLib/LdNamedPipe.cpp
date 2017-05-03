@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #define LDPIPE_WAIT_TIMEOUT 30000
+#define PIPENAME_PREFIX _T("\\\\.\\pipe\\")
 
 #pragma warning(disable:4996)
 

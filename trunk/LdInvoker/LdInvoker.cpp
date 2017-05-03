@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "LdInvoker.h"
 #include <Shellapi.h>
-#include <string>
+#include "..\LbLib\LdFunction.h"
 
 #define MAX_LOADSTRING 100
 
@@ -24,7 +24,9 @@ HINSTANCE hInst;								// 当前实例
 TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
 
-HMODULE g_Dll = 0;
+LD_FUNCTION_ID functionId = LFI_NONE;
+LD_FUNCTION_FLAG functionFlag = LFF_NONE;
+
 LPTSTR* ParamStrs = NULL;
 int ParamCount = 0;
 
@@ -33,52 +35,6 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 
-using namespace std;
-
-
-//************************************
-// Method:    LoadDll
-// FullName:  LoadDll
-// Access:    public 
-// Returns:   HMODULE
-// Qualifier: 加载动态库
-// Parameter: LPTSTR DllName，参数传入动态库文件名不包含路径。
-//************************************
-HMODULE LoadDll(LPTSTR DllName)
-{
-	TCHAR FileName[MAX_PATH] = {0};
-	if(!GetModuleFileName(0, FileName, MAX_PATH))
-		return NULL;
-	wstring s(FileName);
-	int k = s.find_last_of('\\');
-	if(k == -1)
-		return NULL;
-	s = s.substr(0, k + 1);
-	s += DllName;
-	return LoadLibrary(s.c_str());
-}
-
-typedef int (*_EntryFunction)(HWND hManWnd, LPTSTR ParamStr);
-
-//************************************
-// Method:    InvokeFunction
-// FullName:  InvokeFunction
-// Access:    public 
-// Returns:   int
-// Qualifier: 执行动态库入口函数。
-// Parameter: HWND hWnd 主窗口句柄。
-// Parameter: LPTSTR ParamStr 入口函数参数
-//************************************
-int InvokeFunction(HWND hWnd, LPTSTR ParamStr)
-{
-	_EntryFunction EntryFunction;
-	EntryFunction = (_EntryFunction)GetProcAddress(g_Dll, "EntryFunction");
-	if(EntryFunction)
-		return EntryFunction(hWnd, ParamStr);
-	else
-		return ERROR_FUNCTION_NOT_FOUND;
-	return 0;
-}
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -94,20 +50,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	
 	ParamStrs = CommandLineToArgvW(lpCmdLine, &ParamCount);
 
-	if(ParamCount < 2)
+	if(ParamCount != 2)
 		return ERROR_PARAMCOUNT;
 
-	g_Dll = LoadDll(ParamStrs[0]);
-	if(g_Dll == 0)
-		return ERROR_LOAD_LIBRARY;
+	functionId = (LD_FUNCTION_ID)_wtoi(ParamStrs[0]);
+	functionFlag = (LD_FUNCTION_FLAG)_wtoi(ParamStrs[1]);
 
-	if(ParamCount > 2)
-	{//如果动态库函数没有窗口时
-		if(ParamStrs[1][0] == '1'){
-			return InvokeFunction(0, ParamStrs[2]);
-		}
-	}
-
+	InvokeLdFunc(functionId, (LD_FUNCTION_FLAG)(functionFlag ^ LFF_NEW_PROCESS), NULL);
 	// 初始化全局字符串
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_LDINVOKER, szWindowClass, MAX_LOADSTRING);
@@ -192,8 +141,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_CREATE:
-		if(InvokeFunction(hWnd, ParamStrs[1]) == ERROR_FUNCTION_NOT_FOUND)
-			PostMessage(hWnd, WM_DESTROY, 0, 0);
+		//if(!CLdFunction::Invoke(functionId, (LD_FUNCTION_FLAG)(functionFlag ^ LFF_NEW_PROCESS), NULL))
+			//PostMessage(hWnd, WM_DESTROY, 0, 0);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

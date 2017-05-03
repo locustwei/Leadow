@@ -18,7 +18,7 @@
 
 //×¢²áÓÒ¼ü²Ëµ¥
 
-bool RegContexMenu()
+BOOL RegContexMenu()
 {
 	ATL::CRegKey reg;
 	LONG    lRet = ERROR_SUCCESS;

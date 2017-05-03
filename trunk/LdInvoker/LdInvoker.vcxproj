@@ -96,6 +96,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -152,6 +153,11 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LdInvoker.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LbLib\LbLib.vcxproj">
+      <Project>{55055ab2-8705-4f35-b9fa-271c09c35a8c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
