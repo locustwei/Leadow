@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 #include "LdContextMenu.h"
-
+#include "..\LbLib\LdFunction.h"
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
@@ -55,7 +55,10 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	case CONTEX_MENU_ALLFILE:
 		switch(LOWORD(pici->lpVerb)){
 		case 0: //Hide
-
+			InvokeLdFunc(LFI_HIDE_FILE, LFF_NEW_PROCESS, this);
+			break;
+		case 1: //Force Delete
+			InvokeLdFunc(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN, this);
 			break;
 		}
 		break;
@@ -309,4 +312,34 @@ HMENU CLdContextMenu::CreateDirbkgMenum(UINT& idCmdFirst)
 	InsertMenu( hSubmenu, pos++, MF_BYPOSITION, idCmdFirst++, _T("&Seach File") );
 
 	return hSubmenu;
+}
+
+PIPE_FOLW_ACTION CLdContextMenu::PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize)
+{
+	PIPE_FOLW_ACTION Result = PFA_ERROR;
+	UINT Length = 0;
+
+	switch(current)
+	{
+	case PFA_CONNECTED:
+		Result = PFA_WRITE;
+		for(int i=0; i<m_SelectCount; i++)
+		{
+			Length += (wcslen(m_SelectFiles[i])+1) * sizeof(TCHAR);
+		}
+		lpBuffer = malloc(Length);
+		ZeroMemory(lpBuffer, Length);
+		nBufferSize = Length;
+		Length = 0;
+		for(int i=0; i<m_SelectCount; i++)
+		{
+			MoveMemory((PCHAR)lpBuffer+Length, m_SelectFiles[i], wcslen(m_SelectFiles[i]) * sizeof(TCHAR));
+			Length += (wcslen(m_SelectFiles[i])+1) * sizeof(TCHAR); 
+		}
+		break;
+	default:
+		Result = PFA_DONE;
+		break;
+	}
+	return Result;
 }

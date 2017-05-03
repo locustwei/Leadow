@@ -15,6 +15,7 @@
 #pragma once
 #include "resource.h"       // Ö÷·ûºÅ
 #include "LdShellExtend_i.h"
+#include "..\LbLib\LdStructs.h"
 
 using namespace ATL;
 
@@ -25,7 +26,8 @@ class ATL_NO_VTABLE CLdContextMenu :
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CLdContextMenu, &CLSID_LdContextMenu>,
 	public IShellExtInit,
-	public IContextMenu
+	public IContextMenu,
+	public IPipeDataProvider
 {
 public:
 	CLdContextMenu()
@@ -83,6 +85,9 @@ private:
 	HMENU CreateFolderMenum(UINT& idCmdFirst);
 	HMENU CreateDriveMenum(UINT& idCmdFirst);
 	HMENU CreateDirbkgMenum(UINT& idCmdFirst);
+
+	virtual PIPE_FOLW_ACTION PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize);
+
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(LdContextMenu), CLdContextMenu)
