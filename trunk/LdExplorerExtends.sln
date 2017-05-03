@@ -16,6 +16,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileSearch", "LdFileSearc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileIndexLib", "FileIndexLib\FileIndexLib.vcxproj", "{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileProtect", "LdFileProtect\LdFileProtect.vcxproj", "{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -62,6 +64,12 @@ Global
 		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|Win32.ActiveCfg = Release|Win32
 		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|Win32.Build.0 = Release|Win32
 		{B448F5F6-9AFA-46E8-9FA8-30C54FCA5E39}.Release|x64.ActiveCfg = Release|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Debug|Win32.Build.0 = Debug|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Debug|x64.ActiveCfg = Debug|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Release|Win32.ActiveCfg = Release|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Release|Win32.Build.0 = Release|Win32
+		{8BC83C4B-384A-4C76-A2FB-EC013E9F422D}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
