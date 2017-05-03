@@ -15,7 +15,7 @@
 #include "stdafx.h"
 #include "LdInvoker.h"
 #include <Shellapi.h>
-#include "..\LbLib\LdFunction.h"
+#include "LdFunction.h"
 
 #define MAX_LOADSTRING 100
 

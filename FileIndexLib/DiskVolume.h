@@ -13,7 +13,7 @@
 #include "stdafx.h"
 #include "MftReader.h"
 #include "RecordFile.h"
-#include "..\LbLib\Thread.h"
+#include "Thread.h"
 #include "MD5.h"
 
 /*

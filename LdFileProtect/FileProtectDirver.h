@@ -1,5 +1,5 @@
 #pragma once
-#include "..\LbLib\LdStructs.h"
+#include "LdStructs.h"
 
 class CFileProtectDirver
 {
