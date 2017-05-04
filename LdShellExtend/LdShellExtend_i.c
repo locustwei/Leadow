@@ -5,11 +5,11 @@
 /* link this file in with the server and any clients */
 
 
- /* File created by MIDL compiler version 7.00.0555 */
-/* at Wed May 03 23:40:20 2017
+ /* File created by MIDL compiler version 8.00.0603 */
+/* at Thu May 04 22:44:01 2017
  */
 /* Compiler settings for LdShellExtend.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
+    Oicf, W1, Zp8, env=Win64 (32b run), target_arch=AMD64 8.00.0603 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
