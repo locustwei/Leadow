@@ -12,5 +12,8 @@ public:
 protected:
 	virtual LPCTSTR GetWndClassName() override;
 
+
+	virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled) override;
+
 };
 

@@ -13,20 +13,14 @@
 */
 
 #include "stdafx.h"
+#include <shellapi.h>
 #include "LdInvoker.h"
-#include <Shellapi.h>
-#include "LdFunction.h"
 #include "MainWndNotify.h"
-
-#define MAX_LOADSTRING 100
 
 // 全局变量:
 HINSTANCE hInst;								// 当前实例
 TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
-
-LD_FUNCTION_ID functionId = LFI_NONE;
-LD_FUNCTION_FLAG functionFlag = LFF_NONE;
 
 LPTSTR* ParamStrs = NULL;
 int ParamCount = 0;
@@ -45,26 +39,18 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	
 	ParamStrs = CommandLineToArgvW(lpCmdLine, &ParamCount);
 
-	if(ParamCount != 2)
+	if(ParamCount < 2)
 		return ERROR_PARAMCOUNT;
 
-	functionId = (LD_FUNCTION_ID)_wtoi(ParamStrs[0]);
-	functionFlag = (LD_FUNCTION_FLAG)_wtoi(ParamStrs[1]);
-
-	InvokeLdFunc(functionId, (LD_FUNCTION_FLAG)(functionFlag ^ LFF_NEW_PROCESS), NULL);
-	// 初始化全局字符串
+	hInst = hInstance;
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LDINVOKER));
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_LDINVOKER, szWindowClass, MAX_LOADSTRING);
 
-	//nCmdShow = SW_HIDE;
-	hInst = hInstance;
-
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LDINVOKER));
-	
 	CMainWndNotify* pNotify = new CMainWndNotify();
-	pNotify->m_SkinXml = _T("skin.xml");
-	CreateMainWnd(hInstance, _T("skin"), pNotify, _T("Leadow Window"), SW_SHOW);
-	
+	pNotify->m_SkinXml = _T("invokermainwnd.xml");
+	CreateMainWnd(hInstance, _T("skin"), pNotify, szTitle, SW_HIDE);
+
 	delete pNotify;
 
 	return (int) 0;
