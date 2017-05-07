@@ -1,16 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdInvoker", "LdInvoker\LdInvoker.vcxproj", "{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdShellExtend", "LdShellExtend\LdShellExtend.vcxproj", "{7969E738-7CA6-4219-9923-0841066FC844}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdShellExtendPS", "LdShellExtend\LdShellExtendPS.vcxproj", "{BA455777-3F93-4441-9150-DF436C87904B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{7969E738-7CA6-4219-9923-0841066FC844} = {7969E738-7CA6-4219-9923-0841066FC844}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileSearch", "LdFileSearch\LdFileSearch.vcxproj", "{4D6A02B5-C261-4D39-8055-C225C6ED5E77}"
 EndProject
@@ -66,19 +61,6 @@ Global
 		{7969E738-7CA6-4219-9923-0841066FC844}.UnicodeRelease|Win32.Build.0 = Release|Win32
 		{7969E738-7CA6-4219-9923-0841066FC844}.UnicodeRelease|x64.ActiveCfg = Release|x64
 		{7969E738-7CA6-4219-9923-0841066FC844}.UnicodeRelease|x64.Build.0 = Release|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.Debug|Win32.ActiveCfg = Debug|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.Debug|x64.ActiveCfg = Debug|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.Debug|x64.Build.0 = Debug|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.Release|Win32.ActiveCfg = Release|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.Release|x64.ActiveCfg = Release|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeDebug|Win32.ActiveCfg = Debug|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeDebug|Win32.Build.0 = Debug|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeDebug|x64.ActiveCfg = Debug|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeDebug|x64.Build.0 = Debug|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeRelease|Win32.ActiveCfg = Release|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeRelease|Win32.Build.0 = Release|Win32
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeRelease|x64.ActiveCfg = Release|x64
-		{BA455777-3F93-4441-9150-DF436C87904B}.UnicodeRelease|x64.Build.0 = Release|x64
 		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|Win32.ActiveCfg = Debug|Win32
 		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|Win32.Build.0 = Debug|Win32
 		{4D6A02B5-C261-4D39-8055-C225C6ED5E77}.Debug|x64.ActiveCfg = Debug|x64

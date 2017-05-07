@@ -24,20 +24,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="LdFileProtect.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FileProtectDirver.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LdFileProtect.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -45,9 +36,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Resource.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FileProtectDirver.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

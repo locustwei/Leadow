@@ -9,5 +9,7 @@
 #include "string_x.h"
 using namespace std;
 
+#define FIL_API __declspec(dllexport)
+
 //#define HIDWORD(a) ((DWORD)((ULONGLONG)(a) >> 32))
 //#define LODWORD(a) ((DWORD)((ULONGLONG)(a) & 0xFFFFFFFF))

@@ -13,6 +13,7 @@
 #include "MD5.h"
 #include <Wincrypt.h>
 #include <SetupAPI.h>
+#include <VersionHelpers.h>
 
 using namespace  std;
 
@@ -33,7 +34,7 @@ BOOL WINAPI MtfEnumCallback(ULONGLONG ReferenceNumber, ATTRIBUTE_TYPE attr, PVOI
 	PFILE_INFO pFileName = (PFILE_INFO)record;
 	switch(attr){
 	case AttributeFileName:
-		wprintf(L"%4d   %s \n", ReferenceNumber, pFileName->Name);
+		//wprintf(L"%4d   %s \n", ReferenceNumber, pFileName->Name);
 		f->WriteRecord(ReferenceNumber, (PUCHAR)pFileName->Name, pFileName->NameLength * sizeof(WCHAR));
 		break;
 	}
@@ -42,6 +43,8 @@ BOOL WINAPI MtfEnumCallback(ULONGLONG ReferenceNumber, ATTRIBUTE_TYPE attr, PVOI
 
 bool is_vista_or_later()
 {
+	return IsWindowsVistaOrGreater();
+	/*
 	DWORD dwVersion = GetVersion();
 	DWORD dwWindowsMajorVersion =  (DWORD)(LOBYTE(LOWORD(dwVersion)));
 	DWORD dwWindowsMinorVersion =  (DWORD)(HIBYTE(LOWORD(dwVersion)));
@@ -54,6 +57,7 @@ bool is_vista_or_later()
 		}
 	}
 	return false;
+	*/
 }
 
 BOOL IsElevated( BOOL * pbElevated ) /*另一种判断是否高低权限的办法*/
@@ -455,15 +459,15 @@ int _tmain(int argc, _TCHAR* argv[])
 				TCHAR directname[MAX_PATH];
 				if(result){
 					WCHAR fullName[512] = {0};
-					printf("找到 %d 组 \n", result->size());
+					//printf("找到 %d 组 \n", result->size());
 					for(ULONG m=0; m<result->size(); m++){
 						vector<PMFTFILERECORD>* item = result->at(m);
-						printf("第 %d 组 %d 个------------------------------------  \n", m+1, item->size());
+						//printf("第 %d 组 %d 个------------------------------------  \n", m+1, item->size());
 						for(size_t j=0; j<item->size(); j++){
 							PMFTFILERECORD p = item->at(j);
 							ZeroMemory(directname, MAX_PATH * sizeof(TCHAR));
 							volumes[i]->GetFullFileName(p->DirectoryFileReferenceNumber, directname, MAX_PATH);
-							printf("%d  %S\\%S \n", p->DataSize, directname, p->Name);
+							//printf("%d  %S\\%S \n", p->DataSize, directname, p->Name);
 							delete (PUCHAR)p;
 						}
 						item->clear();

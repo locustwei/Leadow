@@ -110,7 +110,7 @@ typedef struct IVolumeInterface{
 	virtual vector<PMFTFILERECORD>* __stdcall SearchFile(PFILE_FILTER pFilter, BOOL asyn) = 0;
 }*PVolumeInterface;
 
-class CDiskVolume: IVolumeInterface, IMftReadeHolder, IRecordFileHolder,IRunable
+class FIL_API CDiskVolume: IVolumeInterface, IMftReadeHolder, IRecordFileHolder,IRunable
 {
 public:
 	CDiskVolume(void);

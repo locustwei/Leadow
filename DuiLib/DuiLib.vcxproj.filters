@@ -37,6 +37,9 @@
       <UniqueIdentifier>{8c860b1e-376a-4239-b7e7-91d0f6123fa7}</UniqueIdentifier>
       <Extensions>ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe</Extensions>
     </Filter>
+    <Filter Include="LeadowUI">
+      <UniqueIdentifier>{efc84f0e-226a-449f-bd0f-25068347e7b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
@@ -149,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="Utils\WndShadow.cpp">
       <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="LeadowUI\LdDuiWnd.cpp">
+      <Filter>LeadowUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="Utils\WndShadow.h">
       <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="LeadowUI\LdDuiWnd.h">
+      <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
