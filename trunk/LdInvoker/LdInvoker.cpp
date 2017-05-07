@@ -16,6 +16,7 @@
 #include "LdInvoker.h"
 #include <Shellapi.h>
 #include "LdFunction.h"
+#include "MainWndNotify.h"
 
 #define MAX_LOADSTRING 100
 
@@ -30,11 +31,6 @@ LD_FUNCTION_FLAG functionFlag = LFF_NONE;
 LPTSTR* ParamStrs = NULL;
 int ParamCount = 0;
 
-// 此代码模块中包含的函数的前向声明:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -45,7 +41,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
  	// TODO: 在此放置代码。
-	MSG msg;
 	HACCEL hAccelTable;
 	
 	ParamStrs = CommandLineToArgvW(lpCmdLine, &ParamCount);
@@ -60,92 +55,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	// 初始化全局字符串
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_LDINVOKER, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
 
 	//nCmdShow = SW_HIDE;
-
-	// 执行应用程序初始化:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
+	hInst = hInstance;
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_LDINVOKER));
+	
+	CMainWndNotify* pNotify = new CMainWndNotify();
+	pNotify->m_SkinXml = _T("skin.xml");
+	CreateMainWnd(hInstance, _T("skin"), pNotify, _T("Leadow Window"), SW_SHOW);
+	
+	delete pNotify;
 
-	// 主消息循环:
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-
-	return (int) msg.wParam;
-}
-
-ATOM MyRegisterClass(HINSTANCE hInstance)
-{
-	WNDCLASSEX wcex;
-
-	wcex.cbSize = sizeof(WNDCLASSEX);
-
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_LDINVOKER));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_LDINVOKER);
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
-}
-
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-   HWND hWnd;
-
-   hInst = hInstance; // 将实例句柄存储在全局变量中
-
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
-
-   if (!hWnd)
-   {
-      return FALSE;
-   }
-
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
-
-   return TRUE;
-}
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	case WM_CREATE:
-		//if(!CLdFunction::Invoke(functionId, (LD_FUNCTION_FLAG)(functionFlag ^ LFF_NEW_PROCESS), NULL))
-			//PostMessage(hWnd, WM_DESTROY, 0, 0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
+	return (int) 0;
 }
