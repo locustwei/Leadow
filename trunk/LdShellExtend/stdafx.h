@@ -26,3 +26,9 @@
 #include <ShObjIdl.h>
 #include <Shlobj.h>
 #include "common.h"
+
+/*
+#include "../DuiLib/UIlib.h"
+
+using namespace DuiLib;
+*/

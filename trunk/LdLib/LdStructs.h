@@ -33,7 +33,8 @@ typedef enum LD_FUNCTION_FLAG
 typedef enum PIPE_FOLW_ACTION
 {
 	PFA_ERROR,
-	PFA_CONNECTED,
+	PFA_CREATE,
+	PFA_CONNECT,
 	PFA_READ,
 	PFA_WRITE,
 	PFA_DONE
@@ -42,7 +43,7 @@ typedef enum PIPE_FOLW_ACTION
 
 typedef struct IPipeDataProvider
 {
-	virtual PIPE_FOLW_ACTION PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize) = 0;
+	virtual PIPE_FOLW_ACTION PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext) = 0;
 };
 //文件保护类型
 typedef enum LD_FILE_PROTECT
