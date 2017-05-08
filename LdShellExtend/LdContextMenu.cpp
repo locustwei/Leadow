@@ -6,6 +6,24 @@
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
+BOOL InvokeInProcess(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
+{
+	TCHAR FileName[MAX_PATH] = { 0 };
+	if (!GetModuleFileName(0, FileName, MAX_PATH))
+		return false;
+	wstring s(FileName);
+	int k = s.find_last_of('\\');
+	if (k == -1)
+		return false;
+	s = s.substr(0, k + 1);
+	s += L"LdInvoker.exe ";
+	s += id;
+	s += L" ";
+	s += (int)Flag;
+	return ShellExecute(NULL, NULL, s.c_str(), NULL, NULL, SW_SHOWNORMAL) != NULL;
+
+}
+
 // CLdContextMenu
 
 HRESULT STDMETHODCALLTYPE CLdContextMenu::QueryContextMenu(__in HMENU hmenu, __in UINT indexMenu, __in UINT idCmdFirst, __in UINT idCmdLast, __in UINT uFlags)
@@ -55,10 +73,10 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	case CONTEX_MENU_ALLFILE:
 		switch(LOWORD(pici->lpVerb)){
 		case 0: //Hide
-			InvokeLdFunc(LFI_HIDE_FILE, LFF_NEW_PROCESS, this);
+			InvokeInProcess(LFI_HIDE_FILE, LFF_NEW_PROCESS, );
 			break;
 		case 1: //Force Delete
-			InvokeLdFunc(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN, this);
+			InvokeInProcess(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN, this);
 			break;
 		case 2: //earse file
 			InvokeInProcess(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN);

@@ -3,6 +3,8 @@
 #pragma warning(disable:4091)
 #pragma warning(disable:4267)
 
+#define LDLIB_API __declspec(dllexport)
+
 typedef struct _LD_STRING
 {
 	UINT Length;

@@ -16,6 +16,7 @@
 
 #include "targetver.h"
 
+#include "../DuiLib/Uilib.h"
 
-
+using namespace DuiLib;
 
