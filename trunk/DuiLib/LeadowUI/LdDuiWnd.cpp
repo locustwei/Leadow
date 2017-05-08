@@ -2,6 +2,7 @@
 #include "LdDuiWnd.h"
 
 namespace DuiLib {
+
 	CLdDuiWnd::CLdDuiWnd(CLdUINotify* pNotify)
 	{
 		m_Notify = pNotify;
@@ -43,6 +44,27 @@ namespace DuiLib {
 		wsprintf(m_ClassName, _T("LDWnd%8x"), (UINT)this);
 
 		m_LdWnd = NULL;
+		m_SkinXml = NULL;
+	}
+
+	void CLdUINotify::SetSkinXml(LPCTSTR lpXml)
+	{
+		m_SkinXml = lpXml;
+	}
+
+	LPCTSTR CLdUINotify::GetSkinXml()
+	{
+		return m_SkinXml;
+	}
+
+	CWindowWnd * CLdUINotify::GetWnd()
+	{
+		return m_LdWnd;
+	}
+
+	CPaintManagerUI * CLdUINotify::GetPaintManager()
+	{
+		return &m_pm;
 	}
 
 	LPCTSTR CLdUINotify::GetWndClassName()
@@ -58,8 +80,13 @@ namespace DuiLib {
 	void CLdUINotify::Notify(TNotifyUI& msg)
 	{
 		CDuiString name = msg.pSender->GetName();
+		if (msg.sType == DUI_MSGTYPE_WINDOWINIT)
+		{
+			Init();
+			return;
+		}
 
-		if (msg.sType == _T("click")) {
+		if (msg.sType == DUI_MSGTYPE_CLICK) {
 			if (name == _T("btnCloseWnd")) {
 				m_LdWnd->Close();
 				//SendMessage(m_LdWnd->GetHWND(), WM_CLOSE, 0, 0);
@@ -78,6 +105,10 @@ namespace DuiLib {
 				return;
 			}
 		}
+	}
+
+	void CLdUINotify::Init()
+	{
 	}
 
 	LRESULT CLdUINotify::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)

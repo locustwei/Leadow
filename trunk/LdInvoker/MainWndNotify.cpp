@@ -3,10 +3,11 @@
 #include "MainWndNotify.h"
 #include "LdInvoker.h"
 #include "LdStructs.h"
-
+#include "LdFunction.h"
+/*
 LD_FUNCTION_ID functionId = LFI_NONE;
 LD_FUNCTION_FLAG functionFlag = LFF_NONE;
-
+*/
 CMainWndNotify::CMainWndNotify()
 {
 }
@@ -28,14 +29,14 @@ LPCTSTR CMainWndNotify::GetWndClassName()
 	return szWindowClass;
 }
 
-LRESULT CMainWndNotify::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+void CMainWndNotify::Init()
 {
-	LRESULT ret = __super::OnCreate(uMsg, wParam, lParam, bHandled);
+	//functionId = (LD_FUNCTION_ID)StrToInt(ParamStrs[0]);
+	//functionFlag = (LD_FUNCTION_FLAG)StrToInt(ParamStrs[1]);
 
-	functionId = (LD_FUNCTION_ID)StrToInt(ParamStrs[0]);
-	functionFlag = (LD_FUNCTION_FLAG)StrToInt(ParamStrs[1]);
+	//InvokeLdFunc(functionId, ParamStrs[2], GetWnd()->GetHWND());
 
-	//InvokeLdFunc(functionId, (LD_FUNCTION_FLAG)(functionFlag & ~LFF_NEW_PROCESS), NULL);
-
-	return ret;
+	//GetWnd()->Close();
+	//::PostQuitMessage(0L);
 }
+

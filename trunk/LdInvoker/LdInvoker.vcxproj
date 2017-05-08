@@ -111,7 +111,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>DuiLib_d64.lib;LdLib_d64.lib;%(AdditionalDependencies);Shlwapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>DuiLib_d64.lib;LdLib_d64.lib;LdFileProtect_d64.lib;%(AdditionalDependencies);Shlwapi.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)lib\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -153,6 +153,7 @@
     <None Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LdFunction.h" />
     <ClInclude Include="LdInvoker.h" />
     <ClInclude Include="MainWndNotify.h" />
     <ClInclude Include="Resource.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LdFunction.cpp" />
     <ClCompile Include="LdInvoker.cpp" />
     <ClCompile Include="MainWndNotify.cpp" />
     <ClCompile Include="stdafx.cpp">
