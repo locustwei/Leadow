@@ -14,7 +14,29 @@ BOOL ProtectFiles(LPTSTR lpPipeFileName, HWND hParentWnd)
 	if (!Pipe.Open(lpPipeFileName))
 		return b;
 
-	Pipe.ReadData()
+	DWORD dwFileCount = 0;
+
+	if(Pipe.ReadData(&dwFileCount, sizeof(dwFileCount)) != sizeof(dwFileCount))
+		return false;
+
+	LPTSTR* lpFileNames = new LPTSTR[dwFileCount];
+	ZeroMemory(lpFileNames, dwFileCount * sizeof(LPTSTR));
+
+	for (int i = 0; i < dwFileCount; i++)
+	{
+		lpFileNames[i] = new TCHAR[MAX_PATH];
+		ZeroMemory(lpFileNames[i], MAX_PATH * sizeof(TCHAR));
+
+		Pipe.ReadData(lpFileNames[i], MAX_PATH * sizeof(TCHAR));
+	}
+
+	b = API_ProtectFiles(dwFlag, dwFileCount, lpFileNames);
+
+	for (int i = 0; i < dwFileCount; i++)
+	{
+		delete[] lpFileNames[i];
+	}
+	delete[] lpFileNames;
 
 	return b;
 }
