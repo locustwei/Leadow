@@ -194,7 +194,6 @@
   <ItemGroup>
     <None Include="LdFileProtect.def" />
     <None Include="ReadMe.txt" />
-    <None Include="res\LdFileProtect.rc2" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
