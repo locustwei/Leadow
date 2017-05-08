@@ -86,8 +86,9 @@ private:
 	HMENU CreateDriveMenum(UINT& idCmdFirst);
 	HMENU CreateDirbkgMenum(UINT& idCmdFirst);
 
-	virtual PIPE_FOLW_ACTION PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize);
+	virtual PIPE_FOLW_ACTION PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext) override;
 
+	LD_FUNCTION_ID m_FunctionId;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(LdContextMenu), CLdContextMenu)

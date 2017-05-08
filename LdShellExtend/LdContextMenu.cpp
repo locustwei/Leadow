@@ -2,27 +2,12 @@
 
 #include "stdafx.h"
 #include "LdContextMenu.h"
-#include "LdFunction.h"
+#include <string.h>
+#include "LdNamedPipe.h"
+
+using namespace std;
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
-
-BOOL InvokeInProcess(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
-{
-	TCHAR FileName[MAX_PATH] = { 0 };
-	if (!GetModuleFileName(0, FileName, MAX_PATH))
-		return false;
-	wstring s(FileName);
-	int k = s.find_last_of('\\');
-	if (k == -1)
-		return false;
-	s = s.substr(0, k + 1);
-	s += L"LdInvoker.exe ";
-	s += id;
-	s += L" ";
-	s += (int)Flag;
-	return ShellExecute(NULL, NULL, s.c_str(), NULL, NULL, SW_SHOWNORMAL) != NULL;
-
-}
 
 // CLdContextMenu
 
@@ -73,13 +58,13 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	case CONTEX_MENU_ALLFILE:
 		switch(LOWORD(pici->lpVerb)){
 		case 0: //Hide
-			InvokeInProcess(LFI_HIDE_FILE, LFF_NEW_PROCESS, );
+			m_FunctionId = LFI_HIDE_FILE;
 			break;
 		case 1: //Force Delete
-			InvokeInProcess(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN, this);
+			m_FunctionId = LFI_DELETE_FILE;
 			break;
 		case 2: //earse file
-			InvokeInProcess(LFI_DELETE_FILE, LFF_NEW_PROCESS | LFF_AS_ADMIN);
+			m_FunctionId = LFI_DELETE_FILE;
 			break;
 		}
 		break;
@@ -92,6 +77,12 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	default:
 		return E_INVALIDARG;
 	}
+
+	TCHAR PipeName[30] = { 0 };
+	CLdNamedPipe Pipe;
+	wsprintf(PipeName, _T("LdPipe%x"), (UINT)this);
+
+	Pipe.CreateFlow(PipeName, this, PipeName);
 
 	return S_OK;
 }
@@ -335,14 +326,36 @@ HMENU CLdContextMenu::CreateDirbkgMenum(UINT& idCmdFirst)
 	return hSubmenu;
 }
 
-PIPE_FOLW_ACTION CLdContextMenu::PFACallback(UINT nStep, PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize)
+BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
+{
+	TCHAR FileName[MAX_PATH] = { 0 };
+	if (!GetModuleFileName(0, FileName, MAX_PATH))
+		return false;
+
+	TCHAR* s = _tcsrchr(FileName, '\\');
+	if (s == NULL)
+		return false;
+	s += 1;
+	_tcscpy(s, _T("LdInvoker_d64.exe"));
+
+	TCHAR Params[100] = { 0 };
+	wsprintf(Params, _T("%d %d %s"), id, Flag, lpPipeName);
+	return ShellExecute(NULL, NULL, FileName, Params, NULL, SW_SHOWNORMAL) != NULL;
+
+}
+
+PIPE_FOLW_ACTION CLdContextMenu::PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext)
 {
 	PIPE_FOLW_ACTION Result = PFA_ERROR;
 	UINT Length = 0;
 
 	switch(current)
 	{
-	case PFA_CONNECTED:
+	case PFA_CREATE:
+		Result = PFA_CONNECT;
+		RunInvoker(m_FunctionId, 0, (LPTSTR)pContext);
+		break;
+	case PFA_CONNECT:
 		Result = PFA_WRITE;
 		for(int i=0; i<m_SelectCount; i++)
 		{

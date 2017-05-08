@@ -9,6 +9,7 @@
 
 CLdNamedPipe::CLdNamedPipe()
 {
+	m_PipeName = NULL;
 	m_hPipe = INVALID_HANDLE_VALUE;
 	m_Connected = false;
 }
@@ -29,21 +30,15 @@ CLdNamedPipe::~CLdNamedPipe(void)
 BOOL CLdNamedPipe::Create(LPCTSTR lpPipeName)
 {
 	TCHAR* pTmpName = NULL;
-	if(lpPipeName == NULL)
-	{
-		return false;
-		/*
-		pTmpName = new TCHAR[11];
-		srand( (unsigned)time( NULL ) );
-
-		for(int i=0; i<10; i++)
-			pTmpName[i] = 'A' + (1000 * rand()) % 25;
-		pTmpName[10] = 0;
-		lpPipeName = pTmpName;
-		*/
+	if (lpPipeName) {
+		pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
+		swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
+		m_PipeName = lpPipeName;
 	}
-	pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
-	swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
+	else
+	{
+		return FALSE;
+	}
 
 	m_hPipe = CreateNamedPipe(pTmpName, 
 		PIPE_ACCESS_DUPLEX | FILE_FLAG_FIRST_PIPE_INSTANCE | FILE_FLAG_OVERLAPPED, 
@@ -54,21 +49,7 @@ BOOL CLdNamedPipe::Create(LPCTSTR lpPipeName)
 	if(pTmpName)
 		delete [] pTmpName;
 
-	if(m_hPipe == INVALID_HANDLE_VALUE)
-		return false;
-	
-
-	m_Connected = ConnectNamedPipe(m_hPipe, NULL);
-
-	if(!m_Connected)
-	{
-		if(m_hPipe != INVALID_HANDLE_VALUE)
-		{
-			CloseHandle(m_hPipe);
-			m_hPipe = INVALID_HANDLE_VALUE;
-		}
-	}
-	return m_Connected;
+	return m_hPipe != INVALID_HANDLE_VALUE;
 }
 
 UINT CLdNamedPipe::ReadData(LPVOID lpBuffer, UINT nSize)
@@ -95,36 +76,40 @@ UINT CLdNamedPipe::WriteData(LPVOID lpBuffer, UINT nSize)
 	return dwCb;
 }
 
-BOOL CLdNamedPipe::CreateFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback)
+BOOL CLdNamedPipe::CreateFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback, PVOID pContext)
 {
 	BOOL b;
 	PIPE_FOLW_ACTION  next;
 	LPVOID lpBuffer = NULL;
-	UINT nSize = 0, nStep = 0;
+	UINT nSize = 0;
 
 	if(callback == NULL)
 		return false;
 
 	b = Create(lpPipeName);
-	next = PFA_CONNECTED;
+	next = PFA_CREATE;
 
 	while(b)
 	{
-		next = callback->PFACallback(nStep++, next, lpBuffer, nSize);
+		next = callback->PFACallback(next, lpBuffer, nSize, pContext);
 		if(next == PFA_DONE || next == PFA_ERROR)
 			break;
 
 		switch(next)
 		{
+		case PFA_CONNECT:
+			b = WaitConnect();
+			break;
 		case PFA_READ:
 			nSize = ReadData(lpBuffer, nSize);
+			b = nSize > 0;
 			break;
 		case PFA_WRITE:
 			nSize = WriteData(lpBuffer, nSize);
+			b = nSize > 0;
 			break;
 		}
 
-		b = nSize > 0;
 	}
 
 	return b;
@@ -132,36 +117,36 @@ BOOL CLdNamedPipe::CreateFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback)
 
 BOOL CLdNamedPipe::Open(LPCTSTR lpPipeName)
 {
-	if(!WaitNamedPipe(lpPipeName, LDPIPE_WAIT_TIMEOUT))
+	TCHAR* pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
+	swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
+
+	if(!WaitNamedPipe(pTmpName, LDPIPE_WAIT_TIMEOUT))
 	{
 		return false;
 	}
 
-	TCHAR* pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
-	swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
-
 	m_hPipe = CreateFile(pTmpName,  GENERIC_READ | GENERIC_WRITE, 
 		0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	delete [] pTmpName;
-	return m_hPipe == INVALID_HANDLE_VALUE;
+	return m_hPipe != INVALID_HANDLE_VALUE;
 }
 
-BOOL CLdNamedPipe::OpenFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback)
+BOOL CLdNamedPipe::OpenFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback, PVOID pContext)
 {
 	BOOL b;
 	PIPE_FOLW_ACTION next;
 	LPVOID lpBuffer = NULL;
-	UINT nSize = 0, nStep = 0;
+	UINT nSize = 0;
 
 	if(callback == NULL)
 		return false;
 
 	b = Open(lpPipeName);
-	next = PFA_CONNECTED;
+	next = PFA_CONNECT;
 
 	while(b)
 	{
-		next = callback->PFACallback(nStep++, next, lpBuffer, nSize);
+		next = callback->PFACallback(next, lpBuffer, nSize, pContext);
 		if(next == PFA_DONE || next == PFA_ERROR)
 			break;
 
@@ -179,4 +164,16 @@ BOOL CLdNamedPipe::OpenFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback)
 	}
 
 	return b;
+}
+
+LPCTSTR CLdNamedPipe::GetPipeName()
+{
+	return m_PipeName;
+}
+
+BOOL CLdNamedPipe::WaitConnect()
+{
+	m_Connected = ConnectNamedPipe(m_hPipe, NULL);
+
+	return m_Connected;
 }
