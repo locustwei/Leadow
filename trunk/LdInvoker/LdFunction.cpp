@@ -28,6 +28,7 @@ BOOL ProtectFiles(LPTSTR lpPipeFileName, HWND hParentWnd)
 		ZeroMemory(lpFileNames[i], MAX_PATH * sizeof(TCHAR));
 
 		Pipe.ReadData(lpFileNames[i], MAX_PATH * sizeof(TCHAR));
+		MessageBox(0, lpFileNames[i], nullptr, 0);
 	}
 
 	b = API_ProtectFiles(dwFlag, dwFileCount, lpFileNames);
