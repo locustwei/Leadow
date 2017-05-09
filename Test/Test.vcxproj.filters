@@ -18,12 +18,12 @@
     <ClCompile Include="Test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LdContextMenu.cpp">
+    <ClCompile Include="FileProtectPipeFlow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LdContextMenu.h">
+    <ClInclude Include="FileProtectPipeFlow.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

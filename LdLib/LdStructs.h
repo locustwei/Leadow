@@ -54,3 +54,5 @@ typedef enum LD_FILE_PROTECT
 	LFP_READ     = 0x0008,
 	LFP_WRITE    = 0x0010
 };
+
+BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName);

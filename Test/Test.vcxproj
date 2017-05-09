@@ -149,11 +149,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="LdContextMenu.cpp" />
+    <ClCompile Include="FileProtectPipeFlow.cpp" />
     <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LdContextMenu.h" />
+    <ClInclude Include="FileProtectPipeFlow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
