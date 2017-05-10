@@ -236,6 +236,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="FileProtectPipeFlow.cpp" />
     <ClCompile Include="LdContextMenu.cpp" />
     <ClCompile Include="LdShellExtend.cpp" />
     <ClCompile Include="LdShellExtend_i.c">
@@ -262,6 +263,7 @@
   <ItemGroup>
     <ClInclude Include="common.h" />
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="FileProtectPipeFlow.h" />
     <ClInclude Include="LdContextMenu.h" />
     <ClInclude Include="LdShellExtend_i.h" />
     <ClInclude Include="Resource.h" />

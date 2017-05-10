@@ -2,20 +2,13 @@
 
 #include "stdafx.h"
 #include "FileProtectPipeFlow.h"
-#include <string.h>
 #include "LdNamedPipe.h"
 
-using namespace std;
 
 CFileProtectPipeFlow::CFileProtectPipeFlow()
 {
 	ZeroMemory(m_PipeName, ARRAYSIZE(m_PipeName));
 	wsprintf(m_PipeName, _T("LdPipe%x"), (UINT)this);
-	nCount = 3;
-	lpFiles = new LPTSTR[nCount];
-	lpFiles[0] = _T("0aasdfasdfasd");
-	lpFiles[1] = _T("1aasdfasdfasd");
-	lpFiles[2] = _T("2aasdfasdfasd");
 }
 
 CFileProtectPipeFlow::~CFileProtectPipeFlow()
@@ -23,12 +16,15 @@ CFileProtectPipeFlow::~CFileProtectPipeFlow()
 
 }
 
-BOOL CFileProtectPipeFlow::StartPipeFlow()
+BOOL CFileProtectPipeFlow::StartPipeFlow(int nFileCount, LPTSTR* lpFiles)
 {
 	FLOW_CONTEXT Context = { 0 };
 
 	CLdNamedPipe Pipe;
-	Pipe.CreateFlow(m_PipeName, this, &Context);
+	CFileProtectPipeFlow Flow;
+	Flow.nCount = nFileCount;
+	Flow.lpFiles = lpFiles;
+	Pipe.CreateFlow(Flow.m_PipeName, &Flow, &Context);
 
 	return S_OK;
 }
