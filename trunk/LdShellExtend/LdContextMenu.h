@@ -26,8 +26,7 @@ class ATL_NO_VTABLE CLdContextMenu :
 	public CComObjectRootEx<CComSingleThreadModel>,
 	public CComCoClass<CLdContextMenu, &CLSID_LdContextMenu>,
 	public IShellExtInit,
-	public IContextMenu,
-	public IPipeDataProvider
+	public IContextMenu
 {
 public:
 	CLdContextMenu()
@@ -75,7 +74,6 @@ END_COM_MAP()
 	virtual HRESULT STDMETHODCALLTYPE InvokeCommand(__in CMINVOKECOMMANDINFO *pici);
 
 	virtual HRESULT STDMETHODCALLTYPE GetCommandString(__in UINT_PTR idCmd, __in UINT uType, __reserved UINT *pReserved, __out_awcount(!(uType & GCS_UNICODE) , cchMax) LPSTR pszName, __in UINT cchMax);
-public:
 private:
 	SHELL_EXTEND_TYPE m_ContextMenuType;
 	LPTSTR* m_SelectFiles;
@@ -85,10 +83,6 @@ private:
 	HMENU CreateFolderMenum(UINT& idCmdFirst);
 	HMENU CreateDriveMenum(UINT& idCmdFirst);
 	HMENU CreateDirbkgMenum(UINT& idCmdFirst);
-
-	virtual PIPE_FOLW_ACTION PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext) override;
-
-	LD_FUNCTION_ID m_FunctionId;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(LdContextMenu), CLdContextMenu)

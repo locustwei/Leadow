@@ -20,13 +20,6 @@ CLdNamedPipe::~CLdNamedPipe(void)
 {
 	if(m_Connected)
 	{
-		
-		DWORD dwRead = 0, dwCb = 0;
-		PeekNamedPipe(m_hPipe, &dwRead, sizeof(dwRead), &dwCb, NULL, NULL);
-		if (dwCb > 0)
-		
-			WaitForSingleObject(m_hEvent, INFINITE);
-
 		DisconnectNamedPipe(m_hPipe);
 	}
 	if(m_hPipe != INVALID_HANDLE_VALUE)
@@ -88,9 +81,9 @@ UINT CLdNamedPipe::WriteData(LPVOID lpBuffer, UINT nSize)
 
 	DWORD dwCb = 0;
 	DWORD dwRead = 0;
-	WaitForSingleObject(m_hEvent, INFINITE);
 	if (!WriteFile(m_hPipe, lpBuffer, nSize, &dwCb, NULL))
 		return 0;
+	WaitForSingleObject(m_hEvent, INFINITE);
 	return nSize;
 }
 
@@ -153,7 +146,7 @@ BOOL CLdNamedPipe::Open(LPCTSTR lpPipeName)
 	if (m_hPipe == INVALID_HANDLE_VALUE)
 		return FALSE;
 	
-	SetEvent(m_hEvent);
+	//SetEvent(m_hEvent);
 
 	return TRUE;
 }

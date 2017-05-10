@@ -3,9 +3,7 @@
 #include "stdafx.h"
 #include "LdContextMenu.h"
 #include <string.h>
-#include "LdNamedPipe.h"
-
-using namespace std;
+#include "FileProtectPipeFlow.h"
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
@@ -57,14 +55,12 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	switch(m_ContextMenuType){
 	case CONTEX_MENU_ALLFILE:
 		switch(LOWORD(pici->lpVerb)){
-		case 0: //Hide
-			m_FunctionId = LFI_HIDE_FILE;
+		case 0: //
+			CFileProtectPipeFlow::StartPipeFlow(m_SelectCount, m_SelectFiles);
 			break;
 		case 1: //Force Delete
-			m_FunctionId = LFI_DELETE_FILE;
 			break;
 		case 2: //earse file
-			m_FunctionId = LFI_DELETE_FILE;
 			break;
 		}
 		break;
@@ -77,12 +73,6 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	default:
 		return E_INVALIDARG;
 	}
-
-	TCHAR PipeName[30] = { 0 };
-	CLdNamedPipe Pipe;
-	wsprintf(PipeName, _T("LdPipe%x"), (UINT)this);
-
-	Pipe.CreateFlow(PipeName, this, PipeName);
 
 	return S_OK;
 }
@@ -342,38 +332,4 @@ BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
 	wsprintf(Params, _T("%d %d %s"), id, Flag, lpPipeName);
 	return ShellExecute(NULL, NULL, FileName, Params, NULL, SW_SHOWNORMAL) != NULL;
 
-}
-
-PIPE_FOLW_ACTION CLdContextMenu::PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext)
-{
-	PIPE_FOLW_ACTION Result = PFA_ERROR;
-	UINT Length = 0;
-
-	switch(current)
-	{
-	case PFA_CREATE:
-		Result = PFA_CONNECT;
-		RunInvoker(m_FunctionId, 0, (LPTSTR)pContext);
-		break;
-	case PFA_CONNECT:
-		Result = PFA_WRITE;
-		for(int i=0; i<m_SelectCount; i++)
-		{
-			Length += (wcslen(m_SelectFiles[i])+1) * sizeof(TCHAR);
-		}
-		lpBuffer = malloc(Length);
-		ZeroMemory(lpBuffer, Length);
-		nBufferSize = Length;
-		Length = 0;
-		for(int i=0; i<m_SelectCount; i++)
-		{
-			MoveMemory((PCHAR)lpBuffer+Length, m_SelectFiles[i], wcslen(m_SelectFiles[i]) * sizeof(TCHAR));
-			Length += (wcslen(m_SelectFiles[i])+1) * sizeof(TCHAR); 
-		}
-		break;
-	default:
-		Result = PFA_DONE;
-		break;
-	}
-	return Result;
 }

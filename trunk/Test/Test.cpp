@@ -17,7 +17,6 @@
 #include <Shlwapi.h>
 #include "LdStructs.h"
 #include <string.h>
-#include "FileProtectPipeFlow.h"
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -26,8 +25,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	CFileProtectPipeFlow menu;
-	menu.StartPipeFlow();
 
 	return (int) 0;
 }

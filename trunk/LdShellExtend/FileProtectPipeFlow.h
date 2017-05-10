@@ -25,7 +25,7 @@ public:
 
 	~CFileProtectPipeFlow();
 
-	BOOL StartPipeFlow();
+	static BOOL StartPipeFlow(int nFileCount, LPTSTR* lpFiles);
 private:
 	TCHAR m_PipeName[30];
 	struct FLOW_CONTEXT {
