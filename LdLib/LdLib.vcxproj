@@ -144,6 +144,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LdDriver.h" />
     <ClInclude Include="LdNamedPipe.h" />
     <ClInclude Include="LdStructs.h" />
     <ClInclude Include="stdafx.h" />
@@ -151,6 +152,7 @@
     <ClInclude Include="Thread.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LdDriver.cpp" />
     <ClCompile Include="LdNamedPipe.cpp" />
     <ClCompile Include="PulicRoutimes.cpp" />
     <ClCompile Include="stdafx.cpp">
