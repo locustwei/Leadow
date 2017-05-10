@@ -19,8 +19,10 @@ public:
 	LPCTSTR GetPipeName();
 private:
 	HANDLE m_hPipe;
+	HANDLE m_hEvent;
 	BOOL m_Connected;
 	LPCTSTR m_PipeName;
+
 };
 
 
