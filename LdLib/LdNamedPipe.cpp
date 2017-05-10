@@ -20,9 +20,11 @@ CLdNamedPipe::~CLdNamedPipe(void)
 {
 	if(m_Connected)
 	{
-		DWORD dwRead, dwCb = 0;
+		
+		DWORD dwRead = 0, dwCb = 0;
 		PeekNamedPipe(m_hPipe, &dwRead, sizeof(dwRead), &dwCb, NULL, NULL);
 		if (dwCb > 0)
+		
 			WaitForSingleObject(m_hEvent, INFINITE);
 
 		DisconnectNamedPipe(m_hPipe);
