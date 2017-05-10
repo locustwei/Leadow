@@ -11,6 +11,7 @@ CLdNamedPipe::CLdNamedPipe()
 {
 	m_PipeName = NULL;
 	m_hPipe = INVALID_HANDLE_VALUE;
+	m_hEvent = INVALID_HANDLE_VALUE;
 	m_Connected = false;
 }
 
@@ -19,12 +20,19 @@ CLdNamedPipe::~CLdNamedPipe(void)
 {
 	if(m_Connected)
 	{
+		DWORD dwRead, dwCb = 0;
+		PeekNamedPipe(m_hPipe, &dwRead, sizeof(dwRead), &dwCb, NULL, NULL);
+		if (dwCb > 0)
+			WaitForSingleObject(m_hEvent, INFINITE);
+
 		DisconnectNamedPipe(m_hPipe);
 	}
 	if(m_hPipe != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hPipe);
 	}
+	if (m_hEvent != INVALID_HANDLE_VALUE)
+		CloseHandle(m_hEvent);
 }
 
 BOOL CLdNamedPipe::Create(LPCTSTR lpPipeName)
@@ -41,13 +49,15 @@ BOOL CLdNamedPipe::Create(LPCTSTR lpPipeName)
 	}
 
 	m_hPipe = CreateNamedPipe(pTmpName, 
-		PIPE_ACCESS_DUPLEX | FILE_FLAG_FIRST_PIPE_INSTANCE | FILE_FLAG_OVERLAPPED, 
-		PIPE_WAIT, 
+		PIPE_ACCESS_DUPLEX,
+		PIPE_WAIT,
 		PIPE_UNLIMITED_INSTANCES , 
 		1024, 1024, LDPIPE_WAIT_TIMEOUT, NULL);
 	
 	if(pTmpName)
 		delete [] pTmpName;
+
+	m_hEvent = CreateEvent(NULL, FALSE, FALSE, lpPipeName);
 
 	return m_hPipe != INVALID_HANDLE_VALUE;
 }
@@ -58,9 +68,14 @@ UINT CLdNamedPipe::ReadData(LPVOID lpBuffer, UINT nSize)
 		return 0;
 	
 	DWORD dwCb = 0;
+	DWORD dwWrite = 0;
 
-	if(!ReadFile(m_hPipe, lpBuffer, nSize, &dwCb, NULL))
+	if (!ReadFile(m_hPipe, lpBuffer, nSize, &dwCb, NULL))
+	{
+		dwWrite = GetLastError();
 		return 0;
+	}
+	SetEvent(m_hEvent);
 	return dwCb;
 }
 
@@ -70,10 +85,11 @@ UINT CLdNamedPipe::WriteData(LPVOID lpBuffer, UINT nSize)
 		return 0;
 
 	DWORD dwCb = 0;
-
-	if(!WriteFile(m_hPipe, lpBuffer, nSize, &dwCb, NULL))
+	DWORD dwRead = 0;
+	WaitForSingleObject(m_hEvent, INFINITE);
+	if (!WriteFile(m_hPipe, lpBuffer, nSize, &dwCb, NULL))
 		return 0;
-	return dwCb;
+	return nSize;
 }
 
 BOOL CLdNamedPipe::CreateFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback, PVOID pContext)
@@ -128,7 +144,16 @@ BOOL CLdNamedPipe::Open(LPCTSTR lpPipeName)
 	m_hPipe = CreateFile(pTmpName,  GENERIC_READ | GENERIC_WRITE, 
 		0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 	delete [] pTmpName;
-	return m_hPipe != INVALID_HANDLE_VALUE;
+	if (m_hPipe == INVALID_HANDLE_VALUE)
+		return FALSE;
+
+	m_hEvent = OpenEvent(EVENT_ALL_ACCESS, FALSE, lpPipeName);
+	if (m_hPipe == INVALID_HANDLE_VALUE)
+		return FALSE;
+	
+	SetEvent(m_hEvent);
+
+	return TRUE;
 }
 
 BOOL CLdNamedPipe::OpenFlow(LPCTSTR lpPipeName, IPipeDataProvider* callback, PVOID pContext)
