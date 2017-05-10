@@ -17,6 +17,8 @@
 #include <Shlwapi.h>
 #include "LdStructs.h"
 #include <string.h>
+#include "FileUtils.h"
+
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -24,7 +26,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-
+	TCHAR abc[100] = { 0 };
+	LPTSTR name;
+	CFileUtils::ExtractFilePath(L"C:\\abc\\a", abc);
 
 	return (int) 0;
 }

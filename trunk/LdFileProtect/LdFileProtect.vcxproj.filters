@@ -30,6 +30,9 @@
     <ClCompile Include="SelectProtectFlag.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="FileProtectDirver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -45,6 +48,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SelectProtectFlag.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileProtectDirver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FPDControlCode.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

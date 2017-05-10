@@ -196,6 +196,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="FileProtectDirver.cpp" />
     <ClCompile Include="FPExprot.cpp" />
     <ClCompile Include="SelectProtectFlag.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -206,6 +207,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FileProtectDirver.h" />
+    <ClInclude Include="FPDControlCode.h" />
     <ClInclude Include="FPExprot.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectProtectFlag.h" />
