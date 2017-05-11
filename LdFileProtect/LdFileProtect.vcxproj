@@ -208,7 +208,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileProtectDirver.h" />
-    <ClInclude Include="FPDControlCode.h" />
     <ClInclude Include="FPExprot.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectProtectFlag.h" />

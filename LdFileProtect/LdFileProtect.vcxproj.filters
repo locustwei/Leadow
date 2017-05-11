@@ -53,9 +53,6 @@
     <ClInclude Include="FileProtectDirver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FPDControlCode.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LdFileProtect.rc">
