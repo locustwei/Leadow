@@ -13,6 +13,6 @@ public:
 protected:
 	virtual void SetDriverName() override;
 private:
-	PFS_FILE_RECORD BuildDeviceData(LPCTSTR lpFileName, DWORD dwFlag);
+	DWORD BuildDeviceData(LPCTSTR lpFileName, DWORD dwFlag, PFS_FILE_RECORD* pOutFile);
 };
 
