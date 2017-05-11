@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "FileProtectDirver.h"
-#include "FPDControlCode.h"
 #include <Shlwapi.h>
 #include "FileUtils.h"
 
@@ -16,7 +15,7 @@ CFileProtectDirver::~CFileProtectDirver(void)
 
 BOOL CFileProtectDirver::ProtectFile(LPCTSTR lpFileName, DWORD dwFlag)
 {
-	if (lpFileName == NULL || (dwFlag | FS_ALL) == 0)
+	if (lpFileName == NULL || (dwFlag | LFP_ALL) == 0)
 		return FALSE;
 
 	DWORD dwSize = 0, dwRetId = 0, dwCb;
@@ -33,8 +32,8 @@ void CFileProtectDirver::SetDriverName()
 DWORD CFileProtectDirver::BuildDeviceData(LPTSTR lpFileName, DWORD dwFlag, PFS_FILE_RECORD* pOutFile)
 {
 	PFS_FILE_RECORD pFile = NULL;
-	DWORD datalen;
-	PVOID pData;
+	DWORD datalen = 0;
+	//PVOID pData;
 	TCHAR Driver[100] = { 0 }, path[MAX_PATH] = { 0 }, name[MAX_PATH] = { 0 };
 
 	if (!CFileUtils::ExtractFilePath(lpFileName, path))

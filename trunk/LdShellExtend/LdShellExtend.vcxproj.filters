@@ -34,7 +34,7 @@
     <ClCompile Include="LdContextMenu.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FileProtectPipeFlow.cpp">
+    <ClCompile Include="FilePipeFlow.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -60,7 +60,7 @@
     <ClInclude Include="common.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileProtectPipeFlow.h">
+    <ClInclude Include="FilePipeFlow.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "LdContextMenu.h"
 #include <string.h>
-#include "FileProtectPipeFlow.h"
+#include "FilePipeFlow.h"
 
 #define LD_CONTEXT_MENU _T("&Leadow Context Menu")
 
@@ -56,9 +56,10 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 	case CONTEX_MENU_ALLFILE:
 		switch(LOWORD(pici->lpVerb)){
 		case 0: //
-			CFileProtectPipeFlow::StartPipeFlow(m_SelectCount, m_SelectFiles);
+			CFilePipeFlow::StartProtectFlow(m_SelectCount, m_SelectFiles);
 			break;
 		case 1: //Force Delete
+			CFilePipeFlow::StartDeleteFlow(m_SelectCount, m_SelectFiles);
 			break;
 		case 2: //earse file
 			break;
@@ -330,6 +331,20 @@ BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
 
 	TCHAR Params[100] = { 0 };
 	wsprintf(Params, _T("%d %d %s"), id, Flag, lpPipeName);
-	return ShellExecute(NULL, NULL, FileName, Params, NULL, SW_SHOWNORMAL) != NULL;
+	
+	SHELLEXECUTEINFO ExecInfo = { 0 };
+	ExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+	ExecInfo.lpFile = FileName;
+	ExecInfo.lpParameters = Params;
+	ExecInfo.nShow = SW_SHOWNORMAL;
+	ExecInfo.fMask = SEE_MASK_FLAG_DDEWAIT | SEE_MASK_FLAG_NO_UI;
+	switch (id)
+	{
+	case LFI_DELETE_FILE:
+		ExecInfo.lpVerb = _T("runas");
+		break;
+	}
+
+	return ShellExecuteEx(&ExecInfo);
 
 }
