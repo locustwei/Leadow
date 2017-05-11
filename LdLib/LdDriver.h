@@ -16,7 +16,7 @@ public:
 		LPDWORD lpBytesReturned);
 protected:
 	LPCTSTR m_DriverName;
-	virtual void SetDriverName() = 0;
+	virtual void SetDriverName();
 private:
 	HANDLE m_hDriver;
 };

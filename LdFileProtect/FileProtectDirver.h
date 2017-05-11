@@ -1,6 +1,7 @@
 #pragma once
 #include "LdStructs.h"
 #include "LdDriver.h"
+#include "FPDControlCode.h"
 
 #define LD_FPDRV_NAME _T("\\\\.\\WiseFS")
 
@@ -13,6 +14,6 @@ public:
 protected:
 	virtual void SetDriverName() override;
 private:
-	DWORD BuildDeviceData(LPCTSTR lpFileName, DWORD dwFlag, PFS_FILE_RECORD* pOutFile);
+	DWORD BuildDeviceData(LPTSTR lpFileName, DWORD dwFlag, PFS_FILE_RECORD* pOutFile);
 };
 

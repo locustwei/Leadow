@@ -32,3 +32,7 @@ BOOL CLdDriver::CallDriver(DWORD dwIoControlCode, LPVOID lpInBuffer, DWORD nInBu
 
 	return DeviceIoControl(m_hDriver, dwIoControlCode, lpInBuffer, nInBufferSize, lpOutBuffer, nOutBufferSize, lpBytesReturned, NULL);
 }
+
+void CLdDriver::SetDriverName()
+{
+}

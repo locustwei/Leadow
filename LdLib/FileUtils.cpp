@@ -30,7 +30,7 @@ UINT CFileUtils::ExtractFilePath(LPTSTR lpFullName, LPTSTR lpFilePath)
 	return len;
 }
 
-UINT CFileUtils::ExtractFileName(LPCTSTR lpFullName, LPTSTR lpName)
+UINT CFileUtils::ExtractFileName(LPTSTR lpFullName, LPTSTR lpName)
 {
 	if (!lpFullName)
 		return 0;
@@ -42,4 +42,21 @@ UINT CFileUtils::ExtractFileName(LPCTSTR lpFullName, LPTSTR lpName)
 	if (lpName)
 		wcscat(lpName, s);
 	return wcslen(s);
+}
+
+UINT CFileUtils::Win32Path2DevicePath(LPTSTR lpFullName, LPTSTR lpDevicePath)
+{
+	TCHAR Device[10] = {0};
+	if (!ExtractFileDrive(lpFullName, Device))
+		return 0;
+	TCHAR DevicePath[MAX_PATH] = { 0 };
+	UINT ret = QueryDosDevice(Device, DevicePath, MAX_PATH);
+	if (ret && lpDevicePath)
+		_tccpy(lpDevicePath, DevicePath);
+	return ret;
+}
+
+UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
+{
+	return 0;
 }
