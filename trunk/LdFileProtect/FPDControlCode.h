@@ -22,7 +22,7 @@ typedef struct _FS_FILE_RECORD {  //隐藏文件记录。
 	ULONG cb;                    //记录字节数
 	ULONGLONG id;                //
 	BOOLEAN bDisable;
-	FS_FILE_TYPE pt;
+	DWORD pt;
 	USHORT nVolume;
 	USHORT nPath;
 	USHORT nName;
