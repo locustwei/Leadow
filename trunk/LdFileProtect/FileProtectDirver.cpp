@@ -2,6 +2,7 @@
 #include "FileProtectDirver.h"
 #include "FPDControlCode.h"
 #include <Shlwapi.h>
+#include "FileUtils.h"
 
 CFileProtectDirver::CFileProtectDirver(void)
 {
@@ -15,9 +16,13 @@ CFileProtectDirver::~CFileProtectDirver(void)
 
 BOOL CFileProtectDirver::ProtectFile(LPCTSTR lpFileName, DWORD dwFlag)
 {
-	PFS_FILE_RECORD pFile = BuildDeviceData(lpFileName, dwFlag);
-	BOOL Result = CallDriver(IOCTL_FS_ADD_FILE, );
-	return TRUE;
+	if (lpFileName == NULL || (dwFlag | FS_ALL) == 0)
+		return FALSE;
+
+	DWORD dwSize = 0, dwRetId = 0, dwCb;
+	PFS_FILE_RECORD pFile;
+	dwSize = BuildDeviceData(lpFileName, dwFlag, &pFile);
+	return CallDriver(IOCTL_FS_ADD_FILE, pFile, dwSize, &dwRetId, sizeof(dwRetId), &dwCb);
 }
 
 void CFileProtectDirver::SetDriverName()
@@ -25,20 +30,21 @@ void CFileProtectDirver::SetDriverName()
 	m_DriverName = LD_FPDRV_NAME;
 }
 
-PFS_FILE_RECORD CFileProtectDirver::BuildDeviceData(LPCTSTR lpFileName, DWORD dwFlag)
+DWORD CFileProtectDirver::BuildDeviceData(LPCTSTR lpFileName, DWORD dwFlag, PFS_FILE_RECORD* pOutFile)
 {
 	PFS_FILE_RECORD pFile = NULL;
 	LPTSTR path, name;
 	DWORD datalen;
 	PVOID pData;
-	TCHAR Driver[MAX_PATH] = { 0 };
+	TCHAR Driver[10] = { 0 }, path[MAX_PATH] = { 0 }, name[MAX_PATH] = { 0 };
 
-	if (!GetVolumePathName(lpFileName, Driver, MAX_PATH))
-		return NULL;
+	if (!CFileUtils::ExtractFileDrive(lpFileName, Driver))
+		return 0;
+	if (!CFileUtils::ExtractFilePath(lpFileName, path))
+		return 0;
+	if (!CFileUtils::ExtractFileName(lpFileName, name))
+		return 0;
 
-	path = PathFindOnPath(lpFileName, NULL);
-
-	name = ExtractFileName(FileName);
 	Driver = Win32Path2DevicePath(Driver);
 
 	cb = SizeOf(FS_FILE_RECORD) + (Length(Driver) + Length(path) + Length(name) + 3) * SizeOf(wchar) + datalen;
