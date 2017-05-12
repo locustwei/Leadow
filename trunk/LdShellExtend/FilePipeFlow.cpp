@@ -7,7 +7,7 @@
 
 CFilePipeFlow::CFilePipeFlow()
 {
-	ZeroMemory(m_PipeName, ARRAYSIZE(m_PipeName));
+	ZeroMemory(m_PipeName, ARRAYSIZE(m_PipeName)*sizeof(TCHAR));
 	wsprintf(m_PipeName, _T("LdPipe%x"), (UINT)this);
 }
 

@@ -40,7 +40,7 @@ namespace DuiLib {
 	
 	CLdUINotify::CLdUINotify()
 	{
-		ZeroMemory(m_ClassName, ARRAYSIZE(m_ClassName));
+		ZeroMemory(m_ClassName, ARRAYSIZE(m_ClassName)*sizeof(TCHAR));
 		wsprintf(m_ClassName, _T("LDWnd%8x"), (UINT)this);
 
 		m_LdWnd = NULL;

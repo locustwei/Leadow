@@ -663,7 +663,7 @@ BOOL CDiskVolume::FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG Referenc
 			ParentReference = m_MftFile->SearchRecord(idx, &context, &cmpRt);
 			if(cmpRt)  //√ª’“µΩ
 				return FALSE;
-			ZeroMemory(record.Name, ARRAYSIZE(record.Name));
+			ZeroMemory(record.Name, ARRAYSIZE(record.Name)*sizeof(TCHAR));
 			i = 0;
 		}else
 			record.Name[i++] = pTmp[0];
