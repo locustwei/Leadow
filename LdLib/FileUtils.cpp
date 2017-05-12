@@ -58,5 +58,30 @@ UINT CFileUtils::Win32Path2DevicePath(LPTSTR lpFullName, LPTSTR lpDevicePath)
 
 UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
 {
-	return 0;
+	TCHAR szDrives[512];
+	if (!GetLogicalDriveStrings(_countof(szDrives) - 1, szDrives)) {
+		return 0;
+	}
+
+	TCHAR* lpDrives = szDrives;
+	TCHAR szDevice[MAX_PATH];
+	TCHAR szDrive[3] = _T(" :");
+	do {
+		*szDrive = *lpDrives;
+
+		if (QueryDosDevice(szDrive, szDevice, MAX_PATH)) 
+		{
+			if (_wcsnicmp(szDevice, lpDevicePath, wcslen(szDevice)) == 0)
+			{
+				if (lpDosPath)
+				{
+					wcscat(lpDosPath, szDrive);
+					wcscat(lpDosPath, lpDevicePath + wcslen(szDevice));
+				}
+				break;
+			}
+		}
+		while (*lpDrives++);
+	} while (*lpDrives);
+	return 2;
 }

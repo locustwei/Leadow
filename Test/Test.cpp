@@ -395,11 +395,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 */
 int _tmain(int argc, _TCHAR* argv[])
 {
+	TCHAR abc[123] = { 0 };
+	printf("%d %d", _countof(abc), ARRAYSIZE(abc)*sizeof(TCHAR));
+	/*
 	tstring path(_T("E:\\TDDOWNLOAD\\"));
 	vector<ncFileHandle> vecHandles;
 	if (!FindFileHandle(path.c_str(), vecHandles)) {
 		return -1;
 	}
-
+	*/
+	getchar();
 	return 0;
 }
