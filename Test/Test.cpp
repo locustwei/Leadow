@@ -198,6 +198,13 @@ BOOL DevicePathToDrivePath(tstring& path)
 // GetHandlePath
 BOOL GetHandlePath(HANDLE handle, tstring& path)
 {
+	/*
+	TCHAR filename[MAX_PATH] = { 0 };
+	GetFinalPathNameByHandle(handle, filename, ARRAYSIZE(filename) * sizeof(TCHAR), VOLUME_NAME_NT);
+	path = filename;
+	wprintf(L"%s \n", filename);
+	*/
+	
 	static NTQUERYOBJECT fpNtQueryObject =
 		(NTQUERYOBJECT)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryObject");
 
@@ -224,34 +231,33 @@ BOOL GetHandlePath(HANDLE handle, tstring& path)
 	BOOL bRes = FALSE;
 	if (NT_SUCCESS(status)) {
 		path = pInfo->Name.Buffer;
-		bRes = DevicePathToDrivePath(path);
-		wprintf((wchar_t*)path.c_str());
-		printf("\n");
+		//bRes = DevicePathToDrivePath(path);
 	}
 	free(pInfo);
-	return bRes;
+	
+	return TRUE;
 }
 
 // GetSystemHandleInfo
 PSYSTEM_HANDLE_INFORMATION GetSystemHandleInfo()
 {
-	static NTQUERYSYSTEMINFORMATION fpNtQuerySystemInformation =
-		(NTQUERYSYSTEMINFORMATION)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQuerySystemInformation");
+	static NTQUERYSYSTEMINFORMATION fpZwQuerySystemInformation =
+		(NTQUERYSYSTEMINFORMATION)GetProcAddress(GetModuleHandle(_T("ntdll")), "ZwQuerySystemInformation");
 
-	if (fpNtQuerySystemInformation == NULL) {
+	if (fpZwQuerySystemInformation == NULL) {
 		return NULL;
 	}
 
 	DWORD dwLength = 0;
 	SYSTEM_HANDLE_INFORMATION shi;
-	NTSTATUS status = fpNtQuerySystemInformation(SystemHandleInformation, &shi, sizeof(shi), &dwLength);
+	NTSTATUS status = fpZwQuerySystemInformation(SystemHandleInformation, &shi, sizeof(shi), &dwLength);
 	if (status != STATUS_INFO_LENGTH_MISMATCH) {
 		return NULL;
 	}
 
 	PSYSTEM_HANDLE_INFORMATION pshi = (PSYSTEM_HANDLE_INFORMATION)malloc(dwLength);
 	while (true) {
-		status = fpNtQuerySystemInformation(SystemHandleInformation, pshi, dwLength, &dwLength);
+		status = fpZwQuerySystemInformation(SystemHandleInformation, pshi, dwLength, &dwLength);
 		if (status != STATUS_INFO_LENGTH_MISMATCH) {
 			break;
 		}
@@ -273,6 +279,7 @@ PSYSTEM_HANDLE_INFORMATION GetSystemHandleInfo()
 //
 void CheckBlockThreadFunc(void* param)
 {
+	
 	static NTQUERYINFORMATIONFILE fpNtQueryInformationFile =
 		(NTQUERYINFORMATIONFILE)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryInformationFile");
 
@@ -331,7 +338,7 @@ BOOL FindFileHandle(LPCTSTR lpName, vector<ncFileHandle>& handles)
 	for (DWORD i = 0; i < pshi->dwCount; ++i) {
 		// 过滤掉非文件类型的句柄。
 		if (pshi->Handles[i].bObjectType != nFileType) {
-			continue;
+			//continue;
 		}
 
 		// 将上述句柄复制到当前进程中。
@@ -348,15 +355,21 @@ BOOL FindFileHandle(LPCTSTR lpName, vector<ncFileHandle>& handles)
 
 		// 获取句柄对应的文件路径并进行匹配检查。
 		tstring filePath;
-		if (GetHandlePath(handle, filePath) && filePath.find(lpName) != tstring::npos) {
-			ncScopedHandle hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, pshi->Handles[i].dwProcessId);
+		if (GetHandlePath(handle, filePath))
+		{
+			printf("%d %S \n", pshi->Handles[i].bObjectType, filePath.c_str());
 
-			TCHAR szProcName[MAX_PATH];
-			GetProcessImageFileName(hProcess, szProcName, MAX_PATH);
-			tstring path(szProcName);
-			DevicePathToDrivePath(path);
-			ncFileHandle fh(pshi->Handles[i], filePath, path);
-			handles.push_back(fh);
+			if (filePath.find(lpName) != tstring::npos) {
+				ncScopedHandle hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, pshi->Handles[i].dwProcessId);
+
+				TCHAR szProcName[MAX_PATH];
+				GetProcessImageFileName(hProcess, szProcName, MAX_PATH);
+				tstring path(szProcName);
+				DevicePathToDrivePath(path);
+				ncFileHandle fh(pshi->Handles[i], filePath, path);
+				handles.push_back(fh);
+			}
+
 		}
 	}
 
@@ -395,15 +408,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 */
 int _tmain(int argc, _TCHAR* argv[])
 {
-	TCHAR abc[123] = { 0 };
-	printf("%d %d", _countof(abc), ARRAYSIZE(abc)*sizeof(TCHAR));
-	/*
-	tstring path(_T("E:\\TDDOWNLOAD\\"));
+	
+	tstring path(_T("I:\\ssa"));
 	vector<ncFileHandle> vecHandles;
 	if (!FindFileHandle(path.c_str(), vecHandles)) {
 		return -1;
 	}
-	*/
+	
 	getchar();
 	return 0;
 }

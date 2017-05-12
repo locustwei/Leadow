@@ -56,5 +56,3 @@ typedef enum LD_FILE_PROTECT
 
 	LFP_ALL      = LFP_HIDE | LFP_DELETE | LFP_RENAME | LFP_READ | LFP_WRITE
 };
-
-BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName);
