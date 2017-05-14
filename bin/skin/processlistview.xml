@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window size="400,320" sizebox="4,4,6,6" roundcorner="5,5" caption="0,0,0,24">
+	<Include source="defualt.xml" />
+  <VerticalLayout bkcolor="#FFD1E8F5" bkcolor2="#FFC6E0F1" bordercolor="#FF768D9B" bordersize="1" borderround="5,5" inset="1,1,1,1">
+    <HorizontalLayout name="wndCaption" height="24">
+      <HorizontalLayout>
+        <Container width="22" height="22" bkimage="file='icon.png' source='0,0,16,16' dest='5,4,21,20' " />
+        <Text text="List View" pos="22, 5, 200, 24" float="true" textcolor="#FF447AA1" font="0" />
+      </HorizontalLayout>
+      <HorizontalLayout width="188" inset="0,1,0,0">
+        <Button name="btnMinmizeWnd" pushedimage="file='sys_dlg_min.png' source='0,0,26,17'" hotimage="file='sys_dlg_min.png' source='26,0,52,17'" normalimage="file='sys_dlg_min.png' source='52,0,78,17'" maxheight="17" maxwidth="26"/>
+				<Button name="btnMaxmizeWnd" pushedimage="file='sys_dlg_max.png' source='0,0,26,17'" hotimage="file='sys_dlg_max.png' source='26,0,52,18'" normalimage="file='sys_dlg_max.png' source='52,0,78,17'" maxheight="17" maxwidth="26"/>
+				<Button name="btnRestoreWnd" pushedimage="file='sys_dlg_restore.png' source='0,0,26,17'" hotimage="file='sys_dlg_restore.png' source='26,0,52,17'" normalimage="file='sys_dlg_restore.png' source='52,0,78,17'" maxheight="17" maxwidth="26" visible="false"/>
+        <Button name="btnCloseWnd" maxwidth="45" maxheight="17" normalimage="file='sys_dlg_close.png' source='90,0,135,17'" hotimage="file='sys_dlg_close.png' source='45,0,90,17'" pushedimage="file='sys_dlg_close.png' source='0,0,45,17'"/>
+      </HorizontalLayout>
+    </HorizontalLayout>
+    <HorizontalLayout height="1" bkcolor="#FF97C0DA" bkcolor2="#FFB8DFF2">
+    </HorizontalLayout>
+    <HorizontalLayout inset="3,0,3,3">
+    	<List name="domainlist" bkcolor="#FFFFFFFF" inset="0,0,0,0" itemshowhtml="true" vscrollbar="true" hscrollbar="true" headerbkimage="file='listimg/list_header_bg.png'" itemalign="center" itembkcolor="#FFE2DDDF" itemaltbk="true" hscrollbar="false" menu="true">
+				<ListHeader height="24" menu="true">
+					<ListHeaderItem text="No" font="1" width="30" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
+					<ListHeaderItem text="Domain" font="1" width="260" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="listimg/file='list_header_sep.png'" sepwidth="1"/>
+					<ListHeaderItem text="Description" font="1" width="240" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
+				</ListHeader>
+			</List>
+    </HorizontalLayout>
+    
+    <!-- bottom -->
+    <HorizontalLayout height="40" align="bootom">
+    	<VerticalLayout>
+	    	<HorizontalLayout height="1" bkcolor="#FF97C0DA" bkcolor2="#FFB8DFF2"/>
+	    	<HorizontalLayout>
+	    		<HorizontalLayout>
+		    	</HorizontalLayout>
+		    	<HorizontalLayout childpadding="5" padding="0,5,0,10" width="223" inset="0,1,0,0">
+		    		<Button name="btnOk" text="确定" width="100" />
+		    		<Button name="btnCancel" text="取消" width="100" />
+		    	</HorizontalLayout>
+	    	</HorizontalLayout>	    	
+	    </VerticalLayout>
+    </HorizontalLayout>
+  </VerticalLayout>
+</Window>
