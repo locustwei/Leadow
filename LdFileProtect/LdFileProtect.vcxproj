@@ -100,7 +100,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>.\LdFileProtect.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LdLib_d32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;LdLib_d32.lib;%(AdditionalDependencies);%(AdditionalDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/LdFileProtect_d32.lib</ImportLibrary>
     </Link>
     <Midl>
@@ -126,7 +126,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>.\LdFileProtect.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;LdLib_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies);%(AdditionalDependencies);%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/LdFileProtect_d64.lib</ImportLibrary>
     </Link>
     <Midl>
@@ -198,6 +198,7 @@
   <ItemGroup>
     <ClCompile Include="FileProtectDirver.cpp" />
     <ClCompile Include="FPExprot.cpp" />
+    <ClCompile Include="ProcessListView.cpp" />
     <ClCompile Include="SelectProtectFlag.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -209,6 +210,7 @@
   <ItemGroup>
     <ClInclude Include="FileProtectDirver.h" />
     <ClInclude Include="FPExprot.h" />
+    <ClInclude Include="ProcessListView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectProtectFlag.h" />
     <ClInclude Include="stdafx.h" />
