@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <winternl.h>
 #include "PublicRoutimes.h"
 #include <string.h>
 
@@ -48,6 +49,8 @@ BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable)
 
 #pragma region Î´¹«¿ªAPI
 
+//SYSTEM_INFORMATION_CLASS SystemHandleInformation = (SYSTEM_INFORMATION_CLASS)16;
+
 typedef NTSTATUS(WINAPI *NTQUERYSYSTEMINFORMATION)(
 	IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
 	OUT PVOID SystemInformation,
@@ -77,10 +80,10 @@ typedef NTSTATUS(WINAPI *NTQUERYOBJECT)(
 	_In_ ULONG ObjectInformationLength,
 	_Out_opt_ PULONG ReturnLength);
 
-NTSTATUS WINAPI NtQueryObject(
+NTSTATUS WINAPI NtQueryObject_(
 	_In_opt_ HANDLE Handle,
 	_In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,
-	_Out_opt_ PVOID ObjectInformation,
+	_Out_writes_bytes_opt_(ObjectInformationLength) PVOID ObjectInformation,
 	_In_ ULONG ObjectInformationLength,
 	_Out_opt_ PULONG ReturnLength)
 {
@@ -118,4 +121,5 @@ NTSTATUS WINAPI NtQueryInformationFile(
 	return fpNtQueryInformationFile(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
 
 }
+
 #pragma endregion
