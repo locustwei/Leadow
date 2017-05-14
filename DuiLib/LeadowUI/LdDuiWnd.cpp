@@ -25,7 +25,10 @@ namespace DuiLib {
 			if (bHandled)
 				return ret;
 		}
-		return CWindowWnd::HandleMessage(uMsg, wParam, lParam);
+		LRESULT ret = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
+		if(uMsg == WM_SYSCOMMAND)
+			m_Notify->AfterWndZoomed(uMsg, wParam, lParam);
+		return ret;
 	}
 
 	LPCTSTR CLdDuiWnd::GetWindowClassName() const
@@ -67,6 +70,33 @@ namespace DuiLib {
 		return &m_pm;
 	}
 
+	void CLdUINotify::AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam)
+	{
+
+		if (!m_LdWnd)
+			return;
+		CControlUI* pControl;
+
+		if (::IsZoomed(m_LdWnd->GetHWND()))
+		{
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
+			if (pControl)
+				pControl->SetVisible(false);
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
+			if (pControl)
+				pControl->SetVisible(true);
+		}
+		else //if (wParam == SC_RESTORE)
+		{
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
+			if (pControl)
+				pControl->SetVisible(true);
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
+			if (pControl)
+				pControl->SetVisible(false);
+		}
+	}
+
 	LPCTSTR CLdUINotify::GetWndClassName()
 	{
 		return m_ClassName;
@@ -89,7 +119,6 @@ namespace DuiLib {
 		if (msg.sType == DUI_MSGTYPE_CLICK) {
 			if (name == _T("btnCloseWnd")) {
 				m_LdWnd->Close();
-				//SendMessage(m_LdWnd->GetHWND(), WM_CLOSE, 0, 0);
 				return;
 			}
 			else if (name == _T("btnMinmizeWnd")) {
@@ -190,26 +219,8 @@ namespace DuiLib {
 
 	LRESULT CLdUINotify::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 	{
-		LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
-		if (::IsZoomed(m_LdWnd->GetHWND())) 
-		{
-			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
-			if (pControl) 
-				pControl->SetVisible(false);
-			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
-			if (pControl) 
-				pControl->SetVisible(true);
-		}
-		else
-		{
-			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
-			if (pControl) 
-				pControl->SetVisible(true);
-			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
-			if (pControl) 
-				pControl->SetVisible(false);
-		}
-		return lRes;
+		
+		return 0;
 	}
 
 	LRESULT CLdUINotify::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)

@@ -7,7 +7,7 @@
         <Container width="22" height="22" bkimage="file='icon.png' source='0,0,16,16' dest='5,4,21,20' " />
         <Text text="List View" pos="22, 5, 200, 24" float="true" textcolor="#FF447AA1" font="0" />
       </HorizontalLayout>
-      <HorizontalLayout width="188" inset="0,1,0,0">
+      <HorizontalLayout width="97" inset="0,1,0,0">
         <Button name="btnMinmizeWnd" pushedimage="file='sys_dlg_min.png' source='0,0,26,17'" hotimage="file='sys_dlg_min.png' source='26,0,52,17'" normalimage="file='sys_dlg_min.png' source='52,0,78,17'" maxheight="17" maxwidth="26"/>
 				<Button name="btnMaxmizeWnd" pushedimage="file='sys_dlg_max.png' source='0,0,26,17'" hotimage="file='sys_dlg_max.png' source='26,0,52,18'" normalimage="file='sys_dlg_max.png' source='52,0,78,17'" maxheight="17" maxwidth="26"/>
 				<Button name="btnRestoreWnd" pushedimage="file='sys_dlg_restore.png' source='0,0,26,17'" hotimage="file='sys_dlg_restore.png' source='26,0,52,17'" normalimage="file='sys_dlg_restore.png' source='52,0,78,17'" maxheight="17" maxwidth="26" visible="false"/>
