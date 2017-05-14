@@ -190,7 +190,26 @@ namespace DuiLib {
 
 	LRESULT CLdUINotify::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 	{
-		return 0;
+		LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
+		if (::IsZoomed(m_LdWnd->GetHWND())) 
+		{
+			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
+			if (pControl) 
+				pControl->SetVisible(false);
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
+			if (pControl) 
+				pControl->SetVisible(true);
+		}
+		else
+		{
+			CControlUI* pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnMaxmizeWnd")));
+			if (pControl) 
+				pControl->SetVisible(true);
+			pControl = static_cast<CControlUI*>(m_pm.FindControl(_T("btnRestoreWnd")));
+			if (pControl) 
+				pControl->SetVisible(false);
+		}
+		return lRes;
 	}
 
 	LRESULT CLdUINotify::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)

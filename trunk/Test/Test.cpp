@@ -1,12 +1,12 @@
-
 #include "stdafx.h"
 #include <shellapi.h>
 #include <Shlwapi.h>
 #include <stdio.h>
 #include <string.h>
+#include "UIlib.h"
 #include "LdLib.h"
+#include "ProcessListView.h"
 
-/*
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -14,16 +14,26 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
-	tstring path(_T("E:\\LdExplorerExtends\\trunk\\bin\\test.exe"));
-	vector<ncFileHandle> vecHandles;
-	if (!FindFileHandle(path.c_str(), vecHandles)) {
-		return -1;
-	}
+
+	CPaintManagerUI::SetInstance(hInstance);
+	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
+
+	HRESULT Hr = ::CoInitialize(NULL);
+	if (FAILED(Hr))
+		return FALSE;
+
+	CProcessListView::SelectFlags(NULL);
+
+	::PostQuitMessage(0L);
+
+	CPaintManagerUI::MessageLoop();
+
+	::CoUninitialize();
 
 	return (int) 0;
 }
-*/
 
+/*
 BOOL EnumProcessModalCallback_(PMODULEENTRY32 pEntry32, PVOID pParam)
 {
 	printf("%S %S\n", pEntry32->szExePath, pEntry32->szModule);
@@ -48,3 +58,4 @@ int _tmain(int argc, _TCHAR* argv[])
 	getchar();
 	return 0;
 }
+*/
