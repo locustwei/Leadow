@@ -28,6 +28,7 @@ namespace DuiLib {
 		virtual LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual void AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	private:
 		LPCTSTR m_SkinXml;
 		CPaintManagerUI m_pm;
