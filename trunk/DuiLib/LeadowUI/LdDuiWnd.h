@@ -1,13 +1,15 @@
 #pragma once
 
 namespace DuiLib {
+/*
+	class DUILIB_API CLdDuiWnd;
 
 	class DUILIB_API CLdUINotify : public INotifyUI, public IDialogBuilderCallback
 	{
 		friend class CLdDuiWnd;
 	public:
 		CLdUINotify();
-		~CLdUINotify() {};
+		~CLdUINotify();
 		void SetSkinXml(LPCTSTR lpXml);
 		LPCTSTR GetSkinXml();
 		CWindowWnd* GetWnd();
@@ -32,30 +34,50 @@ namespace DuiLib {
 	private:
 		LPCTSTR m_SkinXml;
 		CPaintManagerUI m_pm;
-		CWindowWnd* m_LdWnd;
+		CLdDuiWnd* m_LdWnd;
 		TCHAR m_ClassName[20];
 
 	};
-
-	class DUILIB_API CLdDuiWnd : public CWindowWnd
+*/
+	class DUILIB_API CLdDuiWnd : public CWindowWnd, public INotifyUI, public IDialogBuilderCallback
 	{
 	public:
-		CLdDuiWnd(CLdUINotify* pNotify);
+		CLdDuiWnd(TCHAR* xmlSkin);
 		~CLdDuiWnd();
+		void SetSkinXml(LPCTSTR lpXml);
+		LPCTSTR GetSkinXml();
+		CPaintManagerUI* GetPaintManager();
 	private:
-		CLdUINotify* m_Notify;
+		LPCTSTR m_SkinXml;
+		CPaintManagerUI* m_PaintManager;
+		TCHAR m_ClassName[20];
 
-		void OnFinalMessage(HWND /*hWnd*/) { delete this; };
+		void OnFinalMessage(HWND /*hWnd*/);
 		LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+		void AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	protected:
-		virtual LPCTSTR GetWindowClassName() const override;
 		virtual UINT GetClassStyle() const override;
+		virtual LPCTSTR GetWindowClassName() const override;
+		virtual CControlUI* CreateControl(LPCTSTR pstrClass) override;
+		virtual void Notify(TNotifyUI& msg) override;
+		virtual void Init();
+
+		virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	};
 
 	DUILIB_API BOOL CreateMainWnd(
 		HINSTANCE hInstance,
 		LPCTSTR lpResourcePath,
-		CLdUINotify* pNotify,
+		CLdDuiWnd* pWnd,
 		LPCTSTR lpAppTitle,
 		int nCmdShow = SW_SHOW);
 }

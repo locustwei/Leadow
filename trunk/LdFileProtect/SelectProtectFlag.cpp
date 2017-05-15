@@ -2,7 +2,7 @@
 #include "SelectProtectFlag.h"
 #include "LdStructs.h"
 
-CSelectProtectFlag::CSelectProtectFlag()
+CSelectProtectFlag::CSelectProtectFlag(TCHAR* xmlSkin):CLdDuiWnd(xmlSkin)
 {
 }
 
@@ -15,19 +15,13 @@ DWORD CSelectProtectFlag::SelectFlags(HWND hParentWnd)
 {
 	DWORD ret = 0;
 
-	CSelectProtectFlag Notify;
-	Notify.SetSkinXml(_T("chooseprotectflag.xml"));
+	CSelectProtectFlag pFrame(_T("chooseprotectflag.xml"));
 
-	CLdDuiWnd* pFrame = new CLdDuiWnd(&Notify);
-	if (pFrame)
-	{
-		pFrame->Create(hParentWnd, _T(""), UI_WNDSTYLE_DIALOG, 0L);
-		pFrame->CenterWindow();
+	pFrame.Create(hParentWnd, _T(""), UI_WNDSTYLE_DIALOG, 0L);
+	pFrame.CenterWindow();
 
-		if (pFrame->ShowModal() == IDOK)
-			ret = Notify.m_Flags;
-
-	}
+	if (pFrame.ShowModal() == IDOK)
+		ret = pFrame.m_Flags;
 
 	return ret;
 }
@@ -52,13 +46,13 @@ void CSelectProtectFlag::Notify(TNotifyUI & msg)
 			if (m_ckDelete && m_ckDelete->GetCheck())
 				m_Flags |= LD_FILE_PROTECT::LFP_DELETE;
 
-			GetWnd()->PostMessage(WM_CLOSE, IDOK, 0);
+			PostMessage(WM_CLOSE, IDOK, 0);
 
 			return;
 		}
 		else if (msg.pSender == m_btnCancel) {
 			m_Flags = 0;
-			GetWnd()->Close();
+			Close();
 
 			return;
 		}

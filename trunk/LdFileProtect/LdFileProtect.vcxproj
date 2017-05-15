@@ -198,7 +198,6 @@
   <ItemGroup>
     <ClCompile Include="FileProtectDirver.cpp" />
     <ClCompile Include="FPExprot.cpp" />
-    <ClCompile Include="ProcessListView.cpp" />
     <ClCompile Include="SelectProtectFlag.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -210,7 +209,6 @@
   <ItemGroup>
     <ClInclude Include="FileProtectDirver.h" />
     <ClInclude Include="FPExprot.h" />
-    <ClInclude Include="ProcessListView.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectProtectFlag.h" />
     <ClInclude Include="stdafx.h" />

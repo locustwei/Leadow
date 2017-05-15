@@ -1,9 +1,9 @@
 #pragma once
 
-class CSelectProtectFlag : public CLdUINotify
+class CSelectProtectFlag : public CLdDuiWnd
 {
 public:
-	CSelectProtectFlag();
+	CSelectProtectFlag(TCHAR* xmlSkin);
 	~CSelectProtectFlag();
 	
 	DWORD m_Flags;

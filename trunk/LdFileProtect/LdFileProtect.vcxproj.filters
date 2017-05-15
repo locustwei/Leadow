@@ -39,9 +39,6 @@
     <ClCompile Include="SelectProtectFlag.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="ProcessListView.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -60,9 +57,6 @@
       <Filter>Drivers</Filter>
     </ClInclude>
     <ClInclude Include="SelectProtectFlag.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ProcessListView.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
