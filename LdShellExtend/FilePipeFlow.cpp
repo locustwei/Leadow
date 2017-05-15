@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "FilePipeFlow.h"
 #include "LdNamedPipe.h"
+#include "LdLib.h"
 
 
 CFilePipeFlow::CFilePipeFlow()
