@@ -17,7 +17,7 @@
     <HorizontalLayout height="1" bkcolor="#FF97C0DA" bkcolor2="#FFB8DFF2">
     </HorizontalLayout>
     <HorizontalLayout inset="3,0,3,3">
-    	<List name="domainlist" bkcolor="#FFFFFFFF" inset="0,0,0,0" itemshowhtml="true" vscrollbar="true" hscrollbar="true" headerbkimage="file='listimg/list_header_bg.png'" itemalign="center" itembkcolor="#FFE2DDDF" itemaltbk="true" hscrollbar="false" menu="true">
+    	<List name="listview" bkcolor="#FFFFFFFF" inset="0,0,0,0" itemshowhtml="true" vscrollbar="true" hscrollbar="true" headerbkimage="file='listimg/list_header_bg.png'" itemalign="center" itembkcolor="#FFE2DDDF" itemaltbk="true" hscrollbar="false" menu="true">
 				<ListHeader height="24" menu="true">
 					<ListHeaderItem text="No" font="1" width="30" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
 					<ListHeaderItem text="Domain" font="1" width="260" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="listimg/file='list_header_sep.png'" sepwidth="1"/>
