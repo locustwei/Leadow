@@ -237,7 +237,7 @@ public:
 /////////////////////////////////////////////////////////////////////////////////////
 //
 
-class DUILIB_API CListHeaderItemUI : public CControlUI
+class DUILIB_API CListHeaderItemUI : public CContainerUI/*CControlUI*/
 {
 public:
     CListHeaderItemUI();

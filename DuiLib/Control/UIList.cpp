@@ -1466,7 +1466,7 @@ LPCTSTR CListHeaderItemUI::GetClass() const
 LPVOID CListHeaderItemUI::GetInterface(LPCTSTR pstrName)
 {
     if( _tcscmp(pstrName, DUI_CTR_LISTHEADERITEM) == 0 ) return this;
-    return CControlUI::GetInterface(pstrName);
+    return __super::GetInterface(pstrName);
 }
 
 UINT CListHeaderItemUI::GetControlFlags() const
@@ -1477,7 +1477,7 @@ UINT CListHeaderItemUI::GetControlFlags() const
 
 void CListHeaderItemUI::SetEnabled(bool bEnable)
 {
-    CControlUI::SetEnabled(bEnable);
+    __super::SetEnabled(bEnable);
     if( !IsEnabled() ) {
         m_uButtonState = 0;
     }
@@ -1704,14 +1704,14 @@ void CListHeaderItemUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
         SetSepColor(clrColor);
     }
     else if( _tcscmp(pstrName, _T("sepimage")) == 0 ) SetSepImage(pstrValue);
-    else CControlUI::SetAttribute(pstrName, pstrValue);
+    else __super::SetAttribute(pstrName, pstrValue);
 }
 
 void CListHeaderItemUI::DoEvent(TEventUI& event)
 {
     if( !IsMouseEnabled() && event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND ) {
         if( m_pParent != NULL ) m_pParent->DoEvent(event);
-        else CControlUI::DoEvent(event);
+        else __super::DoEvent(event);
         return;
     }
 
@@ -1808,13 +1808,13 @@ void CListHeaderItemUI::DoEvent(TEventUI& event)
             return;
         }
     }
-    CControlUI::DoEvent(event);
+    __super::DoEvent(event);
 }
 
 SIZE CListHeaderItemUI::EstimateSize(SIZE szAvailable)
 {
     if( m_cxyFixed.cy == 0 ) return CDuiSize(m_cxyFixed.cx, m_pManager->GetDefaultFontInfo()->tm.tmHeight + 8);
-    return CControlUI::EstimateSize(szAvailable);
+    return __super::EstimateSize(szAvailable);
 }
 
 RECT CListHeaderItemUI::GetThumbRect() const
