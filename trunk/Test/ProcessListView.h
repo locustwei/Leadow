@@ -1,13 +1,14 @@
 #pragma once
 
-class CProcessListView : public CLdDuiWnd
+class CProcessListView : public CLdDuiWnd, public IListCallbackUI
 {
 public:
 	CProcessListView(TCHAR* xmlSkin);
 	~CProcessListView();
 	static DWORD SelectFlags(HWND hParentWnd);
 
-	CListHeaderUI* AddHeader();
+	BOOL AddHeader(CListHeaderItemUI* pHeaderItem, int nCol);
+	CListHeaderItemUI* AddHeader(LPCTSTR lpText, UINT nFixedWidth, int nCol);
 protected:
 	virtual void Notify(TNotifyUI& msg) override;
 	virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled) override;
@@ -15,5 +16,8 @@ private:
 	CButtonUI* m_btnOk;
 	CButtonUI* m_btnCancel;
 	CListUI* m_List;
+
+	// Í¨¹ý IListCallbackUI ¼Ì³Ð
+	virtual LPCTSTR GetItemText(CControlUI * pList, int iItem, int iSubItem) override;
 };
 
