@@ -1,44 +1,7 @@
 #pragma once
 
 namespace DuiLib {
-/*
-	class DUILIB_API CLdDuiWnd;
 
-	class DUILIB_API CLdUINotify : public INotifyUI, public IDialogBuilderCallback
-	{
-		friend class CLdDuiWnd;
-	public:
-		CLdUINotify();
-		~CLdUINotify();
-		void SetSkinXml(LPCTSTR lpXml);
-		LPCTSTR GetSkinXml();
-		CWindowWnd* GetWnd();
-		CPaintManagerUI* GetPaintManager();
-	protected:
-		virtual LPCTSTR GetWndClassName();
-		virtual CControlUI* CreateControl(LPCTSTR pstrClass) override;
-		virtual void Notify(TNotifyUI& msg) override;
-		virtual void Init();
-		virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		virtual void AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	private:
-		LPCTSTR m_SkinXml;
-		CPaintManagerUI m_pm;
-		CLdDuiWnd* m_LdWnd;
-		TCHAR m_ClassName[20];
-
-	};
-*/
 	class DUILIB_API CLdDuiWnd : public CWindowWnd, public INotifyUI, public IDialogBuilderCallback
 	{
 	public:
