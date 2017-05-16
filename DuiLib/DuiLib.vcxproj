@@ -502,6 +502,7 @@
     <ClCompile Include="Layout\UITabLayout.cpp" />
     <ClCompile Include="Layout\UITileLayout.cpp" />
     <ClCompile Include="Layout\UIVerticalLayout.cpp" />
+    <ClCompile Include="LdMenu.cpp" />
     <ClCompile Include="LeadowUI\LdDuiWnd.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -590,6 +591,7 @@
     <ClInclude Include="Layout\UITabLayout.h" />
     <ClInclude Include="Layout\UITileLayout.h" />
     <ClInclude Include="Layout\UIVerticalLayout.h" />
+    <ClInclude Include="LdMenu.h" />
     <ClInclude Include="LeadowUI\LdDuiWnd.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />

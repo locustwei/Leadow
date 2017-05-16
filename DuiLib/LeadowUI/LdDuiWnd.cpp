@@ -201,7 +201,7 @@ namespace DuiLib {
 
 	LRESULT CLdDuiWnd::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 	{
-		bHandled = TRUE;
+		//bHandled = TRUE;
 		return 0;
 	}
 
@@ -228,7 +228,7 @@ namespace DuiLib {
 		if (pt.x >= rcClient.left + rcCaption.left && pt.x < rcClient.right - rcCaption.right \
 			&& pt.y >= rcCaption.top && pt.y < rcCaption.bottom) {
 			CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager->FindControl(pt));
-			if (pControl && _tcscmp(pControl->GetClass(), DUI_CTR_BUTTON) != 0 &&
+			if (pControl && _tcscmp(pControl->GetClass(), DUI_CTR_BUTTON) != 0 && 
 				_tcscmp(pControl->GetClass(), DUI_CTR_OPTION) != 0)
 			{
 				bHandled = true;
