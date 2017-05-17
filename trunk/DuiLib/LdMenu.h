@@ -2,46 +2,63 @@
 
 namespace DuiLib
 {
-	class CLdMenu : public CWindowWnd, public INotifyUI
+	class CMenuElementUI : public CListContainerElementUI
 	{
 	public:
-		CLdMenu();
-		~CLdMenu();
+		CMenuElementUI();
+		~CMenuElementUI();
 
-		void Init(CControlUI* pOwner, POINT pt);
+	protected:
+		virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue) override;
+		LPCTSTR GetClass() const;
+		LPVOID GetInterface(LPCTSTR pstrName);
+		void DoEvent(TEventUI& event);
 
-		void AdjustPostion();
+	};
 
-		LPCTSTR GetWindowClassName() const;;
-		void OnFinalMessage(HWND /*hWnd*/) { delete this; };
+	class CMenuUI : public CListUI
+	{
+	public:
+		CMenuUI();
+		~CMenuUI();
+		virtual bool Add(CMenuElementUI* pMenuItem, int iIndex = -1);
 
-		void Notify(TNotifyUI& msg);
+		virtual bool Remove(CMenuElementUI* pMenuItem);
+	protected:
+		SIZE EstimateSize(SIZE szAvailable);
+		virtual void DoEvent(TEventUI& event);
+		LPVOID GetInterface(LPCTSTR pstrName);
+		LPCTSTR GetClass() const;
 
-		HWND Create(HWND hwndParent, LPCTSTR pstrName, 
-			DWORD dwStyle, DWORD dwExStyle, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT, 
-			int cx = CW_USEDEFAULT, int cy = CW_USEDEFAULT, HMENU hMenu = NULL);
+		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+	};
 
-		void ShowWindow(bool bShow = true, bool bTakeFocus = true);
+	/////////////////////////////////////////////////////////////////////////////////////
+	//
 
-		LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	// MenuElementUI
+	extern const TCHAR* const kMenuElementUIClassName;// = _T("MenuElementUI");
+	extern const TCHAR* const kMenuElementUIInterfaceName;// = _T("MenuElement);
 
-		LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-		LRESULT OnKillFocus(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-		LRESULT OnKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-		LRESULT OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-		LRESULT OnMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-
-		LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
+	class CMenuWnd : public CLdDuiWnd
+	{
+	public:
+		CMenuWnd(TCHAR* xmlSkin);
+		LPCTSTR GetWindowClassName() const;
+		void OnFinalMessage(HWND hWnd);
 
 	public:
-		CPaintManagerUI m_pm;
-		CControlUI* m_pOwner;
-		POINT m_ptPos;
-		CWindowWnd* m_pShadowWnd;
+		HWND m_hParent;
+		POINT m_BasedPoint;
+		CMenuUI* m_Menu;
+	protected:
+		virtual CControlUI* CreateControl(LPCTSTR pstrClass) override;
+
+
+		virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+
+
+		virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled) override;
 
 	};
 
