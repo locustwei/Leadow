@@ -16,7 +16,6 @@ namespace DuiLib {
 		TCHAR m_ClassName[20];
 
 		void OnFinalMessage(HWND /*hWnd*/);
-		LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		void AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam);
 	protected:
 		virtual UINT GetClassStyle() const override;
@@ -25,6 +24,7 @@ namespace DuiLib {
 		virtual void Notify(TNotifyUI& msg) override;
 		virtual void Init();
 
+		virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam);
 		virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		virtual LRESULT OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		virtual LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
