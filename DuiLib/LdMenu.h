@@ -16,6 +16,26 @@ namespace DuiLib
 
 	};
 
+	class CSubMenuUI: public CMenuElementUI
+	{
+	public:
+		CSubMenuUI();
+		~CSubMenuUI();
+
+	private:
+
+	};
+
+	class CMenuLineUI: public CListElementUI
+	{
+	public:
+		CMenuLineUI();
+		~CMenuLineUI();
+
+	private:
+
+	};
+
 	class CMenuUI : public CListUI
 	{
 	public:
