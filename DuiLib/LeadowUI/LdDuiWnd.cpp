@@ -3,7 +3,7 @@
 
 namespace DuiLib {
 
-	CLdDuiWnd::CLdDuiWnd(TCHAR* xmlSkin)
+	CLdDuiWnd::CLdDuiWnd(TCHAR* xmlSkin): m_Menus(5)
 	{
 		m_PaintManager = new CPaintManagerUI();
 
@@ -21,6 +21,14 @@ namespace DuiLib {
 		delete m_PaintManager;
 
 		m_SkinXml = NULL;
+
+		for (int i = 0; i < m_Menus.GetSize(); i++) {
+			if (LPCTSTR key = m_Menus.GetAt(i)) {
+				CLdMenu* pMenu = static_cast<CLdMenu*>(m_Menus.Find(key));
+				delete pMenu;
+			}
+		}
+
 	}
 
 	void CLdDuiWnd::OnFinalMessage(HWND) 
@@ -38,32 +46,11 @@ namespace DuiLib {
 		case WM_CREATE:
 			lRes = OnCreate(uMsg, wParam, lParam, bHandled);
 			break;
-		case WM_CLOSE:
-			lRes = OnClose(uMsg, wParam, lParam, bHandled);
-			break;
-		case WM_DESTROY:
-			lRes = OnDestroy(uMsg, wParam, lParam, bHandled);
-			break;
-		case WM_NCACTIVATE:
-			lRes = OnNcActivate(uMsg, wParam, lParam, bHandled);
-			break;
 		case WM_NCCALCSIZE:
 			lRes = OnNcCalcSize(uMsg, wParam, lParam, bHandled);
 			break;
-		case WM_NCPAINT:
-			lRes = OnNcPaint(uMsg, wParam, lParam, bHandled);
-			break;
 		case WM_NCHITTEST:
 			lRes = OnNcHitTest(uMsg, wParam, lParam, bHandled);
-			break;
-		case WM_SIZE:
-			lRes = OnSize(uMsg, wParam, lParam, bHandled);
-			break;
-		case WM_GETMINMAXINFO:
-			lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled);
-			break;
-		case WM_SYSCOMMAND:
-			lRes = OnSysCommand(uMsg, wParam, lParam, bHandled);
 			break;
 		default:
 			bHandled = FALSE;
@@ -109,6 +96,24 @@ namespace DuiLib {
 		return m_PaintManager;
 	}
 
+	DuiLib::CLdMenu* CLdDuiWnd::GetPopupMenu(LPCTSTR szMenuname)
+	{
+		return (CLdMenu*)m_Menus.Find(szMenuname);
+	}
+
+	HWND CLdDuiWnd::GetWndHandle()
+	{
+		return GetHWND();
+	}
+
+	void CLdDuiWnd::OnPopup(CLdMenu* pMenu)
+	{
+	}
+
+	void CLdDuiWnd::OnMenuItemClick(CLdMenu* pMenu, int id)
+	{
+	}
+
 	void CLdDuiWnd::AfterWndZoomed(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 
@@ -134,8 +139,14 @@ namespace DuiLib {
 		}
 	}
 
-	CControlUI * CLdDuiWnd::CreateControl(LPCTSTR pstrClass)
+	CControlUI * CLdDuiWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode)
 	{
+		if (_tcsicmp(pstrClass, L"Menu") == 0)
+		{
+			CLdMenu* menu = new CLdMenu;
+			menu->Create(pNode);
+			m_Menus.Insert(menu->GetName(), menu);
+		}
 		return NULL;
 	}
 
@@ -188,31 +199,10 @@ namespace DuiLib {
 		}
 		return 0;
 	}
-
-	LRESULT CLdDuiWnd::OnClose(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		return 0;
-	}
-
-	LRESULT CLdDuiWnd::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		return 0;
-	}
-
-	LRESULT CLdDuiWnd::OnNcActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		//bHandled = TRUE;
-		return 0;
-	}
-
+	
 	LRESULT CLdDuiWnd::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 	{
 		bHandled = TRUE;
-		return 0;
-	}
-
-	LRESULT CLdDuiWnd::OnNcPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
 		return 0;
 	}
 
@@ -238,23 +228,7 @@ namespace DuiLib {
 		bHandled = FALSE;
 		return HTCLIENT;
 	}
-
-	LRESULT CLdDuiWnd::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		return 0;
-	}
-
-	LRESULT CLdDuiWnd::OnGetMinMaxInfo(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		return 0;
-	}
-
-	LRESULT CLdDuiWnd::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		
-		return 0;
-	}
-
+	
 	DUILIB_API BOOL CreateMainWnd(
 		HINSTANCE hInstance, 
 		LPCTSTR lpResourcePath, 

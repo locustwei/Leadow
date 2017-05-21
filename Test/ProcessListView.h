@@ -12,6 +12,7 @@ public:
 protected:
 	virtual void Notify(TNotifyUI& msg) override;
 	virtual LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled) override;
+	virtual void OnMenuItemClick(CLdMenu* pMenu, int id/*CMenuItem* pMenuItem*/) override;
 private:
 	CButtonUI* m_btnOk;
 	CButtonUI* m_btnCancel;

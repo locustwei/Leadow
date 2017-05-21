@@ -156,7 +156,13 @@
     <ClCompile Include="LeadowUI\LdDuiWnd.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
-    <ClCompile Include="LdMenu.cpp">
+    <ClCompile Include="LeadowUI\LdMenu.cpp">
+      <Filter>LeadowUI</Filter>
+    </ClCompile>
+    <ClCompile Include="LeadowUI\ComponentBuilder.cpp">
+      <Filter>LeadowUI</Filter>
+    </ClCompile>
+    <ClCompile Include="LeadowUI\Component.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -284,7 +290,13 @@
     <ClInclude Include="LeadowUI\LdDuiWnd.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
-    <ClInclude Include="LdMenu.h">
+    <ClInclude Include="LeadowUI\LdMenu.h">
+      <Filter>LeadowUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LeadowUI\ComponentBuilder.h">
+      <Filter>LeadowUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LeadowUI\Component.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>

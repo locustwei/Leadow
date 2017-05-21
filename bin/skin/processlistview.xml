@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window size="400,320" sizebox="4,4,6,6" roundcorner="5,5" caption="0,0,0,24">
 	<Include source="defualt.xml" />
+	<Menu name="listContext">
+		<MenuItem text="kill process"/>
+		<MenuItem text="Open Folder"/>
+	</Menu>
   <VerticalLayout bkcolor="#FFD1E8F5" bkcolor2="#FFC6E0F1" bordercolor="#FF768D9B" bordersize="1" borderround="5,5" inset="1,1,1,1">
     <HorizontalLayout name="wndCaption" height="24">
       <HorizontalLayout>
