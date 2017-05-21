@@ -3,7 +3,6 @@
 
 
 CProcessListView::CProcessListView(TCHAR* xmlSkin):CLdDuiWnd(xmlSkin)
-
 {
 }
 
@@ -75,7 +74,7 @@ void CProcessListView::Notify(TNotifyUI & msg)
 	}
 	else if (msg.sType == DUI_MSGTYPE_MENU)
 	{
-
+		GetPopupMenu(L"listContext")->Popup(this);
 	}
 
 	return __super::Notify(msg);
@@ -89,6 +88,11 @@ LRESULT CProcessListView::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	m_List = static_cast<CListUI*>(GetPaintManager()->FindControl(_T("listview")));
 	return ret;
+}
+
+void CProcessListView::OnMenuItemClick(CLdMenu * pMenu, int id)
+{
+	MessageBox(GetHWND(), L"dddddddddddd", pMenu->GetName(), 0);
 }
 
 LPCTSTR CProcessListView::GetItemText(CControlUI * pList, int iItem, int iSubItem)

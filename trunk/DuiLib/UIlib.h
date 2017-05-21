@@ -112,3 +112,4 @@
 //#include "Control/UIFlash.h"
 
 #include "LeadowUI/LdDuiWnd.h"
+#include "LeadowUI/LdMenu.h"
