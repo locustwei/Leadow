@@ -3,6 +3,8 @@
 #include "PublicRoutimes.h"
 #include <string.h>
 
+#pragma comment(lib, "Shell32.lib")
+
 BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName)
 {
 	TCHAR FileName[MAX_PATH] = { 0 };
@@ -45,6 +47,26 @@ BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable)
 	}
 
 	return FALSE;
+}
+
+BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam)
+{
+	ShellExecute(0, _T("open"), lpCmd, lpParam, NULL, SW_SHOWNORMAL);
+	return 0;
+}
+
+CLdString SysErrorMsg(DWORD dwErrorCode)
+{
+	LPTSTR pMsg = NULL;
+
+	UINT nLen = FormatMessage(
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS |
+		FORMAT_MESSAGE_ARGUMENT_ARRAY |
+		FORMAT_MESSAGE_ALLOCATE_BUFFER, NULL, dwErrorCode, 0, (LPTSTR)&pMsg, 0, NULL);
+	CLdString s(pMsg);
+	LocalFree(pMsg);
+	return s;
 }
 
 #pragma region Î´¹«¿ªAPI

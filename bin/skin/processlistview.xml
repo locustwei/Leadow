@@ -23,9 +23,8 @@
     <HorizontalLayout inset="3,0,3,3">
     	<List name="listview" bkcolor="#FFFFFFFF" inset="0,0,0,0" itemshowhtml="true" vscrollbar="true" hscrollbar="true" headerbkimage="file='listimg/list_header_bg.png'" itemalign="center" itembkcolor="#FFE2DDDF" itemaltbk="true" hscrollbar="false" menu="true">
 				<ListHeader height="24" menu="true">
-					<ListHeaderItem text="No" font="1" width="30" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
-					<ListHeaderItem text="Domain" font="1" width="260" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="listimg/file='list_header_sep.png'" sepwidth="1"/>
-					<ListHeaderItem text="Description" font="1" width="240" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
+					<ListHeaderItem text="PID" font="1" width="50" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="file='listimg/list_header_sep.png'" sepwidth="1"/>
+					<ListHeaderItem text="Process File Name" font="1" width="460" hotimage="file='listimg/list_header_hot.png'" pushedimage="file='listimg/list_header_pushed.png'" sepimage="listimg/file='list_header_sep.png'" sepwidth="1"/>
 				</ListHeader>
 			</List>
     </HorizontalLayout>

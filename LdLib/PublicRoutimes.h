@@ -1,10 +1,14 @@
 #pragma once
 
 #include <winternl.h>
+#include <Shellapi.h>
 #include "LdStructs.h"
+#include "LdString.h"
 
 BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName);
 BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
+BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
+CLdString SysErrorMsg(DWORD dwErrorCode);
 
 #pragma region Î´¹«¿ªAPI
 
