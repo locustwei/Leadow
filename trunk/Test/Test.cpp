@@ -21,8 +21,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	HRESULT Hr = ::CoInitialize(NULL);
 	if (FAILED(Hr))
 		return FALSE;
-
-	CProcessListView::SelectFlags(NULL);
+	DWORD ids[] = {12848, 6552, 3160, 6400};
+	CProcessListView::KillProcess(NULL, ids, ARRAYSIZE(ids));
 
 	::PostQuitMessage(0L);
 

@@ -3,6 +3,7 @@
 #include "FPExprot.h"
 #include "SelectProtectFlag.h"
 #include "FileProtectDirver.h"
+#include "ProcessListView.h"
 
 DWORD LDLIB_API API_SelectProtectFlag(HWND hParentWnd)
 {
@@ -60,7 +61,10 @@ BOOL LDLIB_API API_DeleteFiles(LPTSTR lpFileNames, DWORD dwFlags)
 
 	if (Param.nCount)
 	{
+		if (CProcessListView::KillProcess(NULL, Param.pids, Param.nCount))
+		{
 
+		}
 	}
 	return 0;
 }

@@ -38,10 +38,10 @@ namespace DuiLib {
 	{
 		return m_Name;
 	}
-	void CLdMenu::Popup(INotifyMenu* pNotify, int x, int y)
+	UINT CLdMenu::Popup(INotifyMenu* pNotify, int x, int y)
 	{
 		if (!m_hMenu)
-			return;
+			return 0;
 		if (x == -1 && y == -1)
 		{
 			POINT pt;
@@ -50,9 +50,25 @@ namespace DuiLib {
 			y = pt.y;
 		}
 		pNotify->OnPopup(this);
-		int ret = TrackPopupMenuEx(m_hMenu, TPM_LEFTALIGN | TPM_RETURNCMD | TPM_NONOTIFY, x, y, pNotify->GetWndHandle(), NULL);
+		UINT ret = TrackPopupMenuEx(m_hMenu, TPM_LEFTALIGN | TPM_RETURNCMD | TPM_NONOTIFY, x, y, pNotify->GetWndHandle(), NULL);
 		if (ret)
 			pNotify->OnMenuItemClick(this, ret);
+		return ret;
+	}
+
+	UINT CLdMenu::Popup(HWND hWnd, int x, int y)
+	{
+		if (!m_hMenu)
+			return 0;
+		if (x == -1 && y == -1)
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			x = pt.x;
+			y = pt.y;
+		}
+		UINT ret = TrackPopupMenuEx(m_hMenu, TPM_LEFTALIGN | TPM_RETURNCMD | TPM_NONOTIFY, x, y, hWnd, NULL);
+		return ret;
 	}
 
 }

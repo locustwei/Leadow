@@ -6,7 +6,15 @@
 
 DWORD CProcessUtils::KillProcess(DWORD dwProcessId)
 {
-	return 0;
+	HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, dwProcessId);
+	if (hProcess == NULL)
+		return GetLastError();
+
+	if (TerminateProcess(hProcess, 0))
+	{
+		return 0;
+	}else
+		return GetLastError();
 }
 
 DWORD CProcessUtils::EnumProcess(EnumProcessCallback callback, PVOID pParam)

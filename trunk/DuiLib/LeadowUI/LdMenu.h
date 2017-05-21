@@ -31,8 +31,8 @@ namespace DuiLib
 
 		HMENU Create(CMarkupNode* pNode);
 		LPCTSTR GetName();
-		void Popup(INotifyMenu* pNotify, int x = -1, int y = -1);
-		
+		UINT Popup(INotifyMenu* pNotify, int x = -1, int y = -1);
+		UINT Popup(HWND hWnd, int x = -1, int y = -1);
 	protected:
 		HMENU m_hMenu;
 		INotifyMenu* m_Notify;
