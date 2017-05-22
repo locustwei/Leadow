@@ -62,6 +62,7 @@ HRESULT STDMETHODCALLTYPE CLdContextMenu::InvokeCommand(__in CMINVOKECOMMANDINFO
 			CFilePipeFlow::StartDeleteFlow(m_SelectCount, m_SelectFiles);
 			break;
 		case 2: //earse file
+			CFilePipeFlow::StartErarseFlow(m_SelectCount, m_SelectFiles);
 			break;
 		}
 		break;

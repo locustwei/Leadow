@@ -41,6 +41,18 @@ BOOL CFilePipeFlow::StartDeleteFlow(int nFileCount, LPTSTR * lpFiles)
 	return Pipe.CreateFlow(Flow.m_PipeName, &Flow, &Context);
 }
 
+BOOL CFilePipeFlow::StartErarseFlow(int nFileCount, LPTSTR* lpFiles)
+{
+	FLOW_CONTEXT Context = { 0 };
+
+	CLdNamedPipe Pipe;
+	CFilePipeFlow Flow;
+	Flow.m_FId = LFI_EARSE_FILE;
+	Flow.nCount = nFileCount;
+	Flow.lpFiles = lpFiles;
+	return Pipe.CreateFlow(Flow.m_PipeName, &Flow, &Context);
+}
+
 PIPE_FOLW_ACTION CFilePipeFlow::PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext)
 {
 	PIPE_FOLW_ACTION Result = PFA_ERROR;

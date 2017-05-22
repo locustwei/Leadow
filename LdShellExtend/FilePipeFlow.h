@@ -27,6 +27,7 @@ public:
 
 	static BOOL StartProtectFlow(int nFileCount, LPTSTR* lpFiles);
 	static BOOL StartDeleteFlow(int nFileCount, LPTSTR* lpFiles);
+	static BOOL StartErarseFlow(int nFileCount, LPTSTR* lpFiles);
 private:
 	TCHAR m_PipeName[30];
 	struct FLOW_CONTEXT {

@@ -17,7 +17,8 @@ typedef enum LD_FUNCTION_ID
 {
 	LFI_NONE,
 	LFI_HIDE_FILE,
-	LFI_DELETE_FILE
+	LFI_DELETE_FILE,
+	LFI_EARSE_FILE
 };
 //调用功能函数的标志。
 typedef enum LD_FUNCTION_FLAG

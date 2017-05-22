@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdInvoker", "LdInvoker\LdInvoker.vcxproj", "{A5B6A18D-0E6A-41C0-BBED-C975AEB19161}"
 EndProject
@@ -18,6 +18,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DuiLib", "DuiLib\DuiLib.vcxproj", "{E106ACD7-4E53-4AEE-942B-D0DD426DB34E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{D9990855-C88C-4AAA-A550-447EC60A6EE8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileRecover", "LdFileRecover\LdFileRecover.vcxproj", "{550FA592-BAE0-4D04-89E0-B81A5AF78159}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LdFileEraser", "LdFileEraser\LdFileEraser.vcxproj", "{6C3153AE-5915-4CA2-9708-9266B1F7E35D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -153,6 +157,38 @@ Global
 		{D9990855-C88C-4AAA-A550-447EC60A6EE8}.UnicodeRelease|Win32.Build.0 = Release|Win32
 		{D9990855-C88C-4AAA-A550-447EC60A6EE8}.UnicodeRelease|x64.ActiveCfg = Release|x64
 		{D9990855-C88C-4AAA-A550-447EC60A6EE8}.UnicodeRelease|x64.Build.0 = Release|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Debug|Win32.ActiveCfg = Debug|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Debug|Win32.Build.0 = Debug|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Debug|x64.ActiveCfg = Debug|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Debug|x64.Build.0 = Debug|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Release|Win32.ActiveCfg = Release|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Release|Win32.Build.0 = Release|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Release|x64.ActiveCfg = Release|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.Release|x64.Build.0 = Release|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeDebug|Win32.ActiveCfg = Debug|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeDebug|Win32.Build.0 = Debug|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeDebug|x64.ActiveCfg = Debug|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeDebug|x64.Build.0 = Debug|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeRelease|Win32.ActiveCfg = Release|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeRelease|Win32.Build.0 = Release|Win32
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeRelease|x64.ActiveCfg = Release|x64
+		{550FA592-BAE0-4D04-89E0-B81A5AF78159}.UnicodeRelease|x64.Build.0 = Release|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Debug|Win32.Build.0 = Debug|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Debug|x64.ActiveCfg = Debug|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Debug|x64.Build.0 = Debug|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Release|Win32.ActiveCfg = Release|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Release|Win32.Build.0 = Release|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Release|x64.ActiveCfg = Release|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.Release|x64.Build.0 = Release|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeDebug|Win32.ActiveCfg = Debug|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeDebug|Win32.Build.0 = Debug|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeDebug|x64.ActiveCfg = Debug|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeDebug|x64.Build.0 = Debug|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeRelease|Win32.ActiveCfg = Release|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeRelease|Win32.Build.0 = Release|Win32
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeRelease|x64.ActiveCfg = Release|x64
+		{6C3153AE-5915-4CA2-9708-9266B1F7E35D}.UnicodeRelease|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
