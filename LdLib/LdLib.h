@@ -1,5 +1,6 @@
 #pragma once
 
+#include "LdString.h"
 #include "LdStructs.h"
 #include "PublicRoutimes.h"
 #include "FileUtils.h"
