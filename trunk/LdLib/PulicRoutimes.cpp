@@ -129,7 +129,6 @@ typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONFILE)(
 
 NTSTATUS WINAPI NtQueryInformationFile(
 	IN HANDLE FileHandle,
-	OUT PIO_STATUS_BLOCK IoStatusBlock,
 	OUT PVOID FileInformation,
 	IN ULONG Length,
 	IN FILE_INFORMATION_CLASS FileInformationClass)
@@ -140,8 +139,35 @@ NTSTATUS WINAPI NtQueryInformationFile(
 	if (fpNtQueryInformationFile == NULL) {
 		return (NTSTATUS)-1;
 	}
-	return fpNtQueryInformationFile(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
 
+	IO_STATUS_BLOCK IoStatusBlock;
+
+	return fpNtQueryInformationFile(FileHandle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
+
+}
+
+typedef NTSTATUS(WINAPI *NTSETINFORMATIONFILE)(
+	HANDLE FileHandle,
+	PIO_STATUS_BLOCK IoStatusBlock,
+	PVOID FileInformation,
+	ULONG Length,
+	FILE_INFORMATION_CLASS FileInformationClass
+);
+
+NTSTATUS NtSetInformationFile(
+	HANDLE FileHandle, 
+	PVOID FileInformation, 
+	ULONG Length, 
+	FILE_INFORMATION_CLASS FileInformationClass)
+{
+	static NTSETINFORMATIONFILE fpNtSetInformationFile = 
+		(NTSETINFORMATIONFILE)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtSetInformationFile");
+	if (fpNtSetInformationFile == NULL)
+		return (NTSTATUS)-1;
+
+	IO_STATUS_BLOCK IoStatusBlock;
+
+	return fpNtSetInformationFile(FileHandle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
 }
 
 #pragma endregion

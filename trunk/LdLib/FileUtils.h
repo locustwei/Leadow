@@ -11,5 +11,6 @@ public:
 	static UINT DevicePathToWin32Path(LPTSTR lpDevicePath, __out LPTSTR lpDosPath);
 	static DWORD GetFileAttribute(LPTSTR lpFullName);
 	//todo 文件交换数据流
+	//static DWORD SetFileInfo(LPTSTR lpFullName, )
 };
 
