@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "LdStructs.h"
+#include "ldlib.h"
 
 // CLdContextMenu
 

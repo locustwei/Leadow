@@ -9,5 +9,7 @@ public:
 	static UINT ExtractFileExt(LPTSTR lpFullName, __out LPTSTR lpName);
 	static UINT Win32Path2DevicePath(LPTSTR lpFullName, __out LPTSTR lpDevicePath);
 	static UINT DevicePathToWin32Path(LPTSTR lpDevicePath, __out LPTSTR lpDosPath);
+	static DWORD GetFileAttribute(LPTSTR lpFullName);
+	//todo 文件交换数据流
 };
 

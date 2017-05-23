@@ -1,4 +1,5 @@
 #pragma once
+
 class CLdString
 {
 public:
@@ -7,6 +8,8 @@ public:
 	CLdString(const TCHAR ch);
 	CLdString(const CLdString& src);
 	CLdString(LPCTSTR lpsz, int nLen = -1);
+	CLdString(UINT ccSize);
+
 	~CLdString();
 	CLdString ToString();
 
@@ -20,6 +23,7 @@ public:
 
 	void SetAt(int nIndex, TCHAR ch);
 	operator LPCTSTR() const;
+	operator LPTSTR() const;
 
 	TCHAR operator[] (int nIndex) const;
 	const CLdString& operator=(const CLdString& src);
@@ -59,6 +63,8 @@ public:
 	int Find(LPCTSTR pstr, int iPos = 0) const;
 	int ReverseFind(TCHAR ch) const;
 	int Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo);
+	void Delete(int nStart, int nLength);
+	void Insert(int nStart, LPCTSTR lpStr);
 
 	int __cdecl Format(LPCTSTR pstrFormat, ...);
 
