@@ -503,7 +503,6 @@
     <ClCompile Include="Layout\UITileLayout.cpp" />
     <ClCompile Include="Layout\UIVerticalLayout.cpp" />
     <ClCompile Include="LeadowUI\Component.cpp" />
-    <ClCompile Include="LeadowUI\ComponentBuilder.cpp" />
     <ClCompile Include="LeadowUI\LdDuiWnd.cpp" />
     <ClCompile Include="LeadowUI\LdMenu.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -594,7 +593,6 @@
     <ClInclude Include="Layout\UITileLayout.h" />
     <ClInclude Include="Layout\UIVerticalLayout.h" />
     <ClInclude Include="LeadowUI\Component.h" />
-    <ClInclude Include="LeadowUI\ComponentBuilder.h" />
     <ClInclude Include="LeadowUI\LdDuiWnd.h" />
     <ClInclude Include="LeadowUI\LdMenu.h" />
     <ClInclude Include="StdAfx.h" />

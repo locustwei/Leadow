@@ -1,3 +1,80 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="HandleUitls.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ProcessUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="LdDriver.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="LdNamedPipe.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="LdString.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="PulicRoutimes.cpp">
+      <Filter>Native</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeUtil.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LdLib.h" />
+    <ClInclude Include="LdStructs.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="HandleUitls.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcessUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="LdDriver.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="LdNamedPipe.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="LdString.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="PublicRoutimes.h">
+      <Filter>Native</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeUtil.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{10f1a77c-6fa1-4889-873c-1007297aa435}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="classes">
+      <UniqueIdentifier>{720b3d8f-1705-4498-8d60-fb9f0ccd2cdc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Native">
+      <UniqueIdentifier>{4f34f589-47f8-4b1c-80fd-b1694e9da5e7}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

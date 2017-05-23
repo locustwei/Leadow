@@ -3,14 +3,6 @@
 #pragma warning(disable:4091)
 #pragma warning(disable:4267)
 
-#define LDLIB_API __declspec(dllexport)
-
-typedef struct _LD_STRING
-{
-	UINT Length;
-	PWCHAR Buffer;
-}LD_STRING, *PLD_STRING;
-
 //功能函数ID
 //
 typedef enum LD_FUNCTION_ID
@@ -29,23 +21,7 @@ typedef enum LD_FUNCTION_FLAG
 
 	LFF_AS_ADMIN    = 0x80000000,
 };
-//通过命名管道进行参数传递。
-//指示命名管道动作
-typedef enum PIPE_FOLW_ACTION
-{
-	PFA_ERROR,
-	PFA_CREATE,
-	PFA_CONNECT,
-	PFA_READ,
-	PFA_WRITE,
-	PFA_DONE
-};
-//命名管道数据提供接口。
 
-typedef struct IPipeDataProvider
-{
-	virtual PIPE_FOLW_ACTION PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext) = 0;
-};
 //文件保护类型
 typedef enum LD_FILE_PROTECT
 {

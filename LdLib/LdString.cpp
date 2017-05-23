@@ -29,6 +29,12 @@ CLdString::CLdString(LPCTSTR lpsz, int nLen)
 	Assign(lpsz, nLen);
 }
 
+CLdString::CLdString(UINT ccSize)
+{
+	m_pstr = reallocstr(NULL, ccSize);
+	ZeroMemory(m_pstr, ccSize * sizeof(TCHAR));
+}
+
 CLdString::CLdString(const CLdString& src)
 {
 	m_pstr = NULL;
@@ -49,6 +55,11 @@ int CLdString::GetLength() const
 }
 
 CLdString::operator LPCTSTR() const
+{
+	return m_pstr;
+}
+
+CLdString::operator LPTSTR() const
 {
 	return m_pstr;
 }
@@ -335,6 +346,32 @@ int CLdString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
 		nCount++;
 	}
 	return nCount;
+}
+
+void CLdString::Delete(int nStart, int nLength)
+{
+	if (!m_pstr || nStart < 0 || nLength <= 0 || _tcslen(m_pstr) <= nStart)
+		return;
+	if (nStart + nLength >= _tcslen(m_pstr))
+	{
+		m_pstr[nStart] = '\0';
+		return;
+	}
+	TCHAR* p = m_pstr + nStart;
+	TCHAR* p1 = p + nLength;
+	_tcscpy(p, p1);
+}
+
+void CLdString::Insert(int nStart, LPCTSTR lpStr)
+{
+	if (!m_pstr || nStart < 0 || !lpStr)
+		return;
+	if (nStart >= _tcslen(m_pstr))
+		*this += lpStr;
+	CLdString s(lpStr);
+	s += m_pstr + nStart;
+	m_pstr[nStart] = '\0';
+	*this += s;
 }
 
 int CLdString::Format(LPCTSTR pstrFormat, ...)
