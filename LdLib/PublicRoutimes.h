@@ -97,11 +97,81 @@ typedef struct _FILE_NAME_INFORMATION {
 	WCHAR FileName[1];
 } FILE_NAME_INFORMATION, *PFILE_NAME_INFORMATION;
 
+#define FileFullDirectoryInformation (FILE_INFORMATION_CLASS)2
+#define FileBothDirectoryInformation (FILE_INFORMATION_CLASS)3
+#define FileBasicInformation (FILE_INFORMATION_CLASS)4
+#define	FileStandardInformation (FILE_INFORMATION_CLASS)5
+#define	FileInternalInformation (FILE_INFORMATION_CLASS)6
+#define	FileEaInformation (FILE_INFORMATION_CLASS)7
+#define	FileAccessInformation (FILE_INFORMATION_CLASS)8
+#define	FileNameInformation (FILE_INFORMATION_CLASS)9
+#define	FileRenameInformation (FILE_INFORMATION_CLASS)10
+#define	FileLinkInformation (FILE_INFORMATION_CLASS)11
+/*
+#define	FileNamesInformation,
+#define	FileDispositionInformation,
+#define	FilePositionInformation,
+#define	FileFullEaInformation,
+#define	FileModeInformation,
+#define	FileAlignmentInformation,
+#define	FileAllInformation,
+#define	FileAllocationInformation,
+#define	FileEndOfFileInformation,
+#define	FileAlternateNameInformation,
+#define	FileStreamInformation,
+#define	FilePipeInformation,
+#define	FilePipeLocalInformation,
+#define	FilePipeRemoteInformation,
+#define	FileMailslotQueryInformation,
+#define	FileMailslotSetInformation,
+#define	FileCompressionInformation,
+#define	FileObjectIdInformation,
+#define	FileCompletionInformation,
+#define	FileMoveClusterInformation,
+#define	FileQuotaInformation,
+#define	FileReparsePointInformation,
+#define	FileNetworkOpenInformation,
+#define	FileAttributeTagInformation,
+#define	FileTrackingInformation,
+#define	FileIdBothDirectoryInformation,
+#define	FileIdFullDirectoryInformation,
+#define	FileValidDataLengthInformation,
+#define	FileShortNameInformation,
+#define	FileIoCompletionNotificationInformation,
+#define	FileIoStatusBlockRangeInformation,
+#define	FileIoPriorityHintInformation,
+#define	FileSfioReserveInformation,
+#define	FileSfioVolumeInformation,
+#define	FileHardLinkInformation,
+#define	FileProcessIdsUsingFileInformation,
+#define	FileNormalizedNameInformation,
+#define	FileNetworkPhysicalNameInformation,
+#define	FileIdGlobalTxDirectoryInformation,
+#define	FileIsRemoteDeviceInformation,
+#define	FileUnusedInformation,
+#define	FileNumaNodeInformation,
+#define	FileStandardLinkInformation,
+#define	FileRemoteProtocolInformation,
+#define	FileRenameInformationBypassAccessCheck,
+#define	FileLinkInformationBypassAccessCheck,
+#define	FileVolumeNameInformation,
+#define	FileIdInformation,
+#define	FileIdExtdDirectoryInformation,
+#define	FileReplaceCompletionInformation,
+#define	FileHardLinkFullIdInformation,
+#define	FileIdExtdBothDirectoryInformation,
+#define	FileMaximumInformation
+*/
 NTSTATUS WINAPI NtQueryInformationFile(
 	IN HANDLE FileHandle,
-	OUT PIO_STATUS_BLOCK IoStatusBlock,
 	OUT PVOID FileInformation,
 	IN ULONG Length,
 	IN FILE_INFORMATION_CLASS FileInformationClass);
+
+NTSTATUS NtSetInformationFile(
+	HANDLE FileHandle,
+	PVOID FileInformation,
+	ULONG Length,
+	FILE_INFORMATION_CLASS FileInformationClass);
 
 #pragma endregion

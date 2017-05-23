@@ -10,3 +10,5 @@
 #include "FileUtils.h"
 #include "HandleUitls.h"
 #include "VolumeUtil.h"
+
+#define LDLIB_API __declspec(dllexport)
