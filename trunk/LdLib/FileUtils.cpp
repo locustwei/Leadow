@@ -104,3 +104,35 @@ UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
 
 	return wcslen(lpDosPath);
 }
+
+BOOL CFileUtils::IsCompressed(LPTSTR lpFullName)
+{
+	BOOL Result = FALSE;
+	WORD compressionStatus = 0;
+	DWORD bytesReturned = 0;
+
+	HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE,
+		0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	if (handle == INVALID_HANDLE_VALUE)
+		return FALSE;
+
+	if (DeviceIoControl(handle, FSCTL_GET_COMPRESSION,
+		NULL, 0, &compressionStatus, sizeof(WORD), &bytesReturned, NULL))
+		Result = compressionStatus != COMPRESSION_FORMAT_NONE;
+	CloseHandle(handle);
+	return Result;
+}
+
+BOOL CFileUtils::SetCompression(LPTSTR lpFullName, BOOL bCompress)
+{
+	BOOL Result = FALSE;
+	DWORD compressionStatus = bCompress ? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
+	DWORD bytesReturned = 0;
+
+	HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	if (handle == INVALID_HANDLE_VALUE)
+		return FALSE;
+	Result = DeviceIoControl(handle, FSCTL_SET_COMPRESSION, &compressionStatus, sizeof(DWORD), NULL, 0, &bytesReturned, NULL);
+	CloseHandle(handle);
+	return Result;
+}

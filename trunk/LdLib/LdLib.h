@@ -9,6 +9,7 @@
 #include "ProcessUtils.h"
 #include "FileUtils.h"
 #include "HandleUitls.h"
-#include "VolumeUtil.h"
+#include "VolumeUtils.h"
+#include "RegisterUtils.h"
 
 #define LDLIB_API __declspec(dllexport)
