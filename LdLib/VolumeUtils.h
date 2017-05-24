@@ -15,9 +15,9 @@ public:
 	CVolumeInfo(void);
 	~CVolumeInfo(void);
 
-	BOOL  OpenVolume(TCHAR* pGuid);         //用卷GUID，打开卷句柄
+	DWORD  OpenVolume(TCHAR* pGuid);         //用卷GUID，打开卷句柄
 	PCWSTR  GetVolumeGuid();
-	BOOL  OpenVolumePath(const TCHAR* pPath); //卷路径（盘符），打开卷句柄
+	DWORD  OpenVolumePath(const TCHAR* pPath); //卷路径（盘符），打开卷句柄
 	PCWSTR  GetVolumePath();
 	UINT64 GetAvailableFreeSpace();
 	UINT64 GetTotalFreeSpace();
@@ -40,7 +40,7 @@ private:
 
 	HANDLE m_hVolume;                //卷句柄（读取MFT）
 	
-	BOOL OpenVolumeHandle(PCWSTR wsz_path);             //CreateFile，打开hVolume
+	DWORD OpenVolumeHandle(PCWSTR wsz_path);             //CreateFile，打开hVolume
 	BOOL GetVolumeInfo();
 private:  //接口函数
 };
