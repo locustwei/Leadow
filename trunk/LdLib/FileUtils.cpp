@@ -105,6 +105,27 @@ UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
 	return wcslen(lpDosPath);
 }
 
+DWORD CFileUtils::ForceDirectories(LPTSTR lpFullPath)
+{
+	if (!lpFullPath || _tcslen(lpFullPath) < 2)
+		return ERROR_NO_VOLUME_LABEL;
+	if (IsDirectoryExists(lpFullPath))
+		return 0;
+	else
+	{
+		if (CreateDirectory(lpFullPath, NULL))
+			return 0;
+		else
+			return GetLastError();
+	}
+}
+
+BOOL CFileUtils::IsDirectoryExists(LPTSTR lpFullPath)
+{
+	DWORD dwAttr = GetFileAttributes(lpFullPath);
+	return (dwAttr != INVALID_FILE_ATTRIBUTES) && (FILE_ATTRIBUTE_DIRECTORY & dwAttr);
+}
+
 BOOL CFileUtils::IsCompressed(LPTSTR lpFullName)
 {
 	BOOL Result = FALSE;

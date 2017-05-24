@@ -13,10 +13,10 @@ CVolumeInfo::~CVolumeInfo(void)
 		CloseHandle(m_hVolume);
 }
 
-BOOL CVolumeInfo::OpenVolume(TCHAR* pGuid)
+DWORD CVolumeInfo::OpenVolume(TCHAR* pGuid)
 {
-	if(m_hVolume != INVALID_HANDLE_VALUE || pGuid == NULL)
-		return FALSE;
+	if (m_hVolume != INVALID_HANDLE_VALUE || pGuid == NULL)
+		return ERROR_ALIAS_EXISTS;
 	
 	WCHAR Names[MAX_PATH + 1] = {0};
 	ULONG cb = sizeof(Names); 
@@ -26,19 +26,22 @@ BOOL CVolumeInfo::OpenVolume(TCHAR* pGuid)
 			Names[wcslen(Names) - 1] = '\0';
 		m_VolumePath = Names;
 	}
+	else
+		return GetLastError();
+
 	pGuid[wcslen(pGuid) - 1] = '\0';
 
-	if(OpenVolumeHandle(pGuid)){
+	DWORD Result = OpenVolumeHandle(pGuid);
+	if(Result == 0)
 		m_VolumeGuid = pGuid;
-	}
 
-	return m_hVolume != INVALID_HANDLE_VALUE;
+	return Result;
 }
 
-BOOL CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
+DWORD CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
 {
 	if(m_hVolume != INVALID_HANDLE_VALUE || pPath == NULL)
-		return FALSE;
+		return ERROR_ALIAS_EXISTS;
 
 	CLdString path = pPath;
 	if(pPath[wcslen(pPath)-1] != '\\')
@@ -46,7 +49,7 @@ BOOL CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
 	WCHAR guid[MAX_PATH + 1] = {0};
 	ULONG cb = sizeof(guid); 
 	if (!GetVolumeNameForVolumeMountPoint(path, guid, cb))
-		return FALSE;
+		return GetLastError();
 	if(wcslen(guid)>0)
 		guid[wcslen(guid) - 1] = '\0';
 
@@ -55,17 +58,20 @@ BOOL CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
 	m_VolumePath = path;
 
 	path.Insert(0, L"\\\\.\\");
-	if(OpenVolumeHandle(path)){
+	DWORD Result = OpenVolumeHandle(path);
+	if(Result == 0)
 		m_VolumeGuid = guid;
-	}
 
-	return TRUE;
+	return Result;
 }
 
-BOOL CVolumeInfo::OpenVolumeHandle(PCWSTR wsz_path)
+DWORD CVolumeInfo::OpenVolumeHandle(PCWSTR wsz_path)
 {
 	m_hVolume = CreateFile(wsz_path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
-	return m_hVolume != INVALID_HANDLE_VALUE;
+	if (m_hVolume == INVALID_HANDLE_VALUE)
+		return GetLastError();
+	else
+		return 0;
 }
 
 BOOL CVolumeInfo::GetVolumeInfo()
