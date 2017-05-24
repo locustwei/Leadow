@@ -26,7 +26,10 @@
     <ClCompile Include="PulicRoutimes.cpp">
       <Filter>Native</Filter>
     </ClCompile>
-    <ClCompile Include="VolumeUtil.cpp">
+    <ClCompile Include="RegisterUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -59,7 +62,10 @@
     <ClInclude Include="PublicRoutimes.h">
       <Filter>Native</Filter>
     </ClInclude>
-    <ClInclude Include="VolumeUtil.h">
+    <ClInclude Include="RegisterUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>

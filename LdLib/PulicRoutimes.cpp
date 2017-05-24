@@ -69,6 +69,40 @@ CLdString SysErrorMsg(DWORD dwErrorCode)
 	return s;
 }
 
+OSVERSIONINFO osvi = { 0 };
+
+OSVERSIONINFO& GetOsVersion()
+{
+	if (osvi.dwOSVersionInfoSize == 0) {
+		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		GetVersionEx(&osvi);
+	}
+	return osvi;
+}
+
+BOOL IsWindow64() //判断是否是64位机
+{
+	BOOL isWoW64 = false;
+	IsWow64Process(GetCurrentProcess(), &isWoW64);
+	if (isWoW64) {
+		SYSTEM_INFO SystemInfo;
+		GetNativeSystemInfo(&SystemInfo);
+		return (SystemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64) | (SystemInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64);
+	}
+	return false;
+}
+
+BOOL IsVista64()
+{
+	if (IsWindow64()) {
+		OSVERSIONINFO osvi = GetOsVersion();
+		return ((osvi.dwMajorVersion = 6) && (osvi.dwMinorVersion = 0)) ||
+			((osvi.dwMajorVersion = 5) && (osvi.dwMinorVersion = 02)); //XP 64
+	}
+	else
+		return false;
+}
+
 #pragma region 未公开API
 
 //SYSTEM_INFORMATION_CLASS SystemHandleInformation = (SYSTEM_INFORMATION_CLASS)16;

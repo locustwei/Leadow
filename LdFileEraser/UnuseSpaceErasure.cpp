@@ -20,5 +20,8 @@ DWORD CUnuseSpaceErasure::Execute(CLdString & Driver, CErasureMethod& method, IE
 	CVolumeInfo volInfo;
 	volInfo.OpenVolumePath(Driver);
 	DWORD dwAttribute = GetFileAttributes(Driver);  //FILE_ATTRIBUTE_REPARSE_POINT
+	if (CFileUtils::IsCompressed(Driver))
+		CFileUtils::SetCompression(Driver, FALSE);
+
 	return 0;
 }

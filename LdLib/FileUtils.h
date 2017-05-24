@@ -12,5 +12,7 @@ public:
 	static DWORD GetFileAttribute(LPTSTR lpFullName);
 	//todo 文件交换数据流
 	//static DWORD SetFileInfo(LPTSTR lpFullName, )
+	static BOOL IsCompressed(LPTSTR lpFullName);
+	static BOOL SetCompression(LPTSTR lpFullName, BOOL bCompress);
 };
 
