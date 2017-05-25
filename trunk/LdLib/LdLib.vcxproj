@@ -152,6 +152,7 @@
     <ClInclude Include="HandleUitls.h" />
     <ClInclude Include="LdDriver.h" />
     <ClInclude Include="LdLib.h" />
+    <ClInclude Include="LdList.h" />
     <ClInclude Include="LdNamedPipe.h" />
     <ClInclude Include="LdString.h" />
     <ClInclude Include="LdStructs.h" />
