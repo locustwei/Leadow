@@ -5,6 +5,7 @@
 #include <string.h>
 #include "UIlib.h"
 #include "LdLib.h"
+#include "LdList.h"
 
 /*
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -51,6 +52,36 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 */
 int _tmain(int argc, _TCHAR* argv[])
 {
+	CLdList<CLdString*> strings;
+	strings.Append(new CLdString(L"abcd1"));
+	strings.Append(new CLdString(L"abcd2"));
+	strings.Append(new CLdString(L"abcd3"));
+	strings.Append(new CLdString(L"abcd4"));
+	strings.Append(new CLdString(L"abcd5"));
+	strings.Append(new CLdString(L"abcd6"));
+	strings.Append(new CLdString(L"abcd7"));
+	strings.Append(new CLdString(L"abcd8"));
+	strings.Append(new CLdString(L"abcd9"));
+
+	CLdString* s;
+	for (PListIndex index = strings.Begin(&s); index != NULL; index = strings.Behind(index, &s))
+	{
+		printf("%S   %d \n", *s, strings.GetCount());
+	}
+
+	printf("\n \n \n");
+
+	strings.Remove(new CLdString(L"abcd4"));
+	strings.Remove(new CLdString(L"abcd5"));
+	strings.Remove(new CLdString(L"abcd6"));
+
+	while(!strings.IsListEmpty())
+	{
+		printf("%S %d \n", *s, strings.GetCount());
+		s = strings.Pop();
+	}
+
+	strings.Clear();
 
 	printf("press any key exit");
 	getchar();

@@ -68,6 +68,9 @@
     <ClInclude Include="VolumeUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="LdList.h">
+      <Filter>classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
