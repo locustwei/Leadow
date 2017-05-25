@@ -7,6 +7,8 @@ public:
 	~CRegisterKey();
 
 	CRegisterKey OpenSubKey(LPTSTR lpKey);
+	DWORD DeleteRegKey(LPTSTR lpKey);
+	DWORD DeleteValue(LPCTSTR szValue);
 private:
 	HKEY m_Root;
 	HKEY m_hKey;
@@ -22,5 +24,7 @@ public:
 
 	static DWORD RegAccessMode(LPCTSTR szKey, BOOL bReadonly);
 	static HKEY OpenKey(HKEY hRoot, LPTSTR lpKey, BOOL bReadonly = FALSE);
+	static DWORD DeleteRegKey(HKEY hRoot, LPCTSTR szKey);
+	static DWORD DeleteRegValue(HKEY hRoot, LPCTSTR szKey, LPCTSTR szValue);
 };
 

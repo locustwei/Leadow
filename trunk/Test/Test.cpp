@@ -5,8 +5,8 @@
 #include <string.h>
 #include "UIlib.h"
 #include "LdLib.h"
-#include "ProcessListView.h"
 
+/*
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -33,7 +33,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	return (int) 0;
 }
 
-/*
 BOOL EnumProcessModalCallback_(PMODULEENTRY32 pEntry32, PVOID pParam)
 {
 	printf("%S %S\n", pEntry32->szExePath, pEntry32->szModule);
@@ -49,13 +48,11 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 	CProcessUtils::EnumProcessModule(pEntry32->th32ProcessID, EnumProcessModalCallback_, NULL);
 	return TRUE;
 }
-
+*/
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CProcessUtils::EnumProcess(FindProcessCallback, NULL);
 
 	printf("press any key exit");
 	getchar();
 	return 0;
 }
-*/

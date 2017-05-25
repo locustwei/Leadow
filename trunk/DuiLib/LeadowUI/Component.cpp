@@ -1,16 +1,18 @@
 #include "stdafx.h"
 #include "Component.h"
 
-
-CComponent::CComponent()
+namespace DuiLib
 {
-}
+	CComponent::CComponent()
+	{
+	}
 
 
-CComponent::~CComponent()
-{
-}
+	CComponent::~CComponent()
+	{
+	}
 
-void CComponent::SetAttribute(LPCTSTR name, LPCTSTR value)
-{
+	void CComponent::SetAttribute(LPCTSTR name, LPCTSTR value)
+	{
+	}
 }

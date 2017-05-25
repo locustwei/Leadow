@@ -1,13 +1,15 @@
 #pragma once
 
 #define  LUI_COMP_MENU                            (_T("Menu"))
-
-class CComponent
+namespace DuiLib
 {
-public:
-	CComponent();
-	~CComponent();
-	void SetAttribute(LPCTSTR name, LPCTSTR value);
+	class DUILIB_API CComponent
+	{
+	public:
+		CComponent();
+		~CComponent();
+		void SetAttribute(LPCTSTR name, LPCTSTR value);
 
-};
+	};
 
+}
