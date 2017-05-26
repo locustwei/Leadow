@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="HandleUitls.h" />
+    <ClInclude Include="LdArray.h" />
     <ClInclude Include="LdDriver.h" />
     <ClInclude Include="LdLib.h" />
     <ClInclude Include="LdList.h" />

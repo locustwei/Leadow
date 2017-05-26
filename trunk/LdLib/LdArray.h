@@ -18,9 +18,9 @@ public:
 		Clear();
 	};
 
-	T operator[] (int Index)
+	T& operator[] (int Index)
 	{
-		return Get(Index);
+		return FList[Index];
 	};
 	int operator += (T Item)
 	{
@@ -76,14 +76,12 @@ public:
 		SetCount(0);
 		SetCapacity(0);
 	};
-	T Delete(int Index)
+	void Delete(int Index)
 	{
 		if (Index < 0 || Index >= FCount)
-			return NULL;
-		T Temp = Get(Index);
-		FCount--;
+			return;
 		memmove(&FList[Index], &FList[Index + 1], (FCount - Index) * sizeof(T));
-		return Temp;
+		FCount--;
 	};
 	void Exchange(int Index1, int Index2)
 	{
@@ -148,14 +146,6 @@ public:
 	
 
 protected:
-	T Get(int Index)
-	{
-		if (FList && Index >= 0 && Index < FCount)
-			return FList[Index];
-		else
-			return NULL;
-	};
-
 	void Grow()
 	{
 		int Delta;
