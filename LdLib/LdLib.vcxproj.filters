@@ -71,6 +71,9 @@
     <ClInclude Include="LdList.h">
       <Filter>classes</Filter>
     </ClInclude>
+    <ClInclude Include="LdArray.h">
+      <Filter>classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
