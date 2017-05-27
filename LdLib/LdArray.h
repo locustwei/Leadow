@@ -22,6 +22,10 @@ public:
 	{
 		return FList[Index];
 	};
+	operator T*()
+	{
+		return FList;
+	};
 	int operator += (T Item)
 	{
 		return Add(Item);
@@ -67,6 +71,7 @@ public:
 		int Result = FCount;
 		if (Result == FCapacity)
 			Grow();
+		memset(&FList[Result], 0, sizeof(T));
 		FList[Result] = Item;
 		FCount++;
 		return Result;
@@ -93,7 +98,6 @@ public:
 		FList[Index1] = FList[Index2];
 		FList[Index2] = Item;
 	};
-
 	int IndexOf(T Item)
 	{
 		int LCount = FCount;
@@ -111,6 +115,7 @@ public:
 			Grow();
 		if (Index < FCount)
 			memmove(&FList[Index + 1], &FList[Index], (FCount - Index) * sizeof(T));
+		memset(&FList[Index], 0, sizeof(T));
 		FList[Index] = Item;
 		FCount++;
 	};
@@ -121,15 +126,12 @@ public:
 			Delete(Result);
 		return Result;
 	};
-
 	void SetCount(int NewCount)
 	{
 		if (NewCount < 0 || NewCount > 0xFFFFFF)
 			return;
 		if (NewCount > FCapacity)
 			SetCapacity(NewCount);
-		if (NewCount > FCount)
-			memset(&FList[FCount], (NewCount - FCount) * sizeof(T), 0);
 		else
 			for (int I = FCount - 1; I >= NewCount; I--)
 				Delete(I);
@@ -143,8 +145,22 @@ public:
 	{
 		//qsort_s()
 	};
-	
-
+	T Put(int index, T Item)
+	{
+		T tmp = FList[index];
+		FList[index] = Item;
+		return tmp;
+	};
+	void SetCapacity(int NewCapacity)
+	{
+		if (NewCapacity < FCount || NewCapacity > 0xFFFFFF)
+			return;
+		if (NewCapacity != FCapacity)
+		{
+			FList = (T*)realloc(FList, NewCapacity * sizeof(T));
+			FCapacity = NewCapacity;
+		};
+	};
 protected:
 	void Grow()
 	{
@@ -158,16 +174,6 @@ protected:
 		SetCapacity(FCapacity + Delta);
 	};
 
-	void SetCapacity(int NewCapacity)
-	{
-		if (NewCapacity < FCount || NewCapacity > 0xFFFFFF)
-			return;
-		if (NewCapacity != FCapacity)
-		{
-			FList = (T*)realloc(FList, NewCapacity * sizeof(T));
-			FCapacity = NewCapacity;
-		};
-	};
 
 private:
 	int FCount, FCapacity;
