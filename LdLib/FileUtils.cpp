@@ -126,20 +126,18 @@ BOOL CFileUtils::IsDirectoryExists(LPTSTR lpFullPath)
 	return (dwAttr != INVALID_FILE_ATTRIBUTES) && (FILE_ATTRIBUTE_DIRECTORY & dwAttr);
 }
 
-BOOL CFileUtils::IsCompressed(LPTSTR lpFullName)
+DWORD CFileUtils::GetCompressStatus(LPTSTR lpFullName, PWORD pStatus)
 {
-	BOOL Result = FALSE;
-	WORD compressionStatus = 0;
+	DWORD Result = 0;
 	DWORD bytesReturned = 0;
 
-	HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE,
-		0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+	HANDLE handle = CreateFile(lpFullName, GENERIC_READ,
+		FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 	if (handle == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return GetLastError();
 
-	if (DeviceIoControl(handle, FSCTL_GET_COMPRESSION,
-		NULL, 0, &compressionStatus, sizeof(WORD), &bytesReturned, NULL))
-		Result = compressionStatus != COMPRESSION_FORMAT_NONE;
+	if (!DeviceIoControl(handle, FSCTL_GET_COMPRESSION, NULL, 0, pStatus, sizeof(WORD), &bytesReturned, NULL))
+		Result = GetLastError();
 	CloseHandle(handle);
 	return Result;
 }

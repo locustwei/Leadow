@@ -5,7 +5,8 @@
 #include <string.h>
 #include "UIlib.h"
 #include "LdLib.h"
-#include "LdList.h"
+#include "FileEraser.h"
+#include <time.h>
 
 /*
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -50,38 +51,80 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 	return TRUE;
 }
 */
+class CEraseCallback : public IErasureCallback
+{
+public:
+	CEraseCallback()
+	{
+	};
+	~CEraseCallback()
+	{
+	};
+
+
+	virtual BOOL ErasureStart(UINT nStepCount) override
+	{
+		printf("ErasureStart nStepCount = %d \n", nStepCount);
+		return TRUE;
+	}
+
+
+	virtual BOOL ErasureCompleted(UINT nStep, DWORD dwErroCode) override
+	{
+		printf("ErasureCompleted nStep = %d dwErroCode = %d \n", nStep, dwErroCode);
+		return TRUE;
+	}
+
+
+	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) override
+	{
+		//printf("ErasureProgress nStep = %d nMaxCount = %lld nCurent = %lld \n", nStep, nMaxCount, nCurent);
+		return TRUE;
+	}
+
+private:
+
+};
+
+DWORD ResetFileDate(HANDLE hFile)
+{
+	FILE_BASIC_INFO binfo = { 0 };
+	SYSTEMTIME ts = { 0 };
+
+	ts.wYear = 1601;
+	ts.wMonth = 1;
+	ts.wDay = 1;
+	ts.wMinute = 1;
+	FILETIME ft;
+	SystemTimeToFileTime(&ts, &ft);
+
+	binfo.ChangeTime.HighPart = ft.dwHighDateTime;
+	binfo.ChangeTime.LowPart= ft.dwLowDateTime;
+
+	binfo.LastAccessTime.HighPart = ft.dwHighDateTime;
+	binfo.LastAccessTime.LowPart = ft.dwLowDateTime;
+
+	binfo.LastWriteTime.HighPart = ft.dwHighDateTime;
+	binfo.LastWriteTime.LowPart = ft.dwLowDateTime;
+
+	binfo.CreationTime.HighPart = ft.dwHighDateTime;
+	binfo.CreationTime.LowPart = ft.dwLowDateTime;
+
+	binfo.FileAttributes = FILE_ATTRIBUTE_SYSTEM;
+
+	//return NtSetInformationFile(hFile, &binfo, sizeof(FILE_BASIC_INFO), FileBasicInformation);
+	if (!SetFileInformationByHandle(hFile, FileBasicInfo, &binfo, sizeof(FILE_BASIC_INFO)))
+		return GetLastError();
+	return 0;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	CLdList<CLdString*> strings;
-	strings.Append(new CLdString(L"abcd1"));
-	strings.Append(new CLdString(L"abcd2"));
-	strings.Append(new CLdString(L"abcd3"));
-	strings.Append(new CLdString(L"abcd4"));
-	strings.Append(new CLdString(L"abcd5"));
-	strings.Append(new CLdString(L"abcd6"));
-	strings.Append(new CLdString(L"abcd7"));
-	strings.Append(new CLdString(L"abcd8"));
-	strings.Append(new CLdString(L"abcd9"));
 
-	CLdString* s;
-	for (PListIndex index = strings.Begin(&s); index != NULL; index = strings.Behind(index, &s))
-	{
-		printf("%S   %d \n", *s, strings.GetCount());
-	}
-
-	printf("\n \n \n");
-
-	strings.Remove(new CLdString(L"abcd4"));
-	strings.Remove(new CLdString(L"abcd5"));
-	strings.Remove(new CLdString(L"abcd6"));
-
-	while(!strings.IsListEmpty())
-	{
-		printf("%S %d \n", *s, strings.GetCount());
-		s = strings.Pop();
-	}
-
-	strings.Clear();
+	CEraseCallback callback;
+	CErasure erasure;
+	CErasureMethod method = CErasureMethod::Pseudorandom();
+	erasure.UnuseSpaceErasure(CLdString(_T("F:")),method, &callback);
 
 	printf("press any key exit");
 	getchar();
