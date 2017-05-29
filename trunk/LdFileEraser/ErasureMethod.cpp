@@ -15,7 +15,8 @@ CErasureMethod::~CErasureMethod()
 
 	for (UINT i = 0; i < nPassCount; i++)
 	{
-		delete[] Passes[i].bytes;
+		if(Passes[i].bytes)
+			delete[] Passes[i].bytes;
 	}
 
 	delete[] Passes;
@@ -31,9 +32,9 @@ ErasureMethodPass * CErasureMethod::GetPassData(UINT nIndex)
 	return &Passes[nIndex];
 }
 
-CErasureMethod CErasureMethod::DoD_EcE()
+CErasureMethod& CErasureMethod::DoD_EcE()
 {
-	CErasureMethod Result;
+	static CErasureMethod Result;
 	Result.nPassCount = 7;
 	Result.Passes = new ErasureMethodPass[Result.nPassCount];
 
@@ -64,9 +65,9 @@ CErasureMethod CErasureMethod::DoD_EcE()
 	return Result;
 }
 
-CErasureMethod CErasureMethod::Pseudorandom()
+CErasureMethod& CErasureMethod::Pseudorandom()
 {
-	CErasureMethod Result;
+	static CErasureMethod Result;
 	Result.nPassCount = 1;
 	Result.Passes = new ErasureMethodPass[Result.nPassCount];
 

@@ -4,20 +4,18 @@
 
 CVolumeInfo::CVolumeInfo(void) :m_VolumeGuid(), m_VolumePath(), m_FileSystemName()
 {
-	m_hVolume = INVALID_HANDLE_VALUE;
+//	m_hVolume = INVALID_HANDLE_VALUE;
+	m_FileSystemName = FS_UNKNOW;
 }
 
 CVolumeInfo::~CVolumeInfo(void)
 {
-	if(m_hVolume != INVALID_HANDLE_VALUE)
-		CloseHandle(m_hVolume);
+//	if(m_hVolume != INVALID_HANDLE_VALUE)
+	//	CloseHandle(m_hVolume);
 }
 
 DWORD CVolumeInfo::OpenVolume(TCHAR* pGuid)
 {
-	if (m_hVolume != INVALID_HANDLE_VALUE || pGuid == NULL)
-		return ERROR_ALIAS_EXISTS;
-	
 	WCHAR Names[MAX_PATH + 1] = {0};
 	ULONG cb = sizeof(Names); 
 	if (GetVolumePathNamesForVolumeName(pGuid, Names, cb, &cb))
@@ -26,73 +24,78 @@ DWORD CVolumeInfo::OpenVolume(TCHAR* pGuid)
 			Names[wcslen(Names) - 1] = '\0';
 		m_VolumePath = Names;
 	}
-	else
-		return GetLastError();
 
 	pGuid[wcslen(pGuid) - 1] = '\0';
+	
+	m_VolumeGuid = pGuid;
 
-	DWORD Result = OpenVolumeHandle(pGuid);
-	if(Result == 0)
-		m_VolumeGuid = pGuid;
-
-	return Result;
+	return 0;
 }
 
 DWORD CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
 {
-	if(m_hVolume != INVALID_HANDLE_VALUE || pPath == NULL)
-		return ERROR_ALIAS_EXISTS;
-
 	CLdString path = pPath;
 	if(pPath[wcslen(pPath)-1] != '\\')
 		path += '\\';
 	WCHAR guid[MAX_PATH + 1] = {0};
 	ULONG cb = sizeof(guid); 
-	if (!GetVolumeNameForVolumeMountPoint(path, guid, cb))
-		return GetLastError();
-	if(wcslen(guid)>0)
-		guid[wcslen(guid) - 1] = '\0';
+	if (GetVolumeNameForVolumeMountPoint(path, guid, cb))
+	{
+		if (wcslen(guid) > 0)
+			guid[wcslen(guid) - 1] = '\0';
+		m_VolumeGuid = guid;
+	}
 
 	path.Delete(path.GetLength() - 1, 1);
 	
 	m_VolumePath = path;
 
-	path.Insert(0, L"\\\\.\\");
-	DWORD Result = OpenVolumeHandle(path);
-	if(Result == 0)
-		m_VolumeGuid = guid;
-
-	return Result;
+	return 0;
 }
 
-DWORD CVolumeInfo::OpenVolumeHandle(PCWSTR wsz_path)
+HANDLE CVolumeInfo::OpenVolumeHandle()
 {
-	m_hVolume = CreateFile(wsz_path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
-	if (m_hVolume == INVALID_HANDLE_VALUE)
+	CLdString path;
+	if (!m_VolumeGuid.IsEmpty())
+		path = m_VolumeGuid;
+	else if (!m_VolumePath.IsEmpty())
+	{
+		path = _T("\\\\.\\");
+		path += m_VolumePath;
+	}
+
+	return CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
+}
+
+DWORD CVolumeInfo::GetVolumeInfo()
+{
+	CLdString path;
+	if (!m_VolumePath.IsEmpty())
+		path = m_VolumePath + _T("\\");
+	else if (!m_VolumeGuid.IsEmpty())
+		path = m_VolumeGuid + _T("\\");
+	else
+		return DWORD(-1);
+	CLdString VolumeNameBuffer((UINT)MAX_PATH), FileSystemNameBuffer((UINT)MAX_PATH);
+	if (!GetVolumeInformation(path, VolumeNameBuffer, MAX_PATH, NULL, &MaxFilenameLength, &FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
 		return GetLastError();
 	else
-		return 0;
-}
-
-BOOL CVolumeInfo::GetVolumeInfo()
-{
-	if (m_VolumeGuid.IsEmpty())
-		return FALSE;
-	CLdString VolumeNameBuffer((UINT)MAX_PATH), FileSystemNameBuffer((UINT)MAX_PATH);
-	if (!GetVolumeInformation(m_VolumeGuid, VolumeNameBuffer, MAX_PATH, NULL, &MaxFilenameLength, &FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
-		return FALSE;
-	else
 	{
-		if (FileSystemNameBuffer == _T("FAT"))
+		if (FileSystemNameBuffer == _T("NTFS"))
+			m_FileSystemName = FS_NTFS;
+		else if (FileSystemNameBuffer == _T("FAT32"))
+			m_FileSystemName = FS_FAT32;
+		else if (FileSystemNameBuffer == _T("FAT"))
 		{
-			if (GetTotalClusters() <= 0x0FF)
-				FileSystemNameBuffer += _T("12");
+			UINT totlCluters = 0;
+			GetTotalClusters(&totlCluters);
+			if (totlCluters <= 0x0FF)
+				m_FileSystemName = FS_FAT12;
 			else
-				FileSystemNameBuffer += _T("16");
+				m_FileSystemName = FS_FAT16;
 		}
-		m_FileSystemName = FileSystemNameBuffer;
 	}
-	return TRUE;
+	return 0;
 }
 
 PCWSTR CVolumeInfo::GetVolumeGuid()
@@ -105,73 +108,85 @@ PCWSTR CVolumeInfo::GetVolumePath()
 	return m_VolumePath;
 }
 
-UINT64 CVolumeInfo::GetAvailableFreeSpace()
+ DWORD CVolumeInfo::GetAvailableFreeSpace(PUINT64 pOut)
 {
-	if (m_VolumeGuid.IsEmpty())
-		return 0;
-	ULARGE_INTEGER FreeBytesAvailable;
-	if (GetDiskFreeSpaceEx(m_VolumeGuid, &FreeBytesAvailable, NULL, NULL))
-		return FreeBytesAvailable.QuadPart;
+	CLdString path;
+	if (!m_VolumePath.IsEmpty())
+		path = m_VolumePath + _T("\\");
+	else if (!m_VolumeGuid.IsEmpty())
+		path = m_VolumeGuid + _T("\\");
 	else
-		return 0;
+		return (DWORD)-1;
+
+	ULARGE_INTEGER FreeBytesAvailable;
+	if (GetDiskFreeSpaceEx(path, &FreeBytesAvailable, NULL, NULL))
+		*pOut = FreeBytesAvailable.QuadPart;
+	else
+		return GetLastError();
+	return 0;
 }
 
-UINT64 CVolumeInfo::GetTotalFreeSpace()
+DWORD CVolumeInfo::GetTotalFreeSpace(PUINT64 pOut)
 {
 	if (m_VolumeGuid.IsEmpty())
-		return 0;
+		return (DWORD)-1;
 	ULARGE_INTEGER TotalFreeSpace;
 	if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, NULL, &TotalFreeSpace))
-		return TotalFreeSpace.QuadPart;
+		*pOut = TotalFreeSpace.QuadPart;
 	else
-		return 0;
+		return GetLastError();
+	return 0;
 }
 
-UINT64 CVolumeInfo::GetTotalSize()
+DWORD CVolumeInfo::GetTotalSize(PUINT64 pOut)
 {
 	if (m_VolumeGuid.IsEmpty())
-		return 0;
+		return DWORD(-1);
 	ULARGE_INTEGER TotalSize;
 	if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, &TotalSize, NULL))
-		return TotalSize.QuadPart;
+		*pOut = TotalSize.QuadPart;
 	else
 	{
+		return GetLastError();
 		//IOCTL_DISK_GET_LENGTH_INFO
 	}
 	return 0;
 }
 
-UINT CVolumeInfo::GetClusterSize()
+DWORD CVolumeInfo::GetClusterSize(PUINT pOut)
 {
 	if (m_VolumeGuid.IsEmpty())
-		return 0;
+		return DWORD(-1);
 	DWORD SectorsPerCluster, BytesPerSector, NumberOfFreeClusters, TotalNumberOfClusters;
 	if (GetDiskFreeSpace(m_VolumeGuid, &SectorsPerCluster, &BytesPerSector, &NumberOfFreeClusters, &TotalNumberOfClusters))
-		return SectorsPerCluster * BytesPerSector;
+		*pOut = SectorsPerCluster * BytesPerSector;
 	else
-		return 0;
+		return GetLastError();
+	return 0;
 }
 
-UINT CVolumeInfo::GetSectorSize()
+DWORD CVolumeInfo::GetSectorSize(PUINT pOut)
 {
 	if (m_VolumeGuid.IsEmpty())
-		return 0;
+		return DWORD(-1);
 	DWORD SectorsPerCluster, BytesPerSector, NumberOfFreeClusters, TotalNumberOfClusters;
 	if (GetDiskFreeSpace(m_VolumeGuid, &SectorsPerCluster, &BytesPerSector, &NumberOfFreeClusters, &TotalNumberOfClusters))
-		return BytesPerSector;
+		*pOut = BytesPerSector;
 	else
-		return 0;
+		return GetLastError();
+	return 0;
 }
 
-UINT CVolumeInfo::GetTotalClusters()
+DWORD CVolumeInfo::GetTotalClusters(PUINT pOut)
 {
 	if (m_VolumeGuid.IsEmpty())
-		return 0;
+		return DWORD(-1);
 	DWORD SectorsPerCluster, BytesPerSector, NumberOfFreeClusters, TotalNumberOfClusters;
 	if (GetDiskFreeSpace(m_VolumeGuid, &SectorsPerCluster, &BytesPerSector, &NumberOfFreeClusters, &TotalNumberOfClusters))
-		return TotalNumberOfClusters;
+		*pOut = TotalNumberOfClusters;
 	else
-		return 0;
+		return GetLastError();
+	return 0;
 }
 
 BOOL CVolumeInfo::HasQuota()
@@ -193,5 +208,17 @@ BOOL CVolumeInfo::IsMounted()
 void CVolumeInfo::MountedVolumes()
 {
 	//todo
+}
+
+DWORD CVolumeInfo::GetFileSystem(VOLUME_FILE_SYSTEM* pOut)
+{
+	DWORD Result = 0;
+	if (m_FileSystemName == FS_UNKNOW)
+	{
+		Result = GetVolumeInfo();
+	}
+	if (Result == 0)
+		*pOut = m_FileSystemName;
+	return Result;
 }
 

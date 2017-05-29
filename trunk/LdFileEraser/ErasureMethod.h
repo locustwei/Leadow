@@ -5,7 +5,7 @@ typedef enum ErasureMethodPassFunction {
 	WriteConstant
 };
 
-class ErasureMethodPass
+class LDLIB_API ErasureMethodPass
 {
 public:
 	ErasureMethodPass()
@@ -20,7 +20,7 @@ public:
 	PBYTE bytes;
 };
 
-class CErasureMethod
+class LDLIB_API CErasureMethod
 {
 public:
 	CErasureMethod();
@@ -28,10 +28,11 @@ public:
 	UINT GetPassCount();
 	ErasureMethodPass* GetPassData(UINT nIndex);
 
-	static CErasureMethod DoD_EcE();
-	static CErasureMethod Pseudorandom();
+	static CErasureMethod& DoD_EcE();
+	static CErasureMethod& Pseudorandom();
 private:
 	UINT nPassCount;
 	ErasureMethodPass* Passes;
+
 };
 

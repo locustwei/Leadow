@@ -1,5 +1,7 @@
 #pragma once
 
+#pragma warning(disable:4996)
+
 #include "LdString.h"
 #include "LdStructs.h"
 #include "PublicRoutimes.h"
@@ -13,6 +15,6 @@
 #include "HandleUitls.h"
 #include "VolumeUtils.h"
 #include "RegisterUtils.h"
-
+#include "NtfsUtils.h"
 
 #define LDLIB_API __declspec(dllexport)

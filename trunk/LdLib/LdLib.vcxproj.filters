@@ -32,6 +32,9 @@
     <ClCompile Include="VolumeUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="NtfsUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -73,6 +76,9 @@
     </ClInclude>
     <ClInclude Include="LdArray.h">
       <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="NtfsUtils.h">
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,7 +15,7 @@ public:
 	//static VOID IncludeTrailingPathDelimiter
 	//todo 文件交换数据流
 	//static DWORD SetFileInfo(LPTSTR lpFullName, )
-	static BOOL IsCompressed(LPTSTR lpFullName);
+	static DWORD GetCompressStatus(LPTSTR lpFullName, PWORD pStatus);
 	static BOOL SetCompression(LPTSTR lpFullName, BOOL bCompress);
 };
 

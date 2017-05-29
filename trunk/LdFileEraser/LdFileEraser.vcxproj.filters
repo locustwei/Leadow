@@ -21,7 +21,7 @@
     <ClCompile Include="ErasureMethod.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UnuseSpaceErasure.cpp">
+    <ClCompile Include="Erasure.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,7 +35,10 @@
     <ClInclude Include="ErasureMethod.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="UnuseSpaceErasure.h">
+    <ClInclude Include="FileEraser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Erasure.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

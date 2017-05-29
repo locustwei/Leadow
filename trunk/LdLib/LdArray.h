@@ -6,6 +6,9 @@ template <typename T >
 class CLdArray
 {
 public:
+
+#define LDARRAY_MAXSIZE 0x1FFFFFFF
+
 	CLdArray()
 	{
 		FCount = 0;
@@ -128,7 +131,7 @@ public:
 	};
 	void SetCount(int NewCount)
 	{
-		if (NewCount < 0 || NewCount > 0xFFFFFF)
+		if (NewCount < 0 || NewCount > LDARRAY_MAXSIZE)
 			return;
 		if (NewCount > FCapacity)
 			SetCapacity(NewCount);
@@ -153,7 +156,7 @@ public:
 	};
 	void SetCapacity(int NewCapacity)
 	{
-		if (NewCapacity < FCount || NewCapacity > 0xFFFFFF)
+		if (NewCapacity < FCount || NewCapacity > LDARRAY_MAXSIZE)
 			return;
 		if (NewCapacity != FCapacity)
 		{

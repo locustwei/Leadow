@@ -157,6 +157,7 @@
     <ClInclude Include="LdNamedPipe.h" />
     <ClInclude Include="LdString.h" />
     <ClInclude Include="LdStructs.h" />
+    <ClInclude Include="NtfsUtils.h" />
     <ClInclude Include="ProcessUtils.h" />
     <ClInclude Include="PublicRoutimes.h" />
     <ClInclude Include="RegisterUtils.h" />
@@ -171,6 +172,7 @@
     <ClCompile Include="LdDriver.cpp" />
     <ClCompile Include="LdNamedPipe.cpp" />
     <ClCompile Include="LdString.cpp" />
+    <ClCompile Include="NtfsUtils.cpp" />
     <ClCompile Include="ProcessUtils.cpp" />
     <ClCompile Include="PulicRoutimes.cpp" />
     <ClCompile Include="RegisterUtils.cpp" />
