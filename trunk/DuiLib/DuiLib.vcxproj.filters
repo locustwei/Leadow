@@ -162,6 +162,9 @@
     <ClCompile Include="LeadowUI\Component.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
+    <ClCompile Include="LeadowUI\LdChildWnd.cpp">
+      <Filter>LeadowUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -291,6 +294,9 @@
       <Filter>LeadowUI</Filter>
     </ClInclude>
     <ClInclude Include="LeadowUI\Component.h">
+      <Filter>LeadowUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LeadowUI\LdChildWnd.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>

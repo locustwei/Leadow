@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window size="92,72">
+	<Include source="defualt.xml" />
+  <VerticalLayout bkcolor="#FFD1E8F5" bkcolor2="#FFC6E0F1" bordercolor="#FF768D9B" bordersize="1" borderround="5,5" inset="1,1,1,1">
+    	<List header="hidden" bkcolor="#FFFFFFFF" inset="0,0,0,0" vscrollbar="true"  itemtextcolor="#FFC8C6CB" itemselectedtextcolor="#FFC8C6CB" itemhottextcolor="#FFC8C6CB" itembkcolor="#FF2E2E2E" itemselectedbkcolor="#FF191919" itemhotbkcolor="#FF191919">
+    		<ListContainerElement name="menuSequence" height="22" inset="15,0,25,0">
+					<Label text="顺序播放" textcolor="#FFC8C6CB"  />
+				</ListContainerElement>
+				<ListContainerElement name="menuRandom" height="22" inset="15,0,25,0">
+					<Label text="随机播放" textcolor="#FFC8C6CB"  />
+				</ListContainerElement>
+				<ListContainerElement name="menuSingleCircle" height="22" inset="15,0,25,0" >
+					Label text="单曲循环"  textcolor="#FFC8C6CB" align="center"/>
+				</ListContainerElement>
+
+			</List>
+  </VerticalLayout>
+</Window>
