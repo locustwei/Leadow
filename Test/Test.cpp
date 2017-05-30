@@ -123,8 +123,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	CEraseCallback callback;
 	CErasure erasure;
-	CErasureMethod method = CErasureMethod::Pseudorandom();
-	erasure.UnuseSpaceErasure(CLdString(_T("F:")),method, &callback);
+	erasure.UnuseSpaceErasure(CLdString(_T("h:")), CErasureMethod::Pseudorandom(), &callback);
 
 	printf("press any key exit");
 	getchar();

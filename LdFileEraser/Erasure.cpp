@@ -81,7 +81,7 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 		if (IsCompressed)
 			CFileUtils::SetCompression(Driver, FALSE);
 		m_tmpDir += Erasure_temp_path;
-		Result = CFileUtils::ForceDirectories(m_tmpDir);
+		Result = CFileUtils::ForceDirectories(m_tmpDir + _T("\\"));
 		if (Result != 0)
 			break;
 		m_tmpDir += _T("\\");
@@ -100,6 +100,7 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 		RemoveDirectory(m_tmpDir);
 	} while (false);
 	
+	callback->ErasureCompleted(3, Result);
 
 	return Result;
 }
@@ -404,6 +405,7 @@ DWORD CErasure::EraseMftDeleteFile()
 {
 	DWORD Result = 0;
 	UINT64 nTotalSize = 10000; //todo
+	DWORD nFileSize = 1024; //todo
 	do
 	{
 		m_callback->ErasureProgress(2, nTotalSize, 0);
@@ -414,10 +416,12 @@ DWORD CErasure::EraseMftDeleteFile()
 		callback.m_Callback = m_callback;
 		while (true)
 		{
-			Result = EraseFreeSpace(0, &callback);
+			Result = EraseFreeSpace(nFileSize, &callback);
 			if (Result != 0)
 			{
-				break;
+				if(nFileSize == 0)
+					break;
+				nFileSize--;
 			}
 		}
 	} while (false);
