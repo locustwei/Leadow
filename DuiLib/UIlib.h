@@ -113,3 +113,4 @@
 
 #include "LeadowUI/LdDuiWnd.h"
 #include "LeadowUI/LdMenu.h"
+#include "LeadowUI/LdChildWnd.h"
