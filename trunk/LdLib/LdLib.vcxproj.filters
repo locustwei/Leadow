@@ -80,6 +80,9 @@
     <ClInclude Include="NtfsUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="LdMap.h">
+      <Filter>classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
