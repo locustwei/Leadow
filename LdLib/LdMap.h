@@ -129,12 +129,12 @@ class CLdHashMap
 {
 public:
 
-	struct TITEM
+	struct HASHMAP_TITEM
 	{
 		CLdString Key;
 		T Data;
-		struct TITEM* pPrev;
-		struct TITEM* pNext;
+		struct HASHMAP_TITEM* pPrev;
+		struct HASHMAP_TITEM* pNext;
 	};
 
 	static UINT HashKey(LPCTSTR Key)
@@ -154,25 +154,13 @@ public:
 	{
 		if (nSize < 16) nSize = 16;
 		m_nBuckets = nSize;
-		m_aT = new TITEM*[nSize];
-		memset(m_aT, 0, nSize * sizeof(TITEM*));
+		m_aT = new HASHMAP_TITEM*[nSize];
+		memset(m_aT, 0, nSize * sizeof(HASHMAP_TITEM*));
 	};
 
 	~CLdHashMap()
 	{
-		if (m_aT) {
-			int len = m_nBuckets;
-			while (len--) {
-				TITEM* pItem = m_aT[len];
-				while (pItem) {
-					TITEM* pKill = pItem;
-					pItem = pItem->pNext;
-					delete pKill;
-				}
-			}
-			delete[] m_aT;
-			m_aT = NULL;
-		}
+		Resize(0);
 	};
 
 	void RemoveAll()
@@ -185,9 +173,9 @@ public:
 		if (m_aT) {
 			int len = m_nBuckets;
 			while (len--) {
-				TITEM* pItem = m_aT[len];
+				HASHMAP_TITEM* pItem = m_aT[len];
 				while (pItem) {
-					TITEM* pKill = pItem;
+					HASHMAP_TITEM* pKill = pItem;
 					pItem = pItem->pNext;
 					delete pKill;
 				}
@@ -198,8 +186,8 @@ public:
 
 		if (nSize < 0) nSize = 0;
 		if (nSize > 0) {
-			m_aT = new TITEM*[nSize];
-			memset(m_aT, 0, nSize * sizeof(TITEM*));
+			m_aT = new HASHMAP_TITEM*[nSize];
+			memset(m_aT, 0, nSize * sizeof(HASHMAP_TITEM*));
 		}
 		m_nBuckets = nSize;
 		m_nCount = 0;
@@ -210,7 +198,7 @@ public:
 		if (m_nBuckets == 0 || GetSize() == 0) return NULL;
 
 		UINT slot = HashKey(key) % m_nBuckets;
-		for (TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
+		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
 			if (pItem->Key == key) {
 				if (optimize && pItem != m_aT[slot]) {
 					if (pItem->pNext) {
@@ -237,7 +225,8 @@ public:
 
 		// Add first in bucket
 		UINT slot = HashKey(key) % m_nBuckets;
-		TITEM* pItem = new TITEM;
+		HASHMAP_TITEM* pItem = (HASHMAP_TITEM*)new BYTE[sizeof(HASHMAP_TITEM)];   //尝试引用已删除的函数
+		memset(pItem, 0, sizeof(HASHMAP_TITEM));
 		pItem->Key = key;
 		pItem->Data = pData;
 		pItem->pPrev = NULL;
@@ -256,7 +245,7 @@ public:
 		if (GetSize()>0) {
 			UINT slot = HashKey(key) % m_nBuckets;
 			// Modify existing item
-			for (TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
+			for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
 				if (pItem->Key == key) {
 					LPVOID pOldData = pItem->Data;
 					pItem->Data = pData;
@@ -274,10 +263,10 @@ public:
 		if (m_nBuckets == 0 || GetSize() == 0) return false;
 
 		UINT slot = HashKey(key) % m_nBuckets;
-		TITEM** ppItem = &m_aT[slot];
+		HASHMAP_TITEM** ppItem = &m_aT[slot];
 		while (*ppItem) {
 			if ((*ppItem)->Key == key) {
-				TITEM* pKill = *ppItem;
+				HASHMAP_TITEM* pKill = *ppItem;
 				*ppItem = (*ppItem)->pNext;
 				if (*ppItem)
 					(*ppItem)->pPrev = pKill->pPrev;
@@ -303,7 +292,7 @@ public:
 		int pos = 0;
 		int len = m_nBuckets;
 		while (len--) {
-			for (TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext) {
+			for (HASHMAP_TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext) {
 				if (pos++ == iIndex) {
 					return pItem->Key.GetData();
 				}
@@ -323,7 +312,7 @@ public:
 		return Find(key);
 	};
 protected:
-	TITEM** m_aT;
+	HASHMAP_TITEM** m_aT;
 	int m_nBuckets;
 	int m_nCount;
 };
