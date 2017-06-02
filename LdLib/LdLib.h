@@ -18,3 +18,5 @@
 #include "NtfsUtils.h"
 
 #define LDLIB_API __declspec(dllexport)
+
+#define PAuthorization PVOID    //ÎªÊÚÈ¨ÁôÓÃ

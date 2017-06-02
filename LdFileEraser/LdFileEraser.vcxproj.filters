@@ -16,19 +16,25 @@
     <Filter Include="UI">
       <UniqueIdentifier>{1f9ae493-063b-483f-a26a-c387e27781e3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Erasure">
+      <UniqueIdentifier>{680577ba-be5e-44cf-838c-7c48ccd49837}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureMethod.cpp">
+    <ClCompile Include="ErasureMainWnd.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Exprot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Erasure.cpp">
-      <Filter>源文件</Filter>
+      <Filter>Erasure</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureMainWnd.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="ErasureMethod.cpp">
+      <Filter>Erasure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -38,17 +44,20 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureMethod.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FileEraser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Erasure.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ErasureMainWnd.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Exprot.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Erasure.h">
+      <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureMethod.h">
+      <Filter>Erasure</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

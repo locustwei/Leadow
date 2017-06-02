@@ -162,7 +162,7 @@
     <ClCompile Include="LeadowUI\Component.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
-    <ClCompile Include="LeadowUI\LdChildWnd.cpp">
+    <ClCompile Include="LeadowUI\FramWnd.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -296,7 +296,7 @@
     <ClInclude Include="LeadowUI\Component.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
-    <ClInclude Include="LeadowUI\LdChildWnd.h">
+    <ClInclude Include="LeadowUI\FramWnd.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>

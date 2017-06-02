@@ -113,4 +113,4 @@
 
 #include "LeadowUI/LdDuiWnd.h"
 #include "LeadowUI/LdMenu.h"
-#include "LeadowUI/LdChildWnd.h"
+#include "LeadowUI/FramWnd.h"

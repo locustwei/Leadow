@@ -157,12 +157,14 @@
   <ItemGroup>
     <ClCompile Include="ErasureMainWnd.cpp" />
     <ClCompile Include="ErasureMethod.cpp" />
+    <ClCompile Include="Exprot.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Erasure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ErasureMainWnd.h" />
     <ClInclude Include="ErasureMethod.h" />
+    <ClInclude Include="Exprot.h" />
     <ClInclude Include="FileEraser.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
