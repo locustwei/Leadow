@@ -1,8 +1,7 @@
 #pragma once
 
-#include "../DuiLib/LeadowUI/LdChildWnd.h"
 
-class CErasureMainWnd : public CLdChildWnd
+class CErasureMainWnd : public CFramWnd
 {
 public:
 	CErasureMainWnd();

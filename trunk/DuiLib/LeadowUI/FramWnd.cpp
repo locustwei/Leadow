@@ -1,20 +1,21 @@
 #include "stdafx.h"
-#include "LdChildWnd.h"
+#include "FramWnd.h"
 
 namespace DuiLib {
-	CLdChildWnd::CLdChildWnd()
+	CFramWnd::CFramWnd()
 	{
 		m_Control = NULL;
 	}
 
 
-	CLdChildWnd::~CLdChildWnd()
+	CFramWnd::~CFramWnd()
 	{
 	}
 
-	DUI_BEGIN_MESSAGE_MAP(CLdChildWnd, CNotifyPump)
+	DUI_BEGIN_MESSAGE_MAP(CFramWnd, CNotifyPump)
 	DUI_END_MESSAGE_MAP()
 
+		/*
 	CControlUI * CLdChildWnd::BuildXml(TCHAR * skinXml, CPaintManagerUI* pm)
 	{
 		CDialogBuilder builder;
@@ -30,10 +31,10 @@ namespace DuiLib {
 
 		return m_Control;
 	}
-
-	CControlUI* CLdChildWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
+	CControlUI* CLdChildWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /)
 	{
 		return NULL;
 	}
+	*/
 
 }
