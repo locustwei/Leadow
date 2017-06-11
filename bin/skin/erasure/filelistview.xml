@@ -5,7 +5,10 @@
         <HorizontalLayout inset="3,0,3,3">
             <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true">
                 <ListHeader height="24" >
-                    <ListHeaderItem text="PID" width="50" minwidth="16" />
+                    <ListHeaderItem text="Filename" width="250" minwidth="100" />
+                    <ListHeaderItem text="File size" width="80" minwidth="10" />
+                    <ListHeaderItem text="Create time" width="100" minwidth="10" />
+                    <ListHeaderItem text="Last update time" width="100" minwidth="10" />
                 </ListHeader>
             </List>
         </HorizontalLayout>
@@ -13,10 +16,11 @@
             <VerticalLayout>
                 <HorizontalLayout height="1"  />
                 <HorizontalLayout>
-                    <HorizontalLayout />
-                    <HorizontalLayout width="223" padding="0,5,0,10" inset="0,1,0,0" childpadding="5">
-                        <Button name="btnOk" text="确定" width="100" />
-                        <Button name="btnCancel" text="取消" width="100" />
+                    <HorizontalLayout>                    	
+                        <Button name="openfile" text="添加文件" width="100" />
+                    </HorizontalLayout>
+                    <HorizontalLayout width="123" padding="0,5,0,10" inset="0,1,0,0" childpadding="5">
+                        <Button name="btnOk" text="执行" width="100" />
                     </HorizontalLayout>
                 </HorizontalLayout>
             </VerticalLayout>

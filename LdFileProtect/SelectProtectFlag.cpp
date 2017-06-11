@@ -15,7 +15,7 @@ DWORD CSelectProtectFlag::SelectFlags(HWND hParentWnd)
 {
 	DWORD ret = 0;
 
-	CSelectProtectFlag pFrame(_T("chooseprotectflag.xml"));
+	CSelectProtectFlag pFrame(_T("protecte\\chooseprotectflag.xml"));
 
 	pFrame.Create(hParentWnd, _T(""), UI_WNDSTYLE_DIALOG, 0L);
 	pFrame.CenterWindow();

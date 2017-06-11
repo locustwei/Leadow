@@ -15,7 +15,7 @@
 #include <tchar.h>
 
 #include "targetver.h"
-
+#include "LdLib.h"
 #include "../DuiLib/Uilib.h"
 
 using namespace DuiLib;

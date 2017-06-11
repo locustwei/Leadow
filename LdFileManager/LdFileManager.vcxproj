@@ -149,10 +149,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="LdFileManager.cpp" />
+    <ClCompile Include="Library.cpp" />
     <ClCompile Include="MainWnd.cpp" />
     <ClCompile Include="StdAfx.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Library.h" />
     <ClInclude Include="MainWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

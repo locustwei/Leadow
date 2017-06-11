@@ -42,6 +42,9 @@
     <ClCompile Include="Exprot.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ProtectMainWnd.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="Exprot.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ProtectMainWnd.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

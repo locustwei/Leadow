@@ -863,7 +863,8 @@ void CControlUI::DoEvent(TEventUI& event)
 void CControlUI::SetVirtualWnd(LPCTSTR pstrValue)
 {
 	m_sVirtualWnd = pstrValue;
-	m_pManager->UsedVirtualWnd(true);
+	if(m_pManager)
+		m_pManager->UsedVirtualWnd(true);
 }
 
 CDuiString CControlUI::GetVirtualWnd() const
