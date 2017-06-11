@@ -162,8 +162,8 @@ LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		&& pt.y >= rcCaption.top && pt.y < rcCaption.bottom ) {
 			CControlUI* pControl = static_cast<CControlUI*>(m_PaintManager.FindControl(pt));
 			if( pControl && _tcsicmp(pControl->GetClass(), DUI_CTR_BUTTON) != 0 && 
-				_tcsicmp(pControl->GetClass(), DUI_CTR_OPTION) != 0 &&
-				_tcsicmp(pControl->GetClass(), DUI_CTR_TEXT) != 0 )
+				_tcsicmp(pControl->GetClass(), DUI_CTR_OPTION) != 0 
+				/*&& _tcsicmp(pControl->GetClass(), DUI_CTR_TEXT) != 0*/ )
 				return HTCAPTION;
 	}
 
@@ -273,6 +273,7 @@ LRESULT WindowImplBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	m_PaintManager.Init(m_hWnd);
 	m_PaintManager.AddPreMessageFilter(this);
+	m_PaintManager.UsedVirtualWnd(true);
 
 	CDialogBuilder builder;
 	CDuiString strResourcePath=m_PaintManager.GetResourcePath();

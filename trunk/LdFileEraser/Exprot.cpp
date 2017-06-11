@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Exprot.h"
 #include "FileEraser.h"
+#include "ErasureMainWnd.h"
 
 
 DWORD LDLIB_API API_Init(PAuthorization)
@@ -10,7 +11,12 @@ DWORD LDLIB_API API_Init(PAuthorization)
 
 VOID LDLIB_API API_UnInit()
 {
+	
+}
 
+CFramWnd LDLIB_API *  API_LibraryUI()
+{
+	return new CErasureMainWnd();
 }
 
 

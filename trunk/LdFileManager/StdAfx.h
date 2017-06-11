@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <objbase.h>
 #include <zmouse.h>
-
+#include "LdLib.h"
 #include "UIlib.h"
 
 using namespace DuiLib;

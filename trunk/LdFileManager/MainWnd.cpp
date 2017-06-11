@@ -1,6 +1,13 @@
 #include "stdafx.h"
+#include "Library.h"
 #include "MainWnd.h"
 
+
+DUI_BEGIN_MESSAGE_MAP(CMainWnd, WindowImplBase)
+DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
+DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
+DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
+DUI_END_MESSAGE_MAP()
 
 CMainWnd::CMainWnd(TCHAR* xmlSkin)
 {
@@ -14,6 +21,7 @@ CMainWnd::~CMainWnd()
 {
 }
 
+
 DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
 {
 	return NULL;
@@ -21,27 +29,12 @@ DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNod
 
 void CMainWnd::Notify(TNotifyUI& msg)
 {
-	if (msg.sType == _T("selectchanged"))
-	{
-		CDuiString name = msg.pSender->GetName();
-		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
-		if (name == _T("search"))
-			pControl->SelectItem(0);
-		else if (name == _T("foucedelete"))
-			pControl->SelectItem(1);
-		else if (name == _T("protecte"))
-			pControl->SelectItem(2);
-		else if (name == _T("recove"))
-			pControl->SelectItem(3);
-		else if (name == _T("cleaner"))
-			pControl->SelectItem(4);
-	}
 	return __super::Notify(msg);
 }
 
 LPCTSTR CMainWnd::GetWindowClassName() const
 {
-	return _T("LdFileManagerWndClass");
+	return _T("LdFileManagerMainWnd");
 }
 
 LRESULT CMainWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -66,4 +59,49 @@ DuiLib::CDuiString CMainWnd::GetSkinFile()
 CDuiString CMainWnd::GetSkinFolder()
 {
 	return _T("skin");
+}
+
+void CMainWnd::OnClick(TNotifyUI& msg)
+{
+	return __super::OnClick(msg);
+}
+
+void CMainWnd::OnSelectChanged(TNotifyUI & msg)
+{
+	if (msg.sType == _T("selectchanged"))
+	{
+		CDuiString name = msg.pSender->GetName();
+		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
+		if (name == _T("search"))
+			pControl->SelectItem(0);
+		else if (name == _T("erasure"))
+		{
+			CFramWnd* frame = CLdLibray::ErasureLibrary()->GetUI();
+			if (pControl->GetItemIndex(*frame) == -1)
+			{
+				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
+				pControl->Add(*frame);
+			}
+			pControl->SelectItem(*frame);
+		}
+		else if (name == _T("protecte"))
+		{
+			CFramWnd* frame = CLdLibray::ProtectLibrary()->GetUI();
+			if (pControl->GetItemIndex(*frame) == -1)
+			{
+				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
+				pControl->Add(*frame);
+			}
+			pControl->SelectItem(*frame);
+		}
+		else if (name == _T("recove"))
+			pControl->SelectItem(3);
+		else if (name == _T("cleaner"))
+			pControl->SelectItem(4);
+	}
+
+}
+
+void CMainWnd::OnItemClick(TNotifyUI & msg)
+{
 }

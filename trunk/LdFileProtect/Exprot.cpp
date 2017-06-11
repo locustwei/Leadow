@@ -4,6 +4,7 @@
 #include "SelectProtectFlag.h"
 #include "FileProtectDirver.h"
 #include "ProcessListView.h"
+#include "ProtectMainWnd.h"
 
 DWORD LDLIB_API API_Init(PAuthorization)
 {
@@ -13,6 +14,11 @@ DWORD LDLIB_API API_Init(PAuthorization)
 VOID LDLIB_API API_UnInit()
 {
 
+}
+
+CFramWnd LDLIB_API *  API_LibraryUI()
+{
+	return new CProtectMainWnd();
 }
 
 DWORD LDLIB_API API_SelectProtectFlag(HWND hParentWnd)

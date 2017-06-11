@@ -36,6 +36,9 @@
     <ClCompile Include="ErasureMethod.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
+    <ClCompile Include="ErasureFileUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -59,5 +62,13 @@
     <ClInclude Include="ErasureMethod.h">
       <Filter>Erasure</Filter>
     </ClInclude>
+    <ClInclude Include="ErasureFileUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LdFileEraser.def">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

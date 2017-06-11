@@ -203,6 +203,7 @@
     <ClCompile Include="FileProtectDirver.cpp" />
     <ClCompile Include="Exprot.cpp" />
     <ClCompile Include="ProcessListView.cpp" />
+    <ClCompile Include="ProtectMainWnd.cpp" />
     <ClCompile Include="SelectProtectFlag.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -215,6 +216,7 @@
     <ClInclude Include="FileProtectDirver.h" />
     <ClInclude Include="Exprot.h" />
     <ClInclude Include="ProcessListView.h" />
+    <ClInclude Include="ProtectMainWnd.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SelectProtectFlag.h" />
     <ClInclude Include="stdafx.h" />

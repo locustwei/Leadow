@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window>
+    <VerticalLayout>
+        <HorizontalLayout height="36">
+            <Combo float="true" pos="0,0,0,0" width="160" height="30" itemtextcolor="#FF000000" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" dropboxsize="0,150" />
+        </HorizontalLayout>
+        <HorizontalLayout height="26">
+            <Option name="Shredder" text="文件粉碎" float="true" pos="6,0,0,0" width="78" height="26" textcolor="#FF386382" disabledtextcolor="#FFA7A6AA" font="2" align="center" valign="center" normalimage="tabbar_normal.png" hotimage="tabbar_hover.png" pushedimage="tabbar_pushed.png" group="contenttab" selected="true" selectedimage="tabbar_pushed.png" selectedtextcolor="#FF000000" />
+            <Option name="recycle" text="清理回收站" float="true" pos="86,0,0,0" width="78" height="26" textcolor="#FF386382" disabledtextcolor="#FFA7A6AA" font="2" align="center" valign="center" normalimage="tabbar_normal.png" hotimage="tabbar_hover.png" pushedimage="tabbar_pushed.png" group="contenttab" selectedimage="tabbar_pushed.png" selectedtextcolor="#FF000000" />
+            <Option name="unusedspace" text="磁盘擦除" float="true" pos="166,0,0,0" width="78" height="26" textcolor="#FF386382" disabledtextcolor="#FFA7A6AA" font="2" align="center" valign="center" normalimage="tabbar_normal.png" hotimage="tabbar_hover.png" pushedimage="tabbar_pushed.png" group="contenttab" selectedimage="tabbar_pushed.png" selectedtextcolor="#FF000000" />
+            <Option name="truemove" text="移动文件" float="true" pos="246,0,0,0" width="78" height="26" textcolor="#FF386382" disabledtextcolor="#FFA7A6AA" font="2" align="center" valign="center" normalimage="tabbar_normal.png" hotimage="tabbar_hover.png" pushedimage="tabbar_pushed.png" group="contenttab" selectedimage="tabbar_pushed.png" selectedtextcolor="#FF000000" />
+        </HorizontalLayout>
+        <TabLayout name="pagelist">
+        </TabLayout>
+    </VerticalLayout>
+</Window>
