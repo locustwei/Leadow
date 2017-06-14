@@ -35,6 +35,7 @@
     <ClCompile Include="NtfsUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
+    <ClCompile Include="GetFileNameDlg.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -83,6 +84,7 @@
     <ClInclude Include="LdMap.h">
       <Filter>classes</Filter>
     </ClInclude>
+    <ClInclude Include="GetFileNameDlg.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

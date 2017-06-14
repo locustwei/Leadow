@@ -7,30 +7,40 @@
 #include "LdLib.h"
 #include "FileEraser.h"
 #include <time.h>
+#include <Commdlg.h>
 
-/*
+
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+	OPENFILENAME ofn;       // common dialog box structure
+	TCHAR szFile[260] = { 0 };       // buffer for file name
+	HWND hwnd = NULL;              // owner window
+	HANDLE hf;              // file handle
 
-	CPaintManagerUI::SetInstance(hInstance);
-	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
+							// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(ofn));
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = hwnd;
+	ofn.lpstrFile = szFile;
+	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
+	// use the contents of szFile to initialize itself.
+	ofn.lpstrFile[0] = '\0';
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = _T("All\0*.*\0Text\0*.TXT\0");
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = NULL;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = _T("C:\\");
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
 
-	HRESULT Hr = ::CoInitialize(NULL);
-	if (FAILED(Hr))
-		return FALSE;
-	DWORD ids[] = {12848, 6552, 3160, 6400};
-	CProcessListView::KillProcess(NULL, ids, ARRAYSIZE(ids));
+	// Display the Open dialog box. 
 
-	::PostQuitMessage(0L);
+	if (GetOpenFileName(&ofn) == TRUE)
+		;
 
-	CPaintManagerUI::MessageLoop();
-
-	::CoUninitialize();
 
 	return (int) 0;
 }
@@ -50,7 +60,7 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 	CProcessUtils::EnumProcessModule(pEntry32->th32ProcessID, EnumProcessModalCallback_, NULL);
 	return TRUE;
 }
-*/
+
 class CEraseCallback : public IErasureCallback
 {
 public:
@@ -117,15 +127,13 @@ DWORD ResetFileDate(HANDLE hFile)
 		return GetLastError();
 	return 0;
 }
-
+/*
 int _tmain(int argc, _TCHAR* argv[])
 {
 
-	CEraseCallback callback;
-	CErasure erasure;
-	erasure.UnuseSpaceErasure(CLdString(_T("h:")), CErasureMethod::Pseudorandom(), &callback);
 
 	printf("press any key exit");
 	getchar();
 	return 0;
 }
+*/

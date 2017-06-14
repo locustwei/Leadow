@@ -3,7 +3,7 @@
 class CFileUtils
 {
 public:
-	static DWORD ChoseFile();
+	static DWORD OpenFileDlg(HWND hOwner, LPCTSTR lpFilter, LPCTSTR lpFolder, DWORD dwFlags);
 	//提取文件名中的盘符
 	static BOOL ExtractFileDrive(LPTSTR lpFullName, __out LPTSTR lpDriveName);
 	//提取文件名中的路径
