@@ -15,31 +15,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-	OPENFILENAME ofn;       // common dialog box structure
-	TCHAR szFile[260] = { 0 };       // buffer for file name
-	HWND hwnd = NULL;              // owner window
-	HANDLE hf;              // file handle
+	
 
-							// Initialize OPENFILENAME
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = hwnd;
-	ofn.lpstrFile = szFile;
-	// Set lpstrFile[0] to '\0' so that GetOpenFileName does not 
-	// use the contents of szFile to initialize itself.
-	ofn.lpstrFile[0] = '\0';
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = _T("All\0*.*\0Text\0*.TXT\0");
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = _T("C:\\");
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ALLOWMULTISELECT | OFN_EXPLORER;
-
-	// Display the Open dialog box. 
-
-	if (GetOpenFileName(&ofn) == TRUE)
-		;
+ 	CDlgGetFileName dlg;
+	dlg.SetOption(dlg.OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
+	dlg.AddFilter(L"", L"*.*");
+	dlg.AddFilter(L"", L"*.exe");
+ 	dlg.OpenFile(NULL);
 
 
 	return (int) 0;
