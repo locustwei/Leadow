@@ -9,6 +9,8 @@
 #include "Thread.h"
 #include "LdList.h"
 #include "LdArray.h"
+#include "LdMap.h"
+#include "DlgGetFileName.h"
 
 #include "ProcessUtils.h"
 #include "FileUtils.h"

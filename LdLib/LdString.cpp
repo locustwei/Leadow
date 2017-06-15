@@ -23,10 +23,10 @@ CLdString::CLdString(const TCHAR ch)
 	m_pstr[1] = 0;
 }
 
-CLdString::CLdString(LPCTSTR lpsz, int nLen)
+CLdString::CLdString(LPCTSTR lpsz)
 {
 	m_pstr = NULL;
-	Assign(lpsz, nLen);
+	Assign(lpsz);
 }
 
 CLdString::CLdString(UINT ccSize)
@@ -80,7 +80,8 @@ void CLdString::Assign(LPCTSTR pstr, int cchMax)
 		return;
 	}
 	cchMax = (cchMax < 0 ? (int)_tcslen(pstr) : cchMax);
-
+	if (cchMax == 0)
+		return;
 	if (cchMax > GetLength()) {
 		m_pstr = reallocstr(m_pstr, (cchMax + 1));
 	}
@@ -104,13 +105,23 @@ LPCTSTR CLdString::GetData() const
 	return m_pstr;
 }
 
+VOID CLdString::CopyTo(TCHAR * pStr)
+{
+	if(GetLength() > 0)
+		_tcsncpy(pStr, m_pstr, GetLength());
+}
+
 TCHAR CLdString::GetAt(int nIndex) const
 {
+	if (!m_pstr)
+		return '\0';
 	return m_pstr[nIndex];
 }
 
 TCHAR CLdString::operator[] (int nIndex) const
 {
+	if (!m_pstr)
+		return '\0';
 	return m_pstr[nIndex];
 }
 
@@ -263,21 +274,33 @@ void CLdString::SetAt(int nIndex, TCHAR ch)
 
 int CLdString::Compare(LPCTSTR lpsz) const
 {
+	if (m_pstr == lpsz)
+		return 0;
+	if (!m_pstr)
+		return -1;
+	else if (!lpsz)
+		return 1;
 	return _tcscmp(m_pstr, lpsz);
 }
 
 int CLdString::CompareNoCase(LPCTSTR lpsz) const
 {
+	if (!m_pstr)
+		return -1;
 	return _tcsicmp(m_pstr, lpsz);
 }
 
 void CLdString::MakeUpper()
 {
+	if (!m_pstr)
+		return;
 	_tcsupr(m_pstr);
 }
 
 void CLdString::MakeLower()
 {
+	if (!m_pstr)
+		return;
 	_tcslwr(m_pstr);
 }
 
@@ -285,7 +308,9 @@ CLdString CLdString::Left(int iLength) const
 {
 	if (iLength < 0) iLength = 0;
 	if (iLength > GetLength()) iLength = GetLength();
-	return CLdString(m_pstr, iLength);
+	CLdString result;
+	result.Assign(m_pstr, iLength);
+	return result;
 }
 
 CLdString CLdString::Mid(int iPos, int iLength) const
@@ -293,7 +318,9 @@ CLdString CLdString::Mid(int iPos, int iLength) const
 	if (iLength < 0) iLength = GetLength() - iPos;
 	if (iPos + iLength > GetLength()) iLength = GetLength() - iPos;
 	if (iLength <= 0) return CLdString();
-	return CLdString(m_pstr + iPos, iLength);
+	CLdString result;
+	result.Assign(m_pstr + iPos, iLength);
+	return result;
 }
 
 CLdString CLdString::Right(int iLength) const
@@ -303,11 +330,16 @@ CLdString CLdString::Right(int iLength) const
 		iPos = 0;
 		iLength = GetLength();
 	}
-	return CLdString(m_pstr + iPos, iLength);
+	CLdString result;
+	result.Assign(m_pstr + iPos, iLength);
+	return result;
 }
 
 int CLdString::Find(TCHAR ch, int iPos /*= 0*/) const
 {
+	if (!m_pstr)
+		return -1;
+
 	if (iPos != 0 && (iPos < 0 || iPos >= GetLength())) return -1;
 	LPCTSTR p = _tcschr(m_pstr + iPos, ch);
 	if (p == NULL) return -1;
@@ -316,6 +348,9 @@ int CLdString::Find(TCHAR ch, int iPos /*= 0*/) const
 
 int CLdString::Find(LPCTSTR pstrSub, int iPos /*= 0*/) const
 {
+	if (!m_pstr)
+		return -1;
+
 	if (iPos != 0 && (iPos < 0 || iPos > GetLength())) return -1;
 	LPCTSTR p = _tcsstr(m_pstr + iPos, pstrSub);
 	if (p == NULL) return -1;
@@ -324,6 +359,9 @@ int CLdString::Find(LPCTSTR pstrSub, int iPos /*= 0*/) const
 
 int CLdString::ReverseFind(TCHAR ch) const
 {
+	if (!m_pstr)
+		return -1;
+
 	LPCTSTR p = _tcsrchr(m_pstr, ch);
 	if (p == NULL) return -1;
 	return (int)(p - m_pstr);
@@ -331,6 +369,9 @@ int CLdString::ReverseFind(TCHAR ch) const
 
 int CLdString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
 {
+	if (!m_pstr)
+		return -1;
+
 	CLdString sTemp;
 	int nCount = 0;
 	int iPos = Find(pstrFrom);

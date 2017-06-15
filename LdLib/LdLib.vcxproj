@@ -149,7 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileUtils.h" />
-    <ClInclude Include="GetFileNameDlg.h" />
+    <ClInclude Include="DlgGetFileName.h" />
     <ClInclude Include="HandleUitls.h" />
     <ClInclude Include="LdArray.h" />
     <ClInclude Include="LdDriver.h" />
@@ -170,7 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileUtils.cpp" />
-    <ClCompile Include="GetFileNameDlg.cpp" />
+    <ClCompile Include="DlgGetFileName.cpp" />
     <ClCompile Include="HandleUitls.cpp" />
     <ClCompile Include="LdDriver.cpp" />
     <ClCompile Include="LdNamedPipe.cpp" />

@@ -7,7 +7,7 @@ public:
 	CLdString();
 	CLdString(const TCHAR ch);
 	CLdString(const CLdString& src);
-	CLdString(LPCTSTR lpsz, int nLen = -1);
+	CLdString(LPCTSTR lpsz);
 	CLdString(UINT ccSize);
 
 	~CLdString();
@@ -20,6 +20,7 @@ public:
 	void Append(LPCTSTR pstr);
 	void Assign(LPCTSTR pstr, int nLength = -1);
 	LPCTSTR GetData() const;
+	VOID CopyTo(TCHAR* pStr);
 
 	void SetAt(int nIndex, TCHAR ch);
 	operator LPCTSTR() const;
