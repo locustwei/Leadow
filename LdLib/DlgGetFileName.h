@@ -18,7 +18,7 @@ public:
 	static DWORD SAVE_FILE_OPTION;
 private:
 	CLdList<CLdString> m_Files;
-	CLdList<LPCTSTR> m_Filters;
+	CLdList<CLdString> m_Filters;
 	CLdString m_InitDir;
 	DWORD m_Option;
 	LPCWSTR GetFilterStr();
