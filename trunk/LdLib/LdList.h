@@ -119,6 +119,29 @@ public:
 
 		return result;
 	};
+
+	inline T* operator[](PListIndex index)
+	{
+		for (PLIST_ENTRY pEntry = m_Head.Flink; pEntry != &m_Head; pEntry = pEntry->Flink)
+		{
+			if(index == pEntry)
+				return &pEntry->Data;
+		}
+		return NULL;
+	};
+
+	inline T* operator[](int index)
+	{
+		int k = 0;
+		for (PLIST_ENTRY pEntry = m_Head.Flink; pEntry != &m_Head; pEntry = pEntry->Flink)
+		{
+			if(k == index)
+				return &pEntry->Data;
+			k++;
+		}
+		return NULL;
+	};
+
 protected:
 	
 	typedef struct LIST_ENTRY

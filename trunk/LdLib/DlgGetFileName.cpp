@@ -76,16 +76,21 @@ LPCTSTR CDlgGetFileName::GetFilterStr()
 	memset(result, 0, MAX_PATH * sizeof(TCHAR));
 	int k = 0;
 	TCHAR* p = result;
-	for (int i = 0; i < m_Filters.GetCount(); i++)
+	for (PListIndex pIndex = m_Filters.Begin(NULL); pIndex != NULL; pIndex = m_Files.Behind(pIndex, NULL))
 	{
-		if(value.GetLength() == 0)
+		CLdString* s = m_Filters[pIndex];
+
+		if(s->GetLength() == 0)
 			continue;
-		key.CopyTo(p);
-		p += key.GetLength();
-		if (key.GetLength() > 0)
-			p++;
-		value.CopyTo(p);
-		p += value.GetLength() + 1;
+		s->CopyTo(p);
+		p += s->GetLength() + 1;
+		k += s->GetLength() + 1;
+	}
+
+	for (int i = 0; i < k; i++)
+	{
+		if (result[i] == '|')
+			result[i] = '\0';
 	}
 	return result;
 }
