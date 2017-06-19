@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Library.h"
 
 class CMainWnd : public WindowImplBase
 {
@@ -20,6 +20,8 @@ protected:
 
 private:
 	TCHAR* m_Skin;
+	CErasureLib* m_ErasureLib;
+	CProtectLib* m_ProtectLib;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);

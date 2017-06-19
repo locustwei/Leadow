@@ -19,7 +19,7 @@ public:
 	TCHAR GetAt(int nIndex) const;
 	void Append(LPCTSTR pstr);
 	void Assign(LPCTSTR pstr, int nLength = -1);
-	LPCTSTR GetData() const;
+	TCHAR* GetData() const;
 	VOID CopyTo(TCHAR* pStr);
 
 	void SetAt(int nIndex, TCHAR ch);

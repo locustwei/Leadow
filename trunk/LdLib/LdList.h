@@ -6,7 +6,8 @@ template <typename T >
 class CLdList
 {
 public:
-	inline CLdList()
+	inline CLdList():
+		m_Head()
 	{
 		InitializeListHead();
 	};
@@ -151,8 +152,8 @@ protected:
 		T Data;
 	}*PLIST_ENTRY;
 
-	struct LIST_ENTRY m_Head;
 private:
+	struct LIST_ENTRY m_Head;
 
 	inline void InitializeListHead()
 	{

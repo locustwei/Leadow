@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 
+#pragma region CFileUtils
+
 BOOL CFileUtils::ExtractFileDrive(LPTSTR lpFullName, LPTSTR lpDriveName)
 {
 	int len;
@@ -155,3 +157,120 @@ BOOL CFileUtils::SetCompression(LPTSTR lpFullName, BOOL bCompress)
 	CloseHandle(handle);
 	return Result;
 }
+
+#pragma endregion
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma region CFileInfo
+
+
+CFileInfo::CFileInfo():
+	Name()
+{
+	ClearValue();
+}
+
+CFileInfo::CFileInfo(TCHAR * pFileName):
+	Name()
+{
+	ClearValue();
+	Name = pFileName;
+}
+
+CFileInfo::~CFileInfo()
+{
+}
+
+LARGE_INTEGER CFileInfo::GetCreateTime()
+{
+	GetFileBasicInfo();
+	return m_Baseinfo.CreationTime;
+}
+
+LARGE_INTEGER CFileInfo::GetChangeTime()
+{
+	GetFileBasicInfo();
+	return m_Baseinfo.ChangeTime;
+}
+
+LARGE_INTEGER CFileInfo::GetLastWriteTime()
+{
+	GetFileBasicInfo();
+	return m_Baseinfo.LastWriteTime;
+}
+
+LARGE_INTEGER CFileInfo::GetLastAccessTime()
+{
+	GetFileBasicInfo();
+	return m_Baseinfo.LastAccessTime;
+}
+
+INT64 CFileInfo::GetAllocateSize()
+{
+	GetFileStandardInfo();
+	return m_StandrardInfo.AllocationSize.QuadPart;
+}
+
+INT64 CFileInfo::GetDataSize()
+{
+	GetFileStandardInfo();
+	return m_StandrardInfo.EndOfFile.QuadPart;
+}
+
+DWORD CFileInfo::GetAttributes()
+{
+	GetFileBasicInfo();
+	return m_Baseinfo.FileAttributes;
+}
+
+CLdString & CFileInfo::GetFileName()
+{
+	return Name;
+}
+
+VOID CFileInfo::SetFileName(TCHAR * pFileName)
+{
+	ClearValue();
+	Name = pFileName;
+}
+
+void CFileInfo::ClearValue()
+{
+	ZeroMemory(&m_Baseinfo, sizeof(FILE_BASIC_INFO));
+	ZeroMemory(&m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
+	m_StandrardInfo.EndOfFile.QuadPart = -1;
+	Name.Empty();
+}
+
+void CFileInfo::GetFileBasicInfo()
+{
+	if (m_Baseinfo.CreationTime.QuadPart == 0)
+	{
+		if (!Name.IsEmpty())
+		{
+			HANDLE hFile = CreateFile(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				GetFileInformationByHandleEx(hFile, FileBasicInfo, &m_Baseinfo, sizeof(FILE_BASIC_INFO));
+				CloseHandle(hFile);
+			}
+		}
+	}
+}
+
+void CFileInfo::GetFileStandardInfo()
+{
+	if (m_StandrardInfo.EndOfFile.QuadPart == -1)
+	{
+		if (!Name.IsEmpty())
+		{
+			HANDLE hFile = CreateFile(Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				GetFileInformationByHandleEx(hFile, FileStandardInfo, &m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
+				CloseHandle(hFile);
+			}
+		}
+	}
+}
+
+#pragma endregion

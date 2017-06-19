@@ -166,6 +166,7 @@ public:
 
     virtual void DoPostPaint(HDC hDC, const RECT& rcPaint);
 
+	virtual CControlUI* FindSubControl(LPCTSTR pstrSubControlName);
 	//ÐéÄâ´°¿Ú²ÎÊý
 	void SetVirtualWnd(LPCTSTR pstrValue);
 	CDuiString GetVirtualWnd() const;

@@ -1,4 +1,5 @@
 ﻿#include "StdAfx.h"
+#include "UIControl.h"
 
 namespace DuiLib {
 
@@ -1190,6 +1191,11 @@ void CControlUI::PaintBorder(HDC hDC)
 void CControlUI::DoPostPaint(HDC hDC, const RECT& rcPaint)
 {
 	if( OnPostPaint ) OnPostPaint(this);
+}
+
+CControlUI * CControlUI::FindSubControl(LPCTSTR pstrSubControlName)
+{
+	return NULL;
 }
 
 int CControlUI::GetBorderStyle() const
