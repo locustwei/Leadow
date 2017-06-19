@@ -1,4 +1,30 @@
 #pragma once
+#include "ldstring.h"
+
+class CFileInfo
+{
+public:
+	CFileInfo();
+	CFileInfo(TCHAR* pFileName);
+	~CFileInfo();
+	LARGE_INTEGER GetCreateTime();
+	LARGE_INTEGER GetChangeTime();
+	LARGE_INTEGER GetLastWriteTime();
+	LARGE_INTEGER GetLastAccessTime();
+	INT64 GetAllocateSize();
+	INT64 GetDataSize();
+	DWORD GetAttributes();
+	CLdString& GetFileName();
+	VOID SetFileName(TCHAR* pFileName);
+private:
+	FILE_BASIC_INFO m_Baseinfo;
+	FILE_STANDARD_INFO m_StandrardInfo;
+	CLdString Name;                //
+
+	void ClearValue();
+	void GetFileBasicInfo();
+	void GetFileStandardInfo();
+};
 
 class CFileUtils
 {

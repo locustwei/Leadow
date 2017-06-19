@@ -1,4 +1,5 @@
 #pragma once
+#include "../LdFileEraser/ErasureLibrary.h"
 
 static class CLdLibray
 {
@@ -6,33 +7,24 @@ public:
 	CLdLibray();
 	~CLdLibray();
 
-	static CLdLibray* ErasureLibrary();
-	static CLdLibray* ProtectLibrary();
-
-	CFramWnd* GetUI();
 protected:
 	HMODULE m_hModule;
-	CFramWnd* m_MainUI;
-	BOOL InitLib(TCHAR* pLibFile);
-private:
-	static CLdLibray* m_Erasure;
-	static CLdLibray* m_Protect;
+	virtual PVOID InitLib(TCHAR * pLibFile);
 };
 
 class CErasureLib: public CLdLibray
 {
 public:
-	CErasureLib() {};
+	CErasureLib();
 	~CErasureLib() {};
-
 private:
-
+	IErasureLibrary* m_Library;
 };
 
 class CProtectLib : public CLdLibray
 {
 public:
-	CProtectLib() {};
+	CProtectLib() { InitLib(_T("LdFileProtect_d64.dll")); };
 	~CProtectLib() {};
 
 private:

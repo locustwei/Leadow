@@ -100,7 +100,7 @@ void CLdString::Empty()
 		m_pstr[0] = 0;
 }
 
-LPCTSTR CLdString::GetData() const
+TCHAR* CLdString::GetData() const
 {
 	return m_pstr;
 }
@@ -108,7 +108,7 @@ LPCTSTR CLdString::GetData() const
 VOID CLdString::CopyTo(TCHAR * pStr)
 {
 	if(GetLength() > 0)
-		_tcsncpy(pStr, m_pstr, GetLength());
+		_tcscpy(pStr, m_pstr);
 }
 
 TCHAR CLdString::GetAt(int nIndex) const

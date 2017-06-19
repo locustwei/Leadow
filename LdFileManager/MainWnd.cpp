@@ -12,13 +12,16 @@ DUI_END_MESSAGE_MAP()
 CMainWnd::CMainWnd(TCHAR* xmlSkin)
 {
 	m_Skin = xmlSkin;
-// 	AddVirtualWnd(_T("page1"), &m_Page1);
-// 	AddVirtualWnd(_T("page2"), &m_Page2);
+	m_ErasureLib = NULL;
+	m_ProtectLib = NULL;
 }
-
 
 CMainWnd::~CMainWnd()
 {
+	if (m_ErasureLib)
+		delete m_ErasureLib;
+	if (m_ProtectLib)
+		delete m_ProtectLib;
 }
 
 
@@ -76,7 +79,13 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 			pControl->SelectItem(0);
 		else if (name == _T("erasure"))
 		{
-			CFramWnd* frame = CLdLibray::ErasureLibrary()->GetUI();
+			if (!m_ErasureLib)
+			{
+				m_ErasureLib = new CErasureLib();
+
+			}
+			CFramWnd* frame = m_ErasureLib->LibraryUI();
+			_ASSERTE(frame);
 			if (pControl->GetItemIndex(*frame) == -1)
 			{
 				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
@@ -86,16 +95,24 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 		}
 		else if (name == _T("protecte"))
 		{
-			CFramWnd* frame = CLdLibray::ProtectLibrary()->GetUI();
-			if (pControl->GetItemIndex(*frame) == -1)
+			if (!m_ProtectLib)
 			{
-				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
-				pControl->Add(*frame);
+				m_ProtectLib = new CProtectLib();
 			}
-			pControl->SelectItem(*frame);
+// 			CFramWnd* frame = m_ProtectLib->GetUI();
+// 			_ASSERTE(frame);
+// 			if (pControl->GetItemIndex(*frame) == -1)
+// 			{
+// 				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
+// 				pControl->Add(*frame);
+// 			}
+// 			pControl->SelectItem(*frame);
 		}
 		else if (name == _T("recove"))
-			pControl->SelectItem(3);
+		{
+			CDlgGetFileName dlg;
+			dlg.OpenFile(m_hWnd);
+		}
 		else if (name == _T("cleaner"))
 			pControl->SelectItem(4);
 	}

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MainWnd.h"
+#include "Library.h"
 
 #define APP_TITLE _T("Leadow File Manager")
 

@@ -1149,8 +1149,24 @@ namespace DuiLib
 	CControlUI* CContainerUI::FindSubControl( LPCTSTR pstrSubControlName )
 	{
 		CControlUI* pSubControl=NULL;
-		pSubControl=static_cast<CControlUI*>(GetManager()->FindSubControlByName(this,pstrSubControlName));
-		return pSubControl;
+		if(GetManager())
+			return static_cast<CControlUI*>(GetManager()->FindSubControlByName(this,pstrSubControlName));
+		else
+		{
+			for (int it = 0; it < m_items.GetSize(); it++)
+			{
+				pSubControl = static_cast<CControlUI*>(m_items.GetAt(it));
+				if (pSubControl->GetName() == pstrSubControlName)
+					return pSubControl;
+				else
+				{
+					pSubControl = pSubControl->FindSubControl(pstrSubControlName);
+					if (pSubControl)
+						return pSubControl;
+				}
+			}
+		}
+		return NULL;
 	}
 
 } // namespace DuiLib

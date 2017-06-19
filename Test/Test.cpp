@@ -19,10 +19,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
  	CDlgGetFileName dlg;
 	dlg.SetOption(dlg.OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
-	dlg.AddFilter(L"", L"*.*");
-	dlg.AddFilter(L"", L"*.exe");
+	dlg.AddFilter(L"all|*.*");
+	dlg.AddFilter(L"exe|*.exe");
+	dlg.SetDefaultName(L"ddddddddd");
  	dlg.OpenFile(NULL);
-
+	dlg.SaveFile(NULL);
 
 	return (int) 0;
 }
