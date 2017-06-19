@@ -32,5 +32,5 @@ PVOID CLdLibray::InitLib(TCHAR * pLibFile)
 
 CErasureLib::CErasureLib()
 {
-	m_Library = InitLib(_T("LdFileEraser_d64.dll"));
+	m_Library = (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
 }
