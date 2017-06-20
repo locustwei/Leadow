@@ -2,4 +2,4 @@ LIBRARY
 
 EXPORTS
 	API_Init
-	API_LibraryUI
+	API_UnInit

@@ -11,7 +11,8 @@ namespace DuiLib {
 	CFramWnd::~CFramWnd()
 	{
 		if (m_Control)
-			delete m_Control;
+			m_Control = NULL;
+			//delete m_Control;
 	}
 
 	DUI_BEGIN_MESSAGE_MAP(CFramWnd, CNotifyPump)

@@ -99,14 +99,14 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 			{
 				m_ProtectLib = new CProtectLib();
 			}
-// 			CFramWnd* frame = m_ProtectLib->GetUI();
-// 			_ASSERTE(frame);
-// 			if (pControl->GetItemIndex(*frame) == -1)
-// 			{
-// 				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
-// 				pControl->Add(*frame);
-// 			}
-// 			pControl->SelectItem(*frame);
+			CFramWnd* frame = m_ProtectLib->LibraryUI();
+			_ASSERTE(frame);
+			if (pControl->GetItemIndex(*frame) == -1)
+			{
+				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
+				pControl->Add(*frame);
+			}
+			pControl->SelectItem(*frame);
 		}
 		else if (name == _T("recove"))
 		{

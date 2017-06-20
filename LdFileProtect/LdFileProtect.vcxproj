@@ -201,7 +201,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FileProtectDirver.cpp" />
-    <ClCompile Include="Exprot.cpp" />
+    <ClCompile Include="ProtectLibrary.cpp" />
     <ClCompile Include="ProcessListView.cpp" />
     <ClCompile Include="ProtectMainWnd.cpp" />
     <ClCompile Include="SelectProtectFlag.cpp" />
@@ -214,7 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileProtectDirver.h" />
-    <ClInclude Include="Exprot.h" />
+    <ClInclude Include="ProtectLibrary.h" />
     <ClInclude Include="ProcessListView.h" />
     <ClInclude Include="ProtectMainWnd.h" />
     <ClInclude Include="Resource.h" />
