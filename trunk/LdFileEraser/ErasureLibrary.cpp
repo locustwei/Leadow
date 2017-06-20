@@ -3,13 +3,34 @@
 #include "ErasureMainWnd.h"
 #include "ErasureLibrary.h"
 
-IErasureLibrary* g_Library = NULL;
+class CErasureLibrary : public IErasureLibrary
+{
+public:
+	CErasureLibrary() 
+	{ 
+		m_MainWnd = NULL; 
+	};
+	~CErasureLibrary() 
+	{
+		if (m_MainWnd)
+			delete m_MainWnd;
+	};
+	virtual CFramWnd* LibraryUI() override
+	{
+		if (!m_MainWnd)
+			m_MainWnd = new CErasureMainWnd();
+		return m_MainWnd;
+	};
+private:
+	CErasureMainWnd* m_MainWnd;
+};
 
+CErasureLibrary* g_Library = NULL;
 
 IErasureLibrary LDLIB_API * API_Init(PAuthorization)
 {
 	if (!g_Library)
-		g_Library = new IErasureLibrary();
+		g_Library = new CErasureLibrary();
 	return g_Library;
 }
 
@@ -34,27 +55,4 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/)
 		break;
 	}
 	return TRUE;
-}
-
-CFramWnd LDLIB_API *  API_LibraryUI()
-{
-	return new CErasureMainWnd();
-}
-
-IErasureLibrary::IErasureLibrary()
-{
-	m_MainWnd = NULL;
-}
-
-IErasureLibrary::~IErasureLibrary()
-{
-	if(m_MainWnd)
-		delete m_MainWnd;
-}
-
-CFramWnd * IErasureLibrary::LibraryUI()
-{
-	if (!m_MainWnd)
-		m_MainWnd = new CErasureMainWnd();
-	return nullptr;
 }

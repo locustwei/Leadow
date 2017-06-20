@@ -31,7 +31,7 @@ const LPCTSTR HANDLE_TYPE_NAME[] = {
 	_T("WindowStation"),
 };
 
-DWORD CHandleUitls::EnumSystemHandleInfo(EnumSystemHandleCallback callback, PVOID pParam)
+DWORD CHandleUitls::EnumSystemHandleInfo(IEnumSystemHandleCallback* callback, PVOID pParam)
 {
 	DWORD dwLength = 0;
 	SYSTEM_HANDLE_INFORMATION shi;
@@ -59,7 +59,7 @@ DWORD CHandleUitls::EnumSystemHandleInfo(EnumSystemHandleCallback callback, PVOI
 		{
 			if (callback)
 			{
-				if (!callback(&pshi->Handles[i], pParam))
+				if (!callback->SystemHandleCallback(&pshi->Handles[i], pParam))
 					break;
 			}
 		}
@@ -69,47 +69,53 @@ DWORD CHandleUitls::EnumSystemHandleInfo(EnumSystemHandleCallback callback, PVOI
 }
 
 
-DWORD CHandleUitls::FindOpenFileHandle(LPTSTR lpFullFileName, EnumSystemHandleCallback callback, PVOID pParam)
+
+DWORD CHandleUitls::FindOpenFileHandle(LPTSTR lpFullFileName, IEnumSystemHandleCallback* callback, PVOID pParam)
 {
-	struct FIND_FILE_HANDLE_PARAM Param = {0};
-	Param.callback = callback;
-	Param.lpFileName = new TCHAR[MAX_PATH];
-	ZeroMemory(Param.lpFileName, MAX_PATH * sizeof(TCHAR));
-	Param.pParam = pParam;
-	//Param.hCurrentProcess = GetCurrentProcess();
-	CFileUtils::Win32Path2DevicePath(lpFullFileName, Param.lpFileName);
-	Param.nLength = wcslen(Param.lpFileName);
-	DWORD Result = EnumSystemHandleInfo(FindOpenFileCallback, (PVOID)&Param);
-	//CloseHandle(Param.hCurrentProcess);
-	delete[] Param.lpFileName;
-	return Result;
-}
-
-BOOL CHandleUitls::FindOpenFileCallback(PSYSTEM_HANDLE pHandle, PVOID pParam)
-{
-	BOOL Result = TRUE;
-
-	struct FIND_FILE_HANDLE_PARAM* FindParam = (struct FIND_FILE_HANDLE_PARAM*)pParam;
-
-	HANDLE tmphandle = NULL;
-	if (DuplicateSysHandle(pHandle, tmphandle) != 0)
-		return TRUE;
-
-	SYSTEM_HANDLE_TYPE handletyep = OB_TYPE_UNKNOWN;
-	GetSysHandleType(tmphandle, handletyep);
-	if (handletyep == OB_TYPE_FILE)
+	class COpenHandleCallback : public IEnumSystemHandleCallback
 	{
-		TCHAR fileName[MAX_PATH] = { 0 };
-		//if(GetFinalPathNameByHandle(tmphandle, fileName, MAX_PATH, 0))
-		if (GetSysHandleName(tmphandle, fileName) == 0)
+	public:
+		COpenHandleCallback() :FileName((UINT)MAX_PATH) {};
+
+		CLdString FileName;
+		IEnumSystemHandleCallback* callback;
+
+		virtual BOOL SystemHandleCallback(PSYSTEM_HANDLE pHandle, PVOID pParam) override
 		{
-			if (wcslen(fileName) == FindParam->nLength && wcsnicmp(FindParam->lpFileName, fileName, FindParam->nLength) == 0 )
+			BOOL Result = TRUE;
+
+			HANDLE tmphandle = NULL;
+			if (DuplicateSysHandle(pHandle, tmphandle) != 0)
+				return TRUE;
+
+			SYSTEM_HANDLE_TYPE handletyep = OB_TYPE_UNKNOWN;
+			GetSysHandleType(tmphandle, handletyep);
+			if (handletyep == OB_TYPE_FILE)
 			{
-				Result = FindParam->callback(pHandle, FindParam->pParam);
+				TCHAR fileName[MAX_PATH] = { 0 };
+				//if(GetFinalPathNameByHandle(tmphandle, fileName, MAX_PATH, 0))
+				if (GetSysHandleName(tmphandle, fileName) == 0)
+				{
+					if (wcslen(fileName) == FileName.GetLength() && wcsnicmp(FileName, fileName, FileName.GetLength()) == 0)
+					{
+						Result = callback->SystemHandleCallback(pHandle, pParam);
+					}
+				}
 			}
+			CloseHandle(tmphandle);
+			
+			return Result;
 		}
-	}
-	CloseHandle(tmphandle);
+	};
+
+	COpenHandleCallback tmp;
+
+	tmp.callback = callback;
+	//Param.hCurrentProcess = GetCurrentProcess();
+	CFileUtils::Win32Path2DevicePath(lpFullFileName, tmp.FileName.GetData());
+	DWORD Result = EnumSystemHandleInfo(&tmp, pParam);
+	//CloseHandle(Param.hCurrentProcess);
+
 	return Result;
 }
 
