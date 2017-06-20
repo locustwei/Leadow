@@ -5,7 +5,7 @@ namespace DuiLib {
 	{
 	public:
 		CFramWnd();
-		~CFramWnd();
+		virtual ~CFramWnd();
 
 		CControlUI * BuildXml(TCHAR * skinXml, CPaintManagerUI* pm);
 		operator CControlUI *() { return m_Control; };

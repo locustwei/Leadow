@@ -14,6 +14,7 @@ CErasureMainWnd::~CErasureMainWnd()
 {
 	if (m_ErasureFile)
 		delete m_ErasureFile;
+	
 }
 
 void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)

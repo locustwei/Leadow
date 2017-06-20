@@ -5,11 +5,28 @@
         <HorizontalLayout inset="3,0,3,3">
             <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true">
                 <ListHeader height="24" >
-                    <ListHeaderItem text="Filename" width="250" minwidth="100" />
+                    <ListHeaderItem text="" width="250" minwidth="100" >
+                    		<CheckBox name="selall" endellipsis="true"  text="File name"/>
+                    </ListHeaderItem>
                     <ListHeaderItem text="File size" width="80" minwidth="10" />
                     <ListHeaderItem text="Create time" width="100" minwidth="10" />
                     <ListHeaderItem text="Last update time" width="100" minwidth="10" />
                 </ListHeader>
+                    
+                <ListContainerElement height="140">
+										<CheckBox name="selectme" height="20" text="亲，选我吧！" />
+										<HorizontalLayout inset="4,4,4,4">
+												<Edit text="测试文本" bordersize="1" height="20" name="domain" />
+										</HorizontalLayout>
+										<HorizontalLayout >
+												<VerticalLayout>
+														<Button text="按钮1" width="50" />
+														<Button text="按钮2" width="50" />
+														<Label text="这是从XML文件中加载的列表项" />
+												</VerticalLayout>
+										</HorizontalLayout>
+										<Label text="这是从XML文件中加载的列表项" />
+							  </ListContainerElement>
             </List>
         </HorizontalLayout>
         <HorizontalLayout height="40">

@@ -8,6 +8,7 @@
 #include "FileEraser.h"
 #include <time.h>
 #include <Commdlg.h>
+#include "ListExMainWnd.h"
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -16,14 +17,20 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      int       nCmdShow)
 {
 	
+	CPaintManagerUI::SetInstance(hInstance);
 
- 	CDlgGetFileName dlg;
-	dlg.SetOption(dlg.OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
-	dlg.AddFilter(L"all|*.*");
-	dlg.AddFilter(L"exe|*.exe");
-	dlg.SetDefaultName(L"ddddddddd");
- 	dlg.OpenFile(NULL);
-	dlg.SaveFile(NULL);
+	HRESULT Hr = ::CoInitialize(NULL);
+	if (FAILED(Hr)) return 0;
+	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin/test"));
+	CListExMainWnd* pFrame = new CListExMainWnd();
+	if (pFrame == NULL) return 0;
+	pFrame->Create(NULL, _T("ListExDemo"), UI_WNDSTYLE_DIALOG, 0L);
+	pFrame->CenterWindow();
+	pFrame->ShowWindow(true);
+
+	CPaintManagerUI::MessageLoop();
+
+	::CoUninitialize();
 
 	return (int) 0;
 }
