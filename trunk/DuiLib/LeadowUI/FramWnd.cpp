@@ -7,17 +7,23 @@ namespace DuiLib {
 		m_Control = NULL;
 	}
 
-
 	CFramWnd::~CFramWnd()
 	{
 		if (m_Control)
-			m_Control = NULL;
-			//delete m_Control;
+		{
+			CControlUI* pParent = m_Control->GetParent();
+			if (pParent)
+			{
+				CContainerUI* pCont = static_cast<CContainerUI*>(pParent->GetInterface(DUI_CTR_CONTAINER));
+				if(pCont)
+					pCont->Remove(m_Control);
+			}
+		}
+		m_Control = NULL;
 	}
 
 	DUI_BEGIN_MESSAGE_MAP(CFramWnd, CNotifyPump)
 	DUI_END_MESSAGE_MAP()
-
 		
 	CControlUI * CFramWnd::BuildXml(TCHAR * skinXml, CPaintManagerUI* pm)
 	{

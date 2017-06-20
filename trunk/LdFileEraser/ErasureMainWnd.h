@@ -5,7 +5,7 @@ class LDLIB_API CErasureMainWnd : public CFramWnd
 {
 public:
 	CErasureMainWnd();
-	~CErasureMainWnd();
+	virtual ~CErasureMainWnd() override;
 
 	DUI_DECLARE_MESSAGE_MAP()
 

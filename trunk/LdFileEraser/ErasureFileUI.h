@@ -5,7 +5,7 @@ class LDLIB_API CErasureFileUI : public CFramWnd, public IListCallbackUI
 {
 public:
 	CErasureFileUI();
-	~CErasureFileUI();
+	virtual ~CErasureFileUI() override;
 
 	DUI_DECLARE_MESSAGE_MAP()
 
