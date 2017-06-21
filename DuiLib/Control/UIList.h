@@ -466,6 +466,8 @@ protected:
     bool m_bExpand;
     UINT m_uButtonState;
     IListOwnerUI* m_pOwner;
+
+	void SetPos(RECT rc, bool bNeedInvalidate = true);
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
