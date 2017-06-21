@@ -47,21 +47,7 @@ void CErasureFileUI::OnInit()
 	btnOpenFile = static_cast<CButtonUI*>(GetUI()->FindSubControl(_T("openfile")));
 	btnOk = static_cast<CButtonUI*>(GetUI()->FindSubControl(_T("btnOk")));
 	lstFile = static_cast<CListUI*>(GetUI()->FindSubControl(_T("listview")));
-	lstFile->SetTextCallback(this);
-}
-
-LPCTSTR CErasureFileUI::GetItemText(CControlUI * pList, int iItem, int iSubItem)
-{
-	CFileInfo* fileinfo = m_Files[iItem];
-	return fileinfo->GetFileName();
-// 	switch (iSubItem)
-// 	{
-// 	case 0:
-// 		return fileinfo->GetFileName();
-// 	default:
-//		break;
-// 	}
-// 	return NULL;
+	lstFile->GetItemAt(0);
 }
 
 void CErasureFileUI::OnClick(TNotifyUI& msg)

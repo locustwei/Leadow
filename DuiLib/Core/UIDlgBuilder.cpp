@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "UIDlgBuilder.h"
 
 namespace DuiLib {
 
@@ -176,6 +177,21 @@ CControlUI* CDialogBuilder::Create(IDialogBuilderCallback* pCallback, CPaintMana
         }
     }
     return _Parse(&root, pParent, pManager);
+}
+
+CControlUI * CDialogBuilder::BuildXml(STRINGorID xml, IDialogBuilderCallback * pCallback, CPaintManagerUI * pManager, CControlUI * pParent)
+{
+	m_pCallback = pCallback;
+	if (*(xml.m_lpstr) == _T('<')) {
+		if (!m_xml.Load(xml.m_lpstr)) return NULL;
+	}
+	else {
+		if (!m_xml.LoadFromFile(xml.m_lpstr)) return NULL;
+	}
+	CMarkupNode root = m_xml.GetRoot();
+	if (!root.IsValid()) return NULL;
+
+	return _Parse(&root, pParent, pManager);
 }
 
 CMarkup* CDialogBuilder::GetMarkup()

@@ -2959,15 +2959,19 @@ void CListContainerElementUI::SetPos(RECT rc, bool bNeedInvalidate)
 
 	TListInfoUI* pInfo = m_pOwner->GetListInfo();
 	int nCount = m_items.GetSize();
-	for (int i = 0; i < nCount && i < pInfo->nColumns; i++)
+	for (int i = 0; i < nCount; i++)
 	{
-		CControlUI *pHorizontalLayout = static_cast<CControlUI*>(m_items[i]);
-
-		RECT rtHeader = pInfo->rcColumn[i];
-		RECT rt = pHorizontalLayout->GetPos();
-		rt.left = rtHeader.left;
-		rt.right = rtHeader.right;
-		pHorizontalLayout->SetPos(rt);
+		CControlUI *pItem = static_cast<CControlUI*>(m_items[i]);
+		if (i >= pInfo->nColumns)
+			pItem->SetVisible(false);
+		else
+		{
+			RECT rtHeader = pInfo->rcColumn[i];
+			RECT rt = pItem->GetPos();
+			rt.left = rtHeader.left;
+			rt.right = rtHeader.right;
+			pItem->SetPos(rt);
+		}
 	}
 
 }
