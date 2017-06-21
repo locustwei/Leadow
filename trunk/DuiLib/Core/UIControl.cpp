@@ -1198,6 +1198,11 @@ CControlUI * CControlUI::FindSubControl(LPCTSTR pstrSubControlName)
 	return NULL;
 }
 
+CControlUI * CControlUI::Clone()
+{
+	return nullptr;
+}
+
 int CControlUI::GetBorderStyle() const
 {
 	return m_nBorderStyle;

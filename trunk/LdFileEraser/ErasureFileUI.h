@@ -1,7 +1,7 @@
 #pragma once
 
 
-class LDLIB_API CErasureFileUI : public CFramWnd, public IListCallbackUI
+class LDLIB_API CErasureFileUI : public CFramWnd
 {
 public:
 	CErasureFileUI();
@@ -21,10 +21,5 @@ private:
 	void AddErasureFile(CLdString& filename);
 protected:
 	virtual void OnInit() override;
-
-
-	// Í¨¹ý IListCallbackUI ¼Ì³Ð
-	virtual LPCTSTR GetItemText(CControlUI * pList, int iItem, int iSubItem) override;
-
 };
 

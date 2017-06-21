@@ -21,6 +21,9 @@ public:
     CControlUI* Create(IDialogBuilderCallback* pCallback = NULL, CPaintManagerUI* pManager = NULL,
         CControlUI* pParent = NULL);
 
+	CControlUI* BuildXml(STRINGorID xml, IDialogBuilderCallback* pCallback = NULL, CPaintManagerUI* pManager = NULL,
+		CControlUI* pParent = NULL);
+
     CMarkup* GetMarkup();
 
     void GetLastErrorMessage(LPTSTR pstrMessage, SIZE_T cchMax) const;
