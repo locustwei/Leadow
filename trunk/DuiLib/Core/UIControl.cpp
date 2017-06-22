@@ -1198,9 +1198,51 @@ CControlUI * CControlUI::FindSubControl(LPCTSTR pstrSubControlName)
 	return NULL;
 }
 
-CControlUI * CControlUI::Clone()
+VOID CControlUI::Clone(CControlUI * ui)
 {
-	return nullptr;
+	ui->m_bUpdateNeeded = m_bUpdateNeeded;
+	ui->m_bMenuUsed = m_bMenuUsed;
+	ui->m_bAsyncNotify = m_bAsyncNotify;
+	ui->m_rcItem = m_rcItem;
+	ui->m_rcPadding = m_rcPadding;
+	ui->m_cXY = m_cXY;
+	ui->m_cxyFixed = m_cxyFixed;
+	ui->m_cxyMin = m_cxyMin;
+	ui->m_cxyMax = m_cxyMax;
+	ui->m_bVisible = m_bVisible;
+	ui->m_bInternVisible = m_bInternVisible;
+	ui->m_bEnabled = m_bEnabled;
+	ui->m_bMouseEnabled = m_bMouseEnabled;
+	ui->m_bKeyboardEnabled = m_bKeyboardEnabled;
+	ui->m_bFocused = m_bFocused;
+	ui->m_bFloat = m_bFloat;
+	ui->m_piFloatPercent = m_piFloatPercent;
+	ui->m_bSetPos = m_bSetPos; // 防止SetPos循环调用
+	ui->m_sText = m_sText;
+	ui->m_sToolTip = m_sToolTip;
+	ui->m_chShortcut = m_chShortcut;
+	ui->m_sUserData = m_sUserData;
+	ui->m_pTag = m_pTag;
+	ui->m_dwBackColor = m_dwBackColor;
+	ui->m_dwBackColor2 = m_dwBackColor2;
+	ui->m_dwBackColor3 = m_dwBackColor3;
+	ui->m_diBk = m_diBk;
+	ui->m_diFore = m_diFore;
+	ui->m_dwBorderColor = m_dwBorderColor;
+	ui->m_dwFocusBorderColor = m_dwFocusBorderColor;
+	ui->m_bColorHSL = m_bColorHSL;
+	ui->m_nBorderStyle = m_nBorderStyle;
+	ui->m_nTooltipWidth = m_nTooltipWidth;
+	ui->m_cxyBorderRound = m_cxyBorderRound;
+	ui->m_rcPaint = m_rcPaint;
+	ui->m_rcBorderSize = m_rcBorderSize;
+}
+
+CControlUI * CControlUI::CloneNew()
+{
+	CControlUI * result = new CControlUI();
+	Clone(result);
+	return result;
 }
 
 int CControlUI::GetBorderStyle() const

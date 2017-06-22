@@ -110,4 +110,22 @@ namespace DuiLib
 		m_diFore.rcDestOffset = rc;
 		if( DrawImage(hDC, m_diFore) ) return;
 	}
+	VOID CProgressUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CProgressUI* pui = (CProgressUI*)ui;
+
+		pui->m_bHorizontal = m_bHorizontal;
+		pui->m_nMax = m_nMax;
+		pui->m_nMin = m_nMin;
+		pui->m_nValue = m_nValue;
+
+		pui->m_diFore = m_diFore;
+	}
+	CControlUI * CProgressUI::CloneNew()
+	{
+		CProgressUI* result = new CProgressUI();
+		Clone(result);
+		return result;
+	}
 }

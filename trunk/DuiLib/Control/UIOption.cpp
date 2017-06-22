@@ -256,4 +256,24 @@ Label_ForeImage:
 			m_uButtonState = uSavedState;
 		}
 	}
+	VOID COptionUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		COptionUI* oui = (COptionUI*)ui;
+		oui->m_bSelected = m_bSelected;
+		oui->m_sGroupName = m_sGroupName;
+
+		oui->m_dwSelectedBkColor = m_dwSelectedBkColor;
+		oui->m_dwSelectedTextColor = m_dwSelectedTextColor;
+
+		oui->m_diSelected = m_diSelected;
+		oui->m_diSelectedHot = m_diSelectedHot;
+		oui->m_diFore = m_diFore;
+	}
+	CControlUI * COptionUI::CloneNew()
+	{
+		COptionUI* result = new COptionUI();
+		Clone(result);
+		return result;
+	}
 }

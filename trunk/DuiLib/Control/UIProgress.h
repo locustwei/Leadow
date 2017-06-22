@@ -26,7 +26,8 @@ namespace DuiLib
 
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 		void PaintStatusImage(HDC hDC);
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		bool m_bHorizontal;
 		int m_nMax;

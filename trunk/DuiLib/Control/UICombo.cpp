@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "UICombo.h"
 
 namespace DuiLib {
 
@@ -1238,6 +1239,33 @@ void CComboUI::PaintStatusImage(HDC hDC)
     }
 
     DrawImage(hDC, m_diNormal);
+}
+
+VOID CComboUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CComboUI* cui = static_cast<CComboUI*>(ui);
+	
+	cui->m_iCurSel = m_iCurSel;
+	cui->m_bShowText = m_bShowText;
+	cui->m_bSelectCloseFlag = m_bSelectCloseFlag;
+	cui->m_rcTextPadding = m_rcTextPadding;
+	cui->m_sDropBoxAttributes = m_sDropBoxAttributes;
+	cui->m_szDropBox = m_szDropBox;
+	cui->m_uButtonState = m_uButtonState;
+	cui->m_diNormal = m_diNormal;
+	cui->m_diHot = m_diHot;
+	cui->m_diPushed = m_diPushed;
+	cui->m_diFocused = m_diFocused;
+	cui->m_diDisabled = m_diDisabled;
+	cui->m_ListInfo = m_ListInfo;
+}
+
+CControlUI * CComboUI::CloneNew()
+{
+	CComboUI* result = new CComboUI();
+	Clone(result);
+	return result;
 }
 
 void CComboUI::PaintText(HDC hDC)

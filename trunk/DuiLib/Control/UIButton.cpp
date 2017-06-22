@@ -506,4 +506,32 @@ namespace DuiLib
 Label_ForeImage:
 		DrawImage(hDC, m_diFore);
 	}
+
+	VOID CButtonUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CButtonUI* bui = static_cast<CButtonUI*>(ui);
+
+		bui->m_uButtonState = m_uButtonState;
+		bui->m_dwHotBkColor = m_dwHotBkColor;
+		bui->m_dwHotTextColor = m_dwHotTextColor;
+		bui->m_dwPushedTextColor = m_dwPushedTextColor;
+		bui->m_dwFocusedTextColor = m_dwFocusedTextColor;
+		bui->m_uFadeAlpha = m_uFadeAlpha;
+		bui->m_uFadeAlphaDelta = m_uFadeAlphaDelta;
+		bui->m_diNormal = m_diNormal;
+		bui->m_diHot = m_diHot;
+		bui->m_diHotFore = m_diHotFore;
+		bui->m_diPushed = m_diPushed;
+		bui->m_diPushedFore = m_diPushedFore;
+		bui->m_diFocused = m_diFocused;
+		bui->m_diDisabled = m_diDisabled;
+	}
+
+	CControlUI * CButtonUI::CloneNew()
+	{
+		CControlUI * result = new CButtonUI();
+		Clone(result);
+		return result;
+	}
 }

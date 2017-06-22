@@ -208,7 +208,8 @@ public:
     virtual CScrollBarUI* GetVerticalScrollBar() const;
     virtual CScrollBarUI* GetHorizontalScrollBar() const;
     bool SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData);
-
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     bool m_bScrollSelect;
     int m_iCurSel;

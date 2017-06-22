@@ -110,6 +110,8 @@ public:
     virtual CScrollBarUI* GetVerticalScrollBar() const;
     virtual CScrollBarUI* GetHorizontalScrollBar() const;
 
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     virtual void SetFloatPos(int iIndex);
     virtual void ProcessScrollBar(RECT rc, int cxRequired, int cyRequired);

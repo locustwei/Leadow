@@ -60,7 +60,8 @@ namespace DuiLib
 
 		void PaintStatusImage(HDC hDC);
 		void PaintText(HDC hDC);
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		CEditWnd* m_pWindow;
 

@@ -97,7 +97,8 @@ namespace DuiLib
 		void PaintButton2(HDC hDC);
 		void PaintThumb(HDC hDC);
 		void PaintRail(HDC hDC);
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 
 		enum

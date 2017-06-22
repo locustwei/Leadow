@@ -1098,4 +1098,14 @@ void CScrollBarUI::PaintRail(HDC hDC)
 	if( DrawImage(hDC, m_diRailNormal) ) return;
 }
 
+VOID CScrollBarUI::Clone(CControlUI * ui)
+{
+	return VOID();
+}
+
+CControlUI * CScrollBarUI::CloneNew()
+{
+	return nullptr;
+}
+
 } // namespace DuiLib

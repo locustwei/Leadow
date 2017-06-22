@@ -50,6 +50,9 @@ namespace DuiLib
 
 		void PaintText(HDC hDC);
 
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
+
 #ifdef _USE_GDIPLUS
 		void		SetEnabledEffect(bool _EnabledEffect);
 		bool		GetEnabledEffect();

@@ -349,4 +349,19 @@ namespace DuiLib
 
 		CLabelUI::DoEvent(event);
 	}
+
+	VOID CDateTimeUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CDateTimeUI* dui = static_cast<CDateTimeUI*>(ui);
+		dui->m_sysTime = m_sysTime;
+		dui->m_nDTUpdateFlag = m_nDTUpdateFlag;
+		dui->m_bReadOnly = m_bReadOnly;
+	}
+	CControlUI * CDateTimeUI::CloneNew()
+	{
+		CDateTimeUI* result = new CDateTimeUI();
+		Clone(result);
+		return result;
+	}
 }

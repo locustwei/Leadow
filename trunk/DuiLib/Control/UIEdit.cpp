@@ -668,4 +668,28 @@ namespace DuiLib
 
 		}
 	}
+	VOID CEditUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CEditUI* eui = static_cast<CEditUI*>(ui);
+		
+		eui->m_uMaxChar = m_uMaxChar;
+		eui->m_bReadOnly = m_bReadOnly;
+		eui->m_bPasswordMode = m_bPasswordMode;
+		eui->m_bAutoSelAll = m_bAutoSelAll;
+		eui->m_cPasswordChar = m_cPasswordChar;
+		eui->m_uButtonState = m_uButtonState;
+		eui->m_dwEditbkColor = m_dwEditbkColor;
+		eui->m_iWindowStyls = m_iWindowStyls;
+		eui->m_diNormal = m_diNormal;
+		eui->m_diHot = m_diHot;
+		eui->m_diFocused = m_diFocused;
+		eui->m_diDisabled = m_diDisabled;
+	}
+	CControlUI * CEditUI::CloneNew()
+	{
+		CEditUI* result = new CEditUI();
+		Clone(result);
+		return result;
+	}
 }

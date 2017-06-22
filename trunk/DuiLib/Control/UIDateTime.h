@@ -31,6 +31,8 @@ namespace DuiLib
 
 		void DoEvent(TEventUI& event);
 
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		SYSTEMTIME m_sysTime;
 		int        m_nDTUpdateFlag;

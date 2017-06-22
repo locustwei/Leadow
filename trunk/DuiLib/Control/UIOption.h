@@ -44,7 +44,8 @@ namespace DuiLib
 
 		void PaintStatusImage(HDC hDC);
 		void PaintText(HDC hDC);
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		bool			m_bSelected;
 		CDuiString		m_sGroupName;
