@@ -33,6 +33,7 @@ EXTERN_C const IID IID_ITextHost = { /* c5bdd8d0-d26e-11ce-a89e-00aa006cadc5 */
 #endif
 
 #include <textserv.h>
+#include "UIRichEdit.h"
 
 class CTxtWinHost : public ITextHost
 {
@@ -2403,5 +2404,33 @@ LRESULT CRichEditUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, boo
 }
 
 
+VOID CRichEditUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CRichEditUI* rui = (CRichEditUI*)ui;
+	rui->m_bVScrollBarFixing = m_bVScrollBarFixing;
+	rui->m_bWantTab = m_bWantTab;
+	rui->m_bWantReturn = m_bWantReturn;
+	rui->m_bWantCtrlReturn = m_bWantCtrlReturn;
+	rui->m_bTransparent = m_bTransparent;
+	rui->m_bRich = m_bRich;
+	rui->m_bReadOnly = m_bReadOnly;
+	rui->m_bWordWrap = m_bWordWrap;
+	rui->m_dwTextColor = m_dwTextColor;
+	rui->m_iFont = m_iFont;
+	rui->m_iLimitText = m_iLimitText;
+	rui->m_lTwhStyle = m_lTwhStyle;
+	rui->m_bDrawCaret = m_bDrawCaret;
+	rui->m_bInited = m_bInited;
+	rui->m_rcTextPadding = m_rcTextPadding;
+}
+
+CControlUI * CRichEditUI::CloneNew()
+{
+	CRichEditUI* result = new CRichEditUI();
+	Clone(result);
+	return result;
+}
 
 } // namespace DuiLib
+

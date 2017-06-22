@@ -130,6 +130,8 @@ public:
 
     LRESULT MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, bool& bHandled);
 
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
 	enum { 
 		DEFAULT_TIMERID = 20,

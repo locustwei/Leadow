@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "UIContainer.h"
 
 namespace DuiLib
 {
@@ -855,6 +856,36 @@ namespace DuiLib
             }
 		}
         return true;
+	}
+
+	VOID CContainerUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CContainerUI * tui = static_cast<CContainerUI*>(ui);
+		tui->m_rcInset = m_rcInset;
+		tui->m_bMouseChildEnabled = m_bMouseChildEnabled;
+		if (m_pVerticalScrollBar)
+			tui->m_pVerticalScrollBar = static_cast<CScrollBarUI*>(m_pVerticalScrollBar->CloneNew());
+		if (m_pHorizontalScrollBar)
+			tui->m_pHorizontalScrollBar = static_cast<CScrollBarUI*>(m_pHorizontalScrollBar->CloneNew());
+		tui->EnableScrollBar(m_pVerticalScrollBar, m_pHorizontalScrollBar);
+		tui->m_iChildPadding = m_iChildPadding;
+		tui->m_iChildAlign = m_iChildAlign;
+		tui->m_iChildVAlign = m_iChildVAlign;
+		tui->m_bScrollProcess = m_bScrollProcess;
+
+		for (int i = 0; i < m_items.GetSize(); i++)
+		{
+			CControlUI* cui = static_cast<CControlUI *>(m_items.GetAt(i))->CloneNew();
+			tui->Add(cui);
+		}
+	}
+
+	CControlUI * CContainerUI::CloneNew()
+	{
+		CContainerUI* result = new CContainerUI();
+		Clone(result);
+		return result;
 	}
 
 	void CContainerUI::SetFloatPos(int iIndex)

@@ -23,4 +23,10 @@ namespace DuiLib
 	{
 		return IsSelected();
 	}
+	CControlUI * CCheckBoxUI::CloneNew()
+	{
+		CCheckBoxUI* ui = new CCheckBoxUI();
+		Clone(ui);
+		return ui;
+	}
 }

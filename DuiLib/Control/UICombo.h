@@ -117,6 +117,9 @@ public:
     void PaintText(HDC hDC);
     void PaintStatusImage(HDC hDC);
 
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
+
 protected:
     CComboWnd* m_pWindow;
 

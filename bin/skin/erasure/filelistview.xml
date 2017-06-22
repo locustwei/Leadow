@@ -12,8 +12,8 @@
                     <ListHeaderItem text="Create time" width="100" minwidth="10" />
                     <ListHeaderItem text="Last update time" width="100" minwidth="10" />
                 </ListHeader>
-                    
-                <ListContainerElement height="0">
+                
+                <ListContainerElement height="30">
                 		<HorizontalLayout inset="4,4,4,4">
 												<CheckBox name="selectme" height="20" />
 										</HorizontalLayout>
@@ -23,6 +23,7 @@
 										<Label text="" />
 										<Label text="" />
 							  </ListContainerElement>
+									  
             </List>
         </HorizontalLayout>
         <HorizontalLayout height="40">

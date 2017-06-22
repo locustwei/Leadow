@@ -483,6 +483,46 @@ namespace DuiLib
 		}
 	}
 
+	VOID CLabelUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CLabelUI* lui = static_cast<CLabelUI*>(ui);
+
+		lui->m_pWideText = m_pWideText;
+		lui->m_dwTextColor = m_dwTextColor;
+		lui->m_dwDisabledTextColor = m_dwDisabledTextColor;
+		lui->m_iFont = m_iFont;
+		lui->m_uTextStyle = m_uTextStyle;
+		lui->m_rcTextPadding = m_rcTextPadding;
+		lui->m_bShowHtml = m_bShowHtml;
+		lui->m_szAvailableLast = m_szAvailableLast;
+		lui->m_cxyFixedLast = m_cxyFixedLast;
+		lui->m_bNeedEstimateSize = m_bNeedEstimateSize;
+		lui->m_fLuminousFuzzy = m_fLuminousFuzzy;
+		lui->m_GradientLength = m_GradientLength;
+		lui->m_GradientAngle = m_GradientAngle;
+		lui->m_EnableEffect = m_EnableEffect;
+		lui->m_bEnableLuminous = m_bEnableLuminous;
+		lui->m_EnabledStroke = m_EnabledStroke;
+		lui->m_EnabledShadow = m_EnabledShadow;
+		lui->m_dwTextColor1 = m_dwTextColor1;
+		lui->m_dwTextShadowColorA = m_dwTextShadowColorA;
+		lui->m_dwTextShadowColorB = m_dwTextShadowColorB;
+		lui->m_dwStrokeColor = m_dwStrokeColor;
+		lui->m_ShadowOffset = m_ShadowOffset;
+		lui->m_gdiplusToken = m_gdiplusToken;
+#ifdef _USE_GDIPLUS
+		lui->m_gdiplusStartupInput = m_gdiplusStartupInput;
+#endif
+	}
+
+	CControlUI * CLabelUI::CloneNew()
+	{
+		CControlUI * result = new CLabelUI();
+		Clone(result);
+		return result;
+	}
+
 	void CLabelUI::SetShadowOffset( int _offset,int _angle )
 	{
 		if(_angle > 180 || _angle < -180) return;

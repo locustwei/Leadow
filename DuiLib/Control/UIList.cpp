@@ -1073,6 +1073,28 @@ bool CListUI::SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData)
 	return bResult;
 }
 
+VOID CListUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CListUI* lui = (CListUI*)ui;
+
+	lui->m_bScrollSelect = m_bScrollSelect;
+	lui->m_iCurSel = m_iCurSel;
+	lui->m_iExpandedItem = m_iExpandedItem;
+	lui->m_pCallback = m_pCallback;
+	lui->m_ListInfo = m_ListInfo;
+	m_pHeader->Clone(lui->m_pHeader);
+	m_pList->Clone(lui->m_pList);
+}
+
+CControlUI * CListUI::CloneNew()
+{
+	CListUI* result = new CListUI();
+	Clone(result);
+
+	return result;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //

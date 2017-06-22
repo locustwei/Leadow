@@ -32,7 +32,8 @@ namespace DuiLib
 		void	PlayGif();
 		void	PauseGif();
 		void	StopGif();
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	private:
 		void	InitGifImage();
 		void	DeleteGif();

@@ -17,6 +17,7 @@ namespace DuiLib
 
 		void SetCheck(bool bCheck, bool bTriggerEvent=true);
 		bool GetCheck() const;
+		virtual CControlUI* CloneNew() override;
 	};
 }
 
