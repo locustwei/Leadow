@@ -20,6 +20,11 @@ CThread::~CThread(void)
 	Terminate(0);
 }
 
+CThread* CThread::NewThread(IRunable* pRumer, WPARAM Param /*= 0*/)
+{
+	return new CThread(pRumer, Param);
+}
+
 int CThread::GetPriority()
 {
 	return ::GetThreadPriority((HANDLE)m_hThread);
@@ -84,10 +89,8 @@ unsigned __stdcall CThread::ThreadProcedure(LPVOID pParam)
 
 	if (!pThis) return 1;
 	int uRet = pThis->ThreadRun();
-
-	pThis->ResetHandle();
-
 	pThis->DoTerminated();
+	pThis->ResetHandle();
 
 	if(pThis->GetFreeOnTerminate())
 		delete pThis;

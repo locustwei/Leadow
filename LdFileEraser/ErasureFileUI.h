@@ -1,6 +1,6 @@
 #pragma once
 
-class LDLIB_API CErasureFileUI : public CFramWnd
+class LDLIB_API CErasureFileUI : public CFramWnd, IRunable
 {
 public:
 	CErasureFileUI();
@@ -20,5 +20,10 @@ private:
 	void AddErasureFile(CLdString& filename);
 protected:
 	virtual void OnInit() override;
+	
+	virtual VOID ThreadRun(WPARAM Param) override;
+	virtual VOID OnThreadInit(WPARAM Param) override;
+	virtual VOID OnThreadTerminated(WPARAM Param) override;
+
 };
 

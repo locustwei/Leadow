@@ -48,7 +48,7 @@ public:
 	// Parameter: CErasureMethod & m_method
 	// Parameter: IErasureCallback * callbck
 	//************************************
-	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod& m_method, IErasureCallback* callbck);
+	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod& method, IErasureCallback* callbck);
 private:
 	CVolumeInfo m_volInfo;
 	CLdString m_tmpDir;
