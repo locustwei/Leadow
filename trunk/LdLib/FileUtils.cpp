@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FileUtils.h"
+#include "LdLib.h"
 
 #pragma region CFileUtils
 
@@ -235,23 +236,22 @@ VOID CFileInfo::SetFileName(TCHAR * pFileName)
 
 CLdString CFileInfo::FormatFileSize(INT64 nSize)
 {
-#define KB 1024
-#define MB (1024 * 1024)
-#define GB (1024 * 1024 * 1024)
-#define TB (1024 * 1024 * 1024 * 1024)
-
+#define __KB 1024
+#define __MB (1024 * __KB)
+#define __GB (1024 * __MB)
+#define __TB 0x10000000000 
 	double Size = nSize;
 	CLdString s((UINT)100);
-	if (Size < KB)
+	if (Size < __KB)
 		s.Format(_T("%.2fBytes"), Size);
-	else if (Size < MB)
-		s.Format(_T("%.2fKB"), Size / KB);
-	else if (Size < GB)
-		s.Format(_T("%.2fMB"), Size / MB);
-	else if (Size < TB)
-		s.Format(_T("%.2fGB"), Size / GB);
+	else if (Size < __MB)
+		s.Format(_T("%.2fKB"), Size / __KB);
+	else if (Size < __GB)
+		s.Format(_T("%.2fMB"), Size / __MB);
+	else if (Size < __TB)
+		s.Format(_T("%.2fGB"), Size / __GB);
 	else
-		s.Format(_T("%.2fTB"), Size / TB);
+		s.Format(_T("%.2fTB"), Size / __TB);
 	return s;
 }
 

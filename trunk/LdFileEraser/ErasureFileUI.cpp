@@ -26,7 +26,9 @@ void CErasureFileUI::OnSelectChanged(TNotifyUI & msg)
 
 void CErasureFileUI::OnItemClick(TNotifyUI & msg)
 {
+	
 }
+
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CFramWnd)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
@@ -77,5 +79,11 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 	}
 	else if (msg.pSender == btnOk)
 	{
+		for (int i = 0; i < lstFile->GetCount(); i++)
+		{
+			CFileInfo* pinfo = (CFileInfo*)(lstFile->GetItemAt(i)->GetTag());
+			//CErasure erasure;
+			//erasure.FileErasure(pinfo->GetFileName(), CErasureMethod::Pseudorandom(), this);
+		}
 	}
 }

@@ -39,6 +39,9 @@
     <ClCompile Include="ErasureLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="ErasureProcess.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -64,6 +67,9 @@
     </ClInclude>
     <ClInclude Include="ErasureLibrary.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureProcess.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
