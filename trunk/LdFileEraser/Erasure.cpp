@@ -105,6 +105,21 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 	return Result;
 }
 
+DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasureCallback * callbck)
+{
+	HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return GetLastError();
+	
+	LARGE_INTEGER fileSize;
+	GetFileSizeEx(hFile, &fileSize);
+	m_method = m_method;
+	EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+	m_Tmpfiles.Add(lpFileName);
+	DeleteTempFiles();
+	return 0;
+}
+
 DWORD CErasure::EraseUnusedSpace()
 {
 	DWORD Result = 0;
@@ -383,6 +398,7 @@ DWORD CErasure::DeleteTempFiles()
 		if(hFile == INVALID_HANDLE_VALUE)
 			continue;
 		SetEndOfFile(hFile);
+		ResetFileDate(hFile);
 		CloseHandle(hFile);
 		DeleteFile(m_Tmpfiles[i]);
 		m_callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);

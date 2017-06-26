@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
+#include "ErasureProcess.h"
 
 
 CErasureFileUI::CErasureFileUI():
@@ -18,6 +19,23 @@ CErasureFileUI::~CErasureFileUI()
 	{
 		delete m_Files[it];
 	}
+}
+
+VOID CErasureFileUI::ThreadRun(WPARAM Param)
+{
+	CFileInfo* pinfo = (CFileInfo*)Param;
+	CErasure erasure;
+	erasure.FileErasure(pinfo->GetFileName().GetData(), CErasureMethod::Pseudorandom(), new CErasureProcess());
+}
+
+VOID CErasureFileUI::OnThreadInit(WPARAM Param)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+VOID CErasureFileUI::OnThreadTerminated(WPARAM Param)
+{
+	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void CErasureFileUI::OnSelectChanged(TNotifyUI & msg)
@@ -82,6 +100,9 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		for (int i = 0; i < lstFile->GetCount(); i++)
 		{
 			CFileInfo* pinfo = (CFileInfo*)(lstFile->GetItemAt(i)->GetTag());
+
+			CThread* thread = CThread::NewThread(this, WPARAM(pinfo));
+			thread->Start();
 			//CErasure erasure;
 			//erasure.FileErasure(pinfo->GetFileName(), CErasureMethod::Pseudorandom(), this);
 		}

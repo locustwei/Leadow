@@ -12,11 +12,12 @@ public:
 
 class CThread
 {
-public:
+private:
 	CThread(void);
 	CThread(IRunable* pRumer, WPARAM Param);
 	~CThread(void);
-
+public:
+	static CThread* NewThread(IRunable* pRumer, WPARAM Param = 0);
 	int	GetPriority();
 	BOOL SetPriority(int nPriority);
 	DWORD Suspend();
