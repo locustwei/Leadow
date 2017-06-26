@@ -581,6 +581,26 @@ namespace DuiLib
 		return GetParentNode()->GetTreeNodes().Find(this);
 	}
 
+	VOID CTreeNodeUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CTreeNodeUI* lui = (CTreeNodeUI*)ui;
+		lui->m_iTreeLavel = m_iTreeLavel;
+		lui->m_bIsVisable = m_bIsVisable;
+		lui->m_bIsCheckBox = m_bIsCheckBox;
+		lui->m_dwItemTextColor = m_dwItemTextColor;
+		lui->m_dwItemHotTextColor = m_dwItemHotTextColor;
+		lui->m_dwSelItemTextColor = m_dwSelItemTextColor;
+		lui->m_dwSelItemHotTextColor = m_dwSelItemHotTextColor;
+	}
+
+	CControlUI * CTreeNodeUI::CloneNew()
+	{
+		CTreeNodeUI* result = new CTreeNodeUI();
+		Clone(result);
+		return result;
+	}
+
 	//************************************
 	// 函数名称: GetLastNode
 	// 返回类型: CTreeNodeUI*

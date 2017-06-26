@@ -36,10 +36,19 @@ DUI_END_MESSAGE_MAP()
 
 void CErasureFileUI::AddErasureFile(CLdString& filename)
 {
-	CListTextElementUI* element = new CListTextElementUI();
-	
-	lstFile->Add(element);
-	m_Files.Add(new CFileInfo(filename.GetData()));
+	CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
+	if (item->GetTag() != 0)
+	{
+		item = static_cast<CListContainerElementUI*>(item->CloneNew());
+		lstFile->Add(item);
+	}
+	item->SetVisible(true);
+	CFileInfo* pinfo = new CFileInfo(filename.GetData());
+	item->SetTag((UINT_PTR)pinfo);
+	item->SetSubControlText(_T("filename"), filename);
+
+	item->SetSubControlText(_T("filesize"), CFileInfo::FormatFileSize(pinfo->GetDataSize()));
+	item->SetSubControlText(_T("createtime"), CDateTimeUtils::DateTimeToString(pinfo->GetCreateTime()));
 }
 
 void CErasureFileUI::OnInit()

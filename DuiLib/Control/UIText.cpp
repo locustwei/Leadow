@@ -144,4 +144,16 @@ namespace DuiLib
 				m_iFont, m_uTextStyle);
 		}
 	}
+	VOID CTextUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		
+		
+	}
+	CControlUI * CTextUI::CloneNew()
+	{
+		CTextUI* result = new CTextUI();
+		Clone(result);
+		return result;
+	}
 }

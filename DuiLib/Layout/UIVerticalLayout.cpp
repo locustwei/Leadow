@@ -331,4 +331,21 @@ namespace DuiLib
 
 		}
 	}
+	VOID CVerticalLayoutUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CVerticalLayoutUI* lui = (CVerticalLayoutUI*)ui;
+
+		lui->m_iSepHeight = m_iSepHeight;
+		lui->m_uButtonState = m_uButtonState;
+		lui->m_ptLastMouse = m_ptLastMouse;
+		lui->m_rcNewPos = m_rcNewPos;
+		lui->m_bImmMode = m_bImmMode;
+	}
+	CControlUI * CVerticalLayoutUI::CloneNew()
+	{
+		CVerticalLayoutUI* result = new CVerticalLayoutUI();
+		Clone(result);
+		return result;
+	}
 }

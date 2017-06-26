@@ -66,9 +66,10 @@ CLdString::operator LPTSTR() const
 
 void CLdString::Append(LPCTSTR pstr)
 {
-	int nNewLength = GetLength() + (int)_tcslen(pstr);
+	int oLength = GetLength();
+	int nNewLength = oLength + (int)_tcslen(pstr);
 	m_pstr = reallocstr(m_pstr, (nNewLength + 1));
-	_tcscat(m_pstr, pstr);
+	_tcscpy(m_pstr+oLength, pstr);
 }
 
 void CLdString::Assign(LPCTSTR pstr, int cchMax)
@@ -429,4 +430,20 @@ int CLdString::Format(LPCTSTR pstrFormat, ...)
 	Assign(szSprintf);
 	free(szSprintf);
 	return iRet;
+}
+
+int CLdString::Try2Int(int Default)
+{
+	if(IsEmpty())
+		return Default;
+	else
+	try
+	{
+		return _tstoi(m_pstr);
+	}
+	catch (...)
+	{
+		return Default;
+	}
+
 }

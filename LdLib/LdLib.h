@@ -18,6 +18,9 @@
 #include "VolumeUtils.h"
 #include "RegisterUtils.h"
 #include "NtfsUtils.h"
+#include "DateTimeUtils.h"
+
+#include "FormatSettings.h"
 
 #define LDLIB_API __declspec(dllexport)
 

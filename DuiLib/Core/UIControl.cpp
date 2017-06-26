@@ -144,8 +144,10 @@ CDuiString CControlUI::GetText() const
 void CControlUI::SetText(LPCTSTR pstrText)
 {
     if( m_sText == pstrText ) return;
-
-    m_sText = pstrText;
+	if (pstrText == NULL)
+		m_sText.Empty();
+	else
+		m_sText = pstrText;
     Invalidate();
 }
 
@@ -1200,6 +1202,7 @@ CControlUI * CControlUI::FindSubControl(LPCTSTR pstrSubControlName)
 
 VOID CControlUI::Clone(CControlUI * ui)
 {
+	ui->m_sName = m_sName;
 	ui->m_bUpdateNeeded = m_bUpdateNeeded;
 	ui->m_bMenuUsed = m_bMenuUsed;
 	ui->m_bAsyncNotify = m_bAsyncNotify;

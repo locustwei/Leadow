@@ -20,7 +20,8 @@ namespace DuiLib
 		void DoEvent(TEventUI& event);
 
 		void PaintText(HDC hDC);
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		enum { MAX_LINK = 8 };
 		int m_nLinks;

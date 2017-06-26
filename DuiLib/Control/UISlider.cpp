@@ -284,4 +284,24 @@ namespace DuiLib
 		m_diThumb.rcDestOffset = rcThumb;
 		if( DrawImage(hDC, m_diThumb) ) return;
 	}
+	VOID CSliderUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		
+		CSliderUI* sui = (CSliderUI*)ui;
+
+		sui->m_szThumb = m_szThumb;
+		sui->m_uButtonState = m_uButtonState;
+		sui->m_nStep = m_nStep;
+		sui->m_bImmMode = m_bImmMode;
+		sui->m_diThumb = m_diThumb;
+		sui->m_diThumbHot = m_diThumbHot;
+		sui->m_diThumbPushed = m_diThumbPushed;
+	}
+	CControlUI * CSliderUI::CloneNew()
+	{
+		CSliderUI* result = new CSliderUI();
+		Clone(result);
+		return result;
+	}
 }

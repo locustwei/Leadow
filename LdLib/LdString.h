@@ -69,6 +69,7 @@ public:
 
 	int __cdecl Format(LPCTSTR pstrFormat, ...);
 
+	int Try2Int(int Default = 0);
 protected:
 	TCHAR* m_pstr;
 };

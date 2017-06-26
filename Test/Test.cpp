@@ -3,12 +3,12 @@
 #include <Shlwapi.h>
 #include <stdio.h>
 #include <string.h>
+#include <locale.h>
 #include "UIlib.h"
 #include "LdLib.h"
 #include "FileEraser.h"
 #include <time.h>
 #include <Commdlg.h>
-#include "ListExMainWnd.h"
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -17,21 +17,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      int       nCmdShow)
 {
 	
-	CPaintManagerUI::SetInstance(hInstance);
-
-	HRESULT Hr = ::CoInitialize(NULL);
-	if (FAILED(Hr)) return 0;
-	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin/test"));
-	CListExMainWnd* pFrame = new CListExMainWnd();
-	if (pFrame == NULL) return 0;
-	pFrame->Create(NULL, _T("ListExDemo"), UI_WNDSTYLE_DIALOG, 0L);
-	pFrame->CenterWindow();
-	pFrame->ShowWindow(true);
-
-	CPaintManagerUI::MessageLoop();
-
-	::CoUninitialize();
-
 	return (int) 0;
 }
 
@@ -117,13 +102,19 @@ DWORD ResetFileDate(HANDLE hFile)
 		return GetLastError();
 	return 0;
 }
-/*
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-
-
-	printf("press any key exit");
+	setlocale(LC_ALL, "chs");
+	FILETIME ft;
+	CFileInfo fi(_T("d:\\2016-11.xlsx"));
+	LARGE_INTEGER l = fi.GetCreateTime();
+	ft.dwHighDateTime = l.HighPart;
+	ft.dwLowDateTime = l.LowPart;
+	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyyy")).GetData());
+	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyy\'Äê\'")).GetData());
+	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyy\'Äê\'MM")).GetData());
+	printf("\npress any key exit");
 	getchar();
 	return 0;
 }
-*/

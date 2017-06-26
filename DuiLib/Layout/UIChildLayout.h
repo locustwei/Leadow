@@ -16,7 +16,8 @@ namespace DuiLib
 		CDuiString GetChildLayoutXML();
 		virtual LPVOID GetInterface(LPCTSTR pstrName);
 		virtual LPCTSTR GetClass() const;
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	private:
 		CDuiString m_pstrXMLFile;
 	};

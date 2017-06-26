@@ -53,4 +53,16 @@ namespace DuiLib
 	{
 		return DUI_CTR_CHILDLAYOUT;
 	}
+	VOID CChildLayoutUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CChildLayoutUI* lui = (CChildLayoutUI*)ui;
+		lui->m_pstrXMLFile = m_pstrXMLFile;
+	}
+	CControlUI * CChildLayoutUI::CloneNew()
+	{
+		CChildLayoutUI* result = new CChildLayoutUI();
+		Clone(result);
+		return result;
+	}
 } // namespace DuiLib

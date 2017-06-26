@@ -1879,6 +1879,35 @@ void CListHeaderItemUI::PaintStatusImage(HDC hDC)
     }
 }
 
+VOID CListHeaderItemUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	
+	CListHeaderItemUI* lui = (CListHeaderItemUI*)ui;
+	
+	lui->m_bDragable = m_bDragable;
+	lui->m_uButtonState = m_uButtonState;
+	lui->m_iSepWidth = m_iSepWidth;
+	lui->m_dwTextColor = m_dwTextColor;
+	lui->m_dwSepColor = m_dwSepColor;
+	lui->m_iFont = m_iFont;
+	lui->m_uTextStyle = m_uTextStyle;
+	lui->m_bShowHtml = m_bShowHtml;
+	lui->m_rcTextPadding = m_rcTextPadding;
+	lui->m_diNormal = m_diNormal;
+	lui->m_diHot = m_diHot;
+	lui->m_diPushed = m_diPushed;
+	lui->m_diFocused = m_diFocused;
+	lui->m_diSep = m_diSep;
+}
+
+CControlUI * CListHeaderItemUI::CloneNew()
+{
+	CListHeaderItemUI* result = new CListHeaderItemUI();
+	Clone(result);
+	return result;
+}
+
 void CListHeaderItemUI::PaintText(HDC hDC)
 {
     if( m_dwTextColor == 0 ) m_dwTextColor = m_pManager->GetDefaultFontColor();
@@ -2135,6 +2164,23 @@ void CListElementUI::DrawItemBk(HDC hDC, const RECT& rcItem)
     }
 }
 
+VOID CListElementUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CListElementUI* lui = (CListElementUI*)ui;
+
+	lui->m_iIndex = m_iIndex;
+	lui->m_iDrawIndex = m_iDrawIndex;
+	lui->m_bSelected = m_bSelected;
+	lui->m_uButtonState = m_uButtonState;
+}
+
+CControlUI * CListElementUI::CloneNew()
+{
+	
+	return NULL;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -2345,6 +2391,26 @@ void CListLabelElementUI::DrawItemText(HDC hDC, const RECT& rcItem)
     else
         CRenderEngine::DrawText(hDC, m_pManager, rcText, m_sText, iTextColor, \
         pInfo->nFont, pInfo->uTextStyle);
+}
+
+VOID CListLabelElementUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CListLabelElementUI* lui = (CListLabelElementUI*)ui;
+	lui->m_cxyFixedLast = m_cxyFixedLast;
+	lui->m_bNeedEstimateSize = m_bNeedEstimateSize;
+	lui->m_szAvailableLast = m_szAvailableLast;
+	lui->m_uFixedHeightLast = m_uFixedHeightLast;
+	lui->m_nFontLast = m_nFontLast;
+	lui->m_uTextStyleLast = m_uTextStyleLast;
+	lui->m_rcTextPaddingLast = m_rcTextPaddingLast;
+}
+
+CControlUI * CListLabelElementUI::CloneNew()
+{
+	CListLabelElementUI* result = new CListLabelElementUI();
+	Clone(result);
+	return result;
 }
 
 
@@ -2641,6 +2707,20 @@ void CListTextElementUI::DrawItemText(HDC hDC, const RECT& rcItem)
         ::ZeroMemory(m_rcLinks + i, sizeof(RECT));
         ((CDuiString*)(m_sLinks + i))->Empty();
     }
+}
+
+VOID CListTextElementUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	
+	return VOID();
+}
+
+CControlUI * CListTextElementUI::CloneNew()
+{
+	CListTextElementUI* result = new CListTextElementUI();
+	Clone(result);
+	return result;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -2973,12 +3053,32 @@ SIZE CListContainerElementUI::EstimateSize(SIZE szAvailable)
     return cXY;
 }
 
+VOID CListContainerElementUI::Clone(CControlUI * ui)
+{
+	__super::Clone(ui);
+	CListContainerElementUI* lui = (CListContainerElementUI*)ui;
+
+	lui->m_iIndex = m_iIndex;
+	lui->m_iDrawIndex = m_iDrawIndex;
+	lui->m_bSelected = m_bSelected;
+	lui->m_bExpandable = m_bExpandable;
+	lui->m_bExpand = m_bExpand;
+	lui->m_uButtonState = m_uButtonState;
+}
+
+CControlUI * CListContainerElementUI::CloneNew()
+{
+	CListContainerElementUI* result = new CListContainerElementUI();
+	Clone(result);
+	return result;
+}
+
 void CListContainerElementUI::SetPos(RECT rc, bool bNeedInvalidate)
 {
 	__super::SetPos(rc, bNeedInvalidate);
 
 	if (m_pOwner == NULL) return;
-
+	
 	TListInfoUI* pInfo = m_pOwner->GetListInfo();
 	int nCount = m_items.GetSize();
 	for (int i = 0; i < nCount; i++)
@@ -2992,6 +3092,12 @@ void CListContainerElementUI::SetPos(RECT rc, bool bNeedInvalidate)
 			RECT rt = pItem->GetPos();
 			rt.left = rtHeader.left;
 			rt.right = rtHeader.right;
+			RECT rtPadding = pItem->GetPadding();
+			rt.left += rtPadding.left;
+			rt.top += rtPadding.top;
+			rt.right -= rtPadding.right;
+			rt.bottom -= rtPadding.bottom;
+
 			pItem->SetPos(rt);
 		}
 	}
@@ -3081,6 +3187,13 @@ bool CListHBoxElementUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStop
         }
     }
     return CContainerUI::DoPaint(hDC, rcPaint, pStopControl);
+}
+
+CControlUI * CListHBoxElementUI::CloneNew()
+{
+	CListHBoxElementUI* result = new CListHBoxElementUI();
+	Clone(result);
+	return result;
 }
 
 } // namespace DuiLib
