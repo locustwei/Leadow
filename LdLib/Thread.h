@@ -3,7 +3,8 @@
 #include "stdafx.h"
 #include <process.h>
 
-struct IRunable{
+class IRunable{
+public:
 	virtual VOID ThreadRun(WPARAM Param) = 0;
 	virtual VOID OnThreadInit(WPARAM Param) = 0;
 	virtual VOID OnThreadTerminated(WPARAM Param) = 0;

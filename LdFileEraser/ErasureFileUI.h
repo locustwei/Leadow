@@ -1,6 +1,5 @@
 #pragma once
 
-
 class LDLIB_API CErasureFileUI : public CFramWnd
 {
 public:
