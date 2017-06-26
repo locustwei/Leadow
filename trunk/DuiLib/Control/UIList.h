@@ -283,6 +283,8 @@ public:
     void PaintText(HDC hDC);
     void PaintStatusImage(HDC hDC);
 
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     POINT ptLastMouse;
     bool m_bDragable;
@@ -337,7 +339,8 @@ public:
     void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
     void DrawItemBk(HDC hDC, const RECT& rcItem);
-
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     int m_iIndex;
     int m_iDrawIndex;
@@ -369,7 +372,8 @@ public:
     bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
 
     void DrawItemText(HDC hDC, const RECT& rcItem);
-
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     SIZE    m_cxyFixedLast;
     bool    m_bNeedEstimateSize;
@@ -405,7 +409,8 @@ public:
     SIZE EstimateSize(SIZE szAvailable);
 
     void DrawItemText(HDC hDC, const RECT& rcItem);
-
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     enum { MAX_LINK = 8 };
     int m_nLinks;
@@ -459,6 +464,8 @@ public:
 
     SIZE EstimateSize(SIZE szAvailable);
 
+	virtual VOID Clone(CControlUI* ui) override;
+	virtual CControlUI* CloneNew() override;
 protected:
     int m_iIndex;
     int m_iDrawIndex;
@@ -484,6 +491,7 @@ public:
 
     void SetPos(RECT rc, bool bNeedInvalidate = true);
     bool DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl);
+	virtual CControlUI* CloneNew() override;
 };
 
 } // namespace DuiLib

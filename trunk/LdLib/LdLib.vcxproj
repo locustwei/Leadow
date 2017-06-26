@@ -148,8 +148,10 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DateTimeUtils.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="DlgGetFileName.h" />
+    <ClInclude Include="FormatSettings.h" />
     <ClInclude Include="HandleUitls.h" />
     <ClInclude Include="LdArray.h" />
     <ClInclude Include="LdDriver.h" />
@@ -169,8 +171,10 @@
     <ClInclude Include="VolumeUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DateTimeUtils.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="DlgGetFileName.cpp" />
+    <ClCompile Include="FormatSettings.cpp" />
     <ClCompile Include="HandleUitls.cpp" />
     <ClCompile Include="LdDriver.cpp" />
     <ClCompile Include="LdNamedPipe.cpp" />

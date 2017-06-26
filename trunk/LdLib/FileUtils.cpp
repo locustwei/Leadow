@@ -233,6 +233,28 @@ VOID CFileInfo::SetFileName(TCHAR * pFileName)
 	Name = pFileName;
 }
 
+CLdString CFileInfo::FormatFileSize(INT64 nSize)
+{
+#define KB 1024
+#define MB (1024 * 1024)
+#define GB (1024 * 1024 * 1024)
+#define TB (1024 * 1024 * 1024 * 1024)
+
+	double Size = nSize;
+	CLdString s((UINT)100);
+	if (Size < KB)
+		s.Format(_T("%.2fBytes"), Size);
+	else if (Size < MB)
+		s.Format(_T("%.2fKB"), Size / KB);
+	else if (Size < GB)
+		s.Format(_T("%.2fMB"), Size / MB);
+	else if (Size < TB)
+		s.Format(_T("%.2fGB"), Size / GB);
+	else
+		s.Format(_T("%.2fTB"), Size / TB);
+	return s;
+}
+
 void CFileInfo::ClearValue()
 {
 	ZeroMemory(&m_Baseinfo, sizeof(FILE_BASIC_INFO));

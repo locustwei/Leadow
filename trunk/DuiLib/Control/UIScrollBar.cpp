@@ -1100,12 +1100,60 @@ void CScrollBarUI::PaintRail(HDC hDC)
 
 VOID CScrollBarUI::Clone(CControlUI * ui)
 {
-	return VOID();
+	__super::Clone(ui);
+	CScrollBarUI* sui = (CScrollBarUI*)ui;
+
+	sui->m_bHorizontal = m_bHorizontal;
+	sui->m_nRange = m_nRange;
+	sui->m_nLineSize = m_nLineSize;
+	sui->m_nScrollUnit = m_nScrollUnit;
+	sui->ptLastMouse = ptLastMouse;
+	sui->m_nLastScrollPos = m_nLastScrollPos;
+	sui->m_nLastScrollOffset = m_nLastScrollOffset;
+	sui->m_nScrollRepeatDelay = m_nScrollRepeatDelay;
+
+	sui->m_diBkNormal = m_diBkNormal;
+	sui->m_diBkHot = m_diBkHot;
+	sui->m_diBkPushed = m_diBkPushed;
+	sui->m_diBkDisabled = m_diBkDisabled;
+
+	sui->m_bShowButton1 = m_bShowButton1;
+	sui->m_rcButton1 = m_rcButton1;
+	sui->m_uButton1State = m_uButton1State;
+	sui->m_dwButton1Color = m_dwButton1Color;
+	sui->m_diButton1Normal = m_diButton1Normal;
+	sui->m_diButton1Hot = m_diButton1Hot;
+	sui->m_diButton1Pushed = m_diButton1Pushed;
+	sui->m_diButton1Disabled = m_diButton1Disabled;
+
+	sui->m_bShowButton2 = m_bShowButton2;
+	sui->m_rcButton2 = m_rcButton2;
+	sui->m_uButton2State = m_uButton2State;
+	sui->m_dwButton2Color = m_dwButton2Color;
+	sui->m_diButton2Normal = m_diButton2Normal;
+	sui->m_diButton2Hot = m_diButton2Hot;
+	sui->m_diButton2Pushed = m_diButton2Pushed;
+	sui->m_diButton2Disabled = m_diButton2Disabled;
+
+	sui->m_rcThumb = m_rcThumb;
+	sui->m_uThumbState = m_uThumbState;
+	sui->m_dwThumbColor = m_dwThumbColor;
+	sui->m_diThumbNormal = m_diThumbNormal;
+	sui->m_diThumbHot = m_diThumbHot;
+	sui->m_diThumbPushed = m_diThumbPushed;
+	sui->m_diThumbDisabled = m_diThumbDisabled;
+
+	sui->m_diRailNormal = m_diRailNormal;
+	sui->m_diRailHot = m_diRailHot;
+	sui->m_diRailPushed = m_diRailPushed;
+	sui->m_diRailDisabled = m_diRailDisabled;
 }
 
 CControlUI * CScrollBarUI::CloneNew()
 {
-	return nullptr;
+	CScrollBarUI* result = new CScrollBarUI();
+	Clone(result);
+	return result;
 }
 
 } // namespace DuiLib

@@ -329,4 +329,20 @@ namespace DuiLib
 			else return CDuiRect(m_rcItem.left, m_rcItem.top, m_rcItem.left - m_iSepWidth, m_rcItem.bottom);
 		}
 	}
+	VOID CHorizontalLayoutUI::Clone(CControlUI * ui)
+	{
+		__super::Clone(ui);
+		CHorizontalLayoutUI* lui = (CHorizontalLayoutUI*)ui;
+		lui->m_iSepWidth = m_iSepWidth;
+		lui->m_uButtonState = m_uButtonState;
+		lui->m_ptLastMouse = m_ptLastMouse;
+		lui->m_rcNewPos = m_rcNewPos;
+		lui->m_bImmMode = m_bImmMode;
+	}
+	CControlUI * CHorizontalLayoutUI::CloneNew()
+	{
+		CHorizontalLayoutUI* result = new CHorizontalLayoutUI();
+		Clone(result);
+		return result;
+	}
 }

@@ -64,7 +64,8 @@ namespace DuiLib
 
 		int			 GetTreeIndex();
 		int			 GetNodeIndex();
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	private:
 		CTreeNodeUI* GetLastNode();
 		CTreeNodeUI* CalLocation(CTreeNodeUI* _pTreeNodeUI);

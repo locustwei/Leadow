@@ -16,6 +16,16 @@ public:
 		FList = NULL;
 	};
 
+	CLdArray(CLdArray& LSource)
+	{
+		FCount = 0;
+		FCapacity = 0;
+		FList = NULL;
+		SetCapacity(LSource.FCapacity);
+		for (int I = 0; I < LSource.FCount; I++)
+			Add(LSource[I]);
+	}
+
 	~CLdArray()
 	{
 		Clear();
@@ -135,9 +145,9 @@ public:
 			return;
 		if (NewCount > FCapacity)
 			SetCapacity(NewCount);
-		else
-			for (int I = FCount - 1; I >= NewCount; I--)
-				Delete(I);
+// 		else
+// 			for (int I = FCount - 1; I >= NewCount; I--)
+// 				Delete(I);
 		FCount = NewCount;
 	};
 	int GetCount()
@@ -161,6 +171,8 @@ public:
 		if (NewCapacity != FCapacity)
 		{
 			FList = (T*)realloc(FList, NewCapacity * sizeof(T));
+			if (NewCapacity > FCapacity && FList)
+				memset(FList + FCapacity, 0, (NewCapacity - FCapacity) * sizeof(T));
 			FCapacity = NewCapacity;
 		};
 	};

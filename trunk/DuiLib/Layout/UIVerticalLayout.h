@@ -25,7 +25,8 @@ namespace DuiLib
 		void DoPostPaint(HDC hDC, const RECT& rcPaint);
 
 		RECT GetThumbRect(bool bUseNew = false) const;
-
+		virtual VOID Clone(CControlUI* ui) override;
+		virtual CControlUI* CloneNew() override;
 	protected:
 		int m_iSepHeight;
 		UINT m_uButtonState;

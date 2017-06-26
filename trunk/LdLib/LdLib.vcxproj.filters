@@ -38,6 +38,12 @@
     <ClCompile Include="DlgGetFileName.cpp">
       <Filter>classes</Filter>
     </ClCompile>
+    <ClCompile Include="DateTimeUtils.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="FormatSettings.cpp">
+      <Filter>Native</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -88,6 +94,12 @@
     </ClInclude>
     <ClInclude Include="DlgGetFileName.h">
       <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="DateTimeUtils.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatSettings.h">
+      <Filter>Native</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
