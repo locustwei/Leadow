@@ -6,7 +6,6 @@
 #include <locale.h>
 #include "UIlib.h"
 #include "LdLib.h"
-#include "FileEraser.h"
 #include <time.h>
 #include <Commdlg.h>
 
@@ -35,7 +34,7 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 	CProcessUtils::EnumProcessModule(pEntry32->th32ProcessID, EnumProcessModalCallback_, NULL);
 	return TRUE;
 }
-
+/*
 class CEraseCallback : public IErasureCallback
 {
 public:
@@ -70,50 +69,30 @@ public:
 private:
 
 };
-
-DWORD ResetFileDate(HANDLE hFile)
+*/
+class CHandleImp: public IEnumSystemHandleCallback
 {
-	FILE_BASIC_INFO binfo = { 0 };
-	SYSTEMTIME ts = { 0 };
+public:
+	CHandleImp() {};
+	~CHandleImp() {};
 
-	ts.wYear = 1601;
-	ts.wMonth = 1;
-	ts.wDay = 1;
-	ts.wMinute = 1;
-	FILETIME ft;
-	SystemTimeToFileTime(&ts, &ft);
 
-	binfo.ChangeTime.HighPart = ft.dwHighDateTime;
-	binfo.ChangeTime.LowPart= ft.dwLowDateTime;
+	virtual BOOL SystemHandleCallback(PSYSTEM_HANDLE pHandle, PVOID pParam) override
+	{
+		printf("SystemHandleCallback\n");
+		return TRUE;
+	}
 
-	binfo.LastAccessTime.HighPart = ft.dwHighDateTime;
-	binfo.LastAccessTime.LowPart = ft.dwLowDateTime;
+private:
 
-	binfo.LastWriteTime.HighPart = ft.dwHighDateTime;
-	binfo.LastWriteTime.LowPart = ft.dwLowDateTime;
-
-	binfo.CreationTime.HighPart = ft.dwHighDateTime;
-	binfo.CreationTime.LowPart = ft.dwLowDateTime;
-
-	binfo.FileAttributes = FILE_ATTRIBUTE_SYSTEM;
-
-	//return NtSetInformationFile(hFile, &binfo, sizeof(FILE_BASIC_INFO), FileBasicInformation);
-	if (!SetFileInformationByHandle(hFile, FileBasicInfo, &binfo, sizeof(FILE_BASIC_INFO)))
-		return GetLastError();
-	return 0;
-}
+};
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
-	FILETIME ft;
-	CFileInfo fi(_T("d:\\2016-11.xlsx"));
-	LARGE_INTEGER l = fi.GetCreateTime();
-	ft.dwHighDateTime = l.HighPart;
-	ft.dwLowDateTime = l.LowPart;
-	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyyy")).GetData());
-	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyy\'Äê\'")).GetData());
-	printf("%S\n", CDateTimeUtils::DateTimeToString(ft, _T("yyy\'Äê\'MM")).GetData());
+	
+	CHandleUitls::FindOpenFileHandle(L"I:\\Ñ¸À×ÏÂÔØ\\Dbgview.exe", new CHandleImp(), NULL);
+
 	printf("\npress any key exit");
 	getchar();
 	return 0;
