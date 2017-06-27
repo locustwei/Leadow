@@ -96,6 +96,7 @@ DWORD CHandleUitls::FindOpenFileHandle(LPTSTR lpFullFileName, IEnumSystemHandleC
 				//if(GetFinalPathNameByHandle(tmphandle, fileName, MAX_PATH, 0))
 				if (GetSysHandleName(tmphandle, fileName) == 0)
 				{
+					printf("%S\n", fileName);
 					if (wcslen(fileName) == FileName.GetLength() && wcsnicmp(FileName, fileName, FileName.GetLength()) == 0)
 					{
 						Result = callback->SystemHandleCallback(pHandle, pParam);
