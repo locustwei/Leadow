@@ -17,7 +17,7 @@ BOOL CErasureProcess::ErasureStart(UINT nStepCount)
 {
 	if (ui)
 	{
-
+		ui->SetValue(true);
 	}
 	return TRUE;
 }
@@ -35,7 +35,8 @@ BOOL CErasureProcess::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCure
 {
 	if (ui)
 	{
-
+		//ui->SetMaxValue(nMaxCount);
+		ui->SetValue(nCurent * 100 / nMaxCount);
 	}
 	return TRUE;
 }

@@ -4,8 +4,13 @@
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
 #define MAX_TEMPFILESIZE 1024 * 1024 * 1024
 
-CErasure::CErasure()
+CErasure::CErasure():
+	m_Tmpfiles(),
+	m_tmpDir(),
+	m_volInfo()
 {
+	m_method = NULL;
+	m_callback = NULL;
 }
 
 
@@ -113,10 +118,13 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasur
 	
 	LARGE_INTEGER fileSize;
 	GetFileSizeEx(hFile, &fileSize);
-	m_method = m_method;
+	m_method = &method;
+	m_callback = callbck;
 	EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+	CloseHandle(hFile);
+
 	m_Tmpfiles.Add(lpFileName);
-	DeleteTempFiles();
+	//DeleteTempFiles();
 	return 0;
 }
 
@@ -188,6 +196,7 @@ DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IEra
 			break;
 		if (!callbck->ErasureCompleted(i, Result))
 			return ERROR_CANCELED;
+		Sleep(1000);
 	}
 
 	return Result;
