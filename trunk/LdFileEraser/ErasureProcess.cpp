@@ -17,7 +17,7 @@ BOOL CErasureProcess::ErasureStart(UINT nStepCount)
 {
 	if (ui)
 	{
-		ui->SetValue(true);
+		ui->SetVisible(true);
 	}
 	return TRUE;
 }
@@ -26,7 +26,7 @@ BOOL CErasureProcess::ErasureCompleted(UINT nStep, DWORD dwErroCode)
 {
 	if (ui)
 	{
-
+		ui->SetVisible(false);
 	}
 	return TRUE;
 }

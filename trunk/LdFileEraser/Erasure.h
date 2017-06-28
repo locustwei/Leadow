@@ -52,21 +52,21 @@ public:
 private:
 	CVolumeInfo m_volInfo;
 	CLdString m_tmpDir;
-	IErasureCallback* m_callback;
+	//IErasureCallback* m_callback;
 	CErasureMethod* m_method;
 	CLdArray<CLdString> m_Tmpfiles;
 
-	DWORD EraseUnusedSpace();
+	DWORD UnusedSpace2TempFile(IErasureCallback* callback);
 	DWORD EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
 	DWORD WriteFileRandom(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
 	DWORD WriteFileConst(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck, PBYTE bytes, UINT nCount);
-	DWORD EraseMftFileRecord();
-	DWORD EraseNtfsDeletedFile();
+	DWORD EraseMftFileRecord(IErasureCallback* callback);
+	DWORD EraseNtfsDeletedFile(IErasureCallback* callback);
 	DWORD CreateTempFile(UINT64 nFileSize, HANDLE* pOut);
 	DWORD ResetFileDate(HANDLE hFile);
 	DWORD EraseFreeSpace(UINT64 nFileSize, IErasureCallback* callback);
-	DWORD DeleteTempFiles();
+	DWORD DeleteTempFiles(IErasureCallback* callback);
 	void GenerateRandomFileName(int length, CLdString& Out);
-	DWORD EraseMftDeleteFile();
+	DWORD EraseMftDeleteFile(IErasureCallback* callback);
 };
 

@@ -3,7 +3,7 @@
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
 #define MIN_TEMPFILESIZE 1024
-#define MAX_TEMPFILESIZE 1024 * 1024 * 1024
+#define MAX_TEMPFILESIZE 1024 * 1024 * 512
 
 CErasure::CErasure():
 	m_Tmpfiles(),
@@ -11,7 +11,6 @@ CErasure::CErasure():
 	m_volInfo()
 {
 	m_method = NULL;
-	m_callback = NULL;
 }
 
 
@@ -72,8 +71,8 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 	do
 	{
 		if(!callback->ErasureStart(3))
-			break;
-		m_callback = callback;
+			return ERROR_CANCELED;
+
 		m_method = &method;
 
 		Result = m_volInfo.OpenVolumePath(Driver);
@@ -94,12 +93,12 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 			break;
 		m_tmpDir += _T("\\");
 
-		Result = EraseUnusedSpace();
+		Result = UnusedSpace2TempFile(callback);
 		
 		if (Result == 0)
-			Result = EraseMftFileRecord();
+			Result = EraseMftFileRecord(callback);
 
-		Result = DeleteTempFiles();
+		Result = DeleteTempFiles(callback);
 		RemoveDirectory(m_tmpDir);
 
 	} while (false);
@@ -111,67 +110,91 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 
 DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasureCallback * callbck)
 {
+	DWORD result = 0;
+
+	m_method = &method;
+
+	if (!callbck->ErasureStart(method.GetPassCount()))
+		return ERROR_CANCELED;
+
 	HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return GetLastError();
 	
 	LARGE_INTEGER fileSize;
-	GetFileSizeEx(hFile, &fileSize);
-	m_method = &method;
-	m_callback = callbck;
-	EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+	if (!GetFileSizeEx(hFile, &fileSize))
+		result = GetLastError();
+
+
+	if (result == 0)
+		result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+
 	CloseHandle(hFile);
 
 	m_Tmpfiles.Add(lpFileName);
-	//DeleteTempFiles();
-	return 0;
+	if(result == 0)
+		result = DeleteTempFiles(callbck);
+
+	callbck->ErasureCompleted(method.GetPassCount(), result);
+	return result;
 }
 
-DWORD CErasure::EraseUnusedSpace()
+DWORD CErasure::UnusedSpace2TempFile(IErasureCallback* callback)
 {
 	DWORD Result = 0;
 	UINT64 nFreeSpace;
-	UINT64 nFileSize;
-	UINT nFileCount = 0;
+	UINT nFileSize;
+	UINT nFileCount = 0; //被删除的文件数。（估算）
 
+	Result = m_volInfo.GetTotalSize(&nFreeSpace);
+	if (Result == 0)
+		return Result;
+	Result = m_volInfo.GetClusterSize(&nFileSize);
+	if (Result == 0)
+		return Result;
+
+	nFileCount = nFreeSpace / 10 / nFileSize;
 
 	Result = m_volInfo.GetAvailableFreeSpace(&nFreeSpace);
 	if (Result != 0)
 		return Result;
+	nFileSize = nFreeSpace / nFileCount;
+	if (nFileSize > MAX_TEMPFILESIZE)
+		nFileSize = MAX_TEMPFILESIZE;
+	if (nFileSize < MIN_TEMPFILESIZE)
+		nFileSize = MIN_TEMPFILESIZE;
+	nFileCount = nFreeSpace / nFileCount;
 
-
-
-	if (!m_callback->ErasureProgress(1, nFreeSpace * m_method->GetPassCount(), 0))
+	if (callback && !callback->ErasureProgress(1, nFileCount + 1, 0))
 		return ERROR_CANCELED;
 
-	CErasureCallbackImpl callback;
-	callback.m_Step = 1;
-	callback.m_Max = nFreeSpace * m_method->GetPassCount();
-	callback.m_Callback = m_callback;
-
+	int tryCount = 3;
+	int nCount = 0;
 	while (true)
 	{
 		Result = m_volInfo.GetAvailableFreeSpace(&nFreeSpace);
-		if(Result != 0)
-			break;
-		nFileSize = min(MAX_TEMPFILESIZE, nFreeSpace);
-		if(nFileSize == 0)
+		if(Result != 0 || nFreeSpace==0)
 			break;
 		HANDLE hFile = INVALID_HANDLE_VALUE;
-		if (CreateTempFile(nFileSize, &hFile) != 0)
+		Result = CreateTempFile(nFileSize > nFreeSpace? nFreeSpace:nFileSize, &hFile);
+		if (Result != 0)
 		{
-
+			tryCount--; //重试3次
+			if (tryCount == 0)
+				break;
+			else
+				continue;
 		}
-		Result = EraseFile(hFile, 0, nFileSize, &callback);
 
-		//Result = EraseFreeSpace(nFileSize, &callback);
+		tryCount = 3;
+		Result = EraseFile(hFile, 0, nFileSize, NULL);
 		if (Result != 0)
 			break;
+
+		if (callback && !callback->ErasureProgress(1, nFileCount + 1, nCount++))
+			return ERROR_CANCELED;
 	}
 	
-	if (!m_callback->ErasureCompleted(1, Result))
-		return ERROR_CANCELED;
-
 	return Result;
 }
 
@@ -179,39 +202,26 @@ DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IEra
 {
 	DWORD Result;
 
-	if (!callbck->ErasureStart(m_method->GetPassCount()))
-		return ERROR_CANCELED;
-
-	CErasureCallbackImpl callimpl;
-	callimpl.m_Callback = callbck;
-	callimpl.m_Max = nFileSize * m_method->GetPassCount();
-
-
 	for (int i = 0; i < m_method->GetPassCount(); i++)
 	{
-		callimpl.m_Step = i + 1;
-
 		ErasureMethodPass* pd = m_method->GetPassData(i);
 		switch (pd->function)
 		{
 		case WriteRandom:
-			Result = WriteFileRandom(hFile, nStartPos, nFileSize, &callimpl);
+			Result = WriteFileRandom(hFile, nStartPos, nFileSize, callbck);
 			break;
 		case WriteConstant:
-			Result = WriteFileConst(hFile, nStartPos, nFileSize, &callimpl, pd->bytes, pd->nCount);
+			Result = WriteFileConst(hFile, nStartPos, nFileSize, callbck, pd->bytes, pd->nCount);
 			break;
 		}
 		if(Result != 0)
 			break;
-		if (!callbck->ErasureCompleted(i, Result))
-			return ERROR_CANCELED;
-		Sleep(1000);
 	}
 
 	return Result;
 }
 
-UINT64 xor128(void)
+UINT64 Rand64(void)
 {
 	static UINT64 x = 0x123456789ABCDEF0;
 	static UINT64 y = 0x2436069DF85A43C9;
@@ -224,116 +234,142 @@ UINT64 xor128(void)
 	return w = w ^ (w >> 49) ^ (t ^ (t >> 18));
 }
 
+#define MAX_BUFFER_SIZE 1024 * 1024
+
 DWORD CErasure::WriteFileRandom(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck)
 {
+	if (callbck && !callbck->ErasureProgress(1, nFileSize - nStartPos, 0))
+		return ERROR_CANCELED;
+
 	if(SetFilePointer(hFile, nStartPos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return GetLastError();
 
-#define MAX_BUFFER_SIZE 1024
+	DWORD result = 0, dwCb, nBufferSize = min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
 
-	BYTE Buffer[MAX_BUFFER_SIZE];
-	DWORD dwCb;
+	PBYTE Buffer = new BYTE[nBufferSize];
+	for (int i = 0; i < nBufferSize / sizeof(UINT64); i++)
+		((PUINT64)Buffer)[i] = Rand64();
+
 	UINT64 nCurrent = 0;
+	int tryCount = 3;
 	while (nFileSize > nCurrent)
 	{
-		UINT nBufferSize = min(MAX_BUFFER_SIZE, nFileSize - nCurrent);
-		for (int i = 0; i < nBufferSize / sizeof(UINT64); i++)
-			((PUINT64)Buffer)[i] = xor128();
+		UINT nSize = min(nBufferSize, nFileSize - nStartPos - nCurrent);
 		
-		if (!WriteFile(hFile, Buffer, nBufferSize, &dwCb, NULL))
+		if (!WriteFile(hFile, Buffer, nSize, &dwCb, NULL))
 		{
-			return GetLastError();
+			tryCount--;
+			if (tryCount == 0)
+			{
+				result = GetLastError();
+				break;
+			}
+			else
+				continue;
 		}
-		nCurrent += nBufferSize;
+		nCurrent += nSize;
 
-		if (!callbck->ErasureProgress(1, nFileSize, nCurrent))
+		if (callbck && !callbck->ErasureProgress(1, nFileSize-nStartPos, nCurrent))
 			return ERROR_CANCELED;
 	}
-	return 0;
+	delete [] Buffer;
+
+	return result;
 }
 
 DWORD CErasure::WriteFileConst(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck, PBYTE bytes, UINT nCount)
 {
+	if (callbck && !callbck->ErasureProgress(1, nFileSize - nStartPos, 0))
+		return ERROR_CANCELED;
+
 	if(SetFilePointer(hFile, nStartPos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return GetLastError();
 	
-	UINT nMaxLength = nCount * 1024;
+	DWORD result = 0, dwCb, nBufferSize = min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
+	nBufferSize = nBufferSize - (nBufferSize % nCount);
+	PBYTE Buffer = new BYTE[nBufferSize];
+	for (int i = 0; i < nBufferSize / nCount; i++)
+		memcpy(Buffer + i*nCount, bytes, nCount);
 
-	PBYTE Buffer = new BYTE[nMaxLength];
-	DWORD dwCb, Result = 0;
 	UINT64 nCurrent = 0;
+	int tryCount = 3;
 	while (nFileSize > nCurrent)
 	{
-		UINT nBufferSize = min(nMaxLength, nFileSize);
-
-		for (int i = 0; i < nBufferSize / nCount; i++)
-			memcpy(Buffer + i*nCount, bytes, nCount);
-
-		if (!WriteFile(hFile, Buffer, nBufferSize, &dwCb, NULL))
+		UINT nSize = min(nBufferSize, nFileSize - nStartPos - nCurrent);
+		if (!WriteFile(hFile, Buffer, nSize, &dwCb, NULL))
 		{
-			Result = GetLastError();
-			break;
+			tryCount--;
+			if (tryCount == 0)
+			{
+				result = GetLastError();
+				break;
+			}
+			else
+				continue;
+			
 		}
-		nCurrent += nBufferSize;
+		nCurrent += nSize;
 
-		if (!callbck->ErasureProgress(1, nFileSize, nCurrent))
+		if (callbck && !callbck->ErasureProgress(1, nFileSize -nStartPos, nCurrent))
 			return ERROR_CANCELED;
 	}
 	delete[] Buffer;
 
-	return Result;
+	return result;
 }
 
-DWORD CErasure::EraseMftFileRecord()
+DWORD CErasure::EraseMftFileRecord(IErasureCallback* callback)
 {
 	VOLUME_FILE_SYSTEM fs;
 	DWORD Result = m_volInfo.GetFileSystem(&fs);
 	switch (fs)
 	{
 	case FS_NTFS:
-		Result = EraseNtfsDeletedFile();
+		Result = EraseNtfsDeletedFile(callback);
 		break;
 	default:
-		Result = EraseMftDeleteFile();
+		Result = EraseMftDeleteFile(callback);
 		break;
 	}
 
-	m_callback->ErasureCompleted(2, Result);
+	callback->ErasureCompleted(2, Result);
 	return Result;
 }
 
-DWORD CErasure::EraseNtfsDeletedFile()
+DWORD CErasure::EraseNtfsDeletedFile(IErasureCallback* callback)
 {
-	DWORD Result = 0;
+	DWORD result = 0;
 	DWORD dwBytesPreFile;
 	UINT64 nTotalSize;
+
 	do 
 	{
-		Result = CNtfsUtils::GetBytesPerFileRecord(m_volInfo, &dwBytesPreFile);
-		if (Result != 0)
+		result = CNtfsUtils::GetBytesPerFileRecord(m_volInfo, &dwBytesPreFile);
+		if (result != 0)
 			break;
-		Result = CNtfsUtils::GetMftValidSize(m_volInfo, &nTotalSize);
-		if(Result != 0)
+		result = CNtfsUtils::GetMftValidSize(m_volInfo, &nTotalSize);
+		if(result != 0)
 			break;
-		m_callback->ErasureProgress(2, nTotalSize, 0);
+		if (callback && !callback->ErasureProgress(1, nTotalSize, 0))
+			return ERROR_CANCELED;
 
-		CErasureCallbackImpl callback;
-		callback.m_Step = 2;
-		callback.m_Max = nTotalSize;
-		callback.m_Callback = m_callback;
+		int nCount = 0;
 		while (true)
 		{
-			Result = EraseFreeSpace(dwBytesPreFile, &callback);
-			if (Result != 0)
+			result = EraseFreeSpace(dwBytesPreFile, NULL);
+			if (result != 0)
 			{
 				if (dwBytesPreFile == 0)
 					break;
 				dwBytesPreFile--;
 			}
+
+			if (callback && !callback->ErasureProgress(1, nTotalSize, nCount++))
+				return ERROR_CANCELED;
 		}
 	} while (false);
 
-	return Result;
+	return result;
 }
 
 DWORD CErasure::CreateTempFile(UINT64 nFileSize, HANDLE* pOut)
@@ -401,28 +437,29 @@ DWORD CErasure::EraseFreeSpace(UINT64 nFileSize, IErasureCallback* callback)
 		return Result;  
 	//文件创建成功，但设置文件长度失败
 	Result = EraseFile(hFile, 0, nFileSize, callback);
-	ResetFileDate(hFile);
+
 	CloseHandle(hFile);
 	return Result;
 }
 
-DWORD CErasure::DeleteTempFiles()
+DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 {
 	DWORD Result = 0;
-	m_callback->ErasureProgress(3, m_Tmpfiles.GetCount(), 0);
+	if (callback)
+		callback->ErasureProgress(3, m_Tmpfiles.GetCount(), 0);
+	
 	for (int i = 0; i < m_Tmpfiles.GetCount(); i++)
 	{
-		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE, 0, NULL, OPEN_ALWAYS, 0, NULL);
+		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL);
 		if(hFile == INVALID_HANDLE_VALUE)
 			continue;
 		SetEndOfFile(hFile);
 		ResetFileDate(hFile);
 		CloseHandle(hFile);
 		DeleteFile(m_Tmpfiles[i]);
-		m_callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
-		//CFileUtils::RenameFileName(m_Tmpfiles[i]);
+		if(callback)
+			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
 	}
-	m_callback->ErasureCompleted(3, Result);
 	return Result;
 }
 
@@ -435,28 +472,25 @@ VOID CErasure::GenerateRandomFileName(int length, CLdString& Out)
 	}
 }
 
-DWORD CErasure::EraseMftDeleteFile()
+DWORD CErasure::EraseMftDeleteFile(IErasureCallback* callback)
 {
 	DWORD Result = 0;
 	UINT64 nTotalSize = 10000; //todo
 	DWORD nFileSize = 1024; //todo
 	do
 	{
-		m_callback->ErasureProgress(2, nTotalSize, 0);
-
-		CErasureCallbackImpl callback;
-		callback.m_Step = 2;
-		callback.m_Max = nTotalSize;
-		callback.m_Callback = m_callback;
+		callback->ErasureProgress(2, nTotalSize, 0);
+		int nCount = 0;
 		while (true)
 		{
-			Result = EraseFreeSpace(nFileSize, &callback);
+			Result = EraseFreeSpace(nFileSize, NULL);
 			if (Result != 0)
 			{
 				if(nFileSize == 0)
 					break;
 				nFileSize--;
 			}
+			callback->ErasureProgress(2, nTotalSize, nCount++);
 		}
 	} while (false);
 
