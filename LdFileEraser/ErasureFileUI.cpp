@@ -29,7 +29,7 @@ VOID CErasureFileUI::ThreadRun(WPARAM Param)
 	CErasureProcess* pProcess = new CErasureProcess();
 	pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
 	if (pProcess->ui)
-		pProcess->ui->SetValue(true);
+		pProcess->ui->SetVisible(true);
 	erasure.FileErasure(pinfo->GetFileName().GetData(), CErasureMethod::Pseudorandom(), pProcess);
 	delete pProcess;
 }
