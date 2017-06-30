@@ -15,7 +15,7 @@ class CThread
 {
 public:
 	CThread(void);
-	CThread(IRunable* pRumer, WPARAM Param);
+	CThread(IRunable* pRumer);
 	~CThread(void);
 
 	int	GetPriority();
@@ -31,7 +31,7 @@ public:
 	bool GetTerminated() const;
 	VOID SetTerminatee(bool value);
 
-	virtual int Start();
+	virtual int Start(WPARAM Param);
 	virtual DWORD Terminate(DWORD dwWaitTime = 0, DWORD uExitCode = 0);
 	DWORD Sleep(DWORD dwMilliseconds);
 	VOID Wakeup(HANDLE hEvent) const;

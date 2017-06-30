@@ -217,9 +217,9 @@ LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFT
 }
 */
 CDiskVolume::CDiskVolume(void):
-	m_ListenThread(),
-	m_DumpThread(),
-	m_SearchThread()
+	m_ListenThread(this),
+	m_DumpThread(this),
+	m_SearchThread(this)
 {
 	m_hVolume = INVALID_HANDLE_VALUE;
 	m_MftReader = NULL;
@@ -310,8 +310,7 @@ BOOL CDiskVolume::UpdateMftDump(BOOL async)
 		if(async){
 			PTHTREAD_CONTEXT pContext = new THTREAD_CONTEXT();
 			pContext->type = TT_CREATE_DUMP;
-			CThread* thread = new CThread(this, (WPARAM)pContext);
-			thread->Start();
+			m_DumpThread.Start((WPARAM)pContext);
 
 			result = TRUE;
 		}else
@@ -483,8 +482,7 @@ BOOL CDiskVolume::ListenFileChange()
 
 	PTHTREAD_CONTEXT pContext = new THTREAD_CONTEXT();
 	pContext->type = TT_LISTEN_CHANGE;
-	CThread* thread = new CThread(this, TT_LISTEN_CHANGE);
-	thread->Start();
+	m_ListenThread.Start((WPARAM)pContext);
 	return TRUE;
 }
 
@@ -954,9 +952,7 @@ BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter, BOOL asyn)
 		pContext->type = TT_SEARCH_FILE;
 		pContext->pParam = pFilter;
 
-		CThread* thread = new CThread(this, (WPARAM)pContext);
-
-		thread->Start();
+		m_SearchThread.Start((WPARAM)pContext);
 
 		return TRUE;
 	}else{
