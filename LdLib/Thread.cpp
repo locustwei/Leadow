@@ -6,10 +6,9 @@ CThread::CThread(void)
 	ThreadInit();
 }
 
-CThread::CThread(IRunable* pRumer, WPARAM Param)
+CThread::CThread(IRunable* pRumer)
 {
 	ThreadInit();
-	m_Param = Param;
 	m_Runer = pRumer;
 }
 
@@ -51,11 +50,11 @@ DWORD CThread::GetId() const
 	 return m_ThreadId; 
 }
 
-int CThread::Start()
+int CThread::Start(WPARAM Param)
 {
 	if (m_hThread != INVALID_HANDLE_VALUE)		
 		return -1;
-
+	m_Param = Param;
 	m_Terminated = false;
 
 	if(m_Runer)
