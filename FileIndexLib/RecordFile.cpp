@@ -8,7 +8,8 @@
 
 //#define INDEX_BLOCK_SIZE BLOCK_REFERENCE_COUNT * sizeof(INDEX_RECORD)
 
-CRecordFile::CRecordFile(PRecordFileHolder Holder)
+CRecordFile::CRecordFile(PRecordFileHolder Holder):
+	m_RecordIndexBlocks()
 {
 	m_Holder = Holder;
 	m_hFile = INVALID_HANDLE_VALUE;
@@ -20,12 +21,20 @@ CRecordFile::CRecordFile(PRecordFileHolder Holder)
 
 CRecordFile::~CRecordFile(void)
 {
-	SaveFile();
+	if (m_hFile == INVALID_HANDLE_VALUE)
+	{
+		FreeSpace();
+	}
+	else
+	{
+		SaveFile();
+		CloseHandle(m_hFile);
+	}
 }
 
 //************************************
 // Method:    OpenFile
-// FullName:  创建/或打开一个文件。
+// FullName:  创建/或打开一个文件/或不生成文件使用内存。
 // Access:    public 
 // Returns:   BOOL
 // Qualifier:
@@ -33,35 +42,44 @@ CRecordFile::~CRecordFile(void)
 //************************************
 BOOL CRecordFile::OpenFile(LPCTSTR Filename)
 {
-	BOOL Result = FALSE;
-	do 
+	if (Filename == NULL)
 	{
-		if(m_hFile != INVALID_HANDLE_VALUE){
-			break;
-		}
-
-		DWORD op;
-		if(PathFileExists(Filename))
-			op = OPEN_EXISTING;
-		else
-			op = CREATE_NEW;
-
-		m_hFile = CreateFile(Filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, op, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_HIDDEN, NULL);
-		if(m_hFile == INVALID_HANDLE_VALUE){
-			break;
-		}
-		
-		if(op == OPEN_EXISTING)
-			if(!InitFileMapView())
+		m_Header = new FILE_HEADER();
+		ZeroMemory(m_Header, sizeof(FILE_HEADER));
+		return TRUE;
+	}
+	else
+	{
+		BOOL Result = FALSE;
+		do
+		{
+			if (m_hFile != INVALID_HANDLE_VALUE) {
 				break;
-		if(!Init())
-			break;
+			}
 
-		Result = TRUE;
-	} while (FALSE);
+			DWORD op;
+			if (PathFileExists(Filename))
+				op = OPEN_EXISTING;
+			else
+				op = CREATE_NEW;
+
+			m_hFile = CreateFile(Filename, GENERIC_READ | GENERIC_WRITE, 0, NULL, op, FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_HIDDEN, NULL);
+			if (m_hFile == INVALID_HANDLE_VALUE) {
+				break;
+			}
+
+			if (op == OPEN_EXISTING)
+				if (!InitFileMapView())
+					break;
+			if (!Init())
+				break;
+
+			Result = TRUE;
+		} while (FALSE);
 
 
-	return Result;
+		return Result;
+	}
 }
 
 //************************************
@@ -76,9 +94,6 @@ BOOL CRecordFile::OpenFile(LPCTSTR Filename)
 //************************************
 BOOL CRecordFile::WriteRecord(ULONGLONG ReferenceNumber, PUCHAR pRecord, USHORT Length)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE)
-		return FALSE;
-
 	PRECORD_POINTER rs = GetRecordPointer(ReferenceNumber);
 	if(rs == NULL)
 	{
@@ -88,7 +103,7 @@ BOOL CRecordFile::WriteRecord(ULONGLONG ReferenceNumber, PUCHAR pRecord, USHORT 
 	}
 
 	if(rs->Pointer == 0 || rs->Length < Length) {
-		ULONG Pointer = AllocSpace(Length);  //分配空间可能引起内存影像重建
+		ULONGLONG Pointer = AllocSpace(Length);  //分配空间可能引起内存影像重建
 		if(Pointer == 0)
 			return FALSE;
 		rs = GetRecordPointer(ReferenceNumber);
@@ -154,18 +169,18 @@ CRecordFile::PRECORD_POINTER CRecordFile::GetRecordPointer(ULONGLONG ReferenceNu
 //************************************
 CRecordFile::PRECORD_POINTER CRecordFile::AddFileReference(ULONGLONG ReferenceNumber)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE)
-		return NULL;
+	if (!m_Header)
+		return nullptr;
 
 	ULONG m = (ULONG)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (ULONG)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
 
 	for (size_t i=m_RecordIndexBlocks.size(); i<=m; i++){
-		ULONG Tmp = 0;
+		ULONGLONG Tmp = 0;
 		Tmp = AllocSpace(RECORD_BLOCK_SIZE + sizeof(ULONG));
 		if(Tmp == 0)
 			return NULL;
 		*(PULONG)(File2MapPointer(Tmp + RECORD_BLOCK_SIZE)) = m_Header->LastReferenceBlock;
-		m_Header->LastReferenceBlock = Tmp;
+		m_Header->LastReferenceBlock = (ULONG)Tmp;
 		m_RecordIndexBlocks.push_back(Tmp);
 	}
 
@@ -203,9 +218,6 @@ void CRecordFile::SetRecordPointer(ULONGLONG ReferenceNumber, ULONG Pointer, USH
 //************************************
 USHORT CRecordFile::ReadRecord(ULONGLONG ReferenceNumber, PVOID Buffer, USHORT Length)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE)
-		return 0;
-
 	PRECORD_POINTER rs = GetRecordPointer(ReferenceNumber);
 	if(rs == NULL || rs->Pointer == 0)
 		return 0;
@@ -256,7 +268,7 @@ VOID CRecordFile::DeleteRecord(ULONGLONG ReferenceNumber)
 //************************************
 ULONGLONG CRecordFile::EnumRecord(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG begin, ULONGLONG end)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE || m_Holder == NULL)
+	if(m_Holder == NULL)
 		return 0;
 
 	ULONGLONG result = 0;
@@ -325,7 +337,7 @@ typedef struct COMPARE_CONTEXT{
 // Parameter: const void * id1
 // Parameter: const void * id2
 //************************************
-int sortCompare(void * context, const void * id1, const void *id2)
+int _cdecl sortCompare(void * context, const void * id1, const void *id2)
 {
 	CRecordFile* file = (CRecordFile*)((COMPARE_CONTEXT*)context)->file;
 	CRecordFile::PRECORD_POINTER rs1 = file->GetRecordPointer(*(PULONGLONG)id1);
@@ -412,13 +424,13 @@ PINDEX_RECORD CRecordFile::SortRecord(PVOID param, vector<ULONGLONG>* pReference
 //************************************
 BOOL CRecordFile::WriteOptionRecord(UCHAR ReferenceNumber, PUCHAR pRecord, USHORT Length)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE || !m_Header || ReferenceNumber >= MAX_OPTION)
+	if(!m_Header || ReferenceNumber >= MAX_OPTION)
 		return FALSE;
 	
 	PRECORD_POINTER rs = &m_Header->OptionRecord[ReferenceNumber];
 
 	if(rs->Pointer == 0 || rs->Length < Length) {
-		ULONG Pointer = AllocSpace(Length);  
+		ULONGLONG Pointer = AllocSpace(Length);  
 		if(Pointer == 0)
 			return FALSE;
 		rs = &m_Header->OptionRecord[ReferenceNumber];
@@ -440,7 +452,7 @@ BOOL CRecordFile::WriteOptionRecord(UCHAR ReferenceNumber, PUCHAR pRecord, USHOR
 //************************************
 USHORT CRecordFile::ReadOptionRecord(UCHAR ReferenceNumber, PUCHAR Buffer, USHORT Length)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE || !m_Header || ReferenceNumber >= MAX_OPTION)
+	if(!m_Header || ReferenceNumber >= MAX_OPTION)
 		return 0;
 	if(m_Header->OptionRecord[ReferenceNumber].Pointer == 0)
 		return 0;
@@ -653,9 +665,6 @@ CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(vector<BLOCK_RECORD>* 
 //************************************
 ULONGLONG CRecordFile::GetLastReference()
 {
-	if(!m_pMapStart)
-		return 0;
-
 	for(LONGLONG i = m_RecordIndexBlocks.size() -1; i >= 0; i--)
 		for(int j = BLOCK_REFERENCE_COUNT - 1; j >= 0; j--){
 			PRECORD_POINTER ps = (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[i] + j * sizeof(RECORD_POINTER)));
@@ -675,6 +684,9 @@ ULONGLONG CRecordFile::GetLastReference()
 //************************************
 bool CRecordFile::InitFileMapView()
 {
+	if (m_hFile == INVALID_HANDLE_VALUE)
+		return false;
+
 	bool result = false;
 
 	LARGE_INTEGER fSize = {0};
@@ -703,7 +715,7 @@ bool CRecordFile::InitFileMapView()
 
 bool CRecordFile::IsValid()
 {
-	return m_hFile != INVALID_HANDLE_VALUE;
+	return TRUE; // m_hFile != INVALID_HANDLE_VALUE;
 }
 
 //************************************
@@ -715,16 +727,22 @@ bool CRecordFile::IsValid()
 //************************************
 ULONG CRecordFile::DeleteAllRecord()
 {
-	m_RecordIndexBlocks.clear();
-	SaveFile();
 
-	LARGE_INTEGER ps = {0, 0}, newPs;
-	if(!SetFilePointerEx(m_hFile, ps, &newPs, FILE_BEGIN)){
-		return 0;
+	if(m_hFile != INVALID_HANDLE_VALUE)
+	{
+		SaveFile();
+		m_RecordIndexBlocks.clear();
+
+		LARGE_INTEGER ps = {0, 0}, newPs;
+		if(!SetFilePointerEx(m_hFile, ps, &newPs, FILE_BEGIN)){
+			return 0;
+		}
+		if(!SetEndOfFile(m_hFile)){
+			return 0;
+		}
 	}
-	if(!SetEndOfFile(m_hFile)){
-		return 0;
-	}
+	else
+		FreeSpace();
 	
 	return 1;
 }
@@ -737,30 +755,58 @@ ULONG CRecordFile::DeleteAllRecord()
 // Qualifier:
 // Parameter: ULONG nSize
 //************************************
-ULONG CRecordFile::AllocSpace(ULONG nSize)
+ULONGLONG CRecordFile::AllocSpace(ULONG nSize)
 {
-	if(m_hFile == INVALID_HANDLE_VALUE)
-		return 0;
+	if (m_hFile == INVALID_HANDLE_VALUE)
+	{
+		PVOID p = new BYTE[nSize];
+		ZeroMemory(p, nSize);
+		return (ULONGLONG)p;
+	}		
+	else
+	{
+		if (!m_Header || nSize >= m_Header->AllocSize - m_Header->FileSize) { //如果超过文件长度则需增加文件长度（一次增加 FILE_PAGE_SIZE 字节）
+			SaveFile();
 
-	if(!m_Header || nSize >= m_Header->AllocSize - m_Header->FileSize){ //如果超过文件长度则需增加文件长度（一次增加 FILE_PAGE_SIZE 字节）
-		SaveFile();
-		
-		LARGE_INTEGER ps = {FILE_PAGE_SIZE, 0}, newPs;
-		if(!SetFilePointerEx(m_hFile, ps, &newPs, FILE_END)){
-			return 0;
+			LARGE_INTEGER ps = { FILE_PAGE_SIZE, 0 }, newPs;
+			if (!SetFilePointerEx(m_hFile, ps, &newPs, FILE_END)) {
+				return 0;
+			}
+			if (!SetEndOfFile(m_hFile)) {
+				return 0;
+			}
+
+			if (!InitFileMapView())
+				return 0;
+
 		}
-		if(!SetEndOfFile(m_hFile)){
-			return 0;
-		}
 
-		if(!InitFileMapView())
-			return 0;
+		m_Header->FileSize += nSize;
 
+		return m_Header->FileSize - nSize;
 	}
-	
-	m_Header->FileSize += nSize;
+}
 
-	return m_Header->FileSize - nSize;
+VOID CRecordFile::FreeSpace()
+{
+	if (m_hFile != INVALID_HANDLE_VALUE)
+		return;
+
+	if (m_Header)
+	{
+		delete m_Header;
+		m_Header = nullptr;
+	}
+	for (int i = m_RecordIndexBlocks.size() - 1; i >= 0; i--)
+	{
+		for (int j = BLOCK_REFERENCE_COUNT - 1; j >= 0; j--) {
+			PRECORD_POINTER ps = (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[i] + j * sizeof(RECORD_POINTER)));
+			if (ps->Pointer > 0)
+				delete[](PBYTE)ps->Pointer;
+		}
+		delete[](PBYTE)m_RecordIndexBlocks[i];
+	}
+	m_RecordIndexBlocks.clear();
 }
 
 //************************************
@@ -776,6 +822,7 @@ BOOL CRecordFile::SaveFile()
 		FlushViewOfFile(m_pMapStart, m_Header->AllocSize);
 		UnmapViewOfFile(m_pMapStart);
 		m_pMapStart = NULL;
+		m_Header = NULL;
 	}
 
 	if(m_hFileMap){
@@ -783,14 +830,18 @@ BOOL CRecordFile::SaveFile()
 		m_hFileMap = NULL;
 	}	
 
-	m_Header = NULL;
 	return true;
 }
 
-PVOID CRecordFile::File2MapPointer(ULONG Pointer)
+PVOID CRecordFile::File2MapPointer(ULONGLONG Pointer)
 {
-	if(!m_pMapStart | (Pointer > m_Header->AllocSize))
-		return NULL;
+	if (m_hFile == INVALID_HANDLE_VALUE)
+		return (PVOID)Pointer;
+	else
+	{
+		if (!m_pMapStart | (Pointer > m_Header->AllocSize))
+			return NULL;
 
-	return m_pMapStart + Pointer;
+		return m_pMapStart + Pointer;
+	}
 }

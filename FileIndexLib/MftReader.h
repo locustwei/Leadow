@@ -10,8 +10,6 @@
 */
 #pragma once
 
-#include <WinIoCtl.h>
-
 //文件信息
 typedef struct _FILE_INFO{
 // 	union{
@@ -75,3 +73,4 @@ protected:
 	virtual void ZeroMember();
 };
 
+void SaveDebugData(LPCTSTR lpName, PUCHAR pData, ULONG nSize);

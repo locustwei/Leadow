@@ -1,6 +1,6 @@
 #include "DiskVolume.h"
 #include <Shlwapi.h>
-#include "Thread.h"
+
 /*
  *	线程类型
  */
@@ -172,6 +172,7 @@ BOOL CDiskVolume::FilterRecord(PFILE_FILTER pFilter, PMFTFILERECORD pRecord)
 // Parameter: PMFTFILERECORD pRecord
 // Parameter: USHORT Length
 //************************************
+/*
 LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFTFILERECORD pPrv, RECORD_FIELD_CLASS* c, PMFTFILERECORD pRecord, USHORT Length)
 {
 	BOOL equ = CompareFileRecord(pPrv, c, pRecord) == 0;
@@ -214,13 +215,17 @@ LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFT
 
 	return TRUE;
 }
-
+*/
 CDiskVolume::CDiskVolume(void)
 {
 	m_hVolume = INVALID_HANDLE_VALUE;
 	m_MftReader = NULL;
-	m_MftFile = new CRecordFile(this);
+	m_MftFile = NULL;
 	m_Holder = NULL;
+	m_DumpThreadTerminated = true;
+	m_ListenThreadTerminated = true;
+	m_SearchThreadTerminated = true;
+
 	InitializeCriticalSection(&m_cs);
 
 	ZeroMemory(&m_MftInfo, sizeof(m_MftInfo));
@@ -230,19 +235,25 @@ CDiskVolume::CDiskVolume(void)
 CDiskVolume::~CDiskVolume(void)
 {
 //	CleanDuplicateFiles();
+	m_ListenThreadTerminated = true;
+	m_DumpThreadTerminated = true;
+	m_SearchThreadTerminated = true;
 
 	if(m_MftReader){
 		delete m_MftReader;
+		m_MftReader = nullptr;
 	}
+
 	if(m_MftFile){
 		m_MftFile->WriteOptionRecord(0, (PUCHAR)&m_MftInfo, sizeof(m_MftInfo));
-		//m_MftFile->UpdateIndexToFile();
 		delete m_MftFile;
+		m_MftFile = nullptr;
 	}
 
 	for(ULONG i=0; i<m_Indexs.size(); i++){
 		delete [] m_Indexs[i].Index;
 	}
+	m_Indexs.clear();
 
 	DeleteCriticalSection(&m_cs);
 
@@ -287,6 +298,9 @@ BOOL CDiskVolume::UpdateMftDump(BOOL async)
 		return FALSE;
 	}
 
+	if (!m_DumpThreadTerminated)
+		return false;
+
 	BOOL result;
 
  	if(m_MftInfo.FileCount == 0){
@@ -299,14 +313,13 @@ BOOL CDiskVolume::UpdateMftDump(BOOL async)
 			result = TRUE;
 		}else
 			result = CreateMftDump();
-	}else{
-		if(async){
-			ListenFileChange();
-			result = TRUE;
-		}else
-			result = UpdateFiles();
-	}
-	//m_MftFile->UpdateIndexToFile();
+ 	}else{
+ 		if(async){
+ 			ListenFileChange();
+ 			result = TRUE;
+ 		}else
+ 			result = UpdateFiles();
+ 	}
 
 	return result;
 }
@@ -314,8 +327,15 @@ BOOL CDiskVolume::UpdateMftDump(BOOL async)
  *	加载转存文件
  *  存储路径
  */
-BOOL CDiskVolume::LoadDumpFile(PCWSTR wsz_path)
+BOOL CDiskVolume::SetDumpFilePath(PCWSTR wsz_path)
 {
+	if (m_hVolume == INVALID_HANDLE_VALUE)
+		return FALSE;
+
+	if (!wsz_path)
+	{
+		return m_MftFile->OpenFile(NULL);
+	}
 	if(!wsz_path || !PathFileExists(wsz_path))
 		return FALSE;
 
@@ -363,8 +383,6 @@ BOOL CDiskVolume::CreateMftDump()
 		m_MftInfo.LastUsn = m_MftReader->GetLastUsn();
 
 		m_MftFile->WriteOptionRecord(0, (PUCHAR)&m_MftInfo, sizeof(m_MftInfo));
-		m_MftFile->InitFileMapView();
-
 	}catch(...){
 		unlock();
 		return FALSE;
@@ -478,10 +496,11 @@ BOOL CDiskVolume::OpenVolumeHandle(PCWSTR wsz_path)
 
 		m_MftReader = CMftReader::CreateReader(m_hVolume);
 		m_MftReader->SetHolder(this);
+		m_MftFile = new CRecordFile(this);
 	}else
 	{
 #ifdef _DEBUG
-		printf("Open disk error code = %d", GetLastError());
+		printf("Open disk error code = %d\n", GetLastError());
 #endif
 	}
 
@@ -509,59 +528,7 @@ PCWSTR CDiskVolume::GetDumpFileName()
 {
 	return m_MftDumpFileName.c_str();
 }
-/*
- *	查找重复文件
- */
-vector<vector<PMFTFILERECORD> *>* CDiskVolume::FindDuplicateFiles(PENUM_FILERECORD_PARAM pParam, BOOL asyn)
-{
-	vector<vector<PMFTFILERECORD> *>* pResult = new vector<vector<PMFTFILERECORD> *>();
-	if(asyn){
-		PTHTREAD_CONTEXT pContext = new THTREAD_CONTEXT();	
-		pContext->type = TT_FIND_DUPLICATE;
-		pContext->pParam = pParam;
-		pContext->pResult = pResult;
-		CThread* thread = new CThread(this, (WPARAM)pContext);
-		thread->Start();
-		return NULL;
-	}else{
-		if(FindDuplicateFiles(pParam, pResult))
-			return pResult;
-		else{
-			delete pResult;
-			return NULL;
-		}			
-	}
-}
-BOOL CDiskVolume::FindDuplicateFiles(PENUM_FILERECORD_PARAM pParam, vector<vector<PMFTFILERECORD> *>* pResult)
-{
-	if(!pParam || !pParam->sortField)
-		return FALSE;
 
-	PINDEX_RECORD idx = CreateIndex(pParam->sortField, &pParam->Filter);
-	if(!idx)     //没有排序就没法找相同文件
-		return FALSE;
-
-	//vector<vector<PMFTFILERECORD> *>* Result = new vector<vector<PMFTFILERECORD> *>();
-	MFTFILERECORD PrvFile = {0};
-	//PrvFile.DirectoryFileReferenceNumber = 0xFFFFFFFFFFFFFFFF;
-
-	ENUM_RECORD_CONTEXT context = {EK_FIND_DUPLICATE_FILE, pParam->sortField, pResult, &PrvFile};
-
-	ULONGLONG count = 0;
-	lock();
-	try{
-		ULONGLONG bPos = 0, ePos = 0;
-
-		count = m_MftFile->EnumRecord(&context, idx, bPos, ePos);
-
-	}catch(...){
-		unlock();
-		return FALSE;
-	}
-	unlock();
-
-	return TRUE;
-}
 /*
  *	创建文件索引（排序）
  */
@@ -597,7 +564,7 @@ PINDEX_RECORD CDiskVolume::CreateIndex(RECORD_FIELD_CLASS* c, PFILE_FILTER pFilt
 	}
 
 
-	PINDEX_RECORD idx = NULL;
+	PINDEX_RECORD idx = nullptr;
 	lock();
 	try
 	{
@@ -663,7 +630,7 @@ BOOL CDiskVolume::FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG Referenc
 			ParentReference = m_MftFile->SearchRecord(idx, &context, &cmpRt);
 			if(cmpRt)  //没找到
 				return FALSE;
-			ZeroMemory(record.Name, ARRAYSIZE(record.Name)*sizeof(TCHAR));
+			ZeroMemory(record.Name, ARRAYSIZE(record.Name));
 			i = 0;
 		}else
 			record.Name[i++] = pTmp[0];
@@ -743,7 +710,7 @@ BOOL CDiskVolume::EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFil
 #endif // _DEBUG
 	
 	m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (pFileName->NameLength + 1) * sizeof(WCHAR));
-	return TRUE;
+	return !m_DumpThreadTerminated;
 
 }
 /*
@@ -805,29 +772,28 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 		m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, cb);
 	}
 
-	return TRUE;	
+	return m_ListenThreadTerminated;	
 }
-
+/**
+搜索文件回掉函数
+**/
 LONG CDiskVolume::EnumFileRecordCallback(ULONGLONG ReferenceNumber, const PUCHAR pRecord, USHORT Length, PVOID Param)
 {
 	PENUM_RECORD_CONTEXT context = (PENUM_RECORD_CONTEXT)Param;
 	switch(context->op){
 	case EK_FILTER_RECORD:  
-		if(!FilterRecord((PFILE_FILTER)context->Param, (PMFTFILERECORD)pRecord)){
+		if(!FilterRecord((PFILE_FILTER)context->Param, (PMFTFILERECORD)pRecord))
+		{
 
 #ifdef _DEBUG
 			printf("%lld %S\n", ReferenceNumber, ((PMFTFILERECORD)pRecord)->Name);
 #endif // _DEBUG
-			
-			((vector<ULONGLONG>*)context->pResult)->push_back(ReferenceNumber);
 		}
 		return TRUE;
-	case EK_FIND_DUPLICATE_FILE:
-		return DoDuplicateFile((vector<vector<PMFTFILERECORD> *>*)context->pResult, (PMFTFILERECORD)context->Param, context->c, (PMFTFILERECORD)pRecord, Length);
 	case EK_BINSEARCH:
 		return CompareFileRecord((PMFTFILERECORD)context->Param, context->c, (PMFTFILERECORD)pRecord);
 	}
-	return 0;
+	return m_SearchThreadTerminated;
 }
 
 /*
@@ -842,7 +808,7 @@ LONG CDiskVolume::RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR p1, US
 	LONGLONG r = 0;
 
 	while(*c){
-		switch(*c){
+		switch((*c)){
 		case RFC_FN:
 			//r = pRecord1->FileReferenceNumber - pRecord2->FileReferenceNumber;
 			break;
@@ -902,46 +868,49 @@ LONG CDiskVolume::RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR p1, US
 // 	DuplicateResult.clear();
 // }
 
-VOID CDiskVolume::ThreadRun(WPARAM Param)
+VOID CDiskVolume::ThreadRun(CThread* Sender, WPARAM Param)
 {
 	PTHTREAD_CONTEXT pContext = (PTHTREAD_CONTEXT)Param;
 
 	switch(pContext->type){
 	case TT_LISTEN_CHANGE:
+		m_ListenThreadTerminated = false;
 		RunListenFileChange();
 		break;
 	case TT_CREATE_DUMP:
+		m_DumpThreadTerminated = false;
 		CreateMftDump();
 		break;
 	case TT_SEARCH_FILE:
-		SearchFile((PFILE_FILTER)pContext->pParam, (vector<PMFTFILERECORD>*)pContext->pResult);
-		break;
-	case TT_FIND_DUPLICATE:
-		FindDuplicateFiles((PENUM_FILERECORD_PARAM)pContext->pParam, (vector<vector<PMFTFILERECORD> *>*)pContext->pResult);
+		m_SearchThreadTerminated = false;
+		SearchFile((PFILE_FILTER)pContext->pParam);
 		break;
 	}
 }
 
-VOID CDiskVolume::OnThreadInit(WPARAM Param)
+VOID CDiskVolume::OnThreadInit(CThread* Sender, WPARAM Param)
 {
 	
 }
 
-VOID CDiskVolume::OnThreadTerminated(WPARAM Param)
+VOID CDiskVolume::OnThreadTerminated(CThread* Sender, WPARAM Param)
 {
 	PTHTREAD_CONTEXT pContext=(PTHTREAD_CONTEXT)Param;
 	if(m_Holder){
 		switch(pContext->type){
 		case TT_LISTEN_CHANGE:
+			m_ListenThreadTerminated = true;
 			break;
 		case TT_CREATE_DUMP:
 			m_Holder->OnRenewDump(this);
+			m_DumpThreadTerminated = true;
 			break;
 		case TT_SEARCH_FILE:
-			m_Holder->OnSearchCompeleted(this, (vector<PMFTFILERECORD>*)pContext->pResult);
+			m_Holder->OnSearchCompeleted(this);
+			m_SearchThreadTerminated = true;
 			break;
 		case TT_FIND_DUPLICATE:
-			m_Holder->OnFindDupCompeleted(this, (vector<vector<PMFTFILERECORD> *>*)pContext->pResult);
+			m_Holder->OnFindDupCompeleted(this);
 			break;
 		}
 	}
@@ -949,16 +918,15 @@ VOID CDiskVolume::OnThreadTerminated(WPARAM Param)
 	delete pContext;
 }
 
-BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter, vector<PMFTFILERECORD>* Result)
+BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter)
 {
-	if(!pFilter || !Result || !m_MftFile || !m_MftFile->IsValid())
+	if(!pFilter || !m_MftFile || !m_MftFile->IsValid())
 		return FALSE;
-
 
 	ULONGLONG count = 0;
 	lock();
 	try{
-		ENUM_RECORD_CONTEXT context = {EK_FILTER_RECORD, NULL, Result, pFilter};
+		ENUM_RECORD_CONTEXT context = {EK_FILTER_RECORD, NULL, nullptr, pFilter};
 
 		m_MftFile->EnumRecord(&context);
 	}catch(...){
@@ -967,39 +935,38 @@ BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter, vector<PMFTFILERECORD>* Resul
 	}
 
 	if(m_Holder)
-		m_Holder->OnSearchCompeleted(this, Result);
+		m_Holder->OnSearchCompeleted(this);
 
 	unlock();
 
 #ifdef _DEBUG
-	printf("total %lld files  found %lld files \n", m_MftInfo.FileCount, Result->size());
+//	printf("total %lld files  found %lld files \n", m_MftInfo.FileCount, Result->size());
 #endif
 
 
 	return TRUE;
 }
 
-vector<PMFTFILERECORD>* CDiskVolume::SearchFile(PFILE_FILTER pFilter, BOOL asyn)
+BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter, BOOL asyn)
 {
-	vector<PMFTFILERECORD>* pResult = new vector<PMFTFILERECORD>();
+	if (!m_SearchThreadTerminated)
+		return false;
 
 	if(asyn){
 		PTHTREAD_CONTEXT pContext = new THTREAD_CONTEXT();	
 		pContext->type = TT_SEARCH_FILE;
 		pContext->pParam = pFilter;
-		pContext->pResult = pResult;
 
 		CThread* thread = new CThread(this, (WPARAM)pContext);
 
 		thread->Start();
 
-		return NULL;
+		return TRUE;
 	}else{
-		SearchFile(pFilter, pResult);
-		return pResult;
+		return SearchFile(pFilter);
 	}
 
-	return NULL;
+	return FALSE;
 }
 
 /*
@@ -1014,8 +981,6 @@ VOID CDiskVolume::RunListenFileChange()
 		path += '\\';
 		hMonitor = FindFirstChangeNotification(path.c_str(), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE);
 	}
-
-	m_ListenThreadTerminated = FALSE;
 
 	while(!m_ListenThreadTerminated){
 		if(hMonitor != INVALID_HANDLE_VALUE){
@@ -1033,15 +998,14 @@ VOID CDiskVolume::RunListenFileChange()
 	if(hMonitor != INVALID_HANDLE_VALUE)
 		FindCloseChangeNotification(hMonitor);
 
-	m_ListenThreadTerminated = TRUE;
 }
 
-VOID CDiskVolume::SetHolper(PDiskVolumeHolder pHoler)
+VOID CDiskVolume::SetHolper(IVolumeEvent* pHoler)
 {
 	m_Holder = pHoler;
 }
 
-BOOL __stdcall CDiskVolume::UnLoadDumpFile()
+BOOL  CDiskVolume::UnLoadDumpFile()
 {
 	return m_MftFile->SaveFile();	
 }

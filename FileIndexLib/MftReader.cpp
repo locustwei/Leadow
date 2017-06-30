@@ -4,6 +4,11 @@
 #include "NtfsMtfReader.h"
 #include "FatMftReader.h"
 
+void SaveDebugData(LPCTSTR lpName, PUCHAR pData, ULONG nSize)
+{
+	
+}
+
 CMftReader::CMftReader(void)
 {
 	ZeroMember();
@@ -79,6 +84,9 @@ CMftReader* CMftReader::CreateReader(HANDLE hVolume)
 
 	result->m_Handle = hVolume;
 	if(!result->Init()){
+#ifdef _DEBUG
+	printf("mft reader init failed \n");
+#endif // _DEBUG
 		delete result;
 		return NULL;
 	}
@@ -130,7 +138,9 @@ bool CMftReader::Init()
 	}
 
 	m_BytesPerSector = (USHORT)dg.BytesPerSector;
-
+#ifdef _DEBUG
+	printf("Bytes per sector = %d \n", m_BytesPerSector);
+#endif
 	return true;
 }
 
