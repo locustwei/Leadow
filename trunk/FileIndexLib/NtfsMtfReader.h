@@ -12,13 +12,14 @@
 #include "MftReader.h"
 #include "ntfs.h"
 
-/*
+
 typedef struct RUN_LINKE{
 	ULONGLONG lcn;
 	ULONG size;
 	struct RUN_LINKE* next;
 }*PRUN_LINKE;
 
+/*
 typedef struct FILE_HANDLE{
 	ULONGLONG FileReferenceNumber;
 	PFILE_RECORD_HEADER pFile;
@@ -55,10 +56,13 @@ private:
 	CACHE_INFO m_cache_info;
 	PFILE_RECORD_HEADER m_Mft;
 	PUCHAR m_MftBitmap;
+	PUCHAR m_MftData;
+
 	PFILE_RECORD_HEADER m_File;
 	ULONGLONG m_FileCount;
 	ULONG m_ClustersPerFileRecord;
 	ULONG m_BytesPerClusters;
+
 	VOID FixupUpdateSequenceArray(PFILE_RECORD_HEADER file);
 	PATTRIBUTE FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count = 0);
 	ULONGLONG AttributeLengthAllocated(PATTRIBUTE attr);
@@ -78,10 +82,11 @@ private:
 	BOOL ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,ULONGLONG vcn, ULONG count, PVOID buffer);
 	ULONGLONG GetFileCount();
 	PFILENAME_ATTRIBUTE ReadFileNameInfoEx(ULONGLONG ReferenceNumber);
-	//PRUN_LINKE BuildRun(PNONRESIDENT_ATTRIBUTE attr);
+	PRUN_LINKE BuildRun(PNONRESIDENT_ATTRIBUTE attr);
 	BOOL ReadAttributeData(PATTRIBUTE attr, PUCHAR Buffer, ULONG bufferSize);
 	PFILE_INFO FileAttribute2Info(PFILENAME_ATTRIBUTE name);
 	const PFILENAME_ATTRIBUTE ReadMtfFileNameAttribute(ULONGLONG ReferenceNumber);
+	PATTRIBUTE EnumAttribute(PATTRIBUTE pAttrHeader, ULONG size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/);
 private:
 	static BOOL QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus);
 	static BOOL CreateUsnJournal(HANDLE hVolume);

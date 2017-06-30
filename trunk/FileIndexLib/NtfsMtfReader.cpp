@@ -39,13 +39,41 @@ CNtfsMtfReader::~CNtfsMtfReader(void)
 		CloseHandle(m_hVolumeBack);
 }
 
+/*
+0   $MFT
+1   $MFTMirr
+2   $LogFile
+3   $Volume
+4   $AttrDef
+5   .
+6   $Bitmap
+7   $Boot
+8   $BadClus
+9   $Secure
+10   $UpCase
+11   $Extend
+24   $Quota
+25   $ObjId
+26   $Reparse
+27   $RmMetadata
+28   $Repair
+29   $Deleted
+30   $TxfLog
+31   $Txf
+32   $Tops
+33   $TxfLog.blf
+34   $TxfLogContainer00000000000000000001
+35   $TxfLogContainer00000000000000000002
+36   System Volume Information
+*/
+
 ULONGLONG CNtfsMtfReader::EnumFiles(PVOID Param)
 {
 	__super::EnumFiles(Param);
 	
 	ULONGLONG result = 0;	
-
-	for(ULONGLONG i = 34; i < m_FileCount; i++){
+	
+	for(ULONGLONG i = 0; i < m_FileCount; i++){
 		if (!bitset(m_MftBitmap, i)) //跳过被删除的文件
 			continue;
 		PFILENAME_ATTRIBUTE name = ReadFileNameInfoEx(i);
@@ -54,15 +82,18 @@ ULONGLONG CNtfsMtfReader::EnumFiles(PVOID Param)
 			result++;
 
 			if(!Callback(i, FileAttribute2Info(name), Param))
+			{
+				
 				break;
+			}
 		}
 	}
 
 #ifdef _DEBUG
-	printf("%lld files found \n", result);
+	printf("enum files completed %lld files found \n", result);
 #endif // _DEBUG
 	
-
+	
 	return result;
 }
 
@@ -85,14 +116,18 @@ VOID CNtfsMtfReader::FixupUpdateSequenceArray(PFILE_RECORD_HEADER file)
 	}
 }
 
-PATTRIBUTE CNtfsMtfReader::FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/)
+PATTRIBUTE CNtfsMtfReader::EnumAttribute(PATTRIBUTE pAttrHeader, ULONG size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/)
 {
-	PATTRIBUTE attr = NULL;
-
+	PATTRIBUTE result = NULL, attr = NULL;
+	ULONG tl = 0;
 	int n_ctrl = 0;
-	for (attr = PATTRIBUTE(Padd(file, file->AttributesOffset));
-		attr->AttributeType != -1;attr = Padd(attr, attr->Length))
+	for (attr = pAttrHeader; tl < size;attr = Padd(attr, attr->Length))
 	{
+		if (attr->AttributeType == -1) break;
+		if (attr->AttributeType == 0x0) break;
+		if (attr->Length == 0) break;
+		tl += attr->Length;
+
 		if (attr->AttributeType == type)
 		{
 			if (n_attr_count != n_ctrl)
@@ -102,12 +137,46 @@ PATTRIBUTE CNtfsMtfReader::FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE
 			}
 			if (name == 0 && attr->NameLength == 0)
 				return attr;
-			if (name != 0 && wcslen(name) == attr->NameLength && _wcsicmp(name,
-				PWSTR(Padd(attr, attr->NameOffset))) == 0)
-				return attr;
+			if (name != 0 && wcslen(name) == attr->NameLength && _wcsicmp(name,PWSTR(Padd(attr, attr->NameOffset))) == 0)
+			{
+				result = attr;
+				break;
+			}
+		}
+		else if (attr->AttributeType == AttributeAttributeList)
+		{
+			printf("AttributeAttributeList %d\n", attr->Nonresident);
+			if (!attr->Nonresident)
+			{
+				printf("Attribute Flag=%d, Length=%d, Offset=%d\n", PRESIDENT_ATTRIBUTE(attr)->Flags, PRESIDENT_ATTRIBUTE(attr)->ValueLength, PRESIDENT_ATTRIBUTE(attr)->ValueOffset);
+				result = EnumAttribute(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset), attr->Length, type, name, n_attr_count);
+			}
+			else
+			{
+				printf("Nonresident Attribute DataSize=%lld, HighVcn=%lld, LowVcn=%lld, RunArrayOffset=%lld\n", 
+					PNONRESIDENT_ATTRIBUTE(attr)->DataSize, 
+					PNONRESIDENT_ATTRIBUTE(attr)->HighVcn, 
+					PNONRESIDENT_ATTRIBUTE(attr)->LowVcn,
+					PNONRESIDENT_ATTRIBUTE(attr)->RunArrayOffset);
+				PUCHAR p = new UCHAR[m_BytesPerSector* m_SectorsPerCluster];
+				ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE(attr), 0, 1, p, true);
+				result = EnumAttribute(PATTRIBUTE(p), PNONRESIDENT_ATTRIBUTE(attr)->DataSize, type, name, n_attr_count);
+				delete [] p;
+			}
+			if(result)
+				break;
 		}
 	}
-	return NULL;
+	return result;
+}
+
+PATTRIBUTE CNtfsMtfReader::FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/)
+{
+	PATTRIBUTE result = NULL, attr = NULL;
+
+	result = EnumAttribute(PATTRIBUTE(Padd(file, file->AttributesOffset)), file->BytesInUse, type, name, n_attr_count);
+
+	return result;
 }
 
 ULONGLONG CNtfsMtfReader::AttributeLengthAllocated(PATTRIBUTE attr)
@@ -187,30 +256,28 @@ BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,ULONGLONG
 /*
 PRUN_LINKE CNtfsMtfReader::BuildRun(PNONRESIDENT_ATTRIBUTE attr)
 {
+	PUCHAR run = NULL;
+	*lcn = 0;
 	ULONGLONG base = attr->LowVcn & 0x0000FFFFFFFFFFFF, Lcn = 0;
 
-	PRUN_LINKE pNext = NULL, result = NULL;
-	for(PUCHAR run = PUCHAR(Padd(attr, attr->RunArrayOffset));   *run != 0;  run += RunLength(run))
+	if (vcn < base || vcn >(attr->HighVcn & 0x0000FFFFFFFFFFFF))
+		return FALSE;
+
+	for (run = PUCHAR(Padd(attr, attr->RunArrayOffset)); *run != 0; run += RunLength(run))
 	{
 		LONGLONG offset = RunLCN(run);
 		Lcn += offset;
 		LONGLONG size = RunCount(run);
 
-		PRUN_LINKE pRun = new RUN_LINKE;
-		pRun->lcn = Lcn + base;
-		pRun->size = (ULONG)size;
-		
-		Lcn += size;
-
-		pRun->next = NULL;
-		if(pNext)
-			pNext->next = pRun;
-		if(!result)
-			result = pRun;
-		pNext = pRun;
-
+		if (base <= vcn && vcn < base + size)
+		{
+			*lcn = offset == 0 ? 0 : vcn + Lcn - base; //offset + vcn - base;
+			*count = size + base - vcn;
+			return TRUE;
+		}
+		base += size;
 	}
-	return result;
+	return FALSE;
 }
 */
 BOOL CNtfsMtfReader::FindRun(PNONRESIDENT_ATTRIBUTE attr, ULONGLONG vcn, PULONGLONG lcn, PULONGLONG count)
@@ -368,13 +435,33 @@ BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, ULONGLONG index, PF
 
 	PUCHAR p = new UCHAR[m_BytesPerSector* m_SectorsPerCluster * clusters];
 	ULONGLONG vcn = ULONGLONG(index) * m_BytesPerFileRecord/m_BytesPerSector/m_SectorsPerCluster;
-	if(!ReadVCN(Mft, AttributeData, vcn, clusters, p))
-		return FALSE;
-	LONG m = (m_SectorsPerCluster * m_BytesPerSector/m_BytesPerFileRecord) - 1;
-	ULONG n = m > 0 ? (index & m) : 0;
-	memcpy(file, p + n * m_BytesPerFileRecord, m_BytesPerFileRecord);
+	if(ReadVCN(Mft, AttributeData, vcn, clusters, p))
+	{
+		LONG m = (m_SectorsPerCluster * m_BytesPerSector/m_BytesPerFileRecord) - 1;
+		ULONG n = m > 0 ? (index & m) : 0;
+		memcpy(file, p + n * m_BytesPerFileRecord, m_BytesPerFileRecord);
+		FixupUpdateSequenceArray(file);
+	}else
+	{
+		printf("read record by api %lld\n", index);
+		NTFS_FILE_RECORD_INPUT_BUFFER mftRecordInput = {0};
+		DWORD dwCB;
+		mftRecordInput.FileReferenceNumber.QuadPart = index;
+		if (DeviceIoControl(m_Handle, FSCTL_GET_NTFS_FILE_RECORD, &mftRecordInput, sizeof(mftRecordInput), p, sizeof(NTFS_FILE_RECORD_OUTPUT_BUFFER) + m_BytesPerFileRecord, &dwCB, NULL)
+			&& PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileReferenceNumber.QuadPart == index)
+		{
+			memcpy(file, PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileRecordBuffer, m_BytesPerFileRecord);
+		}
+		else
+		{
+			printf("read record by api error=%d\n", GetLastError());
+			delete [] p;
+			return FALSE;
+		}
+
+	}
+
 	delete [] p;
-	FixupUpdateSequenceArray(file);
 	return TRUE;
 }
 
@@ -385,11 +472,10 @@ BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,ULONG
 
 	if (attr == 0 || (vcn < attr->LowVcn || vcn > attr->HighVcn))
 	{
+#ifdef _DEBUG
+		printf("vcn out of attribute AttributeAttributeList be used \n");
+#endif
 		return FALSE;
-		//attrlist = FindAttribute(file, AttributeAttributeList, 0);
-		//printf("**********************************************************");
-		//DebugBreak();
-		//TODO:基本遇不到这样的情况
 	}
 	return ReadExternalAttribute(attr, vcn, count, buffer, TRUE);
 }
@@ -407,50 +493,35 @@ const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(ULONGLONG Ref
 {
 	return ReadFileNameInfoEx(ReferenceNumber);
 }
-/*
-BOOL CNtfsMtfReader::ReadMtfFileData(ULONGLONG ReferenceNumber, PUCHAR Buffer, ULONG bufferSize)
-{
-	if(m_hVolume == INVALID_HANDLE_VALUE)
-		return NULL;
 
-	if(!m_Mft){
-		InitMftReader();
-	}
-
-	ZeroMemory(m_File, m_BytesPerFileRecord);
-
-	if(!ReadFileRecord(m_Mft, ReferenceNumber, m_File)){
-		return FALSE;
-	}
-
-	if (m_File->Ntfs.Type == 'ELIF'){
-		if((m_File->Flags & 1) == 0)
-			return NULL;
-
-		PATTRIBUTE attr = FindAttribute(m_File, AttributeData, 0);
-		if(attr){
-			return ReadAttributeData(attr, Buffer, bufferSize);
-		}
-	}
-
-	return FALSE;
-}
-*/
 PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(ULONGLONG ReferenceNumber)
 {
 	ZeroMemory(m_File, m_BytesPerFileRecord);
 
 	if(!ReadFileRecord(m_Mft, ReferenceNumber, m_File)){
+#ifdef _DEBUG
+		printf("Read read file record error code = %d \n", GetLastError());
+#endif
 		return NULL;
 	}
-
+	
 	if (m_File->Ntfs.Type == 'ELIF'){
 		if((m_File->Flags & 1) == 0)
-			return NULL;
+		{
+#ifdef _DEBUG
+			printf("can not found file has been deleted code = %lld \n", ReferenceNumber);
+#endif
+			//return NULL;
+		}
 
 		PVOID nameAttr = FindAttribute(m_File, AttributeFileName, 0);
 		if(!nameAttr)
+		{
+#ifdef _DEBUG
+			//printf("no name attribute %d ", ReferenceNumber);
+#endif
 			return NULL;
+		}
 
 		PFILENAME_ATTRIBUTE name = PFILENAME_ATTRIBUTE(Padd(nameAttr,PRESIDENT_ATTRIBUTE(nameAttr)->ValueOffset));
 
@@ -479,173 +550,21 @@ PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(ULONGLONG ReferenceNumber
 		}
 		return name;
 	}else
-		return NULL;
-}
-/*
-BOOL CNtfsMtfReader::ReadAttributeData(PATTRIBUTE attr, PUCHAR Buffer, ULONG bufferSize)
-{
-	PRESIDENT_ATTRIBUTE rattr = NULL;
-	PNONRESIDENT_ATTRIBUTE nattr = NULL;
-	
-	if (attr->Nonresident == FALSE){
-		rattr = PRESIDENT_ATTRIBUTE(attr);
-		if(bufferSize == 0)
-			bufferSize = rattr->ValueLength;
-		else if(bufferSize > rattr->ValueLength)
-			bufferSize = rattr->ValueLength;
-		memcpy(Buffer, Padd(rattr, rattr->ValueOffset), bufferSize);
-		return TRUE;
-	}else{
-		BOOL result = TRUE;
-		nattr = PNONRESIDENT_ATTRIBUTE(attr);
-		ULONG nSector = bufferSize / m_BytesPerSector;
-	
-		PRUN_LINKE pRun = BuildRun(nattr);
-		PRUN_LINKE pTmp = pRun;
-		while(pRun){
-			if(pRun->lcn > 0 && nSector > 0){
-				ULONG n = pRun->size * m_BytesPerSector * m_SectorsPerCluster;
-				ULONG readcount = n > nSector ? nSector : n;
-				if(ReadSector(pRun->lcn * m_SectorsPerCluster, readcount, Buffer))
-					nSector -= readcount;
-				else
-					result = FALSE;
-
-				Buffer += readcount * m_BytesPerSector;
-			}
-
-			pTmp = pRun->next;
-			delete pRun;
-			pRun = pTmp;
-		}
-		return result;
-	}
-	
-	return TRUE;
-}
-*/
-/*
-BOOL CNtfsMtfReader::OpenFile(ULONGLONG ReferenceNumber, PFILE_HANDLE* hFile)
-{
-	if(m_hVolume == INVALID_HANDLE_VALUE || !hFile)
-		return FALSE;
-
-	if(!m_Mft){
-		InitMftReader();
-	}
-	PFILE_RECORD_HEADER pFile = (PFILE_RECORD_HEADER)new UCHAR[m_BytesPerFileRecord];
-	ZeroMemory(pFile, m_BytesPerFileRecord);
-
-	BOOL result = FALSE;
-	do 
 	{
-		if(!ReadFileRecord(m_Mft, ReferenceNumber, (PFILE_RECORD_HEADER)pFile)){
-			break;
-		}
-
-		if (pFile->Ntfs.Type == 'ELIF'){
-			if((pFile->Flags & 1) == 0 || (pFile->Flags & 2) == 2)
-				break;
-
-			PATTRIBUTE attr = FindAttribute(pFile, AttributeData, 0);
-			if(!attr){
-				break;
-			}
-
-			*hFile = new FILE_HANDLE;
-			ZeroMemory(*hFile, sizeof(FILE_HANDLE));
-			(*hFile)->FileReferenceNumber = ReferenceNumber;
-			(*hFile)->pFile = (PFILE_RECORD_HEADER)pFile;
-			(*hFile)->DataAttr = attr;
-			(*hFile)->DataSize = AttributeLength(attr);
-			if(attr->Nonresident)
-				(*hFile)->Run = BuildRun((PNONRESIDENT_ATTRIBUTE)attr);
-			else
-				(*hFile)->Run = NULL;
-		}
-		result = TRUE;
-	} while (FALSE);
-
-	//delete [] pFile;
-
-	return result;
-
-}
-
-BOOL CNtfsMtfReader::ReadFile(PFILE_HANDLE hFile, PVOID Buffer, ULONG BufferLength, ULONGLONG Position, PULONG ByteReaded)
-{
-	if(!hFile || !hFile->DataAttr)
-		return FALSE;
-
-	PATTRIBUTE attr = hFile->DataAttr;
-	PRESIDENT_ATTRIBUTE rattr = NULL;
-	PNONRESIDENT_ATTRIBUTE nattr = NULL;
-	ULONG readLength;
-
-	if (!attr->Nonresident){
-		rattr = PRESIDENT_ATTRIBUTE(attr);
-		if(Position >= rattr->ValueLength)
-			return FALSE;
-		else{
-			readLength = rattr->ValueLength - Position > BufferLength ? BufferLength : rattr->ValueLength - Position;
-			memcpy(Buffer, Padd(rattr, rattr->ValueOffset + Position), readLength);
-			if(ByteReaded)
-				*ByteReaded = readLength;
-			return TRUE;
-		}
-	}else{
-		nattr = PNONRESIDENT_ATTRIBUTE(attr);
-		ULONG nbS = Position / m_Bpb.BytesPerSector, nS = BufferLength / m_Bpb.BytesPerSector, nrS = 0, ntS = 0;
-
-		PRUN_LINKE pRun = hFile->Run;
-		PRUN_LINKE pTmp = pRun;
-
-		while(pRun){
-			if(nbS < pRun->size * m_Bpb.SectorsPerCluster){
-				nrS = pRun->size * m_Bpb.SectorsPerCluster - nbS;
-				nrS = nrS > nS ? nS : nrS;
-				if(ReadSector(pRun->lcn * m_Bpb.SectorsPerCluster + nbS, nrS, Buffer)){
-					nS -= nrS;
-					ntS += nrS;
-				}else
-					return FALSE;
-				nbS += nrS;
-			}else
-				nbS -= pRun->size * m_Bpb.SectorsPerCluster;
-			
-			if(nS <= 0)
-				break;
-			pRun = pRun->next;
-
-		}
-		if(ByteReaded)
-			*ByteReaded = ntS * m_Bpb.BytesPerSector;
-		return TRUE;
+#ifdef _DEBUG
+		printf("unknow type = %d \n", m_File->Ntfs.Type);
+#endif
+		return NULL;
 	}
 }
 
-BOOL CNtfsMtfReader::CloseFile(PFILE_HANDLE hFile)
-{
-	if(!hFile)
-		return FALSE;
-	if(hFile->pFile)
-		delete [] hFile->pFile;
-	PRUN_LINKE run = hFile->Run;
-	while(run){
-		PRUN_LINKE tmp = run->next;
-		delete run;
-		run = tmp;
-	}
-	delete hFile;
-	return TRUE;
-}
-*/
 void CNtfsMtfReader::ZeroMember()
 {
 	__super::ZeroMember();
 
 	m_Mft = NULL;
 	m_MftBitmap = NULL;
+	m_MftData = NULL;
 	m_File = NULL;
 	m_FileCount = 0;
 	m_SectorsPerCluster = 0;
@@ -656,12 +575,83 @@ void CNtfsMtfReader::ZeroMember()
 	ZeroMemory(&m_cache_info, sizeof(m_cache_info));	
 }
 
+bool CNtfsMtfReader::Init()
+{
+	if(__super::Init()){
+		PUCHAR pBpb = new UCHAR[m_BytesPerSector];
+		if(!ReadSector(0, 1, pBpb))
+		{
+#ifdef _DEBUG
+			printf("Read Boot sector error code = %d \n", GetLastError());
+#endif
+			return false;
+		}
+
+		SaveDebugData(L"BPB", pBpb, m_BytesPerSector);
+
+		m_BytesPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord < 0x80
+			? ((PNTFS_BPB)pBpb)->ClustersPerFileRecord * ((PNTFS_BPB)pBpb)->SectorsPerCluster
+			* ((PNTFS_BPB)pBpb)->BytesPerSector: 1 << (0x100 - ((PNTFS_BPB)pBpb)->ClustersPerFileRecord);
+
+		m_SectorsPerCluster = ((PNTFS_BPB)pBpb)->SectorsPerCluster;
+		m_ClustersPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord;
+
+		m_BytesPerClusters = m_BytesPerSector * m_SectorsPerCluster;
+
+		if(!m_Mft)
+			m_Mft = PFILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
+		ZeroMemory(m_Mft, m_BytesPerFileRecord);
+		if(!ReadSector((((PNTFS_BPB)pBpb)->MftStartLcn)*(m_SectorsPerCluster), (m_BytesPerFileRecord)/(m_BytesPerSector), m_Mft)){
+#ifdef _DEBUG
+			printf("Read MFT error code = %d \n", GetLastError());
+#endif
+			return 0;
+		}
+		FixupUpdateSequenceArray(m_Mft);
+		PATTRIBUTE attrBitmap = FindAttribute(m_Mft, AttributeBitmap, 0);
+		if (attrBitmap)
+		{
+			ULONGLONG allocSize = AttributeLengthAllocated(attrBitmap);
+			if (!m_MftBitmap)
+				delete[] m_MftBitmap;
+			m_MftBitmap = new UCHAR[(ULONG)allocSize];
+			if (!ReadAttribute(attrBitmap, m_MftBitmap)) {//$MFT元文件中的$Bitmap属性，此属性中标识了$MFT元文件中MFT项的使用状况
+#ifdef _DEBUG
+				printf("get mft bitmap error code = %d \n", GetLastError());
+#endif
+				return 0;
+			}
+		}
+
+		if(!m_File)
+			m_File = PFILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
+
+		m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/m_BytesPerFileRecord; //MTF的总项数
+		if (m_cache_info.g_pb){
+			delete [] m_cache_info.g_pb;
+			m_cache_info.g_pb = NULL;
+			m_cache_info.cache_lcn_begin = 0;
+			m_cache_info.cache_lcn_count = 0;
+			m_cache_info.cache_lcn_orl_begin = 0;
+			m_cache_info.cache_lcn_total = 0;
+		}
+
+		delete [] pBpb;
+
+#ifdef _DEBUG
+		printf("init completed mft file count = %lld %d, %d \n", m_FileCount, m_BytesPerFileRecord, m_SectorsPerCluster);
+#endif
+		return true;
+	}else
+		return false;
+}
+
 PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 {
-	if(!name)
+	if (!name)
 		return NULL;
 
-	static PFILE_INFO aFileInfo =(PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR)];
+	static PFILE_INFO aFileInfo = (PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR)];
 	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR));
 	aFileInfo->AllocatedSize = name->AllocatedSize;
 	aFileInfo->ChangeTime = name->ChangeTime;
@@ -677,64 +667,11 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 	return aFileInfo;
 }
 
-bool CNtfsMtfReader::Init()
-{
-	if(__super::Init()){
-		PUCHAR pBpb = new UCHAR[m_BytesPerSector];
-		if(!ReadSector(0, 1, pBpb))
-		{
-#ifdef _DEBUG
-			printf("Read Boot sector error code = %d \n", GetLastError());
-#endif
-			return false;
-		}
-		m_BytesPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord < 0x80
-			? ((PNTFS_BPB)pBpb)->ClustersPerFileRecord * ((PNTFS_BPB)pBpb)->SectorsPerCluster
-			* ((PNTFS_BPB)pBpb)->BytesPerSector: 1 << (0x100 - ((PNTFS_BPB)pBpb)->ClustersPerFileRecord);
-
-		m_SectorsPerCluster = ((PNTFS_BPB)pBpb)->SectorsPerCluster;
-		m_ClustersPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord;
-
-		m_BytesPerClusters = m_BytesPerSector * m_SectorsPerCluster;
-
-		if(!m_Mft)
-			m_Mft = PFILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
-		ZeroMemory(m_Mft, m_BytesPerFileRecord);
-		if(!ReadSector((((PNTFS_BPB)pBpb)->MftStartLcn)*(m_SectorsPerCluster), (m_BytesPerFileRecord)/(m_BytesPerSector), m_Mft)){
-			return 0;
-		}
-		FixupUpdateSequenceArray(m_Mft);
-		PATTRIBUTE attrBitmap = FindAttribute(m_Mft, AttributeBitmap, 0);
-		ULONGLONG allocSize = AttributeLengthAllocated(attrBitmap);
-		if(m_MftBitmap)
-			delete m_MftBitmap;
-		m_MftBitmap = new UCHAR[(ULONG)allocSize];
-		if(!ReadAttribute(attrBitmap, m_MftBitmap)){//$MFT元文件中的$Bitmap属性，此属性中标识了$MFT元文件中MFT项的使用状况
-			return 0;
-		}
-		if(!m_File)
-			m_File = PFILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
-		m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/m_BytesPerFileRecord; //MTF的总项数
-		if (m_cache_info.g_pb){
-			delete [] m_cache_info.g_pb;
-			m_cache_info.g_pb = NULL;
-			m_cache_info.cache_lcn_begin = 0;
-			m_cache_info.cache_lcn_count = 0;
-			m_cache_info.cache_lcn_orl_begin = 0;
-			m_cache_info.cache_lcn_total = 0;
-		}
-
-		delete [] pBpb;
-
-		return true;
-	}else
-		return false;
-}
-
 const PFILE_INFO CNtfsMtfReader::GetFileInfo(ULONGLONG ReferenceNumber)
 {
 	return FileAttribute2Info(ReadMtfFileNameAttribute(ReferenceNumber));
 }
+
 
 USN CNtfsMtfReader::GetLastUsn()
 {

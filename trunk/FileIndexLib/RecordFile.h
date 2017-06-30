@@ -35,7 +35,7 @@ typedef struct _INDEX_RECORD{
 
 class CRecordFile
 {
-	friend int sortCompare(void *, const void *, const void *);
+	friend int _cdecl sortCompare(void *, const void *, const void *);
 private:
 
 #define MAX_OPTION 5
@@ -44,7 +44,7 @@ private:
 
 	typedef struct RECORD_POINTER{  //记录在文件中位置、长度（字节数）
 		USHORT Length;       //记录字节数
-		ULONG Pointer;    //在文件中的位置
+		ULONGLONG Pointer;    //在文件中的位置
 	}*PRECORD_POINTER;
 
 	//typedef struct RECORD_DATA{  //记录数据
@@ -113,7 +113,7 @@ public:
 private:
 	PRecordFileHolder m_Holder;         //回掉函数接口（创建时传入）
 	HANDLE m_hFile;                      //打开的物理文件句柄
-	vector<ULONG> m_RecordIndexBlocks;  //文件索引块
+	vector<ULONGLONG> m_RecordIndexBlocks;  //文件索引块
 
 	PFILE_HEADER m_Header;             //文件头
 	
@@ -137,10 +137,11 @@ private:
 
 	BOOL MyReadFile(LPVOID lpBuffer, DWORD nNumberOfBytesToRead, ULONG Pointer);
 	//ULONG MyWriteFile(LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, ULONG Pointer);
-	PVOID File2MapPointer(ULONG Pointer);
+	PVOID File2MapPointer(ULONGLONG Pointer);
 	ULONGLONG GetLastReference();  //最后一个有效的文件序号
 
 	ULONGLONG EnumRecordByIndex(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG begin, ULONGLONG end);
-	ULONG AllocSpace(ULONG nSize);
+	ULONGLONG AllocSpace(ULONG nSize);
+	VOID FreeSpace();
 };
 

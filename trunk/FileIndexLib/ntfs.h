@@ -1,9 +1,9 @@
 #pragma once
 
 typedef struct _NTFS_RECORD_HEADER{
-    ULONG Type;
-    USHORT UsaOffset;
-    USHORT UsaCount;
+    ULONG Type;  //4B??'ELIF','XDNI','DAAB','ELOH','DKHC'????
+    USHORT UsaOffset; //2B?更新序列号数组偏移，校验值地址
+    USHORT UsaCount; //1+n?1为校验值个数?n为待替换值个数??fixup?
     USN Usn;
 } NTFS_RECORD_HEADER, *PNTFS_RECORD_HEADER;
 
@@ -86,7 +86,7 @@ typedef struct _ATTRIBUTE_LIST{
     USHORT Length;
     UCHAR NameLength;
     UCHAR NameOffset;
-    ULONGLONG LowVcn;
+    ULONGLONG StartVcn;
     ULONGLONG FileReferenceNumber;
     USHORT AttributeNumber;
     USHORT AlignmentOrReserved[3];
