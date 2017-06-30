@@ -3,37 +3,43 @@
 #include "stdafx.h"
 #include <process.h>
 
-class IRunable{
-public:
-	virtual VOID ThreadRun(WPARAM Param) = 0;
-	virtual VOID OnThreadInit(WPARAM Param) = 0;
-	virtual VOID OnThreadTerminated(WPARAM Param) = 0;
+class CThread;
+
+struct IRunable{
+	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) = 0;
+	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) = 0;
+	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) = 0;
 };
 
 class CThread
 {
-private:
+public:
 	CThread(void);
 	CThread(IRunable* pRumer, WPARAM Param);
 	~CThread(void);
-public:
-	static CThread* NewThread(IRunable* pRumer, WPARAM Param = 0);
+
 	int	GetPriority();
 	BOOL SetPriority(int nPriority);
 	DWORD Suspend();
 	DWORD Resume();
 	HANDLE GetHandle() const;
 	DWORD GetId() const;
-	BOOL  IsAlive();
-	bool GetFreeOnTerminate();
+	BOOL  IsAlive() const;
+	
+	bool GetFreeOnTerminate() const;
 	VOID SetFreeOnTerminate(bool value);
+	bool GetTerminated() const;
+	VOID SetTerminatee(bool value);
 
 	virtual int Start();
-	virtual DWORD Terminate(DWORD uExitCode, DWORD dwWaitTime = 0);
+	virtual DWORD Terminate(DWORD dwWaitTime = 0, DWORD uExitCode = 0);
+	DWORD Sleep(DWORD dwMilliseconds);
+	VOID Wakeup(HANDLE hEvent) const;
 protected:
 	virtual int	ThreadRun();
 	virtual void ThreadInit();
 	BOOL m_Terminated;
+	HANDLE m_hSleep;
 private:
 	volatile HANDLE	m_hThread;		
 	volatile DWORD	m_ThreadId;	

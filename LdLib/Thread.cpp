@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "Thread.h"
 
 
@@ -17,12 +16,9 @@ CThread::CThread(IRunable* pRumer, WPARAM Param)
 
 CThread::~CThread(void)
 {
+	if (m_hSleep)
+		CloseHandle(m_hSleep);
 	Terminate(0);
-}
-
-CThread* CThread::NewThread(IRunable* pRumer, WPARAM Param /*= 0*/)
-{
-	return new CThread(pRumer, Param);
 }
 
 int CThread::GetPriority()
@@ -60,8 +56,10 @@ int CThread::Start()
 	if (m_hThread != INVALID_HANDLE_VALUE)		
 		return -1;
 
+	m_Terminated = false;
+
 	if(m_Runer)
-		m_Runer->OnThreadInit(m_Param);
+		m_Runer->OnThreadInit(this, m_Param);
 
 	m_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadProcedure, this, 0, (unsigned int*)&m_ThreadId);
 
@@ -89,6 +87,7 @@ unsigned __stdcall CThread::ThreadProcedure(LPVOID pParam)
 
 	if (!pThis) return 1;
 	int uRet = pThis->ThreadRun();
+
 	pThis->DoTerminated();
 	pThis->ResetHandle();
 
@@ -99,16 +98,16 @@ unsigned __stdcall CThread::ThreadProcedure(LPVOID pParam)
 
 }
 
-DWORD CThread::Terminate(DWORD uExitCode, DWORD dwWaitTime /*= 0*/)
+DWORD CThread::Terminate(DWORD dwWaitTime /*= 0*/, DWORD uExitCode)
 {
 	if (m_hThread == INVALID_HANDLE_VALUE) return uExitCode;
 	
-	m_Terminated = TRUE;
+	SetTerminatee(TRUE);
 	
 	if(dwWaitTime !=0)
 		::WaitForSingleObject(m_hThread, dwWaitTime);
 
-	TerminateThread((HANDLE)m_hThread, uExitCode);
+	TerminateThread(m_hThread, uExitCode);
 
 	ResetHandle();
 
@@ -116,13 +115,34 @@ DWORD CThread::Terminate(DWORD uExitCode, DWORD dwWaitTime /*= 0*/)
 
 }
 
-BOOL CThread::IsAlive()
+DWORD CThread::Sleep(DWORD dwMilliseconds)
 {
-	return (m_hThread != NULL);
+	if(!m_hSleep)
+	{
+		m_hSleep = CreateEvent(nullptr, TRUE, false, nullptr);
+		if (m_hSleep == nullptr)
+			return GetLastError();
+	}
+	else
+		ResetEvent(m_hSleep);
+	return WaitForSingleObject(m_hSleep, dwMilliseconds);
+}
+
+VOID CThread::Wakeup(HANDLE hEvent) const
+{
+	if(m_hSleep)
+	{
+		SetEvent(m_hSleep);
+	}
+}
+
+BOOL CThread::IsAlive() const
+{
+	return (m_hThread != INVALID_HANDLE_VALUE);
 }
 
 
-bool CThread::GetFreeOnTerminate()
+bool CThread::GetFreeOnTerminate() const
 {
 	return m_FreeOnTerminate;
 }
@@ -132,10 +152,21 @@ VOID CThread::SetFreeOnTerminate(bool value)
 	m_FreeOnTerminate = value;
 }
 
+bool CThread::GetTerminated() const
+{
+	return m_Terminated;
+}
+
+VOID CThread::SetTerminatee(bool value)
+{
+	Wakeup(m_hSleep);
+	m_Terminated = value;
+}
+
 int CThread::ThreadRun()
 {
 	if(m_Runer)
-		m_Runer->ThreadRun(m_Param);
+		m_Runer->ThreadRun(this, m_Param);
 
 	return 0;
 }
@@ -148,10 +179,11 @@ void CThread::ThreadInit()
 	m_FreeOnTerminate = true;
 	m_Runer = NULL;
 	m_Param = 0;
+	m_hSleep = nullptr;
 }
 
 void CThread::DoTerminated()
 {
 	if(m_Runer)
-		m_Runer->OnThreadTerminated(m_Param);
+		m_Runer->OnThreadTerminated(this, m_Param);
 }
