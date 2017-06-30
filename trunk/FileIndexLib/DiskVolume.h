@@ -74,9 +74,9 @@ private:
 	inline void lock(){EnterCriticalSection(&m_cs);}
 	inline void unlock(){LeaveCriticalSection(&m_cs);}
 
-	BOOL m_DumpThreadTerminated;
-	BOOL m_ListenThreadTerminated;
-	bool m_SearchThreadTerminated;
+	CThread m_DumpThread;
+	CThread m_ListenThread;
+	CThread m_SearchThread;
 
 	VOID RunListenFileChange();                            //监听文件修改线程函数
 	BOOL SearchFile(PFILE_FILTER pFilter);

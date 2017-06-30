@@ -216,15 +216,18 @@ LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFT
 	return TRUE;
 }
 */
-CDiskVolume::CDiskVolume(void)
+CDiskVolume::CDiskVolume(void):
+	m_ListenThread(),
+	m_DumpThread(),
+	m_SearchThread()
 {
 	m_hVolume = INVALID_HANDLE_VALUE;
 	m_MftReader = NULL;
 	m_MftFile = NULL;
 	m_Holder = NULL;
-	m_DumpThreadTerminated = true;
-	m_ListenThreadTerminated = true;
-	m_SearchThreadTerminated = true;
+	m_DumpThread.SetFreeOnTerminate(false);
+	m_ListenThread.SetFreeOnTerminate(false);
+	m_SearchThread.SetFreeOnTerminate(false);
 
 	InitializeCriticalSection(&m_cs);
 
@@ -235,9 +238,9 @@ CDiskVolume::CDiskVolume(void)
 CDiskVolume::~CDiskVolume(void)
 {
 //	CleanDuplicateFiles();
-	m_ListenThreadTerminated = true;
-	m_DumpThreadTerminated = true;
-	m_SearchThreadTerminated = true;
+	m_ListenThread.Terminate(100);
+	m_DumpThread.Terminate(100);
+	m_SearchThread.Terminate(100);
 
 	if(m_MftReader){
 		delete m_MftReader;
@@ -298,7 +301,7 @@ BOOL CDiskVolume::UpdateMftDump(BOOL async)
 		return FALSE;
 	}
 
-	if (!m_DumpThreadTerminated)
+	if (m_DumpThread.IsAlive())
 		return false;
 
 	BOOL result;
@@ -710,7 +713,7 @@ BOOL CDiskVolume::EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFil
 #endif // _DEBUG
 	
 	m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (pFileName->NameLength + 1) * sizeof(WCHAR));
-	return !m_DumpThreadTerminated;
+	return !m_DumpThread.GetTerminated();
 
 }
 /*
@@ -772,7 +775,7 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 		m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, cb);
 	}
 
-	return m_ListenThreadTerminated;	
+	return !m_ListenThread.GetTerminated();	
 }
 /**
 搜索文件回掉函数
@@ -793,7 +796,7 @@ LONG CDiskVolume::EnumFileRecordCallback(ULONGLONG ReferenceNumber, const PUCHAR
 	case EK_BINSEARCH:
 		return CompareFileRecord((PMFTFILERECORD)context->Param, context->c, (PMFTFILERECORD)pRecord);
 	}
-	return m_SearchThreadTerminated;
+	return !m_SearchThread.GetTerminated();
 }
 
 /*
@@ -874,15 +877,12 @@ VOID CDiskVolume::ThreadRun(CThread* Sender, WPARAM Param)
 
 	switch(pContext->type){
 	case TT_LISTEN_CHANGE:
-		m_ListenThreadTerminated = false;
 		RunListenFileChange();
 		break;
 	case TT_CREATE_DUMP:
-		m_DumpThreadTerminated = false;
 		CreateMftDump();
 		break;
 	case TT_SEARCH_FILE:
-		m_SearchThreadTerminated = false;
 		SearchFile((PFILE_FILTER)pContext->pParam);
 		break;
 	}
@@ -899,15 +899,12 @@ VOID CDiskVolume::OnThreadTerminated(CThread* Sender, WPARAM Param)
 	if(m_Holder){
 		switch(pContext->type){
 		case TT_LISTEN_CHANGE:
-			m_ListenThreadTerminated = true;
 			break;
 		case TT_CREATE_DUMP:
 			m_Holder->OnRenewDump(this);
-			m_DumpThreadTerminated = true;
 			break;
 		case TT_SEARCH_FILE:
 			m_Holder->OnSearchCompeleted(this);
-			m_SearchThreadTerminated = true;
 			break;
 		case TT_FIND_DUPLICATE:
 			m_Holder->OnFindDupCompeleted(this);
@@ -949,7 +946,7 @@ BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter)
 
 BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter, BOOL asyn)
 {
-	if (!m_SearchThreadTerminated)
+	if (!m_SearchThread.IsAlive())
 		return false;
 
 	if(asyn){
@@ -982,16 +979,16 @@ VOID CDiskVolume::RunListenFileChange()
 		hMonitor = FindFirstChangeNotification(path.c_str(), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE);
 	}
 
-	while(!m_ListenThreadTerminated){
+	while(!m_ListenThread.GetTerminated()){
 		if(hMonitor != INVALID_HANDLE_VALUE){
 			WaitForSingleObject(hMonitor, INFINITE);
 			  if(FALSE==FindNextChangeNotification(hMonitor))
 				  break;
 		}else
-			Sleep(10*1000);
+			m_ListenThread.Sleep(10*1000);
 
 
-		Sleep(10000);   //
+		//m_ListenThread.Sleep(10000);   //
 		UpdateFiles();
 	}
 
