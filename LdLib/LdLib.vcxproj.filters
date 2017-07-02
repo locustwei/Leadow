@@ -44,6 +44,9 @@
     <ClCompile Include="FormatSettings.cpp">
       <Filter>Native</Filter>
     </ClCompile>
+    <ClCompile Include="SHFolders.cpp">
+      <Filter>Native</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -99,6 +102,9 @@
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="FormatSettings.h">
+      <Filter>Native</Filter>
+    </ClInclude>
+    <ClInclude Include="SHFolders.h">
       <Filter>Native</Filter>
     </ClInclude>
   </ItemGroup>

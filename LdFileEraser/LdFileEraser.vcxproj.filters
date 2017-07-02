@@ -42,6 +42,9 @@
     <ClCompile Include="ErasureProcess.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="ErasureRecycleUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -69,6 +72,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ErasureProcess.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureRecycleUI.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

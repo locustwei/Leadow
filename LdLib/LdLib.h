@@ -21,6 +21,7 @@
 #include "DateTimeUtils.h"
 
 #include "FormatSettings.h"
+#include "SHFolders.h"
 
 #define LDLIB_API __declspec(dllexport)
 

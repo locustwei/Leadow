@@ -66,6 +66,8 @@ CLdString::operator LPTSTR() const
 
 void CLdString::Append(LPCTSTR pstr)
 {
+	if (pstr == nullptr)
+		return;
 	int oLength = GetLength();
 	int nNewLength = oLength + (int)_tcslen(pstr);
 	m_pstr = reallocstr(m_pstr, (nNewLength + 1));
@@ -370,7 +372,7 @@ int CLdString::ReverseFind(TCHAR ch) const
 
 int CLdString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
 {
-	if (!m_pstr)
+	if (!m_pstr || !pstrFrom || pstrFrom[0] == '\0')
 		return -1;
 
 	CLdString sTemp;
@@ -378,7 +380,9 @@ int CLdString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
 	int iPos = Find(pstrFrom);
 	if (iPos < 0) return 0;
 	int cchFrom = (int)_tcslen(pstrFrom);
-	int cchTo = (int)_tcslen(pstrTo);
+	int cchTo = 0;
+	if(pstrTo)
+		cchTo = (int)_tcslen(pstrTo);
 	while (iPos >= 0) {
 		sTemp = Left(iPos);
 		sTemp += pstrTo;

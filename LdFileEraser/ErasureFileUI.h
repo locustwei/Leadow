@@ -12,7 +12,7 @@ private:
 	CButtonUI* btnOpenFile;
 	CButtonUI* btnOk;
 	CListUI* lstFile;
-	CLdArray<CFileInfo*> m_Files;
+//	CLdArray<CFileInfo*> m_Files;
 
 	virtual void OnClick(TNotifyUI& msg);
 	virtual void OnSelectChanged(TNotifyUI &msg);
@@ -21,9 +21,9 @@ private:
 protected:
 	virtual void OnInit() override;
 	
-	virtual VOID ThreadRun(WPARAM Param) override;
-	virtual VOID OnThreadInit(WPARAM Param) override;
-	virtual VOID OnThreadTerminated(WPARAM Param) override;
+	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) override;
+	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) override;
+	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) override;
 
 };
 

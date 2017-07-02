@@ -31,9 +31,14 @@ public:
 		Clear();
 	};
 
-	T& operator[] (int Index)
+	T& Get(int index)
 	{
-		return FList[Index];
+		return FList[index];
+	};
+
+	T& operator[] (int index)
+	{
+		return Get(index);
 	};
 	operator T*()
 	{

@@ -1,20 +1,21 @@
 #include "stdafx.h"
-#include "ErasureMainWnd.h"
 #include "ErasureFileUI.h"
+#include "ErasureRecycleUI.h"
+#include "ErasureMainWnd.h"
 
 
 CErasureMainWnd::CErasureMainWnd()
 {
-	m_ErasureFile = NULL;
-	BuildXml(_T("erasure\\erasuremain.xml"), NULL);
+	m_ErasureFile = nullptr;
+	m_ErasureRecycle = nullptr;
+	BuildXml(_T("erasure\\erasuremain.xml"), nullptr);
 }
 
 
 CErasureMainWnd::~CErasureMainWnd()
 {
 	if (m_ErasureFile)
-		delete m_ErasureFile;
-	
+		delete m_ErasureFile;	
 }
 
 void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
@@ -22,7 +23,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	CDuiString name = msg.pSender->GetName();
 	if (name == _T("Shredder"))
 	{
-		if (m_ErasureFile == NULL)
+		if (m_ErasureFile == nullptr)
 		{
 			m_ErasureFile = new CErasureFileUI();
 			AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
@@ -32,6 +33,13 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	}
 	else if (name == _T("recycle"))
 	{
+		if (m_ErasureRecycle == nullptr)
+		{
+			m_ErasureRecycle = new CErasureRecycleUI();
+			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
+			m_TabUI->Add(m_ErasureRecycle->GetUI());
+		}
+		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
 	}
 	else if (name == _T("unusedspace"))
 	{
@@ -56,6 +64,13 @@ DUI_END_MESSAGE_MAP()
 void CErasureMainWnd::OnInit()
 {
 	m_TabUI = static_cast<CTabLayoutUI*>(((CContainerUI*)m_Control)->FindSubControl(_T("pagelist")));
+	if (m_ErasureFile == nullptr)
+	{
+		m_ErasureFile = new CErasureFileUI();
+		AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
+		m_TabUI->Add(m_ErasureFile->GetUI());
+	}
+	m_TabUI->SelectItem(m_ErasureFile->GetUI());
 }
 
 void CErasureMainWnd::OnClick(TNotifyUI& msg)

@@ -8,6 +8,8 @@
 
 #include "stdafx.h"
 #include "LdString.h"
+#include "LdArray.h"
+#include "LdStructs.h"
 
 enum VOLUME_FILE_SYSTEM
 {
@@ -54,23 +56,33 @@ public:
 	BOOL HasQuota();
 	//是否分配盘符
 	BOOL IsMounted();
-	//
-	void MountedVolumes();
 	//磁盘MFT格式。
 	DWORD GetFileSystem(VOLUME_FILE_SYSTEM* pOut);
 	//查询磁盘性能 IOCTL_DISK_PERFORMANCE
 	//分区信息IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS
 
-	HANDLE OpenVolumeHandle();             //CreateFile，打开hVolume
+	HANDLE OpenVolumeHandle() const;             //CreateFile，打开hVolu
+
 
 private:
 
 	CLdString m_VolumeGuid;           //卷GUID
 	CLdString m_VolumePath;           //路径
 	VOLUME_FILE_SYSTEM m_FileSystemName;
-	DWORD FileSystemFlags;
-	DWORD MaxFilenameLength;
+	DWORD m_FileSystemFlags;
 
 	DWORD GetVolumeInfo();
 private:  //接口函数
+};
+
+class CVolumeUtils
+{
+public:
+	//有盘符的分区
+	static DWORD MountedVolumes(IGernalCallback<TCHAR*>* callback, UINT_PTR Param);
+	//FindFirstVolume 
+	static DWORD EnumVolumeNames(IGernalCallback<TCHAR*>* callback, UINT_PTR Param);
+	static VOLUME_FILE_SYSTEM GetVolumeFileSystem(TCHAR* szPath);
+private:
+
 };

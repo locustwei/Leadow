@@ -5,15 +5,34 @@
 #include "LdStructs.h"
 #include "LdString.h"
 
+typedef enum WIN_OS_TYPE
+{
+	Windows_2000,
+	Windows_XP,
+	Windows_XP_Professional_x64,
+	Windows_Server_2003,
+	Windows_Home_Server,
+	Windows_Vista,
+	Windows_Server_2008,
+	Windows_Server_2008_R2,
+	Windows_7,
+	Windows_Server_2012,
+	Windows_8,
+	Windows_8_1,
+	Windows_10
+};
+
 CLdString SysErrorMsg(DWORD dwErrorCode);         //系统错误消息
 BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName);
 //打开（关闭）程序令牌
 BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
 //ShllExecute 打开文件、网页等
 BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
+DWORD GetCurrentUserSID(CLdString& sidStr);
 
 #pragma region Window 版本
-OSVERSIONINFO& GetOsVersion();
+WIN_OS_TYPE GetOsType();
+BOOL RtlGetVersion(PRTL_OSVERSIONINFOW pOsvi);
 BOOL IsWindow64();
 BOOL IsVista64();
 #pragma endregion

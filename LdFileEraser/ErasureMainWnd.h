@@ -16,6 +16,7 @@ private:
 	
 	CTabLayoutUI* m_TabUI;
 	CFramWnd* m_ErasureFile;
+	CFramWnd* m_ErasureRecycle;
 protected:
 	virtual void OnInit() override;
 

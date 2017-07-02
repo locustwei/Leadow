@@ -1,5 +1,6 @@
 #pragma once
 #include "ldstring.h"
+#include "LdStructs.h"
 
 class CFileInfo
 {
@@ -54,5 +55,7 @@ public:
 	//获取文件压缩状态（Windows 文件属性非ZIP）
 	static DWORD GetCompressStatus(LPTSTR lpFullName, PWORD pStatus);
 	static BOOL SetCompression(LPTSTR lpFullName, BOOL bCompress);
+	//FindFirst, FindNext 搜索目录
+	static DWORD FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param);
 };
 
