@@ -33,6 +33,9 @@ BOOL CErasureProcess::ErasureCompleted(UINT nStep, DWORD dwErroCode)
 
 BOOL CErasureProcess::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent)
 {
+	if (nMaxCount <= 0)
+		return FALSE;
+
 	if (ui)
 	{
 		//ui->SetMaxValue(nMaxCount);
@@ -41,14 +44,14 @@ BOOL CErasureProcess::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCure
 	return TRUE;
 }
 
-VOID CErasureProcess::ThreadRun(WPARAM Param)
+VOID CErasureProcess::ThreadRun(CThread* Sender, WPARAM Param)
 {
 }
 
-VOID CErasureProcess::OnThreadInit(WPARAM Param)
+VOID CErasureProcess::OnThreadInit(CThread* Sender, WPARAM Param)
 {
 }
 
-VOID CErasureProcess::OnThreadTerminated(WPARAM Param)
+VOID CErasureProcess::OnThreadTerminated(CThread* Sender, WPARAM Param)
 {
 }

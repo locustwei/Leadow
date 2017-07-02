@@ -159,6 +159,43 @@ BOOL CFileUtils::SetCompression(LPTSTR lpFullName, BOOL bCompress)
 	return Result;
 }
 
+DWORD CFileUtils::FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param)
+{
+	DWORD result = 0;
+	CLdString path = lpFullPath;
+	if (path.IsEmpty())
+		return 0;
+	if (!IsDirectoryExists(lpFullPath))
+		return ERROR_FILE_INVALID;
+	if(path[path.GetLength()-1]!='\\')
+	{
+		path += '\\';
+	}
+
+	WIN32_FIND_DATA Data = { 0 };
+	HANDLE hFind = FindFirstFile(path+lpFilter, &Data);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return GetLastError();
+	do
+	{
+		if ((Data.cFileName[0] == '.' && Data.cFileName[1] == '\0') ||
+			(Data.cFileName[0] == '.' && Data.cFileName[1] == '.' && Data.cFileName[3] == '\0'))
+			continue;
+
+		if (!callback->GernalCallback_Callback(&Data, Param))
+			break;
+		if(bSubDir && (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+		{
+			result = FindFile(path + Data.cFileName, lpFilter, bSubDir, callback, Param);
+			if (result != 0)
+				break;
+		}
+	} while (FindNextFile(hFind, &Data));
+
+	FindClose(hFind);
+	return result;
+}
+
 #pragma endregion
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma region CFileInfo

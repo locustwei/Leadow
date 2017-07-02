@@ -126,7 +126,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasur
 		result = GetLastError();
 
 
-	if (result == 0)
+	if (result == 0 && fileSize.QuadPart > 0)
 		result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
 
 	CloseHandle(hFile);
@@ -137,6 +137,11 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasur
 
 	callbck->ErasureCompleted(method.GetPassCount(), result);
 	return result;
+}
+
+DWORD CErasure::ErasureRecycle(CErasureMethod & method, IErasureCallback * callbck)
+{
+	return 0;
 }
 
 DWORD CErasure::UnusedSpace2TempFile(IErasureCallback* callback)

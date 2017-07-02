@@ -3,25 +3,21 @@
 #include "ErasureProcess.h"
 
 
-CErasureFileUI::CErasureFileUI():
-	m_Files()
+CErasureFileUI::CErasureFileUI()
 {
-	btnOpenFile = NULL;
-	btnOk = NULL;
-	lstFile = NULL;
-	BuildXml(_T("erasure\\filelistview.xml"), NULL);
+	btnOpenFile = nullptr;
+	btnOk = nullptr;
+	lstFile = nullptr;
+	BuildXml(_T("erasure\\erasurefile.xml"), nullptr);
 }
 
 
 CErasureFileUI::~CErasureFileUI()
 {
-	for (int it = 0; it < m_Files.GetCount(); it++)
-	{
-		delete m_Files[it];
-	}
+
 }
 
-VOID CErasureFileUI::ThreadRun(WPARAM Param)
+VOID CErasureFileUI::ThreadRun(CThread* Sender, WPARAM Param)
 {
 	CListContainerElementUI* ui = (CListContainerElementUI*)Param;
 	CFileInfo* pinfo = (CFileInfo*)ui->GetTag();
@@ -34,12 +30,12 @@ VOID CErasureFileUI::ThreadRun(WPARAM Param)
 	delete pProcess;
 }
 
-VOID CErasureFileUI::OnThreadInit(WPARAM Param)
+VOID CErasureFileUI::OnThreadInit(CThread* Sender, WPARAM Param)
 {
 	;
 }
 
-VOID CErasureFileUI::OnThreadTerminated(WPARAM Param)
+VOID CErasureFileUI::OnThreadTerminated(CThread* Sender, WPARAM Param)
 {
 	;
 }
@@ -105,8 +101,8 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 	{
 		for (int i = 0; i < lstFile->GetCount(); i++)
 		{
-			CThread* thread = CThread::NewThread(this, WPARAM(lstFile->GetItemAt(i)));
-			thread->Start();
+			CThread* thread = new CThread(this);
+			thread->Start(WPARAM(lstFile->GetItemAt(i)));
 			//CErasure erasure;
 			//erasure.FileErasure(pinfo->GetFileName(), CErasureMethod::Pseudorandom(), this);
 		}

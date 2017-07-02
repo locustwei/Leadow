@@ -149,6 +149,7 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CWJSLib.h" />
     <ClInclude Include="DiskVolume.h" />
     <ClInclude Include="Fat.h" />
     <ClInclude Include="FatMftReader.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CWJSLib.cpp" />
     <ClCompile Include="DiskVolume.cpp" />
     <ClCompile Include="FatMftReader.cpp" />
     <ClCompile Include="Hardisk.cpp" />

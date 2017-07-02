@@ -33,3 +33,14 @@ typedef enum LD_FILE_PROTECT
 
 	LFP_ALL      = LFP_HIDE | LFP_DELETE | LFP_RENAME | LFP_READ | LFP_WRITE
 };
+
+/*
+通用回掉函数
+*/
+template <typename T>
+class IGernalCallback
+{
+
+public:
+	virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
+};

@@ -114,6 +114,16 @@ public:
 		return -1;
 	};
 
+	T1& KeyOf(int index)
+	{
+		return ((MAP_ITEM*)m_Array)[index].key;
+	};
+
+	T2& ValueOf(int index)
+	{
+		return ((MAP_ITEM*)m_Array)[index].value;
+	};
+
 protected:
 	struct MAP_ITEM
 	{

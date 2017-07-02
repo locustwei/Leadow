@@ -2,6 +2,7 @@
 #include <winternl.h>
 #include "PublicRoutimes.h"
 #include <string.h>
+#include <Sddl.h>
 
 #pragma comment(lib, "Shell32.lib")
 
@@ -55,6 +56,7 @@ BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam)
 	return 0;
 }
 
+
 CLdString SysErrorMsg(DWORD dwErrorCode)
 {
 	LPTSTR pMsg = NULL;
@@ -69,16 +71,27 @@ CLdString SysErrorMsg(DWORD dwErrorCode)
 	return s;
 }
 
-OSVERSIONINFO osvi = { 0 };
-
-OSVERSIONINFO& GetOsVersion()
+typedef NTSTATUS(WINAPI * _RtlGetVersion) (PRTL_OSVERSIONINFOW);
+BOOL RtlGetVersion(PRTL_OSVERSIONINFOW pOsvi)
 {
-	if (osvi.dwOSVersionInfoSize == 0) {
-		osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-		GetVersionEx(&osvi);
+	static _RtlGetVersion RtlGetVersion = nullptr;
+	if(RtlGetVersion == nullptr)
+	{
+		HMODULE hMod = LoadLibrary(_T("ntdll.dll"));
+		if (hMod)
+		{
+			RtlGetVersion = (_RtlGetVersion)GetProcAddress(hMod, "RtlGetVersion");
+			if (RtlGetVersion == 0)
+			{
+				FreeLibrary(hMod);
+				return FALSE;
+			}
+		}
 	}
-	return osvi;
+	pOsvi->dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
+	return RtlGetVersion(pOsvi) == 0;
 }
+
 
 BOOL IsWindow64() //判断是否是64位机
 {
@@ -92,15 +105,82 @@ BOOL IsWindow64() //判断是否是64位机
 	return false;
 }
 
+WIN_OS_TYPE GetOsType()
+{
+	OSVERSIONINFO osvi;
+	RtlGetVersion(&osvi);
+	switch (osvi.dwMajorVersion)
+	{
+	case 5:
+		switch (osvi.dwMinorVersion)
+		{
+		case 0:
+			return Windows_2000;
+		case 1:
+			return Windows_XP;
+		case 2:
+			return Windows_XP_Professional_x64; //Windows_Server_2003 or Windows_Home_Server
+		}
+		break;
+	case 6:
+		switch (osvi.dwMinorVersion)
+		{
+		case 0:
+			return Windows_Vista; //or Windows_Server_2008
+		case 1:
+			return Windows_7; //or Windows_Server_2008_R2
+		case 2:
+			return Windows_8; //or Windows_Server_2012
+		case 3:
+			return Windows_8_1;
+		}
+		break;
+	case 10:
+		return Windows_10;
+	}
+	return Windows_2000;
+}
+
 BOOL IsVista64()
 {
 	if (IsWindow64()) {
-		OSVERSIONINFO osvi = GetOsVersion();
+		OSVERSIONINFO osvi;
+		RtlGetVersion(&osvi);
 		return ((osvi.dwMajorVersion = 6) && (osvi.dwMinorVersion = 0)) ||
 			((osvi.dwMajorVersion = 5) && (osvi.dwMinorVersion = 02)); //XP 64
 	}
 	else
 		return false;
+}
+
+DWORD GetCurrentUserSID(CLdString& sidStr)
+{
+	DWORD dwUserBuf = 256;
+	TCHAR chCurrentUser[256] = {0};
+	PSID userSID = NULL;
+	DWORD dwSID, dwDomainNameSize = 0;
+	BYTE bySidBuffer[1024]={0};
+	TCHAR byDomainBuffer[MAX_PATH] = { 0 };
+	SID_NAME_USE snu;
+	userSID = (PSID)bySidBuffer;
+	dwSID = sizeof(bySidBuffer);
+	dwDomainNameSize = sizeof(byDomainBuffer);
+
+	if (!GetUserName(chCurrentUser, &dwUserBuf))
+		return GetLastError();
+	if (!LookupAccountName(NULL, chCurrentUser, userSID, &dwSID, byDomainBuffer, &dwDomainNameSize, &snu))
+	{
+		return GetLastError();
+	}
+
+	TCHAR* chSID=NULL;
+	if (ConvertSidToStringSid(userSID, &chSID))
+	{
+		sidStr = chSID;
+		LocalFree((HLOCAL)chSID);
+	}else
+		return GetLastError();
+	return 0;
 }
 
 #pragma region 未公开API

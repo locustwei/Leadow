@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Thread.h"
 
 
@@ -11,7 +12,6 @@ CThread::CThread(IRunable* pRumer)
 	ThreadInit();
 	m_Runer = pRumer;
 }
-
 
 CThread::~CThread(void)
 {
@@ -85,6 +85,9 @@ unsigned __stdcall CThread::ThreadProcedure(LPVOID pParam)
 	CThread* pThis = (CThread*)pParam;
 
 	if (!pThis) return 1;
+	
+	//pThis->DoStart();
+
 	int uRet = pThis->ThreadRun();
 
 	pThis->DoTerminated();

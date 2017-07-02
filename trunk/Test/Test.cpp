@@ -8,6 +8,7 @@
 #include "LdLib.h"
 #include <time.h>
 #include <Commdlg.h>
+#include <shellapi.h>
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -87,12 +88,41 @@ private:
 
 };
 
+
+
+
+class CColCallbackImp: public IGernalCallback<PSH_HEAD_INFO>
+{
+public:
+	BOOL GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param) override
+	{
+		if(pData->szName[0]==0x200E)
+			printf("%d, %d, %S\n", pData->cxChar, pData->fmt, pData->szName + 1);
+		else
+			printf("%d, %d, %S\n", pData->cxChar, pData->fmt, pData->szName);
+		return true;
+	};
+};
+
+class CCallbackImp : public IGernalCallback<CLdArray<TCHAR*>*>
+{
+public:
+	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override
+	{
+		printf("\n");
+		for (int i = 1; i < pData->GetCount(); i++)
+		{
+				printf("%S  ", pData->Get(i));
+		}
+		return true;
+	};
+};
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
-	
-	CHandleUitls::FindOpenFileHandle(L"I:\\Ñ¸À×ÏÂÔØ\\Dbgview.exe", new CHandleImp(), NULL);
-
+	//CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, new CColCallbackImp, 0);
+	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, new CCallbackImp, 0);
 	printf("\npress any key exit");
 	getchar();
 	return 0;
