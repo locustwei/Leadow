@@ -284,9 +284,7 @@ VOLUME_FILE_SYSTEM CVolumeUtils::GetVolumeFileSystem(TCHAR * szPath)
 {
 	DWORD MaxFilenameLength;
 	CLdString FileSystemNameBuffer((UINT)MAX_PATH);
-	if (!GetVolumeInformation(szPath, nullptr, 0, nullptr, &MaxFilenameLength, nullptr, FileSystemNameBuffer, MAX_PATH))
-		return FS_UNKNOW;
-	else
+	if (GetVolumeInformation(szPath, nullptr, 0, nullptr, &MaxFilenameLength, nullptr, FileSystemNameBuffer, MAX_PATH))
 	{
 		if (FileSystemNameBuffer == _T("NTFS"))
 			return FS_NTFS;
@@ -297,4 +295,5 @@ VOLUME_FILE_SYSTEM CVolumeUtils::GetVolumeFileSystem(TCHAR * szPath)
 			return FS_FAT16;
 		}
 	}
+	return FS_UNKNOW;
 }

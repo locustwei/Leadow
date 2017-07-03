@@ -4,7 +4,9 @@
 #include <thread>
 
 
-CErasureRecycleUI::CErasureRecycleUI()
+CErasureRecycleUI::CErasureRecycleUI():
+	m_Columes(),
+	m_RecycledFiles(100)
 {
 	btnOk = nullptr;
 	lstFile = nullptr;
@@ -14,6 +16,12 @@ CErasureRecycleUI::CErasureRecycleUI()
 
 CErasureRecycleUI::~CErasureRecycleUI()
 {
+	for(int i=0; i<m_Columes.GetCount();i++)
+	{
+		delete m_Columes[i]->szName;
+		delete m_Columes[i];
+	}
+	m_Columes.Clear();
 }
 
 VOID CErasureRecycleUI::ThreadRun(CThread* Sender, WPARAM Param)
@@ -81,26 +89,65 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 	SHFILEINFO		fi = { 0 };
 	CLdString s = (LPTSTR)Param;
 	s += pData->cFileName;
-	HRESULT hr = SHGetFileInfo(s, 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME);
+	m_RecycledFiles.Insert(pData->cFileName, pData);
 	s.CopyTo(pData->cFileName);
-	AddErasureFile(fi.szDisplayName, pData);
+	return true;
+}
+
+void CErasureRecycleUI::AddLstViewHeader(int ncount)
+{
+
+}
+
+BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
+{
+	SHFILEINFO fi;
+	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
+	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
+		AddLstViewHeader(pData->GetCount());
+	return 0;
+}
+
+BOOL CErasureRecycleUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
+{
+	PSH_HEAD_INFO p = new SH_HEAD_INFO;
+	p->cxChar = pData->cxChar;
+	p->fmt = pData->fmt;
+	p->szName = new TCHAR[_tcslen(pData->szName)+1];
+	_tcscpy(p->szName, pData->szName);
+	m_Columes.Add(p);
 	return true;
 };
 
-class CVolumeCallbackImp : public IGernalCallback<TCHAR*>
+BOOL CErasureRecycleUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
 {
-public:
-	TCHAR* szRecycle;
-	WIN_OS_TYPE os;
+	CLdArray<CLdString*>* pVolumes = (CLdArray<CLdString*>*)Param;
+	pVolumes->Add(new CLdString(pData));
+	return TRUE;
+};
+
+void CErasureRecycleUI::EnumRecyleFiels()
+{
+	DWORD oldMode;
+	CLdArray<CLdString*> Volumes;
 	CLdString sid;
-	IGernalCallback<LPWIN32_FIND_DATA>* callback;
+	CLdString recyclePath;
 
-	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override
+	SetThreadErrorMode(SEM_FAILCRITICALERRORS, &oldMode);
+	WIN_OS_TYPE os = GetOsType();
+	if (GetCurrentUserSID(sid) != 0)
+		return;
+	CVolumeUtils::MountedVolumes(this, (UINT_PTR)&Volumes);
+
+	for(int i=0; i<Volumes.GetCount(); i++)
 	{
-		CLdString recyclePath = pData;
-		recyclePath += szRecycle;
+		recyclePath = Volumes[i]->GetData();
+		if (os >= Windows_Vista)
+			recyclePath += _T("$RECYCLE.BIN");
+		else
+			recyclePath += _T("RECYCLE");
 
-		switch (CVolumeUtils::GetVolumeFileSystem(pData))
+		switch (CVolumeUtils::GetVolumeFileSystem(Volumes[i]->GetData()))
 		{
 		case FS_NTFS:
 			if (os < Windows_Vista)
@@ -115,30 +162,11 @@ public:
 
 		recyclePath += _T("\\");
 
-		CFileUtils::FindFile(recyclePath, L"*", true, callback, (UINT_PTR)recyclePath.GetData());
+		CFileUtils::FindFile(recyclePath, L"*", true, this, (UINT_PTR)recyclePath.GetData());
 
-		return TRUE;
-	};
-};
-
-void CErasureRecycleUI::EnumRecyleFiels()
-{
-	DWORD oldMode;
-	SetThreadErrorMode(SEM_FAILCRITICALERRORS, &oldMode);
-
-	CVolumeCallbackImp VolumeCallback;
-	VolumeCallback.os = GetOsType();
-	if(GetCurrentUserSID(VolumeCallback.sid) != 0)
-		return ;
-
-	if (VolumeCallback.os >= Windows_Vista)
-		VolumeCallback.szRecycle = _T("$RECYCLE.BIN");
-	else
-	{
-		VolumeCallback.szRecycle = _T("RECYCLE");
+		delete Volumes[i];
 	}
-	VolumeCallback.callback = this;
-	CVolumeUtils::MountedVolumes(&VolumeCallback, 0);
+
 	SetThreadErrorMode(oldMode, &oldMode);
 }
 
@@ -147,7 +175,11 @@ void CErasureRecycleUI::OnInit()
 	btnOk = static_cast<CButtonUI*>(GetUI()->FindSubControl(_T("btnOk")));
 	lstFile = static_cast<CListUI*>(GetUI()->FindSubControl(_T("listview")));
 
+	CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, this, 0);
+
 	EnumRecyleFiels();
+
+	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, this, 0);
 }
 
 void CErasureRecycleUI::OnClick(TNotifyUI& msg)

@@ -6,12 +6,7 @@
         <HorizontalLayout inset="3,0,3,3">
             <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true">
                 <ListHeader height="24" >
-                    <ListHeaderItem text="" width="350" minwidth="100" inset="8,2,8,2">
-                    		<CheckBox name="selall" endellipsis="true"  text="File name"/>
-                    </ListHeaderItem>
-                    <ListHeaderItem text="File size" width="80" minwidth="10" />
-                    <ListHeaderItem text="delete time" width="100" minwidth="10" />
-                    <ListHeaderItem text="create time" width="100" minwidth="10" />
+                    <ListHeaderItem visible="false" text="" width="100" minwidth="10" />
                 </ListHeader>
                 
                 <ListContainerElement height="40" visible="false">

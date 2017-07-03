@@ -155,7 +155,7 @@ OPENFILENAME * CDlgGetFileName::PrepareParam(HWND hOwner)
 VOID CDlgGetFileName::ProcessResult()
 {
 	TCHAR* p = m_ResultFiles;
-	int k = 0;
+	size_t k = 0;
 	while (p[0] != '\0' && k < MAX_PATH)
 	{
 		m_Files.Add(p);
