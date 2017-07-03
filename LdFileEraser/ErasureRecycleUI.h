@@ -23,7 +23,6 @@ private:
 	virtual void OnClick(TNotifyUI& msg);
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
-	void AddErasureFile(TCHAR* lpOrgFileName, LPWIN32_FIND_DATA pData);
 	void EnumRecyleFiels();
 
 protected:

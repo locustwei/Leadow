@@ -33,10 +33,6 @@ HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, HWND hOwnerWnd, IGernalCal
 	CLdArray<TCHAR*> attributeValues;
 	TCHAR del[] = { 0x200E, 0 };
 
-	hr = CoInitialize(nullptr);
-	if (hr == S_FALSE)
-		return hr;
-
 	hr = SHGetDesktopFolder(&pDesktop);
 	if (SUCCEEDED(hr))
 	{
