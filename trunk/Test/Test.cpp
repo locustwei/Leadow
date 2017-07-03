@@ -110,6 +110,9 @@ public:
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override
 	{
 		printf("\n");
+		SHFILEINFO fi;
+		SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
+		printf("%S  ", fi.szDisplayName);
 		for (int i = 1; i < pData->GetCount(); i++)
 		{
 				printf("%S  ", pData->Get(i));

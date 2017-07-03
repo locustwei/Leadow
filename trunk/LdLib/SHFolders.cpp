@@ -119,10 +119,6 @@ HRESULT CSHFolders::EnumFolderColumes(DWORD dwFolder, HWND hOwnerWnd, IGernalCal
 	LPITEMIDLIST	pidl = NULL;
 	SH_HEAD_INFO    colInfo;
 
-	hr = CoInitialize(nullptr);
-	if (hr == S_FALSE)
-		return hr;
-
 	hr = SHGetDesktopFolder(&pDesktop);
 	if (SUCCEEDED(hr))
 	{
