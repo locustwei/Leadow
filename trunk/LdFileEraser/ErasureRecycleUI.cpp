@@ -6,7 +6,7 @@
 
 CErasureRecycleUI::CErasureRecycleUI():
 	m_Columes(),
-	m_RecycledFiles(100)
+	m_RecycledFiles(1000)
 {
 	btnOk = nullptr;
 	lstFile = nullptr;
@@ -66,37 +66,32 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
-void CErasureRecycleUI::AddErasureFile(TCHAR* lpOrgFileName, LPWIN32_FIND_DATA pData)
-{
-	CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
-	if (item->GetTag() != 0)
-	{
-		item = static_cast<CListContainerElementUI*>(item->CloneNew());
-		lstFile->Add(item);
-	}
-	item->SetVisible(true);
-	LPWIN32_FIND_DATA pinfo = new WIN32_FIND_DATA();
-	CopyMemory(pinfo, pData, sizeof(WIN32_FIND_DATA));
-	item->SetTag((UINT_PTR)pinfo);
-	item->SetSubControlText(_T("filename"), lpOrgFileName);
-
-	item->SetSubControlText(_T("filesize"), CFileInfo::FormatFileSize(pinfo->nFileSizeLow));
-	item->SetSubControlText(_T("createtime"), CDateTimeUtils::DateTimeToString(pinfo->ftCreationTime));
-}
-
 BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
 {
-	SHFILEINFO		fi = { 0 };
 	CLdString s = (LPTSTR)Param;
 	s += pData->cFileName;
-	m_RecycledFiles.Insert(pData->cFileName, pData);
+	m_RecycledFiles.Set(pData->cFileName, pData);
 	s.CopyTo(pData->cFileName);
 	return true;
 }
 
 void CErasureRecycleUI::AddLstViewHeader(int ncount)
 {
-
+	CControlUI* col = lstFile->GetHeader()->GetItemAt(0);
+	col->SetVisible(true);
+	while(lstFile->GetHeader()->GetCount()<ncount)
+	{
+		CControlUI* col1 = col->CloneNew();
+		lstFile->GetHeader()->Add(col1);
+	}
+	for(int i=0; i<ncount; i++)
+	{
+		if (i >= m_Columes.GetCount())
+			break;
+		col = lstFile->GetHeader()->GetItemAt(i);
+		col->SetText(m_Columes[i]->szName);
+		col->SetFixedWidth(m_Columes[i]->cxChar * 10);
+	}
 }
 
 BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
@@ -104,8 +99,30 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	SHFILEINFO fi;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
-		AddLstViewHeader(pData->GetCount());
-	return 0;
+		AddLstViewHeader(pData->GetCount() + 1);
+
+	LPWIN32_FIND_DATA* pinfo = m_RecycledFiles.Find(fi.szDisplayName);
+
+	if(pinfo)
+	{
+		CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
+		if (item->GetTag() != 0)
+		{
+			item = static_cast<CListContainerElementUI*>(item->CloneNew());
+			lstFile->Add(item);
+		}
+		item->SetVisible(true);
+		item->SetTag((UINT_PTR)88);
+
+		item->GetItemAt(0)->SetText(fi.szDisplayName);
+		for (int i = 1; i<pData->GetCount(); i++)
+		{
+			CControlUI* ui = item->GetItemAt(i);
+			if (ui)
+				ui->SetText(pData->Get(i));
+		}
+	}
+	return true;
 }
 
 BOOL CErasureRecycleUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)

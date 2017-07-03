@@ -205,7 +205,7 @@ public:
 
 	T* Find(LPCTSTR key, bool optimize = false) const
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return NULL;
+		if (m_nBuckets == 0 || GetSize() == 0) return nullptr;
 
 		UINT slot = HashKey(key) % m_nBuckets;
 		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
@@ -226,26 +226,6 @@ public:
 		}
 
 		return NULL;
-	};
-
-	bool Insert(LPCTSTR key, T pData)
-	{
-		if (m_nBuckets == 0) return false;
-		if (Find(key)) return false;
-
-		// Add first in bucket
-		UINT slot = HashKey(key) % m_nBuckets;
-		HASHMAP_TITEM* pItem = (HASHMAP_TITEM*)new BYTE[sizeof(HASHMAP_TITEM)];   //尝试引用已删除的函数
-		memset(pItem, 0, sizeof(HASHMAP_TITEM));
-		pItem->Key = key;
-		pItem->Data = pData;
-		pItem->pPrev = NULL;
-		pItem->pNext = m_aT[slot];
-		if (pItem->pNext)
-			pItem->pNext->pPrev = pItem;
-		m_aT[slot] = pItem;
-		m_nCount++;
-		return true;
 	};
 
 	LPVOID Set(LPCTSTR key, T pData)
@@ -325,4 +305,25 @@ protected:
 	HASHMAP_TITEM** m_aT;
 	int m_nBuckets;
 	int m_nCount;
+
+	bool Insert(LPCTSTR key, T pData)
+	{
+		if (m_nBuckets == 0) return false;
+		if (Find(key)) return false;
+
+		// Add first in bucket
+		UINT slot = HashKey(key) % m_nBuckets;
+		HASHMAP_TITEM* pItem = (HASHMAP_TITEM*)new BYTE[sizeof(HASHMAP_TITEM)];   //尝试引用已删除的函数
+		memset(pItem, 0, sizeof(HASHMAP_TITEM));
+		pItem->Key = key;
+		pItem->Data = pData;
+		pItem->pPrev = NULL;
+		pItem->pNext = m_aT[slot];
+		if (pItem->pNext)
+			pItem->pNext->pPrev = pItem;
+		m_aT[slot] = pItem;
+		m_nCount++;
+		return true;
+	};
+
 };
