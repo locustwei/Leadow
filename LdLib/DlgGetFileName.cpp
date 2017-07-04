@@ -57,17 +57,17 @@ BOOL CDlgGetFileName::SaveFile(HWND hOwner)
 	return result;
 }
 
-VOID CDlgGetFileName::SetDefaultExt(LPCTSTR lpExt)
+VOID CDlgGetFileName::SetDefaultExt(TCHAR* lpExt)
 {
 	m_DefaultExt = lpExt;
 }
 
-VOID CDlgGetFileName::SetDefaultName(LPCTSTR lpFileName)
+VOID CDlgGetFileName::SetDefaultName(TCHAR* lpFileName)
 {
 	m_DefaultName = lpFileName;
 }
 
-VOID CDlgGetFileName::AddFilter(LPCTSTR lpFilter)
+VOID CDlgGetFileName::AddFilter(TCHAR* lpFilter)
 {
 	m_Filters.Add(lpFilter);
 }
@@ -77,7 +77,7 @@ VOID CDlgGetFileName::SetOption(DWORD dwOption)
 	m_Option = dwOption;
 }
 
-VOID CDlgGetFileName::SetInitDir(LPCTSTR lpFolder)
+VOID CDlgGetFileName::SetInitDir(TCHAR* lpFolder)
 {
 	m_InitDir = lpFolder;
 }
@@ -105,7 +105,7 @@ CLdString CDlgGetFileName::GetFileName(int index, BOOL bWithPath)
 		return m_Files[0];
 }
 
-LPCTSTR CDlgGetFileName::GetFilterStr()
+TCHAR* CDlgGetFileName::GetFilterStr()
 {
 	memset(m_FilterTmp.GetData(), 0, MAX_PATH * sizeof(TCHAR));
 	int k = 0;

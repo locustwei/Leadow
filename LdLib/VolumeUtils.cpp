@@ -37,7 +37,7 @@ DWORD CVolumeInfo::OpenVolume(TCHAR* pGuid)
 
 DWORD CVolumeInfo::OpenVolumePath(const TCHAR* pPath)
 {
-	CLdString path = pPath;
+	CLdString path = (TCHAR*)pPath;
 	if(pPath[wcslen(pPath)-1] != '\\')
 		path += '\\';
 	WCHAR guid[MAX_PATH + 1] = {0};
