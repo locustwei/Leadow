@@ -80,7 +80,7 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 			break;
 		
 		m_tmpDir = Driver;
-		m_tmpDir += +_T("\\");
+		m_tmpDir += '\\';
 
 		WORD wCompressStatus;
 		Result = CFileUtils::GetCompressStatus(m_tmpDir, &wCompressStatus);

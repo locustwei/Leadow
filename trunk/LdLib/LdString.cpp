@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "LdString.h"
+#include <algorithm>
 
 #define reallocstr(pStr, ccSize) (TCHAR*)realloc(pStr, ccSize * sizeof(TCHAR))
 
@@ -23,7 +24,7 @@ CLdString::CLdString(const TCHAR ch)
 	m_pstr[1] = 0;
 }
 
-CLdString::CLdString(LPCTSTR lpsz)
+CLdString::CLdString(TCHAR* lpsz)
 {
 	m_pstr = NULL;
 	Assign(lpsz);
@@ -54,17 +55,17 @@ int CLdString::GetLength() const
 		return (int)_tcslen(m_pstr);
 }
 
-CLdString::operator LPCTSTR() const
+CLdString::operator TCHAR*() const
 {
 	return m_pstr;
 }
 
-CLdString::operator LPTSTR() const
-{
-	return m_pstr;
-}
+//CLdString::operator LPTSTR() const
+//{
+//	return m_pstr;
+//}
 
-void CLdString::Append(LPCTSTR pstr)
+void CLdString::Append(TCHAR* pstr)
 {
 	if (pstr == nullptr)
 		return;
@@ -74,7 +75,7 @@ void CLdString::Append(LPCTSTR pstr)
 	_tcscpy(m_pstr+oLength, pstr);
 }
 
-void CLdString::Assign(LPCTSTR pstr, int cchMax)
+void CLdString::Assign(TCHAR* pstr, int cchMax)
 {
 	if (pstr == NULL)
 	{
@@ -134,7 +135,7 @@ const CLdString& CLdString::operator=(const CLdString& src)
 	return *this;
 }
 
-const CLdString& CLdString::operator=(LPCTSTR lpStr)
+const CLdString& CLdString::operator=(TCHAR* lpStr)
 {
 
 	if (lpStr)
@@ -148,75 +149,79 @@ const CLdString& CLdString::operator=(LPCTSTR lpStr)
 	return *this;
 }
 
+const CLdString& CLdString::operator=(const TCHAR* lpStr)
+{
+	return operator=((TCHAR*) lpStr);
+}
 #ifdef _UNICODE
 
-const CLdString& CLdString::operator=(LPCSTR lpStr)
-{
-	if (lpStr)
-	{
-		int cchStr = (int)strlen(lpStr) + 1;
-		LPWSTR pwstr = reallocstr(NULL, cchStr);
-		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
-		Assign(pwstr);
-	}
-	else
-	{
-		Empty();
-	}
-	return *this;
-}
-
-const CLdString& CLdString::operator+=(LPCSTR lpStr)
-{
-	if (lpStr)
-	{
-		int cchStr = (int)strlen(lpStr) + 1;
-		LPWSTR pwstr = reallocstr(NULL, cchStr);
-		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
-		Append(pwstr);
-	}
-
-	return *this;
-}
+//const CLdString& CLdString::operator=(LPCSTR lpStr)
+//{
+//	if (lpStr)
+//	{
+//		int cchStr = (int)strlen(lpStr) + 1;
+//		LPWSTR pwstr = reallocstr(NULL, cchStr);
+//		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
+//		Assign(pwstr);
+//	}
+//	else
+//	{
+//		Empty();
+//	}
+//	return *this;
+//}
+//
+//const CLdString& CLdString::operator+=(LPCSTR lpStr)
+//{
+//	if (lpStr)
+//	{
+//		int cchStr = (int)strlen(lpStr) + 1;
+//		LPWSTR pwstr = reallocstr(NULL, cchStr);
+//		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
+//		Append(pwstr);
+//	}
+//
+//	return *this;
+//}
 
 #else
 
-const CLdString& CLdString::operator=(LPCWSTR lpwStr)
-{
-	if (lpwStr)
-	{
-		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
-		LPSTR pstr = (LPSTR)_alloca(cchStr);
-		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
-		Assign(pstr);
-	}
-	else
-	{
-		Empty();
-	}
-
-	return *this;
-}
-
-const CLdString& CLdString::operator+=(LPCWSTR lpwStr)
-{
-	if (lpwStr)
-	{
-		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
-		LPSTR pstr = (LPSTR)_alloca(cchStr);
-		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
-		Append(pstr);
-	}
-
-	return *this;
-}
+//const CLdString& CLdString::operator=(LPCWSTR lpwStr)
+//{
+//	if (lpwStr)
+//	{
+//		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
+//		TCHAR* pstr = (TCHAR*)_alloca(cchStr);
+//		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
+//		Assign(pstr);
+//	}
+//	else
+//	{
+//		Empty();
+//	}
+//
+//	return *this;
+//}
+//
+//const CLdString& CLdString::operator+=(TCHAR* lpwStr)
+//{
+//	if (lpwStr)
+//	{
+//		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
+//		TCHAR* pstr = (TCHAR*)_alloca(cchStr);
+//		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
+//		Append(pstr);
+//	}
+//
+//	return *this;
+//}
 
 #endif // _UNICODE
 
 const CLdString& CLdString::operator=(const TCHAR ch)
 {
 	Empty();
-	Assign(&ch, 1);
+	Assign((TCHAR*)&ch, 1);
 	return *this;
 }
 
@@ -227,7 +232,7 @@ CLdString CLdString::operator+(const CLdString& src) const
 	return sTemp;
 }
 
-CLdString CLdString::operator+(LPCTSTR lpStr) const
+CLdString CLdString::operator+(TCHAR* lpStr) const
 {
 	if (lpStr)
 	{
@@ -245,7 +250,7 @@ const CLdString& CLdString::operator+=(const CLdString& src)
 	return *this;
 }
 
-const CLdString& CLdString::operator+=(LPCTSTR lpStr)
+const CLdString& CLdString::operator+=(TCHAR* lpStr)
 {
 	if (lpStr)
 	{
@@ -262,12 +267,12 @@ const CLdString& CLdString::operator+=(const TCHAR ch)
 	return *this;
 }
 
-bool CLdString::operator == (LPCTSTR str) const { return (Compare(str) == 0); };
-bool CLdString::operator != (LPCTSTR str) const { return (Compare(str) != 0); };
-bool CLdString::operator <= (LPCTSTR str) const { return (Compare(str) <= 0); };
-bool CLdString::operator <  (LPCTSTR str) const { return (Compare(str) < 0); };
-bool CLdString::operator >= (LPCTSTR str) const { return (Compare(str) >= 0); };
-bool CLdString::operator >  (LPCTSTR str) const { return (Compare(str) > 0); };
+bool CLdString::operator == (TCHAR* str) const { return (Compare(str) == 0); };
+bool CLdString::operator != (TCHAR* str) const { return (Compare(str) != 0); };
+bool CLdString::operator <= (TCHAR* str) const { return (Compare(str) <= 0); };
+bool CLdString::operator <  (TCHAR* str) const { return (Compare(str) < 0); };
+bool CLdString::operator >= (TCHAR* str) const { return (Compare(str) >= 0); };
+bool CLdString::operator >  (TCHAR* str) const { return (Compare(str) > 0); };
 
 void CLdString::SetAt(int nIndex, TCHAR ch)
 {
@@ -275,7 +280,7 @@ void CLdString::SetAt(int nIndex, TCHAR ch)
 		m_pstr[nIndex] = ch;
 }
 
-int CLdString::Compare(LPCTSTR lpsz) const
+int CLdString::Compare(TCHAR* lpsz) const
 {
 	if (m_pstr == lpsz)
 		return 0;
@@ -286,7 +291,7 @@ int CLdString::Compare(LPCTSTR lpsz) const
 	return _tcscmp(m_pstr, lpsz);
 }
 
-int CLdString::CompareNoCase(LPCTSTR lpsz) const
+int CLdString::CompareNoCase(TCHAR* lpsz) const
 {
 	if (!m_pstr)
 		return -1;
@@ -344,18 +349,18 @@ int CLdString::Find(TCHAR ch, int iPos /*= 0*/) const
 		return -1;
 
 	if (iPos != 0 && (iPos < 0 || iPos >= GetLength())) return -1;
-	LPCTSTR p = _tcschr(m_pstr + iPos, ch);
+	TCHAR* p = _tcschr(m_pstr + iPos, ch);
 	if (p == NULL) return -1;
 	return (int)(p - m_pstr);
 }
 
-int CLdString::Find(LPCTSTR pstrSub, int iPos /*= 0*/) const
+int CLdString::Find(TCHAR* pstrSub, int iPos /*= 0*/) const
 {
 	if (!m_pstr)
 		return -1;
 
 	if (iPos != 0 && (iPos < 0 || iPos > GetLength())) return -1;
-	LPCTSTR p = _tcsstr(m_pstr + iPos, pstrSub);
+	TCHAR* p = _tcsstr(m_pstr + iPos, pstrSub);
 	if (p == NULL) return -1;
 	return (int)(p - m_pstr);
 }
@@ -365,12 +370,12 @@ int CLdString::ReverseFind(TCHAR ch) const
 	if (!m_pstr)
 		return -1;
 
-	LPCTSTR p = _tcsrchr(m_pstr, ch);
+	TCHAR* p = _tcsrchr(m_pstr, ch);
 	if (p == NULL) return -1;
 	return (int)(p - m_pstr);
 }
 
-int CLdString::Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo)
+int CLdString::Replace(TCHAR* pstrFrom, TCHAR* pstrTo)
 {
 	if (!m_pstr || !pstrFrom || pstrFrom[0] == '\0')
 		return -1;
@@ -408,7 +413,7 @@ void CLdString::Delete(int nStart, int nLength)
 	_tcscpy(p, p1);
 }
 
-void CLdString::Insert(int nStart, LPCTSTR lpStr)
+void CLdString::Insert(int nStart, TCHAR* lpStr)
 {
 	if (!m_pstr || nStart < 0 || !lpStr)
 		return;
@@ -420,7 +425,7 @@ void CLdString::Insert(int nStart, LPCTSTR lpStr)
 	*this += s;
 }
 
-int CLdString::Format(LPCTSTR pstrFormat, ...)
+int CLdString::Format(TCHAR* pstrFormat, ...)
 {
 	LPTSTR szSprintf = NULL;
 	va_list argList;

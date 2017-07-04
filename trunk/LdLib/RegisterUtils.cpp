@@ -35,12 +35,12 @@ DWORD CRegisterKey::DeleteRegKey(LPTSTR lpKey)
 	return SHDeleteKey(m_hKey, lpKey);
 }
 
-DWORD CRegisterKey::DeleteValue(LPCTSTR szValue)
+DWORD CRegisterKey::DeleteValue(TCHAR* szValue)
 {
 	return RegDeleteValue(m_hKey, szValue);
 }
 
-inline DWORD CRegisterUtils::RegAccessMode(LPCTSTR szKey, BOOL bReadonly)  //设置注册表访问方式。
+inline DWORD CRegisterUtils::RegAccessMode(TCHAR* szKey, BOOL bReadonly)  //设置注册表访问方式。
 {
 	DWORD result = 0;
 	if (bReadonly)
@@ -67,7 +67,7 @@ HKEY CRegisterUtils::OpenKey(HKEY hRoot, LPTSTR lpKey, BOOL bReadonly)
 	return Result;
 }
 
-DWORD CRegisterUtils::DeleteRegKey(HKEY hRoot, LPCTSTR szKey)
+DWORD CRegisterUtils::DeleteRegKey(HKEY hRoot, TCHAR* szKey)
 {
 	CLdString cszKey;
 	CLdString cszDelKey(szKey);
@@ -89,7 +89,7 @@ DWORD CRegisterUtils::DeleteRegKey(HKEY hRoot, LPCTSTR szKey)
 	return Result;
 }
 
-DWORD CRegisterUtils::DeleteRegValue(HKEY hRoot, LPCTSTR szKey, LPCTSTR szValue)
+DWORD CRegisterUtils::DeleteRegValue(HKEY hRoot, TCHAR* szKey, TCHAR* szValue)
 {
 	DWORD dwDesired = RegAccessMode(szKey, false);
 	HKEY hKey;

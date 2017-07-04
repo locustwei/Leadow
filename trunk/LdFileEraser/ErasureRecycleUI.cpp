@@ -169,7 +169,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 		case FS_NTFS:
 			if (os < Windows_Vista)
 				recyclePath += _T("R");
-			recyclePath += "\\";
+			recyclePath += '\\';
 			recyclePath += sid;
 			break;
 		default:

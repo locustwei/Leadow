@@ -7,51 +7,52 @@ public:
 	CLdString();
 	CLdString(const TCHAR ch);
 	CLdString(const CLdString& src);
-	CLdString(LPCTSTR lpsz);
+	CLdString(TCHAR* lpsz);
 	CLdString(UINT ccSize);
 
 	~CLdString();
 	CLdString ToString();
-
+	
 	void Empty();
 	int GetLength() const;
 	bool IsEmpty() const;
 	TCHAR GetAt(int nIndex) const;
-	void Append(LPCTSTR pstr);
-	void Assign(LPCTSTR pstr, int nLength = -1);
+	void Append(TCHAR* pstr);
+	void Assign(TCHAR* pstr, int nLength = -1);
 	TCHAR* GetData() const;
 	VOID CopyTo(TCHAR* pStr);
 
 	void SetAt(int nIndex, TCHAR ch);
-	operator LPCTSTR() const;
-	operator LPTSTR() const;
+	operator TCHAR*() const;
+//	operator TCHAR*() const;
 
 	TCHAR operator[] (int nIndex) const;
 	const CLdString& operator=(const CLdString& src);
 	const CLdString& operator=(const TCHAR ch);
-	const CLdString& operator=(LPCTSTR pstr);
+	const CLdString& operator=(TCHAR* lpStr);
+	const CLdString& operator=(const TCHAR* lpStr);
 #ifdef _UNICODE
-	const CLdString& CLdString::operator=(LPCSTR lpStr);
-	const CLdString& CLdString::operator+=(LPCSTR lpStr);
+//	const CLdString& CLdString::operator=(LPCSTR lpStr);
+//	const CLdString& CLdString::operator+=(LPCSTR lpStr);
 #else
-	const CLdString& CLdString::operator=(LPCWSTR lpwStr);
-	const CLdString& CLdString::operator+=(LPCWSTR lpwStr);
+//	const CLdString& CLdString::operator=(TCHAR* lpwStr);
+//	const CLdString& CLdString::operator+=(TCHAR* lpwStr);
 #endif
 	CLdString operator+(const CLdString& src) const;
-	CLdString operator+(LPCTSTR pstr) const;
+	CLdString operator+(TCHAR* pstr) const;
 	const CLdString& operator+=(const CLdString& src);
-	const CLdString& operator+=(LPCTSTR pstr);
+	const CLdString& operator+=(TCHAR* pstr);
 	const CLdString& operator+=(const TCHAR ch);
 
-	bool operator == (LPCTSTR str) const;
-	bool operator != (LPCTSTR str) const;
-	bool operator <= (LPCTSTR str) const;
-	bool operator <  (LPCTSTR str) const;
-	bool operator >= (LPCTSTR str) const;
-	bool operator >  (LPCTSTR str) const;
+	bool operator == (TCHAR* str) const;
+	bool operator != (TCHAR* str) const;
+	bool operator <= (TCHAR* str) const;
+	bool operator <  (TCHAR* str) const;
+	bool operator >= (TCHAR* str) const;
+	bool operator >  (TCHAR* str) const;
 
-	int Compare(LPCTSTR pstr) const;
-	int CompareNoCase(LPCTSTR pstr) const;
+	int Compare(TCHAR* pstr) const;
+	int CompareNoCase(TCHAR* pstr) const;
 
 	void MakeUpper();
 	void MakeLower();
@@ -61,13 +62,13 @@ public:
 	CLdString Right(int nLength) const;
 
 	int Find(TCHAR ch, int iPos = 0) const;
-	int Find(LPCTSTR pstr, int iPos = 0) const;
+	int Find(TCHAR* pstr, int iPos = 0) const;
 	int ReverseFind(TCHAR ch) const;
-	int Replace(LPCTSTR pstrFrom, LPCTSTR pstrTo);
+	int Replace(TCHAR* pstrFrom, TCHAR* pstrTo);
 	void Delete(int nStart, int nLength);
-	void Insert(int nStart, LPCTSTR lpStr);
+	void Insert(int nStart, TCHAR* lpStr);
 
-	int __cdecl Format(LPCTSTR pstrFormat, ...);
+	int __cdecl Format(TCHAR* pstrFormat, ...);
 
 	int Try2Int(int Default = 0);
 protected:

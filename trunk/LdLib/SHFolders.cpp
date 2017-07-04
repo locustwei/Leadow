@@ -74,7 +74,7 @@ HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, HWND hOwnerWnd, IGernalCal
 						int k = 0;
 						for(int i=0; i<_tcslen(szTemp); i++)
 						{
-							if(szTemp[i]!=0x200E)
+							//if(szTemp[i]!=0x200E)
 							{
 								sz[k++] = szTemp[i];
 							}

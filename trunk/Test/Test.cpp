@@ -165,7 +165,7 @@ void EnumRecyleFiels()
 		case FS_NTFS:
 			if (os < Windows_Vista)
 				recyclePath += _T("R");
-			recyclePath += "\\";
+			recyclePath += '\\';
 			recyclePath += sid;
 			break;
 		default:
@@ -173,7 +173,7 @@ void EnumRecyleFiels()
 				recyclePath += _T("D");
 		}
 
-		recyclePath += _T("\\");
+		recyclePath += '\\';
 
 		CFileUtils::FindFile(recyclePath, L"*", true, &imp, (UINT_PTR)recyclePath.GetData());
 
@@ -186,7 +186,9 @@ void EnumRecyleFiels()
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
-	EnumRecyleFiels();
+	CoInitialize(nullptr);
+	//EnumRecyleFiels();
+	printf("---------------------------------------------------------------------------------------------------------");
 	//CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, new CColCallbackImp, 0);
 	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, new CCallbackImp, 0);
 	printf("\npress any key exit");

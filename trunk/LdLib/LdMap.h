@@ -138,16 +138,7 @@ template <typename T>
 class CLdHashMap 
 {
 public:
-
-	struct HASHMAP_TITEM
-	{
-		CLdString Key;
-		T Data;
-		struct HASHMAP_TITEM* pPrev;
-		struct HASHMAP_TITEM* pNext;
-	};
-
-	static UINT HashKey(LPCTSTR Key)
+	static UINT HashKey(TCHAR* Key)
 	{
 		UINT i = 0;
 		SIZE_T len = _tcslen(Key);
@@ -157,7 +148,7 @@ public:
 
 	static UINT HashKey(const CLdString& Key)
 	{
-		return HashKey((LPCTSTR)Key);
+		return HashKey((TCHAR*)Key);
 	};
 
 	CLdHashMap(int nSize) : m_nCount(0)
@@ -180,13 +171,15 @@ public:
 
 	void Resize(int nSize)
 	{
-		if (m_aT) {
+		if (m_aT) 
+		{
 			int len = m_nBuckets;
 			while (len--) {
 				HASHMAP_TITEM* pItem = m_aT[len];
 				while (pItem) {
 					HASHMAP_TITEM* pKill = pItem;
 					pItem = pItem->pNext;
+					delete pKill->Key;
 					delete pKill;
 				}
 			}
@@ -203,13 +196,14 @@ public:
 		m_nCount = 0;
 	};
 
-	T* Find(LPCTSTR key, bool optimize = false) const
+	T* Find(TCHAR* key, bool optimize = false) const
 	{
 		if (m_nBuckets == 0 || GetSize() == 0) return nullptr;
 
 		UINT slot = HashKey(key) % m_nBuckets;
 		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
-			if (pItem->Key == key) {
+			if (*pItem->Key == key) 
+			{
 				if (optimize && pItem != m_aT[slot]) {
 					if (pItem->pNext) {
 						pItem->pNext->pPrev = pItem->pPrev;
@@ -221,34 +215,33 @@ public:
 					//将item移动至链条头部
 					m_aT[slot] = pItem;
 				}
-				return &pItem->Data;
+				return &(pItem->Data);
 			}
 		}
 
 		return NULL;
 	};
 
-	LPVOID Set(LPCTSTR key, T pData)
+	LPVOID Set(TCHAR* key, T pData)
 	{
 		if (m_nBuckets == 0) return pData;
 
-		if (GetSize()>0) {
-			UINT slot = HashKey(key) % m_nBuckets;
-			// Modify existing item
-			for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
-				if (pItem->Key == key) {
-					LPVOID pOldData = pItem->Data;
-					pItem->Data = pData;
-					return pOldData;
-				}
+		UINT slot = HashKey(key) % m_nBuckets;
+		// Modify existing item
+		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
+			if (*pItem->Key == key) {
+				LPVOID pOldData = pItem->Data;
+				pItem->Data = pData;
+				return pOldData;
 			}
 		}
 
 		Insert(key, pData);
+
 		return NULL;
 	};
 
-	bool Remove(LPCTSTR key)
+	bool Remove(TCHAR* key)
 	{
 		if (m_nBuckets == 0 || GetSize() == 0) return false;
 
@@ -275,7 +268,7 @@ public:
 		return m_nCount;
 	};
 
-	LPCTSTR GetAt(int iIndex) const
+	TCHAR* GetAt(int iIndex) const
 	{
 		if (m_nBuckets == 0 || GetSize() == 0) return false;
 
@@ -284,7 +277,7 @@ public:
 		while (len--) {
 			for (HASHMAP_TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext) {
 				if (pos++ == iIndex) {
-					return pItem->Key.GetData();
+					return pItem->Key->GetData();
 				}
 			}
 		}
@@ -292,37 +285,49 @@ public:
 		return NULL;
 	};
 
-	LPCTSTR operator[] (int nIndex) const
+	TCHAR* operator[] (int nIndex) const
 	{
 		return GetAt(nIndex);
 	};
 
-	T* operator[] (LPCTSTR key)
+	T* operator[] (TCHAR* key)
 	{
 		return Find(key);
 	};
-protected:
+public:
+
+	struct HASHMAP_TITEM
+	{
+		CLdString* Key;
+		T Data;
+		struct HASHMAP_TITEM* pPrev;
+		struct HASHMAP_TITEM* pNext;
+	};
+
 	HASHMAP_TITEM** m_aT;
 	int m_nBuckets;
 	int m_nCount;
 
-	bool Insert(LPCTSTR key, T pData)
+	bool Insert(TCHAR* key, T pData)
 	{
 		if (m_nBuckets == 0) return false;
-		if (Find(key)) return false;
+		//if (Find(key)) return false;
 
 		// Add first in bucket
 		UINT slot = HashKey(key) % m_nBuckets;
 		HASHMAP_TITEM* pItem = (HASHMAP_TITEM*)new BYTE[sizeof(HASHMAP_TITEM)];   //尝试引用已删除的函数
 		memset(pItem, 0, sizeof(HASHMAP_TITEM));
-		pItem->Key = key;
+		pItem->Key = new CLdString(key);
 		pItem->Data = pData;
 		pItem->pPrev = NULL;
 		pItem->pNext = m_aT[slot];
 		if (pItem->pNext)
 			pItem->pNext->pPrev = pItem;
 		m_aT[slot] = pItem;
+
 		m_nCount++;
+
+
 		return true;
 	};
 

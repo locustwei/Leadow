@@ -10,11 +10,11 @@ public:
 
 	BOOL OpenFile(HWND hOwner);
 	BOOL SaveFile(HWND hOwner);
-	VOID SetDefaultExt(LPCTSTR lpExt);
-	VOID SetDefaultName(LPCTSTR lpFileName);
-	VOID AddFilter(LPCTSTR lpFilter);
+	VOID SetDefaultExt(TCHAR* lpExt);
+	VOID SetDefaultName(TCHAR* lpFileName);
+	VOID AddFilter(TCHAR* lpFilter);
 	VOID SetOption(DWORD dwOption);
-	VOID SetInitDir(LPCTSTR lpFolder);
+	VOID SetInitDir(TCHAR* lpFolder);
 	int GetFileCount();
 	//************************************
 	// Qualifier: 对话框返回的文件名（多选时第0个为路径）
@@ -36,7 +36,7 @@ private:
 	CLdString m_DefaultName;
 	DWORD m_Option;
 
-	LPCWSTR GetFilterStr();
+	TCHAR* GetFilterStr();
 	OPENFILENAME* PrepareParam(HWND hOwner);
 	VOID ProcessResult();
 };
