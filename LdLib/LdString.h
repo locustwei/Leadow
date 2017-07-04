@@ -21,6 +21,7 @@ public:
 	void Assign(TCHAR* pstr, int nLength = -1);
 	TCHAR* GetData() const;
 	VOID CopyTo(TCHAR* pStr);
+	void Trim();
 
 	void SetAt(int nIndex, TCHAR ch);
 	operator TCHAR*() const;
@@ -31,13 +32,6 @@ public:
 	const CLdString& operator=(const TCHAR ch);
 	const CLdString& operator=(TCHAR* lpStr);
 	const CLdString& operator=(const TCHAR* lpStr);
-#ifdef _UNICODE
-//	const CLdString& CLdString::operator=(LPCSTR lpStr);
-//	const CLdString& CLdString::operator+=(LPCSTR lpStr);
-#else
-//	const CLdString& CLdString::operator=(TCHAR* lpwStr);
-//	const CLdString& CLdString::operator+=(TCHAR* lpwStr);
-#endif
 	CLdString operator+(const CLdString& src) const;
 	CLdString operator+(TCHAR* pstr) const;
 	const CLdString& operator+=(const CLdString& src);
