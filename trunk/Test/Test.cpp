@@ -131,7 +131,8 @@ public:
 	}
 	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
 	{
-		printf("%S\n", pData->cFileName);
+		static int i = 0;
+		printf("%d %S\n", i++, pData->cFileName);
 		return true;
 	}
 };
@@ -187,10 +188,10 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
-	//EnumRecyleFiels();
+	EnumRecyleFiels();
 	printf("---------------------------------------------------------------------------------------------------------");
 	//CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, new CColCallbackImp, 0);
-	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, new CCallbackImp, 0);
+	//CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, new CCallbackImp, 0);
 	printf("\npress any key exit");
 	getchar();
 	return 0;

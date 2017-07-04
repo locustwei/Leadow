@@ -115,6 +115,28 @@ VOID CLdString::CopyTo(TCHAR * pStr)
 		_tcscpy(pStr, m_pstr);
 }
 
+void CLdString::Trim()
+{
+	if (!m_pstr)
+		return;
+	for(int i=GetLength()-1;i>0;i--)
+	{
+		if (m_pstr[i] == ' ')
+		{
+			m_pstr[i + 1] = '\0';
+			break;
+		}
+	}
+	for(int i=0; i<GetLength(); i++)
+	{
+		if(m_pstr[i]!=' ')
+		{
+			Delete(0, i);
+			break;
+		}
+	}
+}
+
 TCHAR CLdString::GetAt(int nIndex) const
 {
 	if (!m_pstr)
@@ -153,71 +175,6 @@ const CLdString& CLdString::operator=(const TCHAR* lpStr)
 {
 	return operator=((TCHAR*) lpStr);
 }
-#ifdef _UNICODE
-
-//const CLdString& CLdString::operator=(LPCSTR lpStr)
-//{
-//	if (lpStr)
-//	{
-//		int cchStr = (int)strlen(lpStr) + 1;
-//		LPWSTR pwstr = reallocstr(NULL, cchStr);
-//		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
-//		Assign(pwstr);
-//	}
-//	else
-//	{
-//		Empty();
-//	}
-//	return *this;
-//}
-//
-//const CLdString& CLdString::operator+=(LPCSTR lpStr)
-//{
-//	if (lpStr)
-//	{
-//		int cchStr = (int)strlen(lpStr) + 1;
-//		LPWSTR pwstr = reallocstr(NULL, cchStr);
-//		if (pwstr != NULL) ::MultiByteToWideChar(::GetACP(), 0, lpStr, -1, pwstr, cchStr);
-//		Append(pwstr);
-//	}
-//
-//	return *this;
-//}
-
-#else
-
-//const CLdString& CLdString::operator=(LPCWSTR lpwStr)
-//{
-//	if (lpwStr)
-//	{
-//		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
-//		TCHAR* pstr = (TCHAR*)_alloca(cchStr);
-//		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
-//		Assign(pstr);
-//	}
-//	else
-//	{
-//		Empty();
-//	}
-//
-//	return *this;
-//}
-//
-//const CLdString& CLdString::operator+=(TCHAR* lpwStr)
-//{
-//	if (lpwStr)
-//	{
-//		int cchStr = ((int)wcslen(lpwStr) * 2) + 1;
-//		TCHAR* pstr = (TCHAR*)_alloca(cchStr);
-//		if (pstr != NULL) ::WideCharToMultiByte(::GetACP(), 0, lpwStr, -1, pstr, cchStr, NULL, NULL);
-//		Append(pstr);
-//	}
-//
-//	return *this;
-//}
-
-#endif // _UNICODE
-
 const CLdString& CLdString::operator=(const TCHAR ch)
 {
 	Empty();

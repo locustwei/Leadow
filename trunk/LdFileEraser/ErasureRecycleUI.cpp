@@ -6,7 +6,7 @@
 
 CErasureRecycleUI::CErasureRecycleUI():
 	m_Columes(),
-	m_RecycledFiles(1000)
+	m_RecycledFiles(200)
 {
 	btnOk = nullptr;
 	lstFile = nullptr;
@@ -22,6 +22,12 @@ CErasureRecycleUI::~CErasureRecycleUI()
 		delete m_Columes[i];
 	}
 	m_Columes.Clear();
+	for(int i=0; i<m_RecycledFiles.GetSize(); i++)
+	{
+		LPWIN32_FIND_DATA p;
+		if(m_RecycledFiles.GetValueAt(i, p))
+			delete p;
+	}
 }
 
 VOID CErasureRecycleUI::ThreadRun(CThread* Sender, WPARAM Param)
@@ -45,8 +51,6 @@ VOID CErasureRecycleUI::OnThreadInit(CThread* Sender, WPARAM Param)
 VOID CErasureRecycleUI::OnThreadTerminated(CThread* Sender, WPARAM Param)
 {
 	CListContainerElementUI* ui = reinterpret_cast<CListContainerElementUI*>(Param);
-	LPWIN32_FIND_DATA pinfo = reinterpret_cast<LPWIN32_FIND_DATA>(ui->GetTag());
-	delete pinfo;
 	lstFile->Remove(ui);
 }
 
@@ -69,9 +73,11 @@ DUI_END_MESSAGE_MAP()
 BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
 {
 	CLdString s = (LPTSTR)Param;
-	s += pData->cFileName;
-	m_RecycledFiles.Set(pData->cFileName, pData);
-	s.CopyTo(pData->cFileName);
+	LPWIN32_FIND_DATA p = new WIN32_FIND_DATA;
+	MoveMemory(p, pData, sizeof(WIN32_FIND_DATA));
+	s += p->cFileName;
+	m_RecycledFiles.Set(p->cFileName, p);
+	s.CopyTo(p->cFileName);
 	return true;
 }
 
@@ -101,9 +107,9 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
 		AddLstViewHeader(pData->GetCount() + 1);
 
-	LPWIN32_FIND_DATA* pinfo = m_RecycledFiles.Find(fi.szDisplayName);
+	LPWIN32_FIND_DATA pinfo;
 
-	if(pinfo)
+	if(m_RecycledFiles.Find(fi.szDisplayName, pinfo))
 	{
 		CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
 		if (item->GetTag() != 0)
@@ -112,14 +118,20 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 			lstFile->Add(item);
 		}
 		item->SetVisible(true);
-		item->SetTag((UINT_PTR)88);
+		item->SetTag((UINT_PTR)pinfo);
 
-		item->GetItemAt(0)->SetText(fi.szDisplayName);
 		for (int i = 1; i<pData->GetCount(); i++)
 		{
-			CControlUI* ui = item->GetItemAt(i);
+			CControlUI* ui = item->GetItemAt(i-1);
 			if (ui)
-				ui->SetText(pData->Get(i));
+			{
+				CControlUI* cap = ui->FindSubControl(_T("caption"));
+				if (cap)
+					cap->SetText(pData->Get(i));
+				else
+					ui->SetText(pData->Get(i));
+
+			}
 		}
 	}
 	return true;
@@ -204,17 +216,16 @@ void CErasureRecycleUI::OnClick(TNotifyUI& msg)
 	CDuiString name = msg.pSender->GetName();
 	if (msg.pSender == btnOk)
 	{
+		CLdString s;
 		for (int i = 0; i < lstFile->GetCount(); i++)
 		{
 			CControlUI* control = lstFile->GetItemAt(i);
-			COptionUI* selectui = (COptionUI*)control->FindSubControl(_T("select"));
-			if(selectui->IsSelected())
+			COptionUI* sel = (COptionUI*)control->FindSubControl(_T("select"));
+			if(!sel || (sel && sel->IsSelected()))
 			{
 				CThread* thread = new CThread(this);
 				thread->Start(WPARAM(control));
 			}
-			//CErasure erasure;
-			//erasure.FileErasure(pinfo->GetFileName(), CErasureMethod::Pseudorandom(), this);
 		}
 	}
 }

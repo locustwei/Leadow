@@ -157,6 +157,24 @@ public:
 		m_nBuckets = nSize;
 		m_aT = new HASHMAP_TITEM*[nSize];
 		memset(m_aT, 0, nSize * sizeof(HASHMAP_TITEM*));
+	}
+
+	BOOL GetValueAt(int iIndex, T& value)
+	{
+		if (m_nBuckets == 0 || GetSize() == 0) return false;
+
+		int pos = 0;
+		int len = m_nBuckets;
+		while (len--) {
+			for (HASHMAP_TITEM* pItem = m_aT[len]; pItem; pItem = pItem->pNext) {
+				if (pos++ == iIndex) {
+					value = pItem->Data;
+					return true;
+				}
+			}
+		}
+
+		return false;
 	};
 
 	~CLdHashMap()
@@ -196,9 +214,9 @@ public:
 		m_nCount = 0;
 	};
 
-	T* Find(TCHAR* key, bool optimize = false) const
+	bool Find(TCHAR* key, T& value, bool optimize = false) const
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return nullptr;
+		if (m_nBuckets == 0 || GetSize() == 0) return false;
 
 		UINT slot = HashKey(key) % m_nBuckets;
 		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
@@ -215,11 +233,12 @@ public:
 					//将item移动至链条头部
 					m_aT[slot] = pItem;
 				}
-				return &(pItem->Data);
+				value = pItem->Data;
+				return true;
 			}
 		}
 
-		return NULL;
+		return false;
 	};
 
 	LPVOID Set(TCHAR* key, T pData)
