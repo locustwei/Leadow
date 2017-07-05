@@ -6,6 +6,9 @@
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
+	if (!CLdApp::Initialize(hInstance))
+		return 0;
+	
 	CPaintManagerUI::SetInstance(hInstance);
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
 
@@ -20,7 +23,15 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);
  
-	CPaintManagerUI::MessageLoop();
+	MSG msg = { 0 };
+	while (::GetMessage(&msg, NULL, 0, 0)) {
+		if (msg.hwnd == NULL)
+			CLdApp::MainThreadMessage(msg);
+		if (!CPaintManagerUI::TranslateMessage(&msg)) {
+			::TranslateMessage(&msg);
+			::DispatchMessage(&msg);
+		}
+	}
 
 	::CoUninitialize();
 	return 0;

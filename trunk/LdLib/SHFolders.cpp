@@ -29,7 +29,7 @@ HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, HWND hOwnerWnd, IGernalCal
 	IShellFolder2*	pFolder = NULL;
 	LPENUMIDLIST    penumFiles = nullptr;
 	LPITEMIDLIST	pidl = NULL;
-	SHFILEINFO		fi;
+	//SHFILEINFO		fi;
 	CLdArray<TCHAR*> attributeValues;
 	TCHAR del[] = { 0x200E, 0 };
 
@@ -47,57 +47,48 @@ HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, HWND hOwnerWnd, IGernalCal
 	}
 
 	if (SUCCEEDED(hr))
+		hr = pFolder->EnumObjects(hOwnerWnd, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFiles);
+
+	if (SUCCEEDED(hr))
 	{
-		pFolder->EnumObjects(hOwnerWnd, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFiles);
-		if (SUCCEEDED(hr))
+		while (hr = penumFiles->Next(1, &pidl, NULL) != S_FALSE)
 		{
-			while (hr = penumFiles->Next(1, &pidl, NULL) != S_FALSE)
+			attributeValues.Add((TCHAR*)pidl);
+			int iSubItem = 0;
+			SHELLDETAILS sd = { 0 };
+			while (SUCCEEDED(pFolder->GetDetailsOf(pidl, iSubItem, &sd) ))
 			{
-
-//				ZeroMemory(&fi, sizeof(fi));
-//				hr = SHGetFileInfo((LPCTSTR)pidl, 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
-//				if (SUCCEEDED(hr))
-//				{
-//					attributeValues.Add((TCHAR*)pidl);
-//				}
-				attributeValues.Add((TCHAR*)pidl);
-				int iSubItem = 0;
-				while (SUCCEEDED(hr))
-				{
-					SHELLDETAILS sd = { 0 };
-					TCHAR* szTemp = nullptr;
-					hr = pFolder->GetDetailsOf(pidl, iSubItem, &sd);
-					if (SUCCEEDED(hr))
-					{
-						StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
-						TCHAR* sz = new TCHAR[_tcslen(szTemp) +1];
-						int k = 0;
-						for(int i=0; i<_tcslen(szTemp); i++)
-						{
-							//if(szTemp[i]!=0x200E)
-							{
-								sz[k++] = szTemp[i];
-							}
-						}
-						sz[k++] = '\0';
-						attributeValues.Add(sz);
-						CoTaskMemFree(szTemp);
-					}
-					iSubItem++;
-				}
-
-				if (!callback->GernalCallback_Callback(&attributeValues, Param))
-					hr = S_FALSE;
-
-				CoTaskMemFree(pidl);
-				for (int i = 1; i<attributeValues.GetCount(); i++)
-				{
-					delete attributeValues[i];
-				}
-				attributeValues.Clear();
+				TCHAR* szTemp = nullptr;
+				//hr = pFolder->GetDetailsOf(pidl, iSubItem, &sd);
+				StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
+				TCHAR* sz = new TCHAR[_tcslen(szTemp) +1];
+				_tcscpy(sz, szTemp);
+				attributeValues.Add(sz);
+				CoTaskMemFree(szTemp);
+				iSubItem++;
 			}
+
+			if (!callback->GernalCallback_Callback(&attributeValues, Param))
+			{
+				CoTaskMemFree(pidl);
+				break;
+			}
+			CoTaskMemFree(pidl);
+
+			for (int i = 1; i<attributeValues.GetCount(); i++)
+			{
+				delete attributeValues[i];
+			}
+			attributeValues.Clear();
+
 		}
 	}
+
+	for (int i = 1; i<attributeValues.GetCount(); i++)
+	{
+		delete attributeValues[i];
+	}
+	attributeValues.Clear();
 
 	if (pDesktop)
 		pDesktop->Release();

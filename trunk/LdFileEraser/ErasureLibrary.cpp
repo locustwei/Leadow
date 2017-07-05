@@ -30,7 +30,10 @@ CErasureLibrary* g_Library = NULL;
 IErasureLibrary LDLIB_API * API_Init(PAuthorization)
 {
 	if (!g_Library)
+	{
+		CLdApp::Initialize(nullptr);
 		g_Library = new CErasureLibrary();
+	}
 	return g_Library;
 }
 

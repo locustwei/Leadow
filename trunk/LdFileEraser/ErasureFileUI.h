@@ -1,6 +1,6 @@
 #pragma once
 
-class LDLIB_API CErasureFileUI : public CFramWnd, IRunable
+class LDLIB_API CErasureFileUI : public CFramWnd, IThreadRunable
 {
 public:
 	CErasureFileUI();

@@ -22,7 +22,7 @@ VOID CErasureFileUI::ThreadRun(CThread* Sender, WPARAM Param)
 	CListContainerElementUI* ui = (CListContainerElementUI*)Param;
 	CFileInfo* pinfo = (CFileInfo*)ui->GetTag();
 	CErasure erasure;
-	CErasureProcess* pProcess = new CErasureProcess();
+	CErasureThread* pProcess = (CErasureThread*)Sender;
 	pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
 	if (pProcess->ui)
 		pProcess->ui->SetVisible(true);

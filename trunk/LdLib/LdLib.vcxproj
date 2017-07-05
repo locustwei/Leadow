@@ -178,6 +178,7 @@
     <ClCompile Include="FormatSettings.cpp" />
     <ClCompile Include="HandleUitls.cpp" />
     <ClCompile Include="LdDriver.cpp" />
+    <ClCompile Include="LdLib.cpp" />
     <ClCompile Include="LdNamedPipe.cpp" />
     <ClCompile Include="LdString.cpp" />
     <ClCompile Include="NtfsUtils.cpp" />

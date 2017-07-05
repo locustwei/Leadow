@@ -11,10 +11,7 @@
                 
                 <ListContainerElement height="40" visible="false">
                 		<VerticalLayout inset="4,0,4,0">
-                				<HorizontalLayout>
-														<CheckBox name="select" height="20" width="20" />
-														<Label name="caption" text="" padding="0,0,5,0"/>
-												</HorizontalLayout>
+												<Label name="caption" text="" padding="0,0,5,0"/>
 												<Progress name="progress" visible="false" min="0" max="100" value="20" />
 										</VerticalLayout>
 										<Label text="" padding="5,0,5,0"/>

@@ -39,6 +39,10 @@ public:
 	const CLdString& operator+=(const TCHAR ch);
 
 	bool operator == (TCHAR* str) const;
+	bool operator == (const TCHAR* str) const
+	{
+		return *this == (TCHAR*)str;
+	};
 	bool operator != (TCHAR* str) const;
 	bool operator <= (TCHAR* str) const;
 	bool operator <  (TCHAR* str) const;

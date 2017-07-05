@@ -18,7 +18,7 @@
 #include "StructDefines.h"
 #include "ExportFunction.h"
 
-class CDiskVolume: public IVolumeInterface, IMftReadeHolder, IRecordFileHolder,IRunable
+class CDiskVolume: public IVolumeInterface, IMftReadeHolder, IRecordFileHolder,IThreadRunable
 {
 public:
 	CDiskVolume(void);

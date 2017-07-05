@@ -1,11 +1,11 @@
 #pragma once
 #include "Erasure.h"
 
-class CErasureProcess: public IErasureCallback, public IRunable
+class CErasureThread: public CThread, public IErasureCallback
 {
 public:
-	CErasureProcess();
-	~CErasureProcess();
+	CErasureThread(IThreadRunable* run);
+	~CErasureThread();
 
 	CProgressUI* ui;
 
@@ -13,9 +13,9 @@ public:
 	virtual BOOL ErasureCompleted(UINT nStep, DWORD dwErroCode) override;
 	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) override;
 
-	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) override;
-	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) override;
-	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) override;
+//	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) override;
+//	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) override;
+//	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) override;
 
 };
 

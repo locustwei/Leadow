@@ -1,21 +1,22 @@
 #pragma once
 
 #include "stdafx.h"
-#include <process.h>
+#include "LdStructs.h"
 
 class CThread;
 
-struct IRunable{
-	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) = 0;
-	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) = 0;
-	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) = 0;
+class IThreadRunable{
+public:
+	virtual VOID ThreadRun(CThread* Sender, UINT_PTR Param) = 0;
+	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) = 0;
+	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) = 0;
 };
 
 class CThread
 {
 public:
 	CThread(void);
-	CThread(IRunable* pRumer);
+	CThread(IThreadRunable* pRumer);
 	~CThread(void);
 
 	int	GetPriority();
@@ -23,7 +24,7 @@ public:
 	DWORD Suspend();
 	DWORD Resume();
 	HANDLE GetHandle() const;
-	DWORD GetId() const;
+	DWORD GetId() const;  //线程Id
 	BOOL  IsAlive() const;
 	
 	bool GetFreeOnTerminate() const;
@@ -31,8 +32,21 @@ public:
 	bool GetTerminated() const;
 	VOID SetTerminatee(bool value);
 
-	virtual int Start(WPARAM Param);
+	/*
+	开始线程
+	Param 回传到线程回掉函数
+	*/
+	virtual int Start(UINT_PTR Param);
+	/*
+	结束线程
+	dwWaitTime 等待线程结束时间，
+	uExitCode 线程结束返回值
+	*/
 	virtual DWORD Terminate(DWORD dwWaitTime = 0, DWORD uExitCode = 0);
+	/*
+	替换系统Sleep函数可以使用Wakeup结束Sleep
+	dwMilliseconds 睡眠时间
+	*/
 	DWORD Sleep(DWORD dwMilliseconds);
 	VOID Wakeup(HANDLE hEvent) const;
 protected:
@@ -41,13 +55,13 @@ protected:
 	BOOL m_Terminated;
 	HANDLE m_hSleep;
 private:
-	volatile HANDLE	m_hThread;		
-	volatile DWORD	m_ThreadId;	
-	IRunable* m_Runer;
+	HANDLE m_hThread;		
+	DWORD m_ThreadId;	
+	IThreadRunable* m_Runer;
 	bool m_FreeOnTerminate;
 	WPARAM m_Param;
 	VOID ResetHandle();
-	static unsigned __stdcall ThreadProcedure(LPVOID pParam);
+	static DWORD WINAPI ThreadProcedure(LPVOID pParam);
 	void DoTerminated();
 };
 

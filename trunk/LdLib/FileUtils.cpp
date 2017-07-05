@@ -182,7 +182,7 @@ DWORD CFileUtils::FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGe
 			(Data.cFileName[0] == '.' && Data.cFileName[1] == '.' && Data.cFileName[3] == '\0'))
 			continue;
 
-		if (!callback->GernalCallback_Callback(&Data, Param))
+		if (!callback->GernalCallback_Callback(&Data, (UINT_PTR)path.GetData()))
 			break;
 		if(bSubDir && (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
 		{
