@@ -47,6 +47,7 @@
     <ClCompile Include="SHFolders.cpp">
       <Filter>Native</Filter>
     </ClCompile>
+    <ClCompile Include="LdLib.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />

@@ -161,7 +161,7 @@ public:
 
 	BOOL GetValueAt(int iIndex, T& value)
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return false;
+		if (m_nBuckets == 0 || GetCount() == 0) return false;
 
 		int pos = 0;
 		int len = m_nBuckets;
@@ -216,7 +216,7 @@ public:
 
 	bool Find(TCHAR* key, T& value, bool optimize = false) const
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return false;
+		if (m_nBuckets == 0 || GetCount() == 0) return false;
 
 		UINT slot = HashKey(key) % m_nBuckets;
 		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
@@ -262,34 +262,34 @@ public:
 
 	bool Remove(TCHAR* key)
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return false;
+		if (m_nBuckets == 0 || GetCount() == 0) return false;
 
 		UINT slot = HashKey(key) % m_nBuckets;
-		HASHMAP_TITEM** ppItem = &m_aT[slot];
-		while (*ppItem) {
-			if ((*ppItem)->Key == key) {
-				HASHMAP_TITEM* pKill = *ppItem;
-				*ppItem = (*ppItem)->pNext;
-				if (*ppItem)
-					(*ppItem)->pPrev = pKill->pPrev;
-				delete pKill;
-				m_nCount--;
+		for (HASHMAP_TITEM* pItem = m_aT[slot]; pItem; pItem = pItem->pNext) {
+			if (*pItem->Key == key)
+			{
+				if (m_aT[slot] == pItem)
+					m_aT[slot] = pItem->pNext;
+
+				if (pItem->pNext)
+					pItem->pNext->pPrev = pItem->pPrev;
+				if (pItem->pPrev)
+					pItem->pPrev->pNext = pItem->pNext;
+
 				return true;
 			}
-			ppItem = &((*ppItem)->pNext);
 		}
-
 		return false;
 	};
 
-	int GetSize() const
+	int GetCount() const
 	{
 		return m_nCount;
 	};
 
 	TCHAR* GetAt(int iIndex) const
 	{
-		if (m_nBuckets == 0 || GetSize() == 0) return false;
+		if (m_nBuckets == 0 || GetCount() == 0) return false;
 
 		int pos = 0;
 		int len = m_nBuckets;

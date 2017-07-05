@@ -1,37 +1,35 @@
 #include "stdafx.h"
 #include "ErasureProcess.h"
 
-
-
-CErasureProcess::CErasureProcess()
+CErasureThread::CErasureThread(IThreadRunable* run):CThread(run)
 {
 	ui = NULL;
 }
 
 
-CErasureProcess::~CErasureProcess()
+CErasureThread::~CErasureThread()
 {
 }
 
-BOOL CErasureProcess::ErasureStart(UINT nStepCount)
+BOOL CErasureThread::ErasureStart(UINT nStepCount)
 {
 	if (ui)
 	{
 		ui->SetVisible(true);
 	}
-	return TRUE;
+	return !GetTerminated();
 }
 
-BOOL CErasureProcess::ErasureCompleted(UINT nStep, DWORD dwErroCode)
+BOOL CErasureThread::ErasureCompleted(UINT nStep, DWORD dwErroCode)
 {
 	if (ui)
 	{
 		ui->SetVisible(false);
 	}
-	return TRUE;
+	return !GetTerminated();
 }
 
-BOOL CErasureProcess::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent)
+BOOL CErasureThread::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent)
 {
 	if (nMaxCount <= 0)
 		return FALSE;
@@ -41,17 +39,5 @@ BOOL CErasureProcess::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCure
 		//ui->SetMaxValue(nMaxCount);
 		ui->SetValue(nCurent * 100 / nMaxCount);
 	}
-	return TRUE;
-}
-
-VOID CErasureProcess::ThreadRun(CThread* Sender, WPARAM Param)
-{
-}
-
-VOID CErasureProcess::OnThreadInit(CThread* Sender, WPARAM Param)
-{
-}
-
-VOID CErasureProcess::OnThreadTerminated(CThread* Sender, WPARAM Param)
-{
+	return !GetTerminated();
 }

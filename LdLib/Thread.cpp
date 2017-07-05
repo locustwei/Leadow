@@ -7,7 +7,7 @@ CThread::CThread(void)
 	ThreadInit();
 }
 
-CThread::CThread(IRunable* pRumer)
+CThread::CThread(IThreadRunable* pRumer)
 {
 	ThreadInit();
 	m_Runer = pRumer;
@@ -50,7 +50,7 @@ DWORD CThread::GetId() const
 	 return m_ThreadId; 
 }
 
-int CThread::Start(WPARAM Param)
+int CThread::Start(UINT_PTR Param)
 {
 	if (m_hThread != INVALID_HANDLE_VALUE)		
 		return -1;
@@ -60,7 +60,7 @@ int CThread::Start(WPARAM Param)
 	if(m_Runer)
 		m_Runer->OnThreadInit(this, m_Param);
 
-	m_hThread = (HANDLE)_beginthreadex(NULL, 0, ThreadProcedure, this, 0, (unsigned int*)&m_ThreadId);
+	m_hThread = CreateThread(nullptr, 0, &ThreadProcedure, this, 0, &m_ThreadId);
 
 	if (!m_hThread)	
 		return -3;
@@ -80,7 +80,7 @@ VOID CThread::ResetHandle()
 
 }
 
-unsigned __stdcall CThread::ThreadProcedure(LPVOID pParam)
+DWORD WINAPI CThread::ThreadProcedure(LPVOID pParam)
 {
 	CThread* pThis = (CThread*)pParam;
 

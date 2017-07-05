@@ -55,7 +55,10 @@ public:
 	//获取文件压缩状态（Windows 文件属性非ZIP）
 	static DWORD GetCompressStatus(LPTSTR lpFullName, PWORD pStatus);
 	static BOOL SetCompression(LPTSTR lpFullName, BOOL bCompress);
-	//FindFirst, FindNext 搜索目录
+	/*
+	FindFirst, FindNext 搜索目录
+	Param 固定为目录字符串（PCHAR*）
+	*/
 	static DWORD FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param);
 };
 

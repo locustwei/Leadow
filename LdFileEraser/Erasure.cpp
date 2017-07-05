@@ -117,19 +117,23 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasur
 	if (!callbck->ErasureStart(method.GetPassCount()))
 		return ERROR_CANCELED;
 
-	HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return GetLastError();
-	
-	LARGE_INTEGER fileSize;
-	if (!GetFileSizeEx(hFile, &fileSize))
-		result = GetLastError();
+	DWORD dwAttr = GetFileAttributes(lpFileName);
+	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+	{
+		HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+			return GetLastError();
+
+		LARGE_INTEGER fileSize;
+		if (!GetFileSizeEx(hFile, &fileSize))
+			result = GetLastError();
 
 
-	if (result == 0 && fileSize.QuadPart > 0)
-		result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+		if (result == 0 && fileSize.QuadPart > 0)
+			result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
 
-	CloseHandle(hFile);
+		CloseHandle(hFile);
+	}
 
 	m_Tmpfiles.Add(lpFileName);
 	if(result == 0)
@@ -457,10 +461,11 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 	{
 		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL);
 		if(hFile == INVALID_HANDLE_VALUE)
-			continue;
-		SetEndOfFile(hFile);
-		ResetFileDate(hFile);
-		CloseHandle(hFile);
+		{
+			SetEndOfFile(hFile);
+			ResetFileDate(hFile);
+			CloseHandle(hFile);
+		};
 		DeleteFile(m_Tmpfiles[i]);
 		if(callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
