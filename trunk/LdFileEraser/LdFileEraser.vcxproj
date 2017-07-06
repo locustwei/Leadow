@@ -163,7 +163,7 @@
     <ClCompile Include="ErasureMainWnd.cpp" />
     <ClCompile Include="ErasureMethod.cpp" />
     <ClCompile Include="ErasureLibrary.cpp" />
-    <ClCompile Include="ErasureProcess.cpp" />
+    <ClCompile Include="ErasureThread.cpp" />
     <ClCompile Include="ErasureRecycleUI.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Erasure.cpp" />
@@ -173,7 +173,7 @@
     <ClInclude Include="ErasureMainWnd.h" />
     <ClInclude Include="ErasureMethod.h" />
     <ClInclude Include="ErasureLibrary.h" />
-    <ClInclude Include="ErasureProcess.h" />
+    <ClInclude Include="ErasureThread.h" />
     <ClInclude Include="ErasureRecycleUI.h" />
     <ClInclude Include="FileEraser.h" />
     <ClInclude Include="stdafx.h" />

@@ -19,3 +19,32 @@ public:
 
 };
 
+#define MAX_THREAD_COUNT 6  //同时开启文件擦除线程数
+//擦除线程数组，
+class CEreaserThrads : public CLdArray<CThread*>
+{
+public:
+	CEreaserThrads()
+	{
+		InitializeCriticalSection(&cs);
+	}
+
+	void StopThreads()
+	{
+		EnterCriticalSection(&cs);
+		for (int i = 0; i < GetCount(); i++)
+			Get(i)->SetTerminatee(true);
+		LeaveCriticalSection(&cs);
+	};
+
+	CThread* AddThread(IThreadRunable* run, UINT_PTR Param);
+
+	void RemoveThread(CThread* thread)
+	{
+		EnterCriticalSection(&cs);
+		Remove(thread);
+		LeaveCriticalSection(&cs);
+	};
+private:
+	CRITICAL_SECTION cs;
+};

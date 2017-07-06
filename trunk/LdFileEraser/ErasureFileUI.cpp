@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
-#include "ErasureProcess.h"
-
+#include "ErasureThread.h"
 
 CErasureFileUI::CErasureFileUI()
 {
