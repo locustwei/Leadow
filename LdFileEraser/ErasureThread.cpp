@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "ErasureProcess.h"
+#include "ErasureThread.h"
 
 CErasureThread::CErasureThread(IThreadRunable* run):CThread(run)
 {
@@ -40,4 +40,14 @@ BOOL CErasureThread::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCuren
 		ui->SetValue(nCurent * 100 / nMaxCount);
 	}
 	return !GetTerminated();
+}
+
+CThread* CEreaserThrads::AddThread(IThreadRunable* run, UINT_PTR Param)
+{
+	EnterCriticalSection(&cs);
+	CErasureThread* result = new CErasureThread(run);
+	Add(result);
+	result->Start(Param);
+	LeaveCriticalSection(&cs);
+	return result;
 }

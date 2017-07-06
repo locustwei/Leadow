@@ -39,10 +39,10 @@
     <ClCompile Include="ErasureLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureProcess.cpp">
+    <ClCompile Include="ErasureRecycleUI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureRecycleUI.cpp">
+    <ClCompile Include="ErasureThread.cpp">
       <Filter>UI</Filter>
     </ClCompile>
   </ItemGroup>
@@ -71,10 +71,10 @@
     <ClInclude Include="ErasureLibrary.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureProcess.h">
+    <ClInclude Include="ErasureRecycleUI.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureRecycleUI.h">
+    <ClInclude Include="ErasureThread.h">
       <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>

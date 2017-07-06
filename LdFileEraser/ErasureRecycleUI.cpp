@@ -1,18 +1,6 @@
 #include "stdafx.h"
 #include "ErasureRecycleUI.h"
-#include "ErasureProcess.h"
 #include <thread>
-
-
-CThread* CEreaserThrads::AddThread(IThreadRunable* run, UINT_PTR Param)
-{
-	EnterCriticalSection(&cs);
-	CErasureThread* result = new CErasureThread(run);
-	Add(result);
-	result->Start(Param);
-	LeaveCriticalSection(&cs);
-	return result;
-}
 
 CErasureRecycleUI::CErasureRecycleUI():
 	m_Columes(),
@@ -32,24 +20,24 @@ CErasureRecycleUI::~CErasureRecycleUI()
 		delete m_Columes[i]->szName;
 		delete m_Columes[i];
 	}
-	m_Columes.Clear();
+
 	for(int i=0; i<m_RecycledFiles.GetCount(); i++)
 	{
 		PRECYCLE_FILE_DATA p;
 		if(m_RecycledFiles.GetValueAt(i, p))
 			delete p;
 	}
+
 	m_EreaserThreads.StopThreads();
 	while (m_EreaserThreads.GetCount() > 0)
-		Sleep(10);
-}
+		Sleep(10); //等待所有线程结束
 
+}
+//创建单个文件擦除线程
 void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 {
-	m_ThreadCount = 0;
 	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
 	{//先擦除文件
-
 		if (Sender->GetTerminated())
 			break;
 
@@ -97,16 +85,16 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 {
 	if (Sender->GetTerminated())
 		return;
-	DebugOutput(L"++%s\n", Key);
+
 	PRECYCLE_FILE_DATA pinfo;
 	m_RecycledFiles.Find(Key, pinfo);
 	CErasureThread* pProcess = (CErasureThread*)Sender;
 
 	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->ListRow;
 	if (ui)
-	{
+	{//显示进度条
 		pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
-		if (pProcess->ui)
+		if (pProcess->ui) 
 			pProcess->ui->SetVisible(true);
 	}
 	CErasure erasure;
@@ -118,37 +106,35 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 		if (ui)
 			CLdApp::Send2MainThread(this, (UINT_PTR)ui);
 	}
-	DebugOutput(L"--%s\n", Key);
 
 }
 
 VOID CErasureRecycleUI::ThreadRun(CThread* Sender, UINT_PTR Param)
 {
 	if (Param == 0)
-		ErasureAllFiles(Sender);
+		ErasureAllFiles(Sender);  //创建文件擦除线程
 	else
-		ErasureSingleFile(Sender, (TCHAR*)Param);
+		ErasureSingleFile(Sender, (TCHAR*)Param); //单个文件擦除线程
 }
 
 VOID CErasureRecycleUI::OnThreadInit(CThread* Sender, UINT_PTR Param)
 {
-	if (Param == 0)
-	{
+	if (Param == 0) 
+	{ //这是创建擦除文件线程的线程
 		btnOk->SetTag(1);
 		btnOk->SetText(L"Cancel");
 	}
 }
-
+//擦除线程结束
 VOID CErasureRecycleUI::OnThreadTerminated(CThread* Sender, UINT_PTR Param)
 {
 	m_EreaserThreads.RemoveThread(Sender);
 	if (m_EreaserThreads.GetCount() == 0)
-	{
+	{ //所有线程都结束
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
 		btnOk->SetText(L"OK");
 	}
-	DebugOutput(L"--%s\n", (TCHAR*)Param);
 }
 
 void CErasureRecycleUI::OnSelectChanged(TNotifyUI & msg)
@@ -165,29 +151,29 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
-
+//主线程中删除已擦除的文件对应lstFile行
 BOOL CErasureRecycleUI::GernalCallback_Callback(LPVOID pData, UINT_PTR Param)
 {
 	CListContainerElementUI* ui = reinterpret_cast<CListContainerElementUI*>(Param);
 	lstFile->Remove(ui);
 	return true;
 }
-
+//回收站实际文件暂存
 BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
 {
-	//if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
-		//return true;
+	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
+		return true;
 	CLdString s = (LPTSTR)Param;
 	PRECYCLE_FILE_DATA p = new RECYCLE_FILE_DATA;
 	ZeroMemory(p, sizeof(RECYCLE_FILE_DATA));
 	s += pData->cFileName;
 	s.CopyTo(p->cFileName);
 	p->ListRow = nullptr;
-	p->IsDirectory = pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY == FILE_ATTRIBUTE_DIRECTORY;
+	p->IsDirectory =(pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY;
 	m_RecycledFiles.Set(pData->cFileName, p);
 	return true;
 }
-
+//lstFile添加列头
 void CErasureRecycleUI::AddLstViewHeader(int ncount)
 {
 	CControlUI* col = lstFile->GetHeader()->GetItemAt(0);
@@ -206,7 +192,7 @@ void CErasureRecycleUI::AddLstViewHeader(int ncount)
 		col->SetFixedWidth(m_Columes[i]->cxChar * 10);
 	}
 }
-
+//找到虚拟文件并与实际文件对应，
 BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
 {
 	SHFILEINFO fi;
@@ -219,6 +205,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	PRECYCLE_FILE_DATA pinfo = nullptr;
 	if(m_RecycledFiles.Find(fi.szDisplayName, pinfo))
 	{
+		//添加到lstFile中
 		CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
 		if (item->GetTag() != 0)
 		{
@@ -235,19 +222,17 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 			if (ui)
 			{
 				CControlUI* cap = ui->FindSubControl(_T("caption"));
-				CLdString s;
-				s.Format(L"%d %s", lstFile->GetCount(), pData->Get(i));
 				if (cap)
-					cap->SetText(s);
+					cap->SetText(pData->Get(i));
 				else
-					ui->SetText(s);
+					ui->SetText(pData->Get(i));
 
 			}
 		}
 	}
 	return true;
 }
-
+//获取列信息暂存
 BOOL CErasureRecycleUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 {
 	PSH_HEAD_INFO p = new SH_HEAD_INFO;
@@ -258,7 +243,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Pa
 	m_Columes.Add(p);
 	return true;
 };
-
+//枚举盘符暂存用于查找每个盘下的回收站文件
 BOOL CErasureRecycleUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
 {
 	CLdArray<CLdString*>* pVolumes = (CLdArray<CLdString*>*)Param;
@@ -314,11 +299,11 @@ void CErasureRecycleUI::OnInit()
 {
 	btnOk = static_cast<CButtonUI*>(GetUI()->FindSubControl(_T("btnOk")));
 	lstFile = static_cast<CListUI*>(GetUI()->FindSubControl(_T("listview")));
-
+	//列信息
 	CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, this, 0);
-
+	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
 	EnumRecyleFiels();
-
+	//回收站的虚拟文件（原文件信息）
 	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, this, 0);
 }
 
