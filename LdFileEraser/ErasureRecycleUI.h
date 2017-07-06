@@ -4,6 +4,7 @@ typedef struct RECYCLE_FILE_DATA
 {
 	TCHAR cFileName[MAX_PATH];
 	bool IsDirectory;
+	bool Ereased;   //已被擦除过标记
 	CControlUI* ListRow;
 }*PRECYCLE_FILE_DATA;
 

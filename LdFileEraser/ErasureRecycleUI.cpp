@@ -50,30 +50,15 @@ void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
 	{//先擦除文件
 
-		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
-		{
-			Sleep(50);
-			if (Sender->GetTerminated())
-				break;
-		}
-
 		if (Sender->GetTerminated())
 			break;
 
 		PRECYCLE_FILE_DATA pinfo;
 		CLdString s = m_RecycledFiles.GetAt(i);
 
-		m_RecycledFiles.GetValueAt(i, pinfo);
-		if (!pinfo->IsDirectory)
-		{
-			m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
-		}
-	}
-	if (Sender->GetTerminated())
-		return;
-
-	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
-	{//目录
+		if(!m_RecycledFiles.GetValueAt(i, pinfo) || pinfo->Ereased || pinfo->IsDirectory)
+			continue;
+		
 		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
 		{
 			Sleep(50);
@@ -81,15 +66,30 @@ void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 				break;
 		}
 
+		m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
+	}
+	if (Sender->GetTerminated())
+		return;
+
+	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
+	{//目录
 		if (Sender->GetTerminated())
 			break;
 
 		PRECYCLE_FILE_DATA pinfo;
-		m_RecycledFiles.GetValueAt(i, pinfo);
-		if (pinfo->IsDirectory)
+		CLdString s = m_RecycledFiles.GetAt(i);
+
+		if (!m_RecycledFiles.GetValueAt(i, pinfo) || pinfo->Ereased || !pinfo->IsDirectory)
+			continue;
+
+		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
 		{
-			m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
+			Sleep(50);
+			if (Sender->GetTerminated())
+				break;
 		}
+
+		m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
 	}
 }
 
@@ -114,7 +114,7 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 	
 	if(r == 0)
 	{
-		m_RecycledFiles.Remove(Key);
+		pinfo->Ereased = true;
 		if (ui)
 			CLdApp::Send2MainThread(this, (UINT_PTR)ui);
 	}
@@ -179,6 +179,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 		//return true;
 	CLdString s = (LPTSTR)Param;
 	PRECYCLE_FILE_DATA p = new RECYCLE_FILE_DATA;
+	ZeroMemory(p, sizeof(RECYCLE_FILE_DATA));
 	s += pData->cFileName;
 	s.CopyTo(p->cFileName);
 	p->ListRow = nullptr;
