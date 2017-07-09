@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
-#include "ErasureThread.h"
 
 CErasureFileUI::CErasureFileUI()
 {
@@ -16,17 +15,77 @@ CErasureFileUI::~CErasureFileUI()
 
 }
 
+//创建单个文件擦除线程
+void CErasureFileUI::ErasureAllFiles(CThread* Sender)
+{
+	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
+	{//目录
+		if (Sender->GetTerminated())
+			break;
+
+		PRECYCLE_FILE_DATA pinfo;
+		CLdString s = m_RecycledFiles.GetAt(i);
+
+		if (!m_RecycledFiles.GetValueAt(i, pinfo) || pinfo->Ereased || !pinfo->IsDirectory)
+			continue;
+
+		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
+		{
+			Sleep(50);
+			if (Sender->GetTerminated())
+				break;
+		}
+
+		m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
+	}
+}
+
+void CErasureFileUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
+{
+	if (Sender->GetTerminated())
+		return;
+
+	PRECYCLE_FILE_DATA pinfo;
+	m_RecycledFiles.Find(Key, pinfo);
+	CErasureThread* pProcess = (CErasureThread*)Sender;
+
+	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->ListRow;
+	if (ui)
+	{//显示进度条
+		pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
+		if (pProcess->ui)
+			pProcess->ui->SetVisible(true);
+	}
+	CErasure erasure;
+	DWORD r = erasure.FileErasure(pinfo->cFileName, CErasureMethod::Pseudorandom(), pProcess);
+
+	if (r == 0)
+	{
+		pinfo->Ereased = true;
+		if (ui)
+			CLdApp::Send2MainThread(this, (UINT_PTR)ui);
+	}
+
+}
+
 VOID CErasureFileUI::ThreadRun(CThread* Sender, WPARAM Param)
 {
-	CListContainerElementUI* ui = (CListContainerElementUI*)Param;
-	CFileInfo* pinfo = (CFileInfo*)ui->GetTag();
-	CErasure erasure;
-	CErasureThread* pProcess = (CErasureThread*)Sender;
-	pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
-	if (pProcess->ui)
-		pProcess->ui->SetVisible(true);
-	erasure.FileErasure(pinfo->GetFileName().GetData(), CErasureMethod::Pseudorandom(), pProcess);
-	delete pProcess;
+	if (Param == 0)
+		ErasureAllFiles(Sender);  //创建文件擦除线程
+	else
+	{
+		CListContainerElementUI* ui = (CListContainerElementUI*)Param;
+		CFileInfo* pinfo = (CFileInfo*)ui->GetTag();
+		CErasure erasure;
+		CErasureThread* pProcess = (CErasureThread*)Sender;
+		pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
+		if (pProcess->ui)
+			pProcess->ui->SetVisible(true);
+		erasure.FileErasure(pinfo->GetFileName().GetData(), CErasureMethod::Pseudorandom(), pProcess);
+		delete pProcess;
+
+	}
+
 }
 
 VOID CErasureFileUI::OnThreadInit(CThread* Sender, WPARAM Param)
@@ -98,12 +157,13 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 	}
 	else if (msg.pSender == btnOk)
 	{
-		for (int i = 0; i < lstFile->GetCount(); i++)
+		if (!btnOk->GetTag() && m_EreaserThreads.GetCount() == 0)
+			m_EreaserThreads.AddThread(this, 0);
+		else
 		{
-			CThread* thread = new CThread(this);
-			thread->Start(WPARAM(lstFile->GetItemAt(i)));
-			//CErasure erasure;
-			//erasure.FileErasure(pinfo->GetFileName(), CErasureMethod::Pseudorandom(), this);
+			m_EreaserThreads.StopThreads();
+			btnOk->SetEnabled(false);
 		}
+
 	}
 }

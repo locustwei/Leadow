@@ -1,14 +1,6 @@
 #pragma once
 #include "ErasureThread.h"
 
-//待擦除文件记录
-typedef struct RECYCLE_FILE_DATA
-{
-	TCHAR cFileName[MAX_PATH];
-	bool IsDirectory;
-	bool Ereased;   //已被擦除过标记
-	CControlUI* ListRow; //对应在界面的UI，擦除后删除之（不要在擦除线程里找UI同步很难处理）
-}*PRECYCLE_FILE_DATA;
 
 class LDLIB_API CErasureRecycleUI : 
 	public CFramWnd, 
@@ -29,7 +21,7 @@ private:
 	CButtonUI* btnOk;
 	CListUI* lstFile;
 	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView 列头
-	CLdHashMap<PRECYCLE_FILE_DATA> m_RecycledFiles; //回收站中的实际文件（显示在UI中的不是真正文件）
+	CLdHashMap<PERASURE_FILE_DATA> m_ErasureFiles; //回收站中的实际文件（显示在UI中的不是真正文件）
 	CEreaserThrads m_EreaserThreads;  //管理擦除线程
 
 	virtual void OnClick(TNotifyUI& msg);

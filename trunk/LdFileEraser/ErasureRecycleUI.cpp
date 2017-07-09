@@ -4,7 +4,7 @@
 
 CErasureRecycleUI::CErasureRecycleUI():
 	m_Columes(),
-	m_RecycledFiles(500),
+	m_ErasureFiles(500),
 	m_EreaserThreads()
 {
 	btnOk = nullptr;
@@ -21,10 +21,10 @@ CErasureRecycleUI::~CErasureRecycleUI()
 		delete m_Columes[i];
 	}
 
-	for(int i=0; i<m_RecycledFiles.GetCount(); i++)
+	for(int i=0; i<m_ErasureFiles.GetCount(); i++)
 	{
-		PRECYCLE_FILE_DATA p;
-		if(m_RecycledFiles.GetValueAt(i, p))
+		PERASURE_FILE_DATA p;
+		if(m_ErasureFiles.GetValueAt(i, p))
 			delete p;
 	}
 
@@ -36,15 +36,15 @@ CErasureRecycleUI::~CErasureRecycleUI()
 //创建单个文件擦除线程
 void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 {
-	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
+	for (int i = 0; i < m_ErasureFiles.GetCount(); i++)
 	{//先擦除文件
 		if (Sender->GetTerminated())
 			break;
 
-		PRECYCLE_FILE_DATA pinfo;
-		CLdString s = m_RecycledFiles.GetAt(i);
+		PERASURE_FILE_DATA pinfo;
+		CLdString s = m_ErasureFiles.GetAt(i);
 
-		if(!m_RecycledFiles.GetValueAt(i, pinfo) || pinfo->Ereased || pinfo->IsDirectory)
+		if(!m_ErasureFiles.GetValueAt(i, pinfo) || pinfo->Ereased || pinfo->IsDirectory)
 			continue;
 		
 		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
@@ -54,20 +54,20 @@ void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 				break;
 		}
 
-		m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
+		m_EreaserThreads.AddThread(this, UINT_PTR(m_ErasureFiles.GetAt(i)));
 	}
 	if (Sender->GetTerminated())
 		return;
 
-	for (int i = 0; i < m_RecycledFiles.GetCount(); i++)
+	for (int i = 0; i < m_ErasureFiles.GetCount(); i++)
 	{//目录
 		if (Sender->GetTerminated())
 			break;
 
-		PRECYCLE_FILE_DATA pinfo;
-		CLdString s = m_RecycledFiles.GetAt(i);
+		PERASURE_FILE_DATA pinfo;
+		CLdString s = m_ErasureFiles.GetAt(i);
 
-		if (!m_RecycledFiles.GetValueAt(i, pinfo) || pinfo->Ereased || !pinfo->IsDirectory)
+		if (!m_ErasureFiles.GetValueAt(i, pinfo) || pinfo->Ereased || !pinfo->IsDirectory)
 			continue;
 
 		while (m_EreaserThreads.GetCount() >= MAX_THREAD_COUNT)
@@ -77,7 +77,7 @@ void CErasureRecycleUI::ErasureAllFiles(CThread* Sender)
 				break;
 		}
 
-		m_EreaserThreads.AddThread(this, UINT_PTR(m_RecycledFiles.GetAt(i)));
+		m_EreaserThreads.AddThread(this, UINT_PTR(m_ErasureFiles.GetAt(i)));
 	}
 }
 
@@ -86,8 +86,8 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 	if (Sender->GetTerminated())
 		return;
 
-	PRECYCLE_FILE_DATA pinfo;
-	m_RecycledFiles.Find(Key, pinfo);
+	PERASURE_FILE_DATA pinfo;
+	m_ErasureFiles.Find(Key, pinfo);
 	CErasureThread* pProcess = (CErasureThread*)Sender;
 
 	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->ListRow;
@@ -164,13 +164,15 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
 	CLdString s = (LPTSTR)Param;
-	PRECYCLE_FILE_DATA p = new RECYCLE_FILE_DATA;
-	ZeroMemory(p, sizeof(RECYCLE_FILE_DATA));
+	PERASURE_FILE_DATA p = new ERASURE_FILE_DATA;
+	ZeroMemory(p, sizeof(ERASURE_FILE_DATA));
 	s += pData->cFileName;
 	s.CopyTo(p->cFileName);
 	p->ListRow = nullptr;
 	p->IsDirectory =(pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY;
-	m_RecycledFiles.Set(pData->cFileName, p);
+	if(p->IsDirectory)
+		CFileUtils::FindFile(s, _T("*.*"), this, (UINT_PTR)s.GetData());
+	m_ErasureFiles.Set(pData->cFileName, p);
 	return true;
 }
 //lstFile添加列头
@@ -202,8 +204,8 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
 		AddLstViewHeader(pData->GetCount() + 1);
 
-	PRECYCLE_FILE_DATA pinfo = nullptr;
-	if(m_RecycledFiles.Find(fi.szDisplayName, pinfo))
+	PERASURE_FILE_DATA pinfo = nullptr;
+	if(m_ErasureFiles.Find(fi.szDisplayName, pinfo))
 	{
 		//添加到lstFile中
 		CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
@@ -287,7 +289,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 		recyclePath += _T("\\");
 
-		CFileUtils::FindFile(recyclePath, L"*", true, this, (UINT_PTR)recyclePath.GetData());
+		CFileUtils::FindFile(recyclePath, L"*", this, (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}

@@ -4,7 +4,7 @@
 
 #pragma region CFileUtils
 
-BOOL CFileUtils::ExtractFileDrive(LPTSTR lpFullName, LPTSTR lpDriveName)
+BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
 {
 	int len;
 	if (!lpFullName || !lpDriveName)
@@ -19,7 +19,7 @@ BOOL CFileUtils::ExtractFileDrive(LPTSTR lpFullName, LPTSTR lpDriveName)
 		return FALSE;
 }
 
-UINT CFileUtils::ExtractFilePath(LPTSTR lpFullName, LPTSTR lpFilePath)
+UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, TCHAR* lpFilePath)
 {
 	if (!lpFullName)
 		return FALSE;
@@ -33,7 +33,7 @@ UINT CFileUtils::ExtractFilePath(LPTSTR lpFullName, LPTSTR lpFilePath)
 	return len;
 }
 
-UINT CFileUtils::ExtractFileName(LPTSTR lpFullName, LPTSTR lpName)
+UINT CFileUtils::ExtractFileName(TCHAR* lpFullName, TCHAR* lpName)
 {
 	if (!lpFullName)
 		return 0;
@@ -47,7 +47,7 @@ UINT CFileUtils::ExtractFileName(LPTSTR lpFullName, LPTSTR lpName)
 	return wcslen(s);
 }
 
-UINT CFileUtils::ExtractFileExt(LPTSTR lpFullName, LPTSTR lpName)
+UINT CFileUtils::ExtractFileExt(TCHAR* lpFullName, TCHAR* lpName)
 {
 	if (!lpFullName)
 		return 0;
@@ -61,7 +61,7 @@ UINT CFileUtils::ExtractFileExt(LPTSTR lpFullName, LPTSTR lpName)
 	return wcslen(s);;
 }
 
-UINT CFileUtils::Win32Path2DevicePath(LPTSTR lpFullName, LPTSTR lpDevicePath)
+UINT CFileUtils::Win32Path2DevicePath(TCHAR* lpFullName, TCHAR* lpDevicePath)
 {
 	TCHAR Device[10] = {0};
 	if (!ExtractFileDrive(lpFullName, Device))
@@ -76,7 +76,7 @@ UINT CFileUtils::Win32Path2DevicePath(LPTSTR lpFullName, LPTSTR lpDevicePath)
 	return ret;
 }
 
-UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
+UINT CFileUtils::DevicePathToWin32Path(TCHAR* lpDevicePath, TCHAR* lpDosPath)
 {
 	TCHAR szDrives[512];
 	if (!GetLogicalDriveStrings(_countof(szDrives) - 1, szDrives)) {
@@ -108,7 +108,7 @@ UINT CFileUtils::DevicePathToWin32Path(LPTSTR lpDevicePath, LPTSTR lpDosPath)
 	return wcslen(lpDosPath);
 }
 
-DWORD CFileUtils::ForceDirectories(LPTSTR lpFullPath)
+DWORD CFileUtils::ForceDirectories(TCHAR* lpFullPath)
 {
 	if (!lpFullPath || _tcslen(lpFullPath) < 2)
 		return ERROR_NO_VOLUME_LABEL;
@@ -123,13 +123,13 @@ DWORD CFileUtils::ForceDirectories(LPTSTR lpFullPath)
 	}
 }
 
-BOOL CFileUtils::IsDirectoryExists(LPTSTR lpFullPath)
+BOOL CFileUtils::IsDirectoryExists(TCHAR* lpFullPath)
 {
 	DWORD dwAttr = GetFileAttributes(lpFullPath);
 	return (dwAttr != INVALID_FILE_ATTRIBUTES) && (FILE_ATTRIBUTE_DIRECTORY & dwAttr);
 }
 
-DWORD CFileUtils::GetCompressStatus(LPTSTR lpFullName, PWORD pStatus)
+DWORD CFileUtils::GetCompressStatus(TCHAR* lpFullName, PWORD pStatus)
 {
 	DWORD Result = 0;
 	DWORD bytesReturned = 0;
@@ -145,7 +145,7 @@ DWORD CFileUtils::GetCompressStatus(LPTSTR lpFullName, PWORD pStatus)
 	return Result;
 }
 
-BOOL CFileUtils::SetCompression(LPTSTR lpFullName, BOOL bCompress)
+BOOL CFileUtils::SetCompression(TCHAR* lpFullName, BOOL bCompress)
 {
 	BOOL Result = FALSE;
 	DWORD compressionStatus = bCompress ? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
@@ -159,7 +159,7 @@ BOOL CFileUtils::SetCompression(LPTSTR lpFullName, BOOL bCompress)
 	return Result;
 }
 
-DWORD CFileUtils::FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param)
+DWORD CFileUtils::FindFile(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param)
 {
 	DWORD result = 0;
 	CLdString path = lpFullPath;
@@ -182,18 +182,27 @@ DWORD CFileUtils::FindFile(LPTSTR lpFullPath, LPTSTR lpFilter, BOOL bSubDir, IGe
 			(Data.cFileName[0] == '.' && Data.cFileName[1] == '.' && Data.cFileName[3] == '\0'))
 			continue;
 
-		if (!callback->GernalCallback_Callback(&Data, (UINT_PTR)path.GetData()))
+		if (!callback->GernalCallback_Callback(&Data, Param))
 			break;
-		if(bSubDir && (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-		{
-			result = FindFile(path + Data.cFileName, lpFilter, bSubDir, callback, Param);
-			if (result != 0)
-				break;
-		}
+//		if(bSubDir && (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
+//		{
+//			result = FindFile(path + Data.cFileName, lpFilter, bSubDir, callback, Param);
+//			if (result != 0)
+//				break;
+//		}
 	} while (FindNextFile(hFind, &Data));
 
 	FindClose(hFind);
 	return result;
+}
+
+int CFileUtils::DeleteFile(TCHAR * lpFileName, DWORD dwFlag)
+{
+	SHFILEOPSTRUCT fo;
+	fo.pFrom = lpFileName;
+	fo.fFlags = dwFlag;
+	fo.wFunc = FO_DELETE;
+	return SHFileOperation(&fo);
 }
 
 #pragma endregion
