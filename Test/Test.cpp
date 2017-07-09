@@ -37,7 +37,10 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 }
 
 
-class CImp: public IGernalCallback<TCHAR*>, public IGernalCallback<LPWIN32_FIND_DATA>
+class CImp: 
+	public IGernalCallback<TCHAR*>, 
+	public IGernalCallback<LPWIN32_FIND_DATA>,
+	public IGernalCallback<PSH_HEAD_INFO>      //回收站文件显示列信息
 {
 public:
 	BOOL GernalCallback_Callback(_WIN32_FIND_DATAW* pData, UINT_PTR Param) override
@@ -56,6 +59,17 @@ public:
 				printf("%S = %d\n", name, hr);
 		}
 		printf("%S%S\n", (TCHAR*)Param, pData->cFileName);
+		return true;
+	};
+
+	BOOL GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param) override
+	{
+		PSH_HEAD_INFO p = new SH_HEAD_INFO;
+		p->cxChar = pData->cxChar;
+		p->fmt = pData->fmt;
+		p->szName = new TCHAR[_tcslen(pData->szName) + 1];
+		_tcscpy(p->szName, pData->szName);
+		printf("%S\n", pData->szName);;
 		return true;
 	};
 
@@ -104,7 +118,7 @@ void EnumRecyleFiels()
 
 		recyclePath += _T("\\");
 
-		CFileUtils::FindFile(recyclePath, L"*", true, &imp, (UINT_PTR)recyclePath.GetData());
+		CFileUtils::FindFile(recyclePath, L"*", &imp, (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}
@@ -118,7 +132,18 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	setlocale(LC_ALL, "chs");
 
-	EnumRecyleFiels();
+//	CImp imp;
+//	CSHFolders::EnumFolderColumes(CSIDL_DESKTOP, &imp, 0);
+//	LPITEMIDLIST pidl;
+
+	CLdArray<TCHAR*> values;
+	HRESULT hr = CSHFolders::GetFileAttributeValue(L"C:\\swapfile.sys", &values);
+
+	for(int i=0;i<values.GetCount();i++)
+	{
+		printf("%S\n", values[i]);
+		delete values[i];
+	}
 
 	printf("\npress any key exit");
 	getchar();

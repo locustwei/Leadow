@@ -54,7 +54,7 @@ private:
 	CVolumeInfo m_volInfo;
 	CLdString m_tmpDir;
 	//IErasureCallback* m_callback;
-	CErasureMethod* m_method;
+	CErasureMethod* m_method; 
 	CLdArray<CLdString> m_Tmpfiles;
 
 	DWORD UnusedSpace2TempFile(IErasureCallback* callback);

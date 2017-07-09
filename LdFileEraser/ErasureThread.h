@@ -1,6 +1,16 @@
 #pragma once
 #include "Erasure.h"
 
+//待擦除文件记录
+typedef struct ERASURE_FILE_DATA
+{
+	TCHAR cFileName[MAX_PATH];
+	bool IsDirectory;
+	bool Ereased;   //已被擦除过标记
+	CControlUI* ListRow; //对应在界面的UI，擦除后删除之（不要在擦除线程里找UI同步很难处理）
+}*PERASURE_FILE_DATA;
+
+
 class CErasureThread: public CThread, public IErasureCallback
 {
 public:

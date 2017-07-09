@@ -2,8 +2,8 @@
 #include "Erasure.h"
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
-#define MIN_TEMPFILESIZE 1024
-#define MAX_TEMPFILESIZE 1024 * 1024 * 512
+#define MIN_TEMPFILESIZE 1024 * 1024 * 50   //历时文件最小值（文件太小会影响擦除速度）
+#define MAX_TEMPFILESIZE 1024 * 1024 * 1024
 
 CErasure::CErasure():
 	m_Tmpfiles(),
@@ -466,7 +466,8 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 			ResetFileDate(hFile);
 			CloseHandle(hFile);
 		};
-		DeleteFile(m_Tmpfiles[i]);
+		//DeleteFile(m_Tmpfiles[i]);
+		CFileUtils::DeleteFileW(m_Tmpfiles[i]);
 		if(callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
 	}

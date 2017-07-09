@@ -7,20 +7,34 @@
 
 typedef struct _SH_HEAD_INFO
 {
-	int fmt;
-	int cxChar;
-	TCHAR* szName;
+	int fmt;  //align
+	int cxChar; //宽度（字符数）
+	TCHAR* szName; //名称
 }SH_HEAD_INFO, *PSH_HEAD_INFO;
 
 class CSHFolders
 {
 public:
-	//CSIDL_DESKTOP or CSIDL_BITBUCKET
-	static HRESULT EnumFolderObjects(DWORD dwFolder, HWND hOwnerWnd, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param);
-	//CSIDL_DESKTOP or CSIDL_BITBUCKET
-	static HRESULT EnumFolderColumes(DWORD dwFolder, HWND hOwnerWnd, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param);
+	/*
+	枚举特殊列信息（保护所有类型的列信息，指定类型（dwFolder）放前面）
+	dwFolder 特殊文件夹CLSID
+	PSH_HEAD_INFO 列信息
+	*/
+	static HRESULT EnumFolderColumes(DWORD dwFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
+	/*
+	枚举特殊目录下的文件（如桌面（CSIDL_DESKTOP）、回收站（CSIDL_BITBUCKET）
+	dwFolder 特殊文件夹CLSID
+	CLdArray<TCHAR*>* 每个列值（EnumFolderColumes 对应列）
+	Param 回掉接口参数
+	hOwnerWnd SH类函数OwnerHandle参数
+	*/
+	static HRESULT EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 	//FOLDERID_Downloads
 	static CLdString GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag = KF_FLAG_DEFAULT, HANDLE hToken = NULL);
 
+	static HRESULT GetFileAttributeValue(TCHAR* lpFullName, CLdArray<TCHAR*>* values);
+
+private:
+	static HRESULT GetShellFolder(DWORD dwFolder, IShellFolder2** pFolder);
 };
 
