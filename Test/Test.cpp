@@ -137,7 +137,6 @@ int _tmain(int argc, _TCHAR* argv[])
 //	LPITEMIDLIST pidl;
 
 	CLdArray<TCHAR*> values;
-	HRESULT hr = CSHFolders::GetFileAttributeValue(L"C:\\swapfile.sys", &values);
 
 	for(int i=0;i<values.GetCount();i++)
 	{

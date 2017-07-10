@@ -31,8 +31,9 @@ public:
 	static HRESULT EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 	//FOLDERID_Downloads
 	static CLdString GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag = KF_FLAG_DEFAULT, HANDLE hToken = NULL);
-
-	static HRESULT GetFileAttributeValue(TCHAR* lpFullName, CLdArray<TCHAR*>* values);
+	/*
+	*/
+	//static HRESULT GetFileAttributeValue(TCHAR* lpFullName, CLdArray<TCHAR*>* values);
 
 private:
 	static HRESULT GetShellFolder(DWORD dwFolder, IShellFolder2** pFolder);
