@@ -21,12 +21,11 @@ CLdString CSHFolders::GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFl
 		return r;
 	}
 }
-
+/*
 HRESULT CSHFolders::GetFileAttributeValue(TCHAR * lpFullName, CLdArray<TCHAR*>* values)
 {
 	IShellFolder2* pDesktopFolder = nullptr;
 	ULONG         chEaten;
-	//ULONG         dwAttributes;
 	HRESULT       hr;
 	LPITEMIDLIST pidl = nullptr;
 
@@ -54,7 +53,7 @@ HRESULT CSHFolders::GetFileAttributeValue(TCHAR * lpFullName, CLdArray<TCHAR*>* 
 	}
 	return hr;
 }
-
+*/
 HRESULT CSHFolders::GetShellFolder(DWORD dwFolder, IShellFolder2** pFolder)
 {
 	HRESULT			hr = S_OK;

@@ -32,7 +32,7 @@ private:
 protected:
 	virtual void OnInit() override;
 	void AddLstViewHeader(int ncount);
-	//文件擦除线程执行代码
+	//主线程中删除已擦除的文件对应lstFile行
 	BOOL GernalCallback_Callback(LPVOID pData, UINT_PTR Param) override;
 	//FindFirst 回收站实际文件
 	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param) override;

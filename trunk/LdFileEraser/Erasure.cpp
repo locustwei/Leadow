@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Erasure.h"
+#include "Winerror.h"
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
 #define MIN_TEMPFILESIZE 1024 * 1024 * 50   //历时文件最小值（文件太小会影响擦除速度）
@@ -459,8 +460,8 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 	
 	for (int i = 0; i < m_Tmpfiles.GetCount(); i++)
 	{
-		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, CREATE_ALWAYS, 0, NULL);
-		if(hFile == INVALID_HANDLE_VALUE)
+		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if(hFile != INVALID_HANDLE_VALUE)
 		{
 			SetEndOfFile(hFile);
 			ResetFileDate(hFile);
@@ -468,6 +469,7 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 		};
 		//DeleteFile(m_Tmpfiles[i]);
 		CFileUtils::DeleteFileW(m_Tmpfiles[i]);
+		
 		if(callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
 	}

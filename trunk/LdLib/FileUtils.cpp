@@ -199,7 +199,10 @@ DWORD CFileUtils::FindFile(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<L
 int CFileUtils::DeleteFile(TCHAR * lpFileName, DWORD dwFlag)
 {
 	SHFILEOPSTRUCT fo;
-	fo.pFrom = lpFileName;
+	ZeroMemory(&fo, sizeof(SHFILEOPSTRUCT));
+	TCHAR name[MAX_PATH] = { 0 };  //double-null terminated
+	_tcscpy(name, lpFileName);
+	fo.pFrom = name;
 	fo.fFlags = dwFlag;
 	fo.wFunc = FO_DELETE;
 	return SHFileOperation(&fo);

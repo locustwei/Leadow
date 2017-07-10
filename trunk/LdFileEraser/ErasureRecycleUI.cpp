@@ -302,11 +302,11 @@ void CErasureRecycleUI::OnInit()
 	btnOk = static_cast<CButtonUI*>(GetUI()->FindSubControl(_T("btnOk")));
 	lstFile = static_cast<CListUI*>(GetUI()->FindSubControl(_T("listview")));
 	//列信息
-	CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, nullptr, this, 0);
+	CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, this, 0);
 	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
 	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）
-	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, nullptr, this, 0);
+	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, this, 0);
 }
 
 void CErasureRecycleUI::OnClick(TNotifyUI& msg)
