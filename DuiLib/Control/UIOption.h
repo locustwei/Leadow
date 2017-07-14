@@ -5,8 +5,9 @@
 
 namespace DuiLib
 {
-	class DUILIB_API COptionUI : public CButtonUI
+	class UILIB_API COptionUI : public CButtonUI
 	{
+		DECLARE_DUICONTROL(COptionUI)
 	public:
 		COptionUI();
 		~COptionUI();
@@ -25,27 +26,35 @@ namespace DuiLib
 		LPCTSTR GetSelectedHotImage();
 		void SetSelectedHotImage(LPCTSTR pStrImage);
 
+		LPCTSTR GetSelectedPushedImage();
+		void SetSelectedPushedImage(LPCTSTR pStrImage);
+
 		void SetSelectedTextColor(DWORD dwTextColor);
 		DWORD GetSelectedTextColor();
 
 		void SetSelectedBkColor(DWORD dwBkColor);
 		DWORD GetSelectBkColor();
 
-		LPCTSTR GetForeImage();
-		void SetForeImage(LPCTSTR pStrImage);
+		LPCTSTR GetSelectedForedImage();
+		void SetSelectedForedImage(LPCTSTR pStrImage);
+
+		void SetSelectedStateCount(int nCount);
+		int GetSelectedStateCount() const;
+		virtual LPCTSTR GetSelectedStateImage();
+		virtual void SetSelectedStateImage(LPCTSTR pStrImage);
 
 		LPCTSTR GetGroup() const;
 		void SetGroup(LPCTSTR pStrGroupName = NULL);
 		bool IsSelected() const;
-		virtual void Selected(bool bSelected, bool bTriggerEvent=true);
+		virtual void Selected(bool bSelected);
 
-		SIZE EstimateSize(SIZE szAvailable);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
 
+		void PaintBkColor(HDC hDC);
 		void PaintStatusImage(HDC hDC);
+		void PaintForeImage(HDC hDC);
 		void PaintText(HDC hDC);
-		virtual VOID Clone(CControlUI* ui) override;
-		virtual CControlUI* CloneNew() override;
+
 	protected:
 		bool			m_bSelected;
 		CDuiString		m_sGroupName;
@@ -53,11 +62,35 @@ namespace DuiLib
 		DWORD			m_dwSelectedBkColor;
 		DWORD			m_dwSelectedTextColor;
 
-		TDrawInfo		m_diSelected;
-		TDrawInfo		m_diSelectedHot;
-		TDrawInfo		m_diFore;
+		CDuiString		m_sSelectedImage;
+		CDuiString		m_sSelectedHotImage;
+		CDuiString		m_sSelectedPushedImage;
+		CDuiString		m_sSelectedForeImage;
+
+		int m_nSelectedStateCount;
+		CDuiString m_sSelectedStateImage;
 	};
 
+	class UILIB_API CCheckBoxUI : public COptionUI
+	{
+		DECLARE_DUICONTROL(CCheckBoxUI)
+
+	public:
+		virtual LPCTSTR GetClass() const;
+		virtual LPVOID GetInterface(LPCTSTR pstrName);
+
+		void SetCheck(bool bCheck);
+		bool GetCheck() const;
+	protected:
+		bool m_bAutoCheck; 
+
+	public:
+		CCheckBoxUI();
+		virtual void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
+		void SetAutoCheck(bool bEnable);
+		virtual void DoEvent(TEventUI& event);
+		virtual void Selected(bool bSelected);
+	};
 } // namespace DuiLib
 
 #endif // __UIOPTION_H__

@@ -1,8 +1,10 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UIChildLayout.h"
 
 namespace DuiLib
 {
+	IMPLEMENT_DUICONTROL(CChildLayoutUI)
+
 	CChildLayoutUI::CChildLayoutUI()
 	{
 
@@ -27,42 +29,30 @@ namespace DuiLib
 
 	void CChildLayoutUI::SetAttribute( LPCTSTR pstrName, LPCTSTR pstrValue )
 	{
-		if( _tcscmp(pstrName, _T("xmlfile")) == 0 )
+		if( _tcsicmp(pstrName, _T("xmlfile")) == 0 )
 			SetChildLayoutXML(pstrValue);
 		else
 			CContainerUI::SetAttribute(pstrName,pstrValue);
 	}
 
-	void CChildLayoutUI::SetChildLayoutXML( CDuiString pXML )
+	void CChildLayoutUI::SetChildLayoutXML( DuiLib::CDuiString pXML )
 	{
 		m_pstrXMLFile=pXML;
 	}
 
-	CDuiString CChildLayoutUI::GetChildLayoutXML()
+	DuiLib::CDuiString CChildLayoutUI::GetChildLayoutXML()
 	{
 		return m_pstrXMLFile;
 	}
 
 	LPVOID CChildLayoutUI::GetInterface( LPCTSTR pstrName )
 	{
-		if( _tcscmp(pstrName, DUI_CTR_CHILDLAYOUT) == 0 ) return static_cast<CChildLayoutUI*>(this);
+		if( _tcsicmp(pstrName, DUI_CTR_CHILDLAYOUT) == 0 ) return static_cast<CChildLayoutUI*>(this);
 		return CControlUI::GetInterface(pstrName);
 	}
 
 	LPCTSTR CChildLayoutUI::GetClass() const
 	{
-		return DUI_CTR_CHILDLAYOUT;
-	}
-	VOID CChildLayoutUI::Clone(CControlUI * ui)
-	{
-		__super::Clone(ui);
-		CChildLayoutUI* lui = (CChildLayoutUI*)ui;
-		lui->m_pstrXMLFile = m_pstrXMLFile;
-	}
-	CControlUI * CChildLayoutUI::CloneNew()
-	{
-		CChildLayoutUI* result = new CChildLayoutUI();
-		Clone(result);
-		return result;
+		return _T("ChildLayoutUI");
 	}
 } // namespace DuiLib
