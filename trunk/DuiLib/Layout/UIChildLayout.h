@@ -5,8 +5,9 @@
 
 namespace DuiLib
 {
-	class DUILIB_API CChildLayoutUI : public CContainerUI
+	class UILIB_API CChildLayoutUI : public CContainerUI
 	{
+		DECLARE_DUICONTROL(CChildLayoutUI)
 	public:
 		CChildLayoutUI();
 
@@ -16,8 +17,7 @@ namespace DuiLib
 		CDuiString GetChildLayoutXML();
 		virtual LPVOID GetInterface(LPCTSTR pstrName);
 		virtual LPCTSTR GetClass() const;
-		virtual VOID Clone(CControlUI* ui) override;
-		virtual CControlUI* CloneNew() override;
+
 	private:
 		CDuiString m_pstrXMLFile;
 	};

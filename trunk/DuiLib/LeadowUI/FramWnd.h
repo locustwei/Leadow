@@ -1,7 +1,7 @@
 #pragma once
 
 namespace DuiLib {
-	class DUILIB_API CFramWnd :public CNotifyPump
+	class UILIB_API CFramWnd :public CNotifyPump
 	{
 	public:
 		CFramWnd();
