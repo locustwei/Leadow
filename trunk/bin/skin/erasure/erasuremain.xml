@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<Window>
-    <VerticalLayout>
-        <HorizontalLayout height="26">
-            <Option name="Shredder" text="文件粉碎" float="true" pos="6,0,0,0" height="26" group="contenttab" selected="true" />
-            <Option name="recycle" text="清理回收站" float="true" pos="86,0,0,0" height="26" group="contenttab" />
-            <Option name="unusedspace" text="磁盘擦除" float="true" pos="166,0,0,0" height="26" group="contenttab" />
-            <Option name="truemove" text="移动文件" float="true" pos="246,0,0,0" height="26" group="contenttab" />
+<Window size="800,572" sizebox="4,4,6,6" caption="0,0,0,90" mininfo="800,570" roundcorner="5,5">
+    <VerticalLayout style="ver_blue">
+        <HorizontalLayout height="26" style="hor_blue">
+            <Option name="Shredder" text="文件粉碎" style="op_defualt" float="true" pos="6,0,0,0" height="26" group="contenttab" selected="true" />
+            <Option name="recycle" text="清理回收站" style="op_defualt" float="true" pos="86,0,0,0" height="26" group="contenttab" />
+            <Option name="unusedspace" text="磁盘擦除" style="op_defualt" float="true" pos="166,0,0,0" height="26" group="contenttab" />
+            <Option name="truemove" text="移动文件" style="op_defualt" float="true" pos="246,0,0,0" height="26" group="contenttab" />
         </HorizontalLayout>
         <TabLayout name="pagelist" selectedid="-1" />
     </VerticalLayout>

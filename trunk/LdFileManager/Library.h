@@ -19,7 +19,7 @@ class CErasureLib: public CLdLibray
 public:
 	CErasureLib();
 	~CErasureLib();
-	CFramWnd* LibraryUI();
+	CFramWnd* LibraryUI(CPaintManagerUI* pm);
 private:
 	IErasureLibrary* m_Library;
 };

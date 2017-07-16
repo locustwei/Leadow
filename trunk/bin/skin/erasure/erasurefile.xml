@@ -30,17 +30,14 @@
             </List>
         </HorizontalLayout>
         <HorizontalLayout height="40">
-            <VerticalLayout>
-                <HorizontalLayout height="1"  />
-                <HorizontalLayout>
-                    <HorizontalLayout>                    	
-                        <Button name="openfile" text="添加文件" width="100" />
-                    </HorizontalLayout>
-                    <HorizontalLayout width="123" padding="0,5,0,10" inset="0,1,0,0" childpadding="5">
-                        <Button name="btnOk" text="执行" width="100" />
-                    </HorizontalLayout>
+            <HorizontalLayout padding="0,5,0,10" inset="0,1,0,0" childpadding="5">
+                <HorizontalLayout>                    	
+                    <Button name="openfile" text="添加文件" width="100" />
                 </HorizontalLayout>
-            </VerticalLayout>
+                <HorizontalLayout width="123" >
+                    <Button name="btnOk" text="执行" width="100" />
+                </HorizontalLayout>
+            </HorizontalLayout>
         </HorizontalLayout>
     </VerticalLayout>
 </Window>

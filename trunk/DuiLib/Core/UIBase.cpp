@@ -191,19 +191,32 @@ LDispatch:
 	return bRet;
 }
 
+CNotifyPump* CNotifyPump::FindNotify(LPCTSTR key)
+{
+	CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
+	if (pObject)
+		return pObject;
+
+	for (int i = 0; i < m_VirtualWndMap.GetSize(); i++) {
+		if (LPCTSTR item = m_VirtualWndMap.GetAt(i)) {
+			pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(item, false));
+			if (pObject)
+			{
+				pObject = pObject->FindNotify(key);
+				if (pObject)
+					return pObject;
+			}
+		}
+	}
+	return NULL;
+}
 void CNotifyPump::NotifyPump(TNotifyUI& msg)
 {
 	///±éÀúÐéÄâ´°¿Ú
 	if( !msg.sVirtualWnd.IsEmpty() ){
-		for( int i = 0; i< m_VirtualWndMap.GetSize(); i++ ) {
-			if( LPCTSTR key = m_VirtualWndMap.GetAt(i) ) {
-				if( _tcsicmp(key, msg.sVirtualWnd.GetData()) == 0 ){
-					CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
-					if( pObject && pObject->LoopDispatch(msg) )
-						return;
-				}
-			}
-		}
+		CNotifyPump* pObject = FindNotify(msg.sVirtualWnd.GetData());
+		if (pObject && pObject->LoopDispatch(msg))
+			return;
 	}
 
 	///

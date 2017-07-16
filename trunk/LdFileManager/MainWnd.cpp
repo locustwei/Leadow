@@ -25,10 +25,10 @@ CMainWnd::~CMainWnd()
 }
 
 
-DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
-{
-	return NULL;
-}
+//DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
+//{
+//	return NULL;
+//}
 
 void CMainWnd::Notify(TNotifyUI& msg)
 {
@@ -59,10 +59,10 @@ DuiLib::CDuiString CMainWnd::GetSkinFile()
 	return m_Skin;
 }
 
-CDuiString CMainWnd::GetSkinFolder()
-{
-	return _T("skin");
-}
+//CDuiString CMainWnd::GetSkinFolder()
+//{
+//	return _T("skin");
+//}
 
 void CMainWnd::OnClick(TNotifyUI& msg)
 {
@@ -74,7 +74,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 	if (msg.sType == _T("selectchanged"))
 	{
 		CDuiString name = msg.pSender->GetName();
-		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
+		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_pm.FindControl(_T("switch")));
 		if (name == _T("search"))
 			pControl->SelectItem(0);
 		else if (name == _T("erasure"))
@@ -84,7 +84,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 				m_ErasureLib = new CErasureLib();
 
 			}
-			CFramWnd* frame = m_ErasureLib->LibraryUI();
+			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_pm);
 			_ASSERTE(frame);
 			if (pControl->GetItemIndex(*frame) == -1)
 			{
