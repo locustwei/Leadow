@@ -52,12 +52,12 @@ CErasureLib::~CErasureLib()
 	
 }
 
-CFramWnd * CErasureLib::LibraryUI()
+CFramWnd * CErasureLib::LibraryUI(CPaintManagerUI* pm)
 {
 	if (!m_Library)
 		return NULL;
 	else
-		return m_Library->LibraryUI();
+		return m_Library->LibraryUI(pm);
 }
 
 CProtectLib::CProtectLib()

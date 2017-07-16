@@ -159,23 +159,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ErasureFileUI.cpp" />
     <ClCompile Include="ErasureMainWnd.cpp" />
     <ClCompile Include="ErasureMethod.cpp" />
     <ClCompile Include="ErasureLibrary.cpp" />
     <ClCompile Include="ErasureThread.cpp" />
-    <ClCompile Include="ErasureRecycleUI.cpp" />
+    <ClCompile Include="ShFileView.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Erasure.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ErasureFileUI.h" />
     <ClInclude Include="ErasureMainWnd.h" />
     <ClInclude Include="ErasureMethod.h" />
     <ClInclude Include="ErasureLibrary.h" />
     <ClInclude Include="ErasureThread.h" />
-    <ClInclude Include="ErasureRecycleUI.h" />
     <ClInclude Include="FileEraser.h" />
+    <ClInclude Include="ShFileView.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Erasure.h" />

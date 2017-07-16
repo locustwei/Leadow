@@ -37,9 +37,10 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 }
 
 
-class CImp: 
-	public IGernalCallback<TCHAR*>, 
+class CImp :
+	public IGernalCallback<TCHAR*>,
 	public IGernalCallback<LPWIN32_FIND_DATA>,
+	public IGernalCallback<CLdArray<TCHAR*>*>,
 	public IGernalCallback<PSH_HEAD_INFO>      //回收站文件显示列信息
 {
 public:
@@ -55,7 +56,7 @@ public:
 			fo.fFlags = FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOERRORUI | FOF_NO_UI;
 			fo.wFunc = FO_DELETE;
 			int hr = SHFileOperation(&fo);
-			if(hr!=0)
+			if (hr != 0)
 				printf("%S = %d\n", name, hr);
 		}
 		printf("%S%S\n", (TCHAR*)Param, pData->cFileName);
@@ -79,52 +80,17 @@ public:
 		Volumes->Add(new CLdString(pData));
 		return true;
 	};
-};
 
-void EnumRecyleFiels()
-{
-	DWORD oldMode;
-	CLdArray<CLdString*> Volumes;
-	CLdString sid;
-	CLdString recyclePath;
-
-	SetThreadErrorMode(SEM_FAILCRITICALERRORS, &oldMode);
-	WIN_OS_TYPE os = GetOsType();
-	if (GetCurrentUserSID(sid) != 0)
-		return;
-	CImp imp;
-	CVolumeUtils::MountedVolumes(&imp, (UINT_PTR)&Volumes);
-
-	for (int i = 0; i<Volumes.GetCount(); i++)
+	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* array, UINT_PTR Param) override
 	{
-		recyclePath = Volumes[i]->GetData();
-		if (os >= Windows_Vista)
-			recyclePath += _T("$RECYCLE.BIN");
-		else
-			recyclePath += _T("RECYCLE");
-
-		switch (CVolumeUtils::GetVolumeFileSystem(Volumes[i]->GetData()))
+		printf("==================================\n");
+		for(int i=0; i<array->GetCount(); i++)
 		{
-		case FS_NTFS:
-			if (os < Windows_Vista)
-				recyclePath += _T("R");
-			//recyclePath += '\\';
-			//recyclePath += sid;
-			break;
-		default:
-			if (os < Windows_Vista)
-				recyclePath += _T("D");
+			printf("%S   \n", array->Get(i));
 		}
-
-		recyclePath += _T("\\");
-
-		CFileUtils::FindFile(recyclePath, L"*", &imp, (UINT_PTR)recyclePath.GetData());
-
-		delete Volumes[i];
-	}
-
-	SetThreadErrorMode(oldMode, &oldMode);
-}
+		return true;
+	};
+};
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -136,7 +102,10 @@ int _tmain(int argc, _TCHAR* argv[])
 //	CSHFolders::EnumFolderColumes(CSIDL_DESKTOP, &imp, 0);
 //	LPITEMIDLIST pidl;
 
+//	CImp imp;
+//	CSHFolders::EnumFolderObjects(L"d:\\迅雷下载\\", &imp, 0);
 	CLdArray<TCHAR*> values;
+	CSHFolders::GetFileAttributeValue(L"D:\\Documents\\新建 Microsoft Word 文档.docx", &values);
 
 	for(int i=0;i<values.GetCount();i++)
 	{

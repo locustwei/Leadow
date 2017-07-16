@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "ErasureFileUI.h"
-#include "ErasureRecycleUI.h"
 #include "ErasureMainWnd.h"
-
+//#include "ErasureFileUI.h"
+//#include "ErasureRecycleUI.h"
+//#include "ErasureVolumeUI.h"
 
 CErasureMainWnd::CErasureMainWnd()
 {
 	m_ErasureFile = nullptr;
 	m_ErasureRecycle = nullptr;
-	BuildXml(_T("erasure\\erasuremain.xml"), nullptr);
+	m_ErasureVolume = nullptr;
 }
 
 
@@ -25,25 +25,32 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	{
 		if (m_ErasureFile == nullptr)
 		{
-			m_ErasureFile = new CErasureFileUI();
-			AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
-			m_TabUI->Add(m_ErasureFile->GetUI());
+//			m_ErasureFile = new CErasureFileUI();
+//			AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
+//			m_TabUI->Add(m_ErasureFile->GetUI());
 		}
-		m_TabUI->SelectItem(m_ErasureFile->GetUI());
+//		m_TabUI->SelectItem(m_ErasureFile->GetUI());
 	}
 	else if (name == _T("recycle"))
 	{
 		if (m_ErasureRecycle == nullptr)
 		{
-			m_ErasureRecycle = new CErasureRecycleUI();
-			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
-			m_TabUI->Add(m_ErasureRecycle->GetUI());
+//			m_ErasureRecycle = new CErasureRecycleUI();
+//			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
+//			m_TabUI->Add(m_ErasureRecycle->GetUI());
 		}
-		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
+//		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
 	}
 	else if (name == _T("unusedspace"))
 	{
-		
+		if (m_ErasureVolume == nullptr)
+		{
+//			m_ErasureVolume = new CErasureVolumeUI();
+//			AddVirtualWnd(m_ErasureVolume->GetUI()->GetVirtualWnd(), m_ErasureVolume);
+//			m_TabUI->Add(m_ErasureVolume->GetUI());
+		}
+//		m_TabUI->SelectItem(m_ErasureVolume->GetUI());
+		MessageBox(0, L"ddddddd", L"", 0);
 	}
 	else if (name == _T("truemove"))
 	{
@@ -63,14 +70,14 @@ DUI_END_MESSAGE_MAP()
 
 void CErasureMainWnd::OnInit()
 {
-	m_TabUI = static_cast<CTabLayoutUI*>(((CContainerUI*)m_Control)->FindSubControl(_T("pagelist")));
+	m_TabUI = static_cast<CTabLayoutUI*>(m_Control->FindControl(CDuiUtils::FindControlByNameProc, _T("pagelist"), 0));
 	if (m_ErasureFile == nullptr)
 	{
-		m_ErasureFile = new CErasureFileUI();
-		AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
-		m_TabUI->Add(m_ErasureFile->GetUI());
+//		m_ErasureFile = new CErasureFileUI();
+//		AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
+//		m_TabUI->Add(m_ErasureFile->GetUI());
 	}
-	m_TabUI->SelectItem(m_ErasureFile->GetUI());
+//	m_TabUI->SelectItem(m_ErasureFile->GetUI());
 }
 
 void CErasureMainWnd::OnClick(TNotifyUI& msg)

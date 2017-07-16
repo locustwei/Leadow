@@ -850,7 +850,8 @@ namespace DuiLib {
 	void CControlUI::SetVirtualWnd(LPCTSTR pstrValue)
 	{
 		m_sVirtualWnd = pstrValue;
-		m_pManager->UsedVirtualWnd(true);
+		if (m_pManager)
+			m_pManager->UsedVirtualWnd(true);
 	}
 
 	CDuiString CControlUI::GetVirtualWnd() const
@@ -916,7 +917,7 @@ namespace DuiLib {
 	void CControlUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
 		// 是否样式表
-		if(m_pManager != NULL) {
+		if(m_pManager != NULL && _tcsicmp(pstrName, _T("style"))==0) {
 			LPCTSTR pStyle = m_pManager->GetStyle(pstrValue);
 			if( pStyle != NULL) {
 				ApplyAttributeList(pStyle);

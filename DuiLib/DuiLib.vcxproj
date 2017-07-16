@@ -69,6 +69,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E106ACD7-4E53-4AEE-942B-D0DD426DB34E}</ProjectGuid>
     <RootNamespace>DuiLib</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -318,7 +319,7 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='ReleaseA|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='ReleaseA|x64'" />
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_d</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)_d</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)_d64</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='SDebug|Win32'">$(ProjectName)_d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='SDebug|x64'">$(ProjectName)_d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='SDebugA|Win32'">$(ProjectName)A_d</TargetName>
@@ -326,7 +327,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugA|Win32'">$(ProjectName)A_d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugA|x64'">$(ProjectName)A_d</TargetName>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebug|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebug|x64'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebugA|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
@@ -350,7 +351,7 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|Win32'">$(SolutionDir)Bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='ReleaseA|x64'">$(SolutionDir)Bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Bin\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebug|Win32'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebug|x64'">$(SolutionDir)Lib\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='SDebugA|Win32'">$(SolutionDir)Lib\</OutDir>
@@ -361,6 +362,9 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='ReleaseA|x64'">$(ProjectName)A</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='SReleaseA|Win32'">$(ProjectName)A</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='SReleaseA|x64'">$(ProjectName)A</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <TargetExt>.dll</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -427,7 +431,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <BaseAddress>0x11000000</BaseAddress>
-      <ImportLibrary>$(SolutionDir)Lib\$(ProjectName)_d.lib</ImportLibrary>
+      <ImportLibrary>$(SolutionDir)Lib\$(ProjectName)_d64.lib</ImportLibrary>
+      <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <SuppressStartupBanner>true</SuppressStartupBanner>
@@ -949,6 +954,7 @@
     <ClCompile Include="Core\ControlFactory.cpp" />
     <ClCompile Include="Core\UIResourceManager.cpp" />
     <ClCompile Include="Layout\UIAnimationTabLayout.cpp" />
+    <ClCompile Include="LeadowUI\DuiUtils.cpp" />
     <ClCompile Include="LeadowUI\FramWnd.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -1034,6 +1040,7 @@
     <ClInclude Include="Core\ControlFactory.h" />
     <ClInclude Include="Core\UIResourceManager.h" />
     <ClInclude Include="Layout\UIAnimationTabLayout.h" />
+    <ClInclude Include="LeadowUI\DuiUtils.h" />
     <ClInclude Include="LeadowUI\FramWnd.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />

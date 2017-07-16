@@ -206,6 +206,9 @@
     <ClCompile Include="LeadowUI\FramWnd.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
+    <ClCompile Include="LeadowUI\DuiUtils.cpp">
+      <Filter>LeadowUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -395,6 +398,9 @@
       <Filter>Header Files\Utils</Filter>
     </ClInclude>
     <ClInclude Include="LeadowUI\FramWnd.h">
+      <Filter>LeadowUI</Filter>
+    </ClInclude>
+    <ClInclude Include="LeadowUI\DuiUtils.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>

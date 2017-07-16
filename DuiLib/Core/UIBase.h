@@ -56,6 +56,7 @@ namespace DuiLib {
 		DUI_DECLARE_MESSAGE_MAP()
 	private:
 		CStdStringPtrMap m_VirtualWndMap;
+		CNotifyPump* FindNotify(LPCTSTR key);
 	};
 
 	class UILIB_API CWindowWnd

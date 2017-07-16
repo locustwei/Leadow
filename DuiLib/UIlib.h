@@ -112,6 +112,7 @@
 #include "Control/UIFadeButton.h"
 #include "Control/UIRing.h"
 
+#include "LeadowUI/DuiUtils.h"
 #include "LeadowUI/FramWnd.h"
 
 #pragma comment( lib, "comctl32.lib" )

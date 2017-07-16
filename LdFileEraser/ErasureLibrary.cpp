@@ -15,10 +15,15 @@ public:
 		if (m_MainWnd)
 			delete m_MainWnd;
 	};
-	virtual CFramWnd* LibraryUI() override
+	virtual CFramWnd* LibraryUI(CPaintManagerUI* pm) override
 	{
 		if (!m_MainWnd)
 			m_MainWnd = new CErasureMainWnd();
+		
+		assert(m_MainWnd);
+
+		m_MainWnd->BuildXml(_T("erasure\\erasuremain.xml"), pm);
+
 		return m_MainWnd;
 	};
 private:
