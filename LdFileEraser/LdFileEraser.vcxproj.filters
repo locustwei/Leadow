@@ -36,14 +36,14 @@
     <ClCompile Include="ErasureLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureThread.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="ShFileView.cpp">
       <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="ErasureRecycleUI.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureThread.cpp">
+      <Filter>Erasure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -68,14 +68,14 @@
     <ClInclude Include="ErasureLibrary.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureThread.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="ShFileView.h">
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="ErasureRecycleUI.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureThread.h">
+      <Filter>Erasure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
