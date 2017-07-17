@@ -2,9 +2,7 @@
 #include "ShFileView.h"
 
 CShFileViewUI::CShFileViewUI():
-	m_Columes(),
-	m_ErasureFiles(500),
-	m_EreaserThreads()
+	m_Columes()
 {
 	lstFile = nullptr;
 	m_HeaderAdded = false;
@@ -19,18 +17,6 @@ CShFileViewUI::~CShFileViewUI()
 		delete m_Columes[i]->szName;
 		delete m_Columes[i];
 	}
-
-	for(int i=0; i<m_ErasureFiles.GetCount(); i++)
-	{
-		PERASURE_FILE_DATA p;
-		if(m_ErasureFiles.GetValueAt(i, p))
-			delete p;
-	}
-
-	m_EreaserThreads.StopThreads();
-	while (m_EreaserThreads.GetCount() > 0)
-		Sleep(10); //等待所有线程结束
-
 }
 
 void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
@@ -82,14 +68,21 @@ DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
 
 	CLdArray<TCHAR*> values;
 	CSHFolders::GetFileAttributeValue(lpFullName, &values);
-	
 	AddRecord(&values);
+	for (int i = 0; i < values.GetCount(); i++)
+		delete values[i];
+
 	return 0;
 }
 
 DWORD CShFileViewUI::AddFolder(TCHAR* lpFullName)
 {
+	if (m_Columes.GetCount() == 0)
+	{
+		CSHFolders::EnumFolderColumes(lpFullName, this, 0);
+	}
 	CSHFolders::EnumFolderObjects(lpFullName, this, 0);
+	return 0;
 }
 
 void CShFileViewUI::OnSelectChanged(TNotifyUI & msg)
@@ -102,7 +95,6 @@ void CShFileViewUI::OnItemClick(TNotifyUI & msg)
 }
 
 DUI_BEGIN_MESSAGE_MAP(CShFileViewUI, CFramWnd)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
@@ -110,6 +102,9 @@ DUI_END_MESSAGE_MAP()
 //lstFile添加列头
 void CShFileViewUI::AddLstViewHeader(int ncount)
 {
+	if (m_HeaderAdded)
+		return;
+
 	CListHeaderUI* pHeader = lstFile->GetHeader();
 	if(pHeader == nullptr)
 	{
@@ -129,45 +124,15 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 		pHeader->Add(pItem);
 
 	}
+	m_HeaderAdded = true;
 }
 //找到虚拟文件并与实际文件对应，
 BOOL CShFileViewUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
 {
-	SHFILEINFO fi;
 	if (pData->GetCount() == 0 || pData->Get(0) == nullptr)
 		return true;
-	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
-	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
-		AddLstViewHeader(pData->GetCount() + 1);
+	AddRecord(pData);
 
-	PERASURE_FILE_DATA pinfo = nullptr;
-	if(m_ErasureFiles.Find(fi.szDisplayName, pinfo))
-	{
-		//添加到lstFile中
-		CListContainerElementUI* item = static_cast<CListContainerElementUI*>(lstFile->GetItemAt(0));
-		if (item->GetTag() != 0)
-		{
-			item = static_cast<CListContainerElementUI*>(item->CloneNew());
-			lstFile->Add(item);
-		}
-		item->SetVisible(true);
-		item->SetTag((UINT_PTR)pinfo);
-		if(pinfo)
-			pinfo->ListRow = item;
-		for (int i = 1; i<pData->GetCount(); i++)
-		{
-			CControlUI* ui = item->GetItemAt(i-1);
-			if (ui)
-			{
-				CControlUI* cap = ui->FindSubControl(_T("caption"));
-				if (cap)
-					cap->SetText(pData->Get(i));
-				else
-					ui->SetText(pData->Get(i));
-
-			}
-		}
-	}
 	return true;
 }
 //获取列信息暂存
@@ -187,17 +152,3 @@ void CShFileViewUI::OnInit()
 	lstFile = static_cast<CListUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0));
 }
 
-void CShFileViewUI::OnClick(TNotifyUI& msg)
-{
-	CDuiString name = msg.pSender->GetName();
-	if (msg.pSender == btnOk)
-	{
-		if (!btnOk->GetTag() && m_EreaserThreads.GetCount() == 0)
-			m_EreaserThreads.AddThread(this, 0);
-		else
-		{
-			m_EreaserThreads.StopThreads();
-			btnOk->SetEnabled(false);
-		}
-	}
-}

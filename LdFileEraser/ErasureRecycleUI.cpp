@@ -90,7 +90,7 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 	m_ErasureFiles.Find(Key, pinfo);
 	CErasureThread* pProcess = (CErasureThread*)Sender;
 
-	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->ListRow;
+	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->pProgress;
 	if (ui)
 	{//显示进度条
 		pProcess->ui = (CProgressUI*)ui->FindSubControl(_T("progress"));
@@ -168,7 +168,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 	ZeroMemory(p, sizeof(ERASURE_FILE_DATA));
 	s += pData->cFileName;
 	s.CopyTo(p->cFileName);
-	p->ListRow = nullptr;
+	p->pProgress = nullptr;
 	p->IsDirectory =(pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY;
 	if(p->IsDirectory)
 		CFileUtils::FindFile(s, _T("*.*"), this, (UINT_PTR)s.GetData());
@@ -217,7 +217,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		item->SetVisible(true);
 		item->SetTag((UINT_PTR)pinfo);
 		if(pinfo)
-			pinfo->ListRow = item;
+			pinfo->pProgress = item;
 		for (int i = 1; i<pData->GetCount(); i++)
 		{
 			CControlUI* ui = item->GetItemAt(i-1);

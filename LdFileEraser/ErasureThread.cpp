@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 
-CErasureThread::CErasureThread(IThreadRunable* run):CThread(run)
+CErasureThread::CErasureThread(PERASURE_FILE_DATA pEraseFile)
 {
-	ui = NULL;
+	m_Data = pEraseFile;
 }
 
 
@@ -13,20 +13,20 @@ CErasureThread::~CErasureThread()
 
 BOOL CErasureThread::ErasureStart(UINT nStepCount)
 {
-	if (ui)
+	if (m_Data && m_Data->pProgress)
 	{
-		ui->SetVisible(true);
+		m_Data->pProgress->SetVisible(true);
 	}
-	return !GetTerminated();
+	return m_Data->nStatus != efs_abort;
 }
 
 BOOL CErasureThread::ErasureCompleted(UINT nStep, DWORD dwErroCode)
 {
-	if (ui)
+	if (m_Data && m_Data->pProgress)
 	{
-		ui->SetVisible(false);
+		m_Data->pProgress->SetVisible(false);
 	}
-	return !GetTerminated();
+	return m_Data->nStatus != efs_abort;
 }
 
 BOOL CErasureThread::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent)
@@ -34,20 +34,130 @@ BOOL CErasureThread::ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCuren
 	if (nMaxCount <= 0)
 		return FALSE;
 
-	if (ui)
+	if (m_Data && m_Data->pProgress)
 	{
-		//ui->SetMaxValue(nMaxCount);
-		ui->SetValue(nCurent * 100 / nMaxCount);
+		m_Data->pProgress->SetValue(nCurent * 100 / nMaxCount);
 	}
-	return !GetTerminated();
+	return m_Data->nStatus != efs_abort;
 }
 
-CThread* CEreaserThrads::AddThread(IThreadRunable* run, UINT_PTR Param)
+VOID CErasureThread::ThreadRun(CThread * Sender, WPARAM Param)
+{
+	if (Sender->GetTerminated())
+		return;
+	if (!m_Data)
+		return;
+
+	CErasure erasure;
+	switch(m_Data->nFileType)
+	{
+	case eft_file: 
+	case eft_directory: 
+		m_Data->nErrorCode = erasure.FileErasure(m_Data->cFileName, CErasureMethod::Pseudorandom(), this);
+		break;
+	case eft_volume: 
+		m_Data->nErrorCode = erasure.UnuseSpaceErasure(m_Data->cFileName, CErasureMethod::Pseudorandom(), this);
+		break;
+	default: 
+		break;
+	}
+
+	if (m_Data->nErrorCode == 0)
+	{
+		m_Data->nStatus = efs_erasured;
+	}else
+	{
+		m_Data->nStatus = efs_error;
+	}
+}
+
+VOID CErasureThread::OnThreadInit(CThread * Sender, WPARAM Param)
+{
+	return VOID();
+}
+
+VOID CErasureThread::OnThreadTerminated(CThread * Sender, WPARAM Param)
+{
+	return VOID();
+}
+
+CEreaserThrads::CEreaserThrads():
+	m_Threads(),
+	m_Files()
+{
+	InitializeCriticalSection(&cs);
+}
+
+void CEreaserThrads::StopThreads()
 {
 	EnterCriticalSection(&cs);
-	CErasureThread* result = new CErasureThread(run);
-	Add(result);
-	result->Start(Param);
+	for (int i = 0; i < m_Threads.GetCount(); i++)
+		m_Threads.Get(i)->SetTerminatee(true);
 	LeaveCriticalSection(&cs);
-	return result;
+}
+
+void CEreaserThrads::AddEreaureFile(PERASURE_FILE_DATA pFile)
+{
+}
+
+DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
+{
+	CThread* thread = new CThread(this);
+	thread->Start(nMaxCount);
+}
+
+void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
+{
+	for (int i = 0; i < m_Files.GetCount(); i++)
+	{//先擦除文件
+		if (Sender->GetTerminated())
+			break;
+
+		PERASURE_FILE_DATA pinfo = m_Files[i];
+		if (pinfo->nStatus == efs_erasured || pinfo->nFileType != eft_file)
+			continue;
+
+		while (m_Threads.GetCount() >= Param)
+		{
+			Sleep(50);
+			if (Sender->GetTerminated())
+				break;
+		}
+		CErasureThread* eraser = new CErasureThread(pinfo);
+		CThread* thread = new CThread(eraser);
+
+		m_Threads.Add(eraser);
+	}
+
+	if (Sender->GetTerminated())
+		return;
+
+	for (int i = 0; i < m_Files.GetCount(); i++)
+	{//目录
+		if (Sender->GetTerminated())
+			break;
+
+		PERASURE_FILE_DATA pinfo = m_Files[i];
+		if (pinfo->nStatus == efs_erasured || pinfo->nFileType == eft_file)
+			continue;
+
+		while (m_Threads.GetCount() >= Param)
+		{
+			Sleep(50);
+			if (Sender->GetTerminated())
+				break;
+		}
+		CErasureThread* eraser = new CErasureThread(pinfo);
+		CThread* thread = new CThread(eraser);
+
+		m_Threads.Add(eraser);
+	}
+}
+
+void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
+{
+}
+
+void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
+{
 }
