@@ -1,7 +1,6 @@
 #pragma once
 
 #include "stdafx.h"
-#include "LdStructs.h"
 
 class CThread;
 
@@ -17,7 +16,7 @@ class CThread
 public:
 	CThread(void);
 	CThread(IThreadRunable* pRumer);
-	~CThread(void);
+	virtual ~CThread(void);
 
 	int	GetPriority();
 	BOOL SetPriority(int nPriority);

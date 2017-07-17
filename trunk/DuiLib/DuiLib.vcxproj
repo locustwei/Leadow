@@ -327,7 +327,7 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugA|Win32'">$(ProjectName)A_d</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='DebugA|x64'">$(ProjectName)A_d</TargetName>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)\$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebug|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebug|x64'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='SDebugA|Win32'">$(SolutionDir)Temp\$(Configuration)\</IntDir>
