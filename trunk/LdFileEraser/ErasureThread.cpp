@@ -108,6 +108,7 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 
 void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
 {
+	WaitForMultipleObjects()
 	for (int i = 0; i < m_Files.GetCount(); i++)
 	{//ÏÈ²Á³ýÎÄ¼þ
 		if (Sender->GetTerminated())
@@ -125,7 +126,7 @@ void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
 		}
 		CErasureThread* eraser = new CErasureThread(pinfo);
 		CThread* thread = new CThread(eraser);
-
+		thread->Start(0);
 		m_Threads.Add(eraser);
 	}
 
