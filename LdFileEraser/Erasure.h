@@ -41,15 +41,14 @@ public:
 	// Parameter: CErasureMethod & method 
 	// Parameter: IErasureCallback * callback
 	//************************************
-	DWORD UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasureCallback* callback);
+	DWORD UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasureCallback* callback);
 	//************************************
 	// Qualifier: 擦除文件，同时删除。
 	// Parameter: TCHAR * lpFileName
 	// Parameter: CErasureMethod & m_method
 	// Parameter: IErasureCallback * callbck
 	//************************************
-	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod& method, IErasureCallback* callbck);
-	DWORD ErasureRecycle(CErasureMethod& method, IErasureCallback* callbck);
+	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod* method, IErasureCallback* callbck);
 private:
 	CVolumeInfo m_volInfo;
 	CLdString m_tmpDir;

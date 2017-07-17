@@ -7,7 +7,8 @@ class CThread;
 class IThreadRunable{
 public:
 	virtual VOID ThreadRun(CThread* Sender, UINT_PTR Param) = 0;
-	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) = 0;
+	//线程还么有启动，在主线程内
+	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) = 0;  
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) = 0;
 };
 

@@ -4,8 +4,6 @@
 
 class LDLIB_API CErasureRecycleUI : 
 	public CFramWnd, 
-	IThreadRunable,                      //文件擦除线程执行代码
-	IGernalCallback<LPVOID>,             //擦除完成删除ListUI行（Send2MainThread）   
 	IGernalCallback<LPWIN32_FIND_DATA>,  //回收站实际文件
 	IGernalCallback<CLdArray<TCHAR*>*>,  //回收站显示文件
 	IGernalCallback<PSH_HEAD_INFO>,      //回收站文件显示列信息
@@ -32,8 +30,6 @@ private:
 protected:
 	virtual void OnInit() override;
 	void AddLstViewHeader(int ncount);
-	//主线程中删除已擦除的文件对应lstFile行
-	BOOL GernalCallback_Callback(LPVOID pData, UINT_PTR Param) override;
 	//FindFirst 回收站实际文件
 	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param) override;
 	//ShGetFileInfo 回收站显示文件
@@ -45,10 +41,5 @@ protected:
 
 	void ErasureAllFiles(CThread* Sender);
 	void ErasureSingleFile(CThread* Sender, TCHAR* Key);
-
-	virtual VOID ThreadRun(CThread* Sender, UINT_PTR Param) override;
-	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override;
-	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
-
 };
 

@@ -61,7 +61,7 @@ public:
 private:
 };
 
-DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasureCallback* callback)
+DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasureCallback* callback)
 {
 
 	//检查是否有管理员权限（错误）
@@ -74,7 +74,7 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 		if(!callback->ErasureStart(3))
 			return ERROR_CANCELED;
 
-		m_method = &method;
+		m_method = method;
 
 		Result = m_volInfo.OpenVolumePath(Driver);
 		if (Result != 0)
@@ -109,13 +109,13 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod& method, IErasur
 	return Result;
 }
 
-DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasureCallback * callbck)
+DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasureCallback * callbck)
 {
 	DWORD result = 0;
 
-	m_method = &method;
+	m_method = method;
 
-	if (!callbck->ErasureStart(method.GetPassCount()))
+	if (!callbck->ErasureStart(method->GetPassCount()))
 		return ERROR_CANCELED;
 
 	DWORD dwAttr = GetFileAttributes(lpFileName);
@@ -140,13 +140,8 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod & method, IErasur
 	if(result == 0)
 		result = DeleteTempFiles(callbck);
 
-	callbck->ErasureCompleted(method.GetPassCount(), result);
+	callbck->ErasureCompleted(method->GetPassCount(), result);
 	return result;
-}
-
-DWORD CErasure::ErasureRecycle(CErasureMethod & method, IErasureCallback * callbck)
-{
-	return 0;
 }
 
 DWORD CErasure::UnusedSpace2TempFile(IErasureCallback* callback)

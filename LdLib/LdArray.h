@@ -3,6 +3,12 @@
 #include "stdafx.h"
 
 template <typename T >
+class ISortCompare
+{
+	virtual int ArraySortCompare(T* it1, T* it2) = 0;
+};
+
+template <typename T >
 class CLdArray
 {
 public:
@@ -159,7 +165,7 @@ public:
 	{
 		return FCount;
 	}
-	void Sort()
+	void Sort(ISortCompare* compare)
 	{
 		//qsort_s()
 	};

@@ -88,7 +88,7 @@ void CErasureRecycleUI::ErasureSingleFile(CThread* Sender, TCHAR* Key)
 
 	PERASURE_FILE_DATA pinfo;
 	m_ErasureFiles.Find(Key, pinfo);
-	CErasureThread* pProcess = (CErasureThread*)Sender;
+	IErasureCallbackImpl* pProcess = (IErasureCallbackImpl*)Sender;
 
 	CListContainerElementUI* ui = (CListContainerElementUI*)pinfo->pProgress;
 	if (ui)
