@@ -22,13 +22,14 @@ private:
 	boolean m_HeaderAdded;
 	TCHAR* m_ItemSkin;
 
-	CListUI* lstFile;
 	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView 列头
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
 
 protected:
+	CListUI* lstFile;
+
 	virtual void OnInit() override;
 	void AddLstViewHeader(int ncount);
 	//ShGetFileInfo 回收站显示文件

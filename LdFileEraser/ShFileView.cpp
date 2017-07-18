@@ -85,6 +85,11 @@ DWORD CShFileViewUI::AddFolder(TCHAR* lpFullName)
 	return 0;
 }
 
+DWORD CShFileViewUI::AddFolder(int nFolderCSIDL)
+{
+	return 0;
+}
+
 void CShFileViewUI::OnSelectChanged(TNotifyUI & msg)
 {
 }
