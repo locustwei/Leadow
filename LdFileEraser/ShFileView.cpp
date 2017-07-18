@@ -115,8 +115,8 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 	if (m_HeaderAdded)
 		return;
 
-	CListHeaderUI * pHeader = new CListHeaderUI();
-	lstFile->Add(pHeader);
+	CListHeaderUI * pHeader = lstFile->GetHeader();
+	//lstFile->Add(pHeader);
 	pHeader->SetAttribute(_T("style"), _T("lstHeader_file"));
 
 	for(int i=0; i<ncount; i++)
