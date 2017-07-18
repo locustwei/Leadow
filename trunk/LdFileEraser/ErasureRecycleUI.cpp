@@ -73,8 +73,8 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	if (pData->GetCount() == 0 || pData->Get(0) == nullptr)
 		return true;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
-	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
-		AddLstViewHeader(pData->GetCount() + 1);
+//	if (pData->GetCount() > lstFile->GetHeader()->GetCount() + 1)
+//		AddLstViewHeader(pData->GetCount() + 1);
 
 	PERASURE_FILE_DATA pinfo = nullptr;
 	if(m_ErasureFiles.Find(fi.szDisplayName, pinfo))
