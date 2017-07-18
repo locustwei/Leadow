@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window size="400,320" sizebox="4,4,6,6" caption="0,0,0,24" roundcorner="5,5">
+		<Default name="Progress" value="float=&quot;false&quot; foreimage=&quot;file='erasure/progress_fore.png'&quot; maxheight=&quot;7&quot;"/>
+    <VerticalLayout bordersize="1" inset="1,1,1,1">
+        <HorizontalLayout height="1"  />
+        <HorizontalLayout inset="3,0,3,3">
+            <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true">
+                <ListHeader height="24" >
+                    <ListHeaderItem visible="false" text="" width="100" minwidth="10" />
+                </ListHeader>
+                
+                <ListContainerElement height="40" visible="false">
+                		<VerticalLayout inset="4,0,4,0">
+												<Label name="caption" text="" padding="0,0,5,0"/>
+												<Progress name="progress" visible="false" min="0" max="100" value="20" />
+										</VerticalLayout>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+										<Label text="" padding="5,0,5,0"/>
+							  </ListContainerElement>
+									  
+            </List>
+        </HorizontalLayout>
+        <HorizontalLayout height="40" padding="0,5,10,10" inset="0,1,0,0" childpadding="5">
+            <Control />
+            <Button name="btnOk" text="执行" width="100" />
+        </HorizontalLayout>
+    </VerticalLayout>
+</Window>

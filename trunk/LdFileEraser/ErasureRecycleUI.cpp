@@ -8,6 +8,7 @@ CErasureRecycleUI::CErasureRecycleUI():
 	m_EreaserThreads(nullptr)
 {
 	btnOk = nullptr;
+	m_ItemSkin = _T("erasure\\listitem.xml");
 	BuildXml(_T("erasure\\erasurerecycle.xml"), nullptr);
 }
 
@@ -143,7 +144,7 @@ void CErasureRecycleUI::OnInit()
 	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
 	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）
-	AddFolder(CSIDL_BITBUCKET);
+	//AddFolder(CSIDL_BITBUCKET);
 }
 
 BOOL CErasureRecycleUI::GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UINT_PTR Param)

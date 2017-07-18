@@ -138,6 +138,7 @@ namespace DuiLib
 				m_pManager->AddDelayedCleanup(pItem);             
 			}
 			else {
+				DUI__Trace(L"delete %s \n", pItem->GetClass());
 				delete pItem;
 				pItem = NULL;
 			}

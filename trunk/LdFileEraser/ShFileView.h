@@ -1,26 +1,28 @@
 #pragma once
-#include <minwindef.h>
 
 
 class LDLIB_API CShFileViewUI : 
 	public CFramWnd, 
-	IGernalCallback<CLdArray<TCHAR*>*>,  	
-	IGernalCallback<PSH_HEAD_INFO>     
+	IGernalCallback<CLdArray<TCHAR*>*>,  	 //CSHFolders::EnumFolderObjects 回掉
+	IGernalCallback<PSH_HEAD_INFO>           //CSHFolders::EnumFolderColumes 回掉
 {
 public:
 	CShFileViewUI();
 	virtual ~CShFileViewUI() override;
 
-	void AddRecord(CLdArray<TCHAR*>* values);
+	//加一行
+	void AddRecord(CLdArray<TCHAR*>* values); 
+	//加一个文件（CSHFolders::GetFileAttributeValue）
 	DWORD AddFile(TCHAR* lpFullName);
+	//添加目录（CSHFolders::EnumFolderObjects）
 	DWORD AddFolder(TCHAR* lpFullName);
+	//添加特殊目录
 	DWORD AddFolder(int nFolderCSIDL);
 
 	DUI_DECLARE_MESSAGE_MAP()
 
 private:
 	boolean m_HeaderAdded;
-	TCHAR* m_ItemSkin;
 
 	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView 列头
 
@@ -29,6 +31,7 @@ private:
 
 protected:
 	CListUI* lstFile;
+	TCHAR* m_ItemSkin;
 
 	virtual void OnInit() override;
 	void AddLstViewHeader(int ncount);
