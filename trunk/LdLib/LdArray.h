@@ -165,7 +165,7 @@ public:
 	{
 		return FCount;
 	}
-	void Sort(ISortCompare* compare)
+	void Sort(ISortCompare<T>* compare)
 	{
 		//qsort_s()
 	};

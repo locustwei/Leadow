@@ -30,9 +30,10 @@ typedef struct ERASURE_FILE_DATA
 
 enum E_THREAD_OPTION
 {
-	eto_start,     //开始擦除
+	eto_begin,     //控制线程开始
+	eto_start,     //开始擦除（单个文件）
 	eto_completed, //擦除完成（单个文件）
-	eto_progress,  //擦除进度
+	eto_progress,  //擦除进度（单个文件）
 	eto_finished   //全部擦除完成
 };
 //擦除过程中回掉函数参数
@@ -46,6 +47,7 @@ typedef struct ERASE_CALLBACK_PARAM
 
 #define MAX_THREAD_COUNT 6  //同时开启文件擦除线程数
 //文件擦除线程（同时创建多个文件擦除线程）
+//线程池
 class CEreaserThrads : 
 	public IThreadRunable,
 	public ISortCompare<PERASURE_FILE_DATA>
@@ -54,7 +56,7 @@ public:
 	CEreaserThrads(IGernalCallback<PERASE_CALLBACK_PARAM>* callback);
 	~CEreaserThrads();
 
-	void StopThreads();
+	void StopThreads();     //终止擦除
 	void AddEreaureFile(PERASURE_FILE_DATA pFile);  //添加擦除文件
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 protected:
@@ -69,11 +71,13 @@ private:
 	HANDLE m_hEvent;  //控制中途中断所有擦除线程
 	boolean m_Abort;  //中断变量
 	int m_nMaxThreadCount;  //最多线程数
+	CThread* m_ControlThread; //控制线程
 
 	IGernalCallback<PERASE_CALLBACK_PARAM>* m_callback;  //擦除过程回掉函数，用于调用者界面操作
 	CLdArray<PERASURE_FILE_DATA> m_Files;    //待擦除的文件
 
-	class CErasureCallbackImpl :      //CEreaser 擦除操作回掉函数
+	//CEreaser 擦除操作回掉函数
+	class CErasureCallbackImpl :      
 		public IErasureCallback
 	{
 	public:
@@ -81,7 +85,7 @@ private:
 		~CErasureCallbackImpl();
 
 		PERASE_CALLBACK_PARAM m_Data;
-		CEreaserThrads* threads;
+		CEreaserThrads* m_Control;
 
 		virtual BOOL ErasureStart(UINT nStepCount) override;
 		virtual BOOL ErasureCompleted(UINT nStep, DWORD dwErroCode) override;

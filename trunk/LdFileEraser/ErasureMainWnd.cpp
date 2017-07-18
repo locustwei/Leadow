@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ErasureMainWnd.h"
 //#include "ErasureFileUI.h"
-//#include "ErasureRecycleUI.h"
+#include "ErasureRecycleUI.h"
 //#include "ErasureVolumeUI.h"
 
 CErasureMainWnd::CErasureMainWnd()
@@ -35,11 +35,11 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	{
 		if (m_ErasureRecycle == nullptr)
 		{
-//			m_ErasureRecycle = new CErasureRecycleUI();
-//			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
-//			m_TabUI->Add(m_ErasureRecycle->GetUI());
+			m_ErasureRecycle = new CErasureRecycleUI();
+			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
+			m_TabUI->Add(m_ErasureRecycle->GetUI());
 		}
-//		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
+		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
 	}
 	else if (name == _T("unusedspace"))
 	{
@@ -50,7 +50,6 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 //			m_TabUI->Add(m_ErasureVolume->GetUI());
 		}
 //		m_TabUI->SelectItem(m_ErasureVolume->GetUI());
-		MessageBox(0, L"ddddddd", L"", 0);
 	}
 	else if (name == _T("truemove"))
 	{
