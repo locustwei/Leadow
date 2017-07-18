@@ -50,6 +50,7 @@ namespace DuiLib {
 
 	CControlUI::~CControlUI()
 	{
+		DUI__Trace(L"free %s \n", GetClass());
 		if( OnDestroy ) OnDestroy(this);
 		RemoveAllCustomAttribute();	
 		if( m_pManager != NULL ) m_pManager->ReapObjects(this);
@@ -96,6 +97,9 @@ namespace DuiLib {
 	void CControlUI::SetManager(CPaintManagerUI* pManager, CControlUI* pParent, bool bInit)
 	{
 		m_pManager = pManager;
+		if (m_pManager && !m_sVirtualWnd.IsEmpty())
+			m_pManager->UsedVirtualWnd(true);
+
 		m_pParent = pParent;
 		if( bInit && m_pParent ) Init();
 	}

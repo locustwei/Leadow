@@ -29,9 +29,10 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 		CDialogBuilder builder;
 		CListContainerElementUI* pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
 		assert(pItem);
-		for (int i = 0; i < values->GetCount(); i++)
+		lstFile->Add(pItem);
+		for (int i = 1; i < values->GetCount(); i++)
 		{
-			CControlUI* ctrl = pItem->GetItemAt(i);
+			CControlUI* ctrl = pItem->GetItemAt(i-1);
 			if (ctrl)
 			{
 				CControlUI* cap = ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("caption"), 0);
@@ -46,16 +47,15 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 				cap->SetText(values->Get(i));
 			}
 		}
-		lstFile->Add(pItem);
 	}
 	else
 	{
 		CListTextElementUI* pItem = new CListTextElementUI();
+		lstFile->Add(pItem);
 		for (int i = 0; i < values->GetCount(); i++)
 		{
 			pItem->SetText(0, values->Get(i));
 		}
-		lstFile->Add(pItem);
 	}
 }
 
@@ -87,6 +87,11 @@ DWORD CShFileViewUI::AddFolder(TCHAR* lpFullName)
 
 DWORD CShFileViewUI::AddFolder(int nFolderCSIDL)
 {
+	if (m_Columes.GetCount() == 0)
+	{
+		CSHFolders::EnumFolderColumes(nFolderCSIDL, this, 0);
+	}
+	CSHFolders::EnumFolderObjects(nFolderCSIDL, this, 0);
 	return 0;
 }
 
@@ -110,23 +115,20 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 	if (m_HeaderAdded)
 		return;
 
-	CListHeaderUI* pHeader = lstFile->GetHeader();
-	if(pHeader == nullptr)
-	{
-		pHeader = new CListHeaderUI();
-		pHeader->SetAttribute(_T("style"), _T("lstHeader_file"));
-	}
+	CListHeaderUI * pHeader = new CListHeaderUI();
+	lstFile->Add(pHeader);
+	pHeader->SetAttribute(_T("style"), _T("lstHeader_file"));
 
 	for(int i=0; i<ncount; i++)
 	{
 		if (i >= m_Columes.GetCount())
 			break;
 		CListHeaderItemUI* pItem = new CListHeaderItemUI();
+		pHeader->Add(pItem);
 		pItem->SetAttribute(_T("style"), _T("lstHeaderitem_file"));
 
 		pItem->SetText(m_Columes[i]->szName);
-		pItem->SetFixedWidth(m_Columes[i]->cxChar * 10);
-		pHeader->Add(pItem);
+		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
 
 	}
 	m_HeaderAdded = true;

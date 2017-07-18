@@ -18,11 +18,11 @@ public:
 	virtual CFramWnd* LibraryUI(CPaintManagerUI* pm) override
 	{
 		if (!m_MainWnd)
+		{
 			m_MainWnd = new CErasureMainWnd();
-		
+			m_MainWnd->BuildXml(_T("erasure\\erasuremain.xml"), pm);
+		}
 		assert(m_MainWnd);
-
-		m_MainWnd->BuildXml(_T("erasure\\erasuremain.xml"), pm);
 
 		return m_MainWnd;
 	};

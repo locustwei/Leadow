@@ -38,6 +38,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			m_ErasureRecycle = new CErasureRecycleUI();
 			AddVirtualWnd(m_ErasureRecycle->GetUI()->GetVirtualWnd(), m_ErasureRecycle);
 			m_TabUI->Add(m_ErasureRecycle->GetUI());
+			((CErasureRecycleUI*)m_ErasureRecycle)->AddFolder(CSIDL_BITBUCKET);
 		}
 		m_TabUI->SelectItem(m_ErasureRecycle->GetUI());
 	}
