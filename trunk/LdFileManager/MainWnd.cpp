@@ -19,12 +19,20 @@ CMainWnd::CMainWnd(TCHAR* xmlSkin)
 CMainWnd::~CMainWnd()
 {
 	if (m_ErasureLib)
+	{
+		RemoveVirtualWnd(m_ErasureLib->LibraryUI(nullptr)->GetUI()->GetVirtualWnd());
 		delete m_ErasureLib;
+		m_ErasureLib = nullptr;
+	}
 	if (m_ProtectLib)
+	{
+		RemoveVirtualWnd(m_ProtectLib->LibraryUI()->GetUI()->GetVirtualWnd());
 		delete m_ProtectLib;
+		m_ProtectLib = nullptr;
+	}
 }
 
-
+//
 //DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
 //{
 //	return NULL;
@@ -59,10 +67,10 @@ DuiLib::CDuiString CMainWnd::GetSkinFile()
 	return m_Skin;
 }
 
-//CDuiString CMainWnd::GetSkinFolder()
-//{
-//	return _T("skin");
-//}
+CDuiString CMainWnd::GetSkinFolder()
+{
+	return _T("skin");
+}
 
 void CMainWnd::OnClick(TNotifyUI& msg)
 {
@@ -74,7 +82,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 	if (msg.sType == _T("selectchanged"))
 	{
 		CDuiString name = msg.pSender->GetName();
-		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_pm.FindControl(_T("switch")));
+		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
 		if (name == _T("search"))
 			pControl->SelectItem(0);
 		else if (name == _T("erasure"))
@@ -84,7 +92,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 				m_ErasureLib = new CErasureLib();
 
 			}
-			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_pm);
+			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_PaintManager);
 			_ASSERTE(frame);
 			if (pControl->GetItemIndex(*frame) == -1)
 			{

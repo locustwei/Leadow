@@ -5,9 +5,8 @@
 
 namespace DuiLib
 {
-	class UILIB_API CSliderUI : public CProgressUI
+	class DUILIB_API CSliderUI : public CProgressUI
 	{
-		DECLARE_DUICONTROL(CSliderUI)
 	public:
 		CSliderUI();
 
@@ -21,6 +20,8 @@ namespace DuiLib
 		void SetChangeStep(int step);
 		void SetThumbSize(SIZE szXY);
 		RECT GetThumbRect() const;
+		bool IsImmMode() const;
+		void SetImmMode(bool bImmMode);
 		LPCTSTR GetThumbImage() const;
 		void SetThumbImage(LPCTSTR pStrImage);
 		LPCTSTR GetThumbHotImage() const;
@@ -30,22 +31,17 @@ namespace DuiLib
 
 		void DoEvent(TEventUI& event);
 		void SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue);
-		void PaintForeImage(HDC hDC);
+		void PaintStatusImage(HDC hDC);
 
-		void SetValue(int nValue);
-		void SetCanSendMove(bool bCanSend);
-		bool GetCanSendMove() const;
 	protected:
 		SIZE m_szThumb;
 		UINT m_uButtonState;
 		int m_nStep;
+		bool m_bImmMode;
 
-		CDuiString m_sThumbImage;
-		CDuiString m_sThumbHotImage;
-		CDuiString m_sThumbPushedImage;
-
-		CDuiString m_sImageModify;
-		bool	   m_bSendMove;
+		TDrawInfo m_diThumb;
+		TDrawInfo m_diThumbHot;
+		TDrawInfo m_diThumbPushed;
 	};
 }
 

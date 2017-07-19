@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "UIFlash.h"
 #include <atlcomcli.h>
 
@@ -8,7 +8,6 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CFlashUI)
 
 	CFlashUI::CFlashUI(void)
 		: m_dwRef(0)
@@ -43,7 +42,7 @@ namespace DuiLib
 
 	LPVOID CFlashUI::GetInterface( LPCTSTR pstrName )
 	{
-		if( _tcsicmp(pstrName, DUI_CTR_FLASH) == 0 ) return static_cast<CFlashUI*>(this);
+		if( _tcscmp(pstrName, DUI_CTR_FLASH) == 0 ) return static_cast<CFlashUI*>(this);
 		return CActiveXUI::GetInterface(pstrName);
 	}
 
@@ -64,8 +63,6 @@ namespace DuiLib
 
 	HRESULT STDMETHODCALLTYPE CFlashUI::Invoke( DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr )
 	{
-
-		return S_OK;
 		switch(dispIdMember)
 		{
 		case DISPID_FLASHEVENT_FLASHCALL:
@@ -111,7 +108,7 @@ namespace DuiLib
 		*ppvObject = NULL;
 
 		if( riid == IID_IUnknown)
-			*ppvObject = static_cast</*IOleWindow**/LPUNKNOWN>(this);
+			*ppvObject = static_cast<LPUNKNOWN>(this);
 		else if( riid == IID_IDispatch)
 			*ppvObject = static_cast<IDispatch*>(this);
 		else if( riid ==  __uuidof(_IShockwaveFlashEvents))
@@ -267,4 +264,15 @@ namespace DuiLib
 		return hr; 
 	}
 
+	void CFlashUI::SetAttribute( LPCTSTR pstrName, LPCTSTR pstrValue )
+	{
+		if (_tcscmp(pstrName, _T("homepage")) == 0)
+		{
+		}
+		else if (_tcscmp(pstrName, _T("autonavi"))==0)
+		{
+		}
+		else
+			CActiveXUI::SetAttribute(pstrName, pstrValue);
+	}
 };

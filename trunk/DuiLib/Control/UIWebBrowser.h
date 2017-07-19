@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <MsHTML.h>
 #include "Utils/WebBrowserEventHandler.h"
 #include <ExDisp.h>
 
 namespace DuiLib
 {
-	class UILIB_API CWebBrowserUI
+	class DUILIB_API CWebBrowserUI
 		: public CActiveXUI
 		, public IDocHostUIHandler
 		, public IServiceProvider
@@ -17,7 +16,6 @@ namespace DuiLib
 		, public IDispatch
 		, public ITranslateAccelerator
 	{
-		DECLARE_DUICONTROL(CWebBrowserUI)
 	public:
 		/// ¹¹Ôìº¯Êý
 		CWebBrowserUI();
@@ -61,11 +59,10 @@ namespace DuiLib
 		void BeforeNavigate2( IDispatch *pDisp,VARIANT *&url,VARIANT *&Flags,VARIANT *&TargetFrameName,VARIANT *&PostData,VARIANT *&Headers,VARIANT_BOOL *&Cancel );
 		void NavigateError(IDispatch *pDisp,VARIANT * &url,VARIANT *&TargetFrameName,VARIANT *&StatusCode,VARIANT_BOOL *&Cancel);
 		void NavigateComplete2(IDispatch *pDisp,VARIANT *&url);
+		void DocumentComplete(IDispatch *pDisp,VARIANT *&url); 
 		void ProgressChange(LONG nProgress, LONG nProgressMax);
 		void NewWindow3(IDispatch **pDisp, VARIANT_BOOL *&Cancel, DWORD dwFlags, BSTR bstrUrlContext, BSTR bstrUrl);
 		void CommandStateChange(long Command,VARIANT_BOOL Enable);
-		void TitleChange(BSTR bstrTitle);
-		void DocumentComplete(IDispatch *pDisp,VARIANT *&url);
 
 	public:
 		virtual LPCTSTR GetClass() const;

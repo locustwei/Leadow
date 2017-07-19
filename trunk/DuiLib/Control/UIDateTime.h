@@ -8,14 +8,15 @@ namespace DuiLib
 	class CDateTimeWnd;
 
 	/// 时间选择控件
-	class UILIB_API CDateTimeUI : public CLabelUI
+	class DUILIB_API CDateTimeUI : public CLabelUI
 	{
-		DECLARE_DUICONTROL(CDateTimeUI)
 		friend class CDateTimeWnd;
 	public:
 		CDateTimeUI();
 		LPCTSTR GetClass() const;
 		LPVOID GetInterface(LPCTSTR pstrName);
+		UINT GetControlFlags() const;
+		HWND GetNativeWindow() const;
 
 		SYSTEMTIME& GetTime();
 		void SetTime(SYSTEMTIME* pst);
@@ -24,6 +25,9 @@ namespace DuiLib
 		bool IsReadOnly() const;
 
 		void UpdateText();
+
+        void SetPos(RECT rc, bool bNeedInvalidate = true);
+        void Move(SIZE szOffset, bool bNeedInvalidate = true);
 
 		void DoEvent(TEventUI& event);
 

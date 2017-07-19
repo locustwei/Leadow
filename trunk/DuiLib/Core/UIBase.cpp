@@ -11,19 +11,16 @@ namespace DuiLib {
 //
 //
 
-void UILIB_API DUI__Trace(LPCTSTR pstrFormat, ...)
+void DUILIB_API DUI__Trace(LPCTSTR pstrFormat, ...)
 {
 #ifdef _DEBUG
-	TCHAR szBuffer[2048] = {0};
+    TCHAR szBuffer[300] = { 0 };
     va_list args;
     va_start(args, pstrFormat);
-	_vsntprintf(szBuffer, 2048, pstrFormat, args); 
+    ::wvnsprintf(szBuffer, lengthof(szBuffer) - 2, pstrFormat, args);
+    _tcscat(szBuffer, _T("\n"));
     va_end(args);
-    
-	CDuiString strMsg = szBuffer;
-    strMsg += _T("\n");
-    OutputDebugString(strMsg.GetData());
-
+    ::OutputDebugString(szBuffer);
 #endif
 }
 
@@ -191,32 +188,19 @@ LDispatch:
 	return bRet;
 }
 
-CNotifyPump* CNotifyPump::FindNotify(LPCTSTR key)
-{
-	CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
-	if (pObject)
-		return pObject;
-
-	for (int i = 0; i < m_VirtualWndMap.GetSize(); i++) {
-		if (LPCTSTR item = m_VirtualWndMap.GetAt(i)) {
-			pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(item, false));
-			if (pObject)
-			{
-				pObject = pObject->FindNotify(key);
-				if (pObject)
-					return pObject;
-			}
-		}
-	}
-	return NULL;
-}
 void CNotifyPump::NotifyPump(TNotifyUI& msg)
 {
 	///遍历虚拟窗口
 	if( !msg.sVirtualWnd.IsEmpty() ){
-		CNotifyPump* pObject = FindNotify(msg.sVirtualWnd.GetData());
-		if (pObject && pObject->LoopDispatch(msg))
-			return;
+		for( int i = 0; i< m_VirtualWndMap.GetSize(); i++ ) {
+			if( LPCTSTR key = m_VirtualWndMap.GetAt(i) ) {
+				if( _tcsicmp(key, msg.sVirtualWnd.GetData()) == 0 ){
+					CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
+					if( pObject && pObject->LoopDispatch(msg) )
+						return;
+				}
+			}
+		}
 	}
 
 	///
@@ -351,7 +335,7 @@ void CWindowWnd::CenterWindow()
 	::GetMonitorInfo(::MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST), &oMonitor);
 	rcArea = oMonitor.rcWork;
 
-    if( hWndCenter == NULL )
+	if( hWndCenter == NULL || IsIconic(hWndCenter))
 		rcCenter = rcArea;
 	else
 		::GetWindowRect(hWndCenter, &rcCenter);
@@ -373,17 +357,12 @@ void CWindowWnd::CenterWindow()
 
 void CWindowWnd::SetIcon(UINT nRes)
 {
-	HICON hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON,
-		(::GetSystemMetrics(SM_CXICON) + 15) & ~15, (::GetSystemMetrics(SM_CYICON) + 15) & ~15,	// 防止高DPI下图标模糊
-		LR_DEFAULTCOLOR);
-	ASSERT(hIcon);
-	::SendMessage(m_hWnd, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
-
-	hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON,
-		(::GetSystemMetrics(SM_CXICON) + 15) & ~15, (::GetSystemMetrics(SM_CYICON) + 15) & ~15,	// 防止高DPI下图标模糊
-		LR_DEFAULTCOLOR);
-	ASSERT(hIcon);
-	::SendMessage(m_hWnd, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
+    HICON hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
+    ASSERT(hIcon);
+    ::SendMessage(m_hWnd, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
+    hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
+    ASSERT(hIcon);
+    ::SendMessage(m_hWnd, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
 }
 
 bool CWindowWnd::RegisterWindowClass()

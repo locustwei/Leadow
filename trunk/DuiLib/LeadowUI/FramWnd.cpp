@@ -18,6 +18,7 @@ namespace DuiLib {
 				if(pCont)
 					pCont->Remove(m_Control);
 			}
+			//m_Control->Delete();
 		}
 		m_Control = NULL;
 	}
