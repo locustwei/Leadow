@@ -171,8 +171,8 @@ HRESULT CSHFolders::EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<C
 			
 				iSubItem++;
 				if ((cstat & SHCOLSTATE_SECONDARYUI) != 0)
-					continue;
-				printf("%d\n", iSubItem);
+					break;
+				//printf("%d\n", iSubItem);
 
 				StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
 				TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];

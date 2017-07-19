@@ -24,11 +24,15 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 	if (!m_HeaderAdded)
 		AddLstViewHeader(values->GetCount());
 
+	CListContainerElementUI* pItem = nullptr;
+
 	if (m_ItemSkin)
 	{
 		CDialogBuilder builder;
-		CListContainerElementUI* pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
-		assert(pItem);
+		pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
+	}
+	if(pItem)
+	{
 		lstFile->Add(pItem);
 		for (int i = 1; i < values->GetCount(); i++)
 		{
@@ -50,11 +54,11 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 	}
 	else
 	{
-		CListTextElementUI* pItem = new CListTextElementUI();
-		lstFile->Add(pItem);
+		CListTextElementUI* pItem1 = new CListTextElementUI();
+		lstFile->Add(pItem1);
 		for (int i = 0; i < values->GetCount(); i++)
 		{
-			pItem->SetText(0, values->Get(i));
+			pItem1->SetText(0, values->Get(i));
 		}
 	}
 }
@@ -124,12 +128,12 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 		if (i >= m_Columes.GetCount())
 			break;
 		CListHeaderItemUI* pItem = new CListHeaderItemUI();
-		pHeader->Add(pItem);
-		pItem->SetAttribute(_T("style"), _T("lstHeaderitem_file"));
+		pItem->ApplyAttributeList(GetUI()->GetManager()->GetStyle( _T("lstHeaderitem_file")));
 
 		pItem->SetText(m_Columes[i]->szName);
 		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
-
+		
+		pHeader->Add(pItem);
 	}
 	m_HeaderAdded = true;
 }
