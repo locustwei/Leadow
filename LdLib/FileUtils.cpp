@@ -27,7 +27,7 @@ UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, TCHAR* lpFilePath)
 	TCHAR* s = _tcsrchr(lpFullName, '\\');
 	if (s == NULL)
 		return 0;
-	UINT len = s - lpFullName;
+	UINT_PTR len = s - lpFullName;
 	if(lpFilePath)
 		wcsncpy(lpFilePath, lpFullName, len);
 	return len;

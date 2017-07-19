@@ -5,6 +5,7 @@
 template <typename T >
 class ISortCompare
 {
+public:
 	virtual int ArraySortCompare(T* it1, T* it2) = 0;
 };
 
@@ -167,6 +168,7 @@ public:
 	}
 	void Sort(ISortCompare<T>* compare)
 	{
+		qsort_s(FList, GetCount(), sizeof(T*), array_compare, compare);
 		//qsort_s()
 	};
 	T Put(int index, T Item)
@@ -204,6 +206,12 @@ protected:
 private:
 	int FCount, FCapacity;
 	T* FList;
+
+	static int array_compare(void * context, const void *it1, const void *it2)
+	{
+		ISortCompare<T>* sc = (ISortCompare<T>*)context;
+		return sc->ArraySortCompare((T*)it1, (T*)it2);
+	};
 };
 
  

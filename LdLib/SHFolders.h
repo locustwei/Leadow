@@ -32,7 +32,7 @@ public:
 	static HRESULT EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 	static HRESULT EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 	//FOLDERID_Downloads
-	static CLdString GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag = KF_FLAG_DEFAULT, HANDLE hToken = NULL);
+	static CLdString GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag = KF_FLAG_DEFAULT, HANDLE hToken = nullptr);
 	/*
 	获取文件的属性值90
 	*/
@@ -42,6 +42,8 @@ private:
 	static HRESULT GetShellFolder(DWORD dwFolder, IShellFolder2** pFolder, LPITEMIDLIST* pidlist);
 	static HRESULT GetShellFolder(TCHAR* lpFullName, IShellFolder2** pFolder, LPITEMIDLIST* pidlist);
 	static HRESULT GetFileItemid(TCHAR* lpFullName, LPITEMIDLIST* pidl);
-	static HRESULT EnumFolderColumes(IShellFolder2* pFolder, LPITEMIDLIST pidl, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param);
+	static HRESULT EnumFolderColumes(IShellFolder2* pFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param);
+
+	static HRESULT EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 };
 
