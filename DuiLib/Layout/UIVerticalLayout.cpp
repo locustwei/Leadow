@@ -1,23 +1,22 @@
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "UIVerticalLayout.h"
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CVerticalLayoutUI)
 	CVerticalLayoutUI::CVerticalLayoutUI() : m_iSepHeight(0), m_uButtonState(0), m_bImmMode(false)
 	{
-		ptLastMouse.x = ptLastMouse.y = 0;
+		m_ptLastMouse.x = m_ptLastMouse.y = 0;
 		::ZeroMemory(&m_rcNewPos, sizeof(m_rcNewPos));
 	}
 
 	LPCTSTR CVerticalLayoutUI::GetClass() const
 	{
-		return _T("VerticalLayoutUI");
+		return DUI_CTR_VERTICALLAYOUT;
 	}
 
 	LPVOID CVerticalLayoutUI::GetInterface(LPCTSTR pstrName)
 	{
-		if( _tcsicmp(pstrName, DUI_CTR_VERTICALLAYOUT) == 0 ) return static_cast<CVerticalLayoutUI*>(this);
+		if( _tcscmp(pstrName, DUI_CTR_VERTICALLAYOUT) == 0 ) return static_cast<CVerticalLayoutUI*>(this);
 		return CContainerUI::GetInterface(pstrName);
 	}
 
@@ -33,8 +32,6 @@ namespace DuiLib
 		rc = m_rcItem;
 
 		// Adjust for inset
-		RECT m_rcInset = CVerticalLayoutUI::m_rcInset;
-		GetManager()->GetDPIObj()->Scale(&m_rcInset);
 		rc.left += m_rcInset.left;
 		rc.top += m_rcInset.top;
 		rc.right -= m_rcInset.right;
@@ -224,8 +221,8 @@ namespace DuiLib
 
 	void CVerticalLayoutUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
 	{
-		if( _tcsicmp(pstrName, _T("sepheight")) == 0 ) SetSepHeight(_ttoi(pstrValue));
-		else if( _tcsicmp(pstrName, _T("sepimm")) == 0 ) SetSepImmMode(_tcsicmp(pstrValue, _T("true")) == 0);
+		if( _tcscmp(pstrName, _T("sepheight")) == 0 ) SetSepHeight(_ttoi(pstrValue));
+		else if( _tcscmp(pstrName, _T("sepimm")) == 0 ) SetSepImmMode(_tcscmp(pstrValue, _T("true")) == 0);
 		else CContainerUI::SetAttribute(pstrName, pstrValue);
 	}
 
@@ -237,7 +234,7 @@ namespace DuiLib
 				RECT rcSeparator = GetThumbRect(false);
 				if( ::PtInRect(&rcSeparator, event.ptMouse) ) {
 					m_uButtonState |= UISTATE_CAPTURED;
-					ptLastMouse = event.ptMouse;
+					m_ptLastMouse = event.ptMouse;
 					m_rcNewPos = m_rcItem;
 					if( !m_bImmMode && m_pManager ) m_pManager->AddPostPaint(this);
 					return;
@@ -256,8 +253,8 @@ namespace DuiLib
 			if( event.Type == UIEVENT_MOUSEMOVE )
 			{
 				if( (m_uButtonState & UISTATE_CAPTURED) != 0 ) {
-					LONG cy = event.ptMouse.y - ptLastMouse.y;
-					ptLastMouse = event.ptMouse;
+					LONG cy = event.ptMouse.y - m_ptLastMouse.y;
+					m_ptLastMouse = event.ptMouse;
 					RECT rc = m_rcNewPos;
 					if( m_iSepHeight >= 0 ) {
 						if( cy > 0 && event.ptMouse.y < m_rcNewPos.bottom + m_iSepHeight ) return;

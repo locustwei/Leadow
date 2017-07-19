@@ -3,8 +3,6 @@
 
 namespace DuiLib
 {
-	IMPLEMENT_DUICONTROL(CTextUI)
-
 	CTextUI::CTextUI() : m_nLinks(0), m_nHoverLink(-1)
 	{
 		m_uTextStyle = DT_WORDBREAK;
@@ -19,12 +17,12 @@ namespace DuiLib
 
 	LPCTSTR CTextUI::GetClass() const
 	{
-		return _T("TextUI");
+		return DUI_CTR_TEXT;
 	}
 
 	LPVOID CTextUI::GetInterface(LPCTSTR pstrName)
 	{
-		if( _tcsicmp(pstrName, DUI_CTR_TEXT) == 0 ) return static_cast<CTextUI*>(this);
+		if( _tcscmp(pstrName, DUI_CTR_TEXT) == 0 ) return static_cast<CTextUI*>(this);
 		return CLabelUI::GetInterface(pstrName);
 	}
 
@@ -95,9 +93,15 @@ namespace DuiLib
 		if( event.Type == UIEVENT_MOUSELEAVE ) {
 			if( m_nLinks > 0 && IsEnabled() ) {
 				if(m_nHoverLink != -1) {
-					m_nHoverLink = -1;
-					Invalidate();
-					return;
+                    if( !::PtInRect(&m_rcLinks[m_nHoverLink], event.ptMouse) ) {
+                        m_nHoverLink = -1;
+                        Invalidate();
+                        if (m_pManager) m_pManager->RemoveMouseLeaveNeeded(this);
+                    }
+                    else {
+                        if (m_pManager) m_pManager->AddMouseLeaveNeeded(this);
+                        return;
+                    }
 				}
 			}
 		}
@@ -105,43 +109,17 @@ namespace DuiLib
 		CLabelUI::DoEvent(event);
 	}
 
-	SIZE CTextUI::EstimateSize(SIZE szAvailable)
-	{
-		CDuiString sText = GetText();
-		RECT m_rcTextPadding = GetTextPadding();
-
-		RECT rcText = { 0, 0, m_bAutoCalcWidth ? 9999 : GetManager()->GetDPIObj()->Scale(m_cxyFixed.cx), 9999 };
-		rcText.left += m_rcTextPadding.left;
-		rcText.right -= m_rcTextPadding.right;
-
-		if( m_bShowHtml ) {   
-			int nLinks = 0;
-			CRenderEngine::DrawHtmlText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, NULL, NULL, nLinks, DT_CALCRECT | m_uTextStyle);
-		}
-		else {
-			CRenderEngine::DrawText(m_pManager->GetPaintDC(), m_pManager, rcText, sText, m_dwTextColor, m_iFont, DT_CALCRECT | m_uTextStyle);
-		}
-		SIZE cXY = {rcText.right - rcText.left + m_rcTextPadding.left + m_rcTextPadding.right,
-			rcText.bottom - rcText.top + m_rcTextPadding.top + m_rcTextPadding.bottom};
-		
-		if (m_bAutoCalcWidth)
-		{
-			m_cxyFixed.cx = MulDiv(cXY.cx, 100.0, GetManager()->GetDPIObj()->GetScale());
-		}
-
-		return CControlUI::EstimateSize(szAvailable);
-	}
-
 	void CTextUI::PaintText(HDC hDC)
 	{
-		CDuiString sText = GetText();
-		if( sText.IsEmpty() ) {
+		if( m_sText.IsEmpty() ) {
 			m_nLinks = 0;
 			return;
 		}
 
 		if( m_dwTextColor == 0 ) m_dwTextColor = m_pManager->GetDefaultFontColor();
 		if( m_dwDisabledTextColor == 0 ) m_dwDisabledTextColor = m_pManager->GetDefaultDisabledColor();
+
+		if( m_sText.IsEmpty() ) return;
 
 		m_nLinks = lengthof(m_rcLinks);
 		RECT rc = m_rcItem;
@@ -151,18 +129,18 @@ namespace DuiLib
 		rc.bottom -= m_rcTextPadding.bottom;
 		if( IsEnabled() ) {
 			if( m_bShowHtml )
-				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwTextColor, \
-				m_rcLinks, m_sLinks, m_nLinks, m_uTextStyle);
+				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, m_sText, m_dwTextColor, \
+				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwTextColor, \
+				CRenderEngine::DrawText(hDC, m_pManager, rc, m_sText, m_dwTextColor, \
 				m_iFont, m_uTextStyle);
 		}
 		else {
 			if( m_bShowHtml )
-				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
-				m_rcLinks, m_sLinks, m_nLinks, m_uTextStyle);
+				CRenderEngine::DrawHtmlText(hDC, m_pManager, rc, m_sText, m_dwDisabledTextColor, \
+				m_rcLinks, m_sLinks, m_nLinks, m_iFont, m_uTextStyle);
 			else
-				CRenderEngine::DrawText(hDC, m_pManager, rc, sText, m_dwDisabledTextColor, \
+				CRenderEngine::DrawText(hDC, m_pManager, rc, m_sText, m_dwDisabledTextColor, \
 				m_iFont, m_uTextStyle);
 		}
 	}
