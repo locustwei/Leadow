@@ -9,7 +9,8 @@
 #include <time.h>
 #include <Commdlg.h>
 #include <shellapi.h>
-
+#include <io.h>
+#include <fcntl.h>
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -38,12 +39,18 @@ BOOL FindProcessCallback(PPROCESSENTRY32 pEntry32, PVOID pParam)
 
 
 class CImp :
+	public ISortCompare<TCHAR*>,
 	public IGernalCallback<TCHAR*>,
 	public IGernalCallback<LPWIN32_FIND_DATA>,
 	public IGernalCallback<CLdArray<TCHAR*>*>,
 	public IGernalCallback<PSH_HEAD_INFO>      //回收站文件显示列信息
 {
 public:
+	int ArraySortCompare(wchar_t** it1, wchar_t** it2) override
+	{
+		return _tcscmp(*it1, *it2);
+	};
+
 	BOOL GernalCallback_Callback(_WIN32_FIND_DATAW* pData, UINT_PTR Param) override
 	{
 		//if ((pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -97,15 +104,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	CLdApp::Initialize(0);
 
 	setlocale(LC_ALL, "chs");
-
+//	if (_setmode(_fileno(stdout), _O_U16TEXT) == -1)
+//	{
+//		_tprintf(_T("Failed setting stdout's encoding\n"));
+//	}
 //	CImp imp;
 //	CSHFolders::EnumFolderColumes(CSIDL_DESKTOP, &imp, 0);
 //	LPITEMIDLIST pidl;
 
-//	CImp imp;
-//	CSHFolders::EnumFolderObjects(L"d:\\迅雷下载\\", &imp, 0);
+	CImp imp;
+	CSHFolders::EnumFolderColumes(L"i:\\迅雷下载\\", &imp, 0);
+	CSHFolders::EnumFolderObjects(CSIDL_BITBUCKET, &imp, 0);
+
+
 	CLdArray<TCHAR*> values;
-	CSHFolders::GetFileAttributeValue(L"D:\\Documents\\新建 Microsoft Word 文档.docx", &values);
+	CSHFolders::GetFileAttributeValue(L"I:\\Documents\\New Microsoft Word 文档.docx", &values);
+	values.Sort(&imp);
 
 	for(int i=0;i<values.GetCount();i++)
 	{

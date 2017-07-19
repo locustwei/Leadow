@@ -41,10 +41,7 @@ HRESULT CSHFolders::GetFileAttributeValue(TCHAR * lpFullName, CLdArray<TCHAR*>* 
 		SHELLDETAILS sd = { 0 };
 		while (SUCCEEDED(pFolder->GetDetailsOf(pidl2, iSubItem, &sd)))
 		{
-			
 			iSubItem++;
-			if (sd.cxChar == 0)
-				continue;
 			TCHAR* szTemp = nullptr;
 			StrRetToStr(&sd.str, pidl2, &szTemp);
 			TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];
@@ -60,7 +57,7 @@ HRESULT CSHFolders::GetFileAttributeValue(TCHAR * lpFullName, CLdArray<TCHAR*>* 
 
 HRESULT CSHFolders::GetShellFolder(DWORD dwFolder, IShellFolder2** pFolder, LPITEMIDLIST* pidlist)
 {
-	HRESULT			hr = S_OK;
+	HRESULT			hr;
 	LPSHELLFOLDER	pDesktop = NULL;
 	LPITEMIDLIST    pidl = nullptr;
 
@@ -107,19 +104,21 @@ HRESULT CSHFolders::GetShellFolder(TCHAR * lpFullName, IShellFolder2 ** pFolder,
 
 HRESULT CSHFolders::GetFileItemid(TCHAR * lpFullName, LPITEMIDLIST * pidl)
 {
-	IShellFolder2* pDesktopFolder = nullptr;
-	ULONG         chEaten;
-	HRESULT       hr;
+	return SHParseDisplayName(lpFullName, nullptr, pidl, 0, nullptr);
 
-	hr = GetShellFolder((DWORD)CSIDL_DESKTOP, &pDesktopFolder, nullptr);
-	if (SUCCEEDED(hr))
-	{
-		hr = pDesktopFolder->ParseDisplayName(NULL, NULL, lpFullName, &chEaten, pidl, nullptr);
-	}
-	return hr;
+//	IShellFolder2* pDesktopFolder = nullptr;
+//	ULONG         chEaten;
+//	HRESULT       hr;
+//
+//	hr = GetShellFolder((DWORD)CSIDL_DESKTOP, &pDesktopFolder, nullptr);
+//	if (SUCCEEDED(hr))
+//	{
+//		hr = pDesktopFolder->ParseDisplayName(NULL, NULL, lpFullName, &chEaten, pidl, nullptr);
+//	}
+//	return hr;
 }
 
-HRESULT CSHFolders::EnumFolderColumes(IShellFolder2 * pFolder, LPITEMIDLIST pidl, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param)
+HRESULT CSHFolders::EnumFolderColumes(IShellFolder2 * pFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param)
 {
 	HRESULT			hr = S_OK;
 	int             iSubItem = 0;
@@ -132,7 +131,8 @@ HRESULT CSHFolders::EnumFolderColumes(IShellFolder2 * pFolder, LPITEMIDLIST pidl
 		{
 			colInfo.cxChar = sd.cxChar;
 			colInfo.fmt = sd.fmt;
-			StrRetToStr(&sd.str, pidl, &colInfo.szName);
+			StrRetToStr(&sd.str, nullptr, &colInfo.szName);
+			//printf("%d    ", iSubItem);
 			if (!callback->GernalCallback_Callback(&colInfo, Param))
 			{
 				hr = S_FALSE;
@@ -147,85 +147,17 @@ HRESULT CSHFolders::EnumFolderColumes(IShellFolder2 * pFolder, LPITEMIDLIST pidl
 	return hr;
 }
 
-HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd)
+HRESULT CSHFolders::EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd)
 {
-	HRESULT			hr = S_OK;
-	IShellFolder2*	pFolder = NULL;
+	HRESULT			hr;
 	LPENUMIDLIST    penumFiles = nullptr;
 	LPITEMIDLIST	pidl = NULL;
 	CLdArray<TCHAR*> attributeValues;
 
-	hr = GetShellFolder(dwFolder, &pFolder, nullptr);
-
-	if (SUCCEEDED(hr))
-		hr = pFolder->EnumObjects(hOwnerWnd, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFiles);
+	hr = pFolder->EnumObjects(hOwnerWnd, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFiles);
 
 	if (SUCCEEDED(hr))
 	{
-		while (hr = penumFiles->Next(1, &pidl, NULL) != S_FALSE)
-		{
-			attributeValues.Add((TCHAR*)pidl);
-			int iSubItem = 0;
-			SHELLDETAILS sd = { 0 };
-			while (SUCCEEDED(pFolder->GetDetailsOf(pidl, iSubItem, &sd) ))
-			{
-				TCHAR* szTemp = nullptr;
-				//hr = pFolder->GetDetailsOf(pidl, iSubItem, &sd);
-				StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
-				TCHAR* sz = new TCHAR[_tcslen(szTemp) +1];
-				_tcscpy(sz, szTemp);
-				attributeValues.Add(sz);
-				CoTaskMemFree(szTemp);
-				iSubItem++;
-			}
-
-			if (!callback->GernalCallback_Callback(&attributeValues, Param))
-			{
-				CoTaskMemFree(pidl);
-				break;
-			}
-			CoTaskMemFree(pidl);
-
-			for (int i = 1; i<attributeValues.GetCount(); i++)
-			{
-				delete attributeValues[i];
-			}
-			attributeValues.Clear();
-
-		}
-	}
-
-	for (int i = 1; i<attributeValues.GetCount(); i++)
-	{
-		delete attributeValues[i];
-	}
-	attributeValues.Clear();
-
-	if (pFolder)
-		pFolder->Release();
-
-	return hr;
-}
-
-HRESULT CSHFolders::EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd)
-{
-	HRESULT			hr = S_OK;
-	IShellFolder2*	pFolder = NULL;
-	LPENUMIDLIST    penumFiles = nullptr;
-	LPITEMIDLIST	pidl = NULL;
-	CLdArray<TCHAR*> attributeValues; 	
-	
-//	LPITEMIDLIST fpidl = nullptr;
-//	PCUITEMID_CHILD pidl2 = nullptr;
-
-	hr = GetShellFolder(lpFullName, &pFolder, nullptr);
-
-	if (SUCCEEDED(hr))
-		hr = pFolder->EnumObjects(hOwnerWnd, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS | SHCONTF_INCLUDEHIDDEN, &penumFiles);
-
-	if (SUCCEEDED(hr))
-	{
-
 		while (hr = penumFiles->Next(1, &pidl, NULL) != S_FALSE)
 		{
 			attributeValues.Add((TCHAR*)pidl);
@@ -233,15 +165,20 @@ HRESULT CSHFolders::EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArra
 			SHELLDETAILS sd = { 0 };
 			while (SUCCEEDED(pFolder->GetDetailsOf(pidl, iSubItem, &sd)))
 			{
-				
 				TCHAR* szTemp = nullptr;
-				//hr = pFolder->GetDetailsOf(pidl, iSubItem, &sd);
+				SHCOLSTATEF cstat;
+				pFolder->GetDefaultColumnState(iSubItem, &cstat);
+			
+				iSubItem++;
+				if ((cstat & SHCOLSTATE_SECONDARYUI) != 0)
+					continue;
+				printf("%d\n", iSubItem);
+
 				StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
 				TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];
 				_tcscpy(sz, szTemp);
 				attributeValues.Add(sz);
 				CoTaskMemFree(szTemp);
-				iSubItem++;
 			}
 
 			if (!callback->GernalCallback_Callback(&attributeValues, Param))
@@ -270,16 +207,43 @@ HRESULT CSHFolders::EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArra
 		pFolder->Release();
 
 	return hr;
+
+}
+
+HRESULT CSHFolders::EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd)
+{
+	HRESULT			hr;
+	IShellFolder2*	pFolder = NULL;
+
+	hr = GetShellFolder(dwFolder, &pFolder, nullptr);
+	if (SUCCEEDED(hr))
+		return EnumFolderObjects(pFolder, callback, Param, hOwnerWnd);
+	else
+		return hr;
+}
+
+HRESULT CSHFolders::EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd)
+{
+	HRESULT			hr;
+	IShellFolder2*	pFolder = NULL;
+	
+	hr = GetShellFolder(lpFullName, &pFolder, nullptr);
+
+	if (SUCCEEDED(hr))
+		return EnumFolderObjects(pFolder, callback, Param, hOwnerWnd);
+	else
+		return hr;
 }
 
 HRESULT CSHFolders::EnumFolderColumes(DWORD dwFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param, HWND hOwnerWnd)
 {
-	HRESULT			hr = S_OK;
+	HRESULT			hr;
 	IShellFolder2*	pFolder = NULL;
 	LPITEMIDLIST	pidl = NULL;
 
-	hr = GetShellFolder(dwFolder, &pFolder, &pidl);
-	hr = EnumFolderColumes(pFolder, pidl, callback, Param);
+	hr = GetShellFolder(dwFolder, &pFolder, nullptr);
+	if(SUCCEEDED(hr))
+		hr = EnumFolderColumes(pFolder, callback, Param);
 	
 	if (pFolder)
 		pFolder->Release();
@@ -288,32 +252,14 @@ HRESULT CSHFolders::EnumFolderColumes(DWORD dwFolder, IGernalCallback<PSH_HEAD_I
 
 HRESULT CSHFolders::EnumFolderColumes(TCHAR * lpFullName, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param, HWND hOwnerWnd)
 {
-	HRESULT			hr = S_OK;
+	HRESULT			hr;
 	IShellFolder2*	pFolder = NULL;
 	SH_HEAD_INFO    colInfo;
 
 	hr = GetShellFolder(lpFullName, &pFolder, nullptr);
-	int iSubItem = 0;
-	while (SUCCEEDED(hr))
-	{
-		SHELLDETAILS sd = { 0 };
-		HRESULT hr1 = pFolder->GetDetailsOf(NULL, iSubItem, &sd);
-		if (SUCCEEDED(hr1))
-		{
-			colInfo.cxChar = sd.cxChar;
-			colInfo.fmt = sd.fmt;
-			StrRetToStr(&sd.str, nullptr, &colInfo.szName);
-			if (!callback->GernalCallback_Callback(&colInfo, Param))
-			{
-				hr = S_FALSE;
-				break;
-			}
-			CoTaskMemFree(colInfo.szName);
-		}
-		else
-			break;
-		iSubItem++;
-	}
+	if (SUCCEEDED(hr))
+		hr = EnumFolderColumes(pFolder, callback, Param);
+
 	if (pFolder)
 		pFolder->Release();
 	return hr;
