@@ -122,18 +122,18 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 	CListHeaderUI * pHeader = lstFile->GetHeader();
 	pHeader->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList(_T("lstHeader_file")));
 
-//	for(int i=0; i<ncount; i++)
-//	{
-//		if (i >= m_Columes.GetCount())
-//			break;
-//		CLabelUI* pItem = new CLabelUI();
-//		pItem->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList( _T("lstHeaderitem_file")));
-//
-//		pItem->SetText(m_Columes[i]->szName);
-//		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
-//		
-//		pHeader->Add(pItem);
-//	}
+	for(int i=0; i<ncount; i++)
+	{
+		if (i >= m_Columes.GetCount())
+			break;
+		CLabelUI* pItem = new CLabelUI();
+		pItem->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList( _T("lstHeaderitem_file")));
+
+		pItem->SetText(m_Columes[i]->szName);
+		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
+		
+		pHeader->Add(pItem);
+	}
 	m_HeaderAdded = true;
 }
 //找到虚拟文件并与实际文件对应，
