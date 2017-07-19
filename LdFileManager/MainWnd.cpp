@@ -92,7 +92,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 				m_ErasureLib = new CErasureLib();
 
 			}
-			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_PaintManager);
+			CFramWnd* frame = m_ErasureLib->LibraryUI(nullptr);
 			_ASSERTE(frame);
 			if (pControl->GetItemIndex(*frame) == -1)
 			{
@@ -122,7 +122,12 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 			dlg.OpenFile(m_hWnd);
 		}
 		else if (name == _T("cleaner"))
-			pControl->SelectItem(4);
+		{
+			CButtonUI* btn = new CButtonUI();
+			btn->SetAttributeList(m_PaintManager.GetStyleAttributeList(L"btn_default"));
+			pControl->Add(btn);
+			pControl->SelectItem(btn);
+		}
 	}
 
 }
