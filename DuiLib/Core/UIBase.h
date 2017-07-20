@@ -49,11 +49,17 @@ LPCTSTR DUILIB_API DUI__TraceMsg(UINT uMsg);
 class DUILIB_API CNotifyPump
 {
 public:
+	CNotifyPump() :m_Name() { m_Parent = nullptr; };
+	virtual ~CNotifyPump();
 	bool AddVirtualWnd(CDuiString strName,CNotifyPump* pObject);
 	bool RemoveVirtualWnd(CDuiString strName);
 	void NotifyPump(TNotifyUI& msg);
 	bool LoopDispatch(TNotifyUI& msg);
+	LPCTSTR GetName();
 	DUI_DECLARE_MESSAGE_MAP()
+protected:
+	CDuiString m_Name;
+	CNotifyPump* m_Parent;
 private:
 	CDuiStringPtrMap m_VirtualWndMap;
 	CNotifyPump* FindNotify(LPCTSTR key);

@@ -2,7 +2,7 @@
 
 
 class LDLIB_API CShFileViewUI : 
-	public CFramWnd, 
+	public CFramNotifyPump, 
 	IGernalCallback<CLdArray<TCHAR*>*>,  	 //CSHFolders::EnumFolderObjects »Øµô
 	IGernalCallback<PSH_HEAD_INFO>           //CSHFolders::EnumFolderColumes »Øµô
 {

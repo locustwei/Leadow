@@ -4,71 +4,36 @@
 typedef PVOID(*Library_Init)(PAuthorization);
 typedef VOID(*Library_UnInit)();
 
-#pragma region CLdLibray
 
-CLdLibray::CLdLibray()
+PVOID CLdLibray::InitLib(TCHAR * pLibFile, PAuthorization pAut = nullptr)
 {
-	m_hModule = NULL;
-}
-
-CLdLibray::~CLdLibray()
-{
-	UnInitLib();
-	if (m_hModule)
-		FreeLibrary(m_hModule);
-}
-
-PVOID CLdLibray::InitLib(TCHAR * pLibFile)
-{
-	m_hModule = LoadLibrary(pLibFile);
-	if (m_hModule == NULL)
-		return FALSE;
-	Library_Init fnInit = (Library_Init)GetProcAddress(m_hModule, "API_Init");
+	HMODULE hModule = LoadLibrary(pLibFile);
+	if (hModule == NULL)
+		return nullptr;
+	Library_Init fnInit = (Library_Init)GetProcAddress(hModule, "API_Init");
 	if (fnInit == NULL)
 		return NULL;
-	return fnInit(NULL);
-
+	return fnInit(pAut);
 }
 
-VOID CLdLibray::UnInitLib()
+IErasureLibrary * CLdLibray::LoadEraserLarary(PAuthorization pAut = nullptr)
 {
-	if (m_hModule)
-	{
-		Library_UnInit fnUnInit = (Library_UnInit)GetProcAddress(m_hModule, "API_UnInit");
-		if (fnUnInit)
-			fnUnInit();
-	}
+	return (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
 }
 
-#pragma endregion CLdLibray
-
-CErasureLib::CErasureLib()
+IErasureLibrary * CLdLibray::LoadProtectLarary(PAuthorization pAut = nullptr)
 {
-	m_Library = (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
+	return (IErasureLibrary*)InitLib(_T("LdFileProtect_d64.dll"));
 }
 
-CErasureLib::~CErasureLib()
+CControlUI * CLdLibray::BuildXml(TCHAR * skinXml, CPaintManagerUI * pm)
 {
-	
-}
+	if (skinXml == nullptr || _tcslen(skinXml) == 0)
+		return nullptr;
 
-CFramWnd * CErasureLib::LibraryUI(CPaintManagerUI* pm)
-{
-	if (!m_Library)
-		return NULL;
-	else
-		return m_Library->LibraryUI(pm);
-}
+	CDialogBuilder builder;
+	CControlUI * pControl = builder.Create(skinXml, (UINT)0, NULL, pm);
+	_ASSERTE(pControl);
 
-CProtectLib::CProtectLib()
-{
-	m_Library = (IProtectLibrary*)InitLib(_T("LdFileProtect_d64.dll"));
-}
-
-CFramWnd * CProtectLib::LibraryUI()
-{
-	if (!m_Library)
-		return NULL;
-	else
-		return m_Library->LibraryUI();
+	return pControl;
 }

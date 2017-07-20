@@ -22,7 +22,7 @@ void CProtectMainWnd::OnItemClick(TNotifyUI & msg)
 {
 }
 
-DUI_BEGIN_MESSAGE_MAP(CProtectMainWnd, CFramWnd)
+DUI_BEGIN_MESSAGE_MAP(CProtectMainWnd, CFramNotifyPump)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)

@@ -20,13 +20,11 @@ CMainWnd::~CMainWnd()
 {
 	if (m_ErasureLib)
 	{
-		RemoveVirtualWnd(m_ErasureLib->LibraryUI(nullptr)->GetUI()->GetVirtualWnd());
 		delete m_ErasureLib;
 		m_ErasureLib = nullptr;
 	}
 	if (m_ProtectLib)
 	{
-		RemoveVirtualWnd(m_ProtectLib->LibraryUI()->GetUI()->GetVirtualWnd());
 		delete m_ProtectLib;
 		m_ProtectLib = nullptr;
 	}
@@ -89,33 +87,23 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 		{
 			if (!m_ErasureLib)
 			{
-				m_ErasureLib = new CErasureLib();
-
-
+				m_ErasureLib = CLdLibray::LoadEraserLarary();
+				CControlUI* lui = CLdLibray::BuildXml(m_ErasureLib->UIResorce(), &m_PaintManager);
+				if(lui)
+				{
+					m_ErasureLib->SetUI(lui);
+					CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
+					if (frame)
+						AddVirtualWnd(frame->GetName(), frame);
+				}
 			}
-			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_PaintManager);
-			_ASSERTE(frame);
-			if (pControl->GetItemIndex(*frame) == -1)
-			{
-				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
-				pControl->Add(*frame);
-			}
-			pControl->SelectItem(*frame);
+			_ASSERTE(m_ErasureLib);
+			pControl->Add(m_ErasureLib->GetUI());
+			pControl->SelectItem(m_ErasureLib->GetUI());
 		}
 		else if (name == _T("protecte"))
 		{
-			if (!m_ProtectLib)
-			{
-				m_ProtectLib = new CProtectLib();
-			}
-			CFramWnd* frame = m_ProtectLib->LibraryUI();
-			_ASSERTE(frame);
-			if (pControl->GetItemIndex(*frame) == -1)
-			{
-				AddVirtualWnd(frame->GetUI()->GetVirtualWnd(), frame);
-				pControl->Add(*frame);
-			}
-			pControl->SelectItem(*frame);
+			
 		}
 		else if (name == _T("recove"))
 		{
