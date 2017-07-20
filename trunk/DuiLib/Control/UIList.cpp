@@ -2961,6 +2961,27 @@ SIZE CListContainerElementUI::EstimateSize(SIZE szAvailable)
     return cXY;
 }
 
+void CListContainerElementUI::SetPos(RECT rc, bool bNeedInvalidate)
+{
+	__super::SetPos(rc, bNeedInvalidate);
+
+	if (m_pOwner == NULL) return;
+
+	TListInfoUI* pInfo = m_pOwner->GetListInfo();
+	int nCount = m_items.GetSize();
+	for (int i = 0; i < nCount && i < pInfo->nColumns; i++)
+	{
+		CControlUI *pHorizontalLayout = static_cast<CControlUI*>(m_items[i]);
+
+		RECT rtHeader = pInfo->rcColumn[i];
+		RECT rt = pHorizontalLayout->GetPos();
+		rt.left = rtHeader.left;
+		rt.right = rtHeader.right;
+		pHorizontalLayout->SetPos(rt);
+	}
+
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //

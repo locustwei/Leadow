@@ -457,7 +457,7 @@ public:
     void DrawItemBk(HDC hDC, const RECT& rcItem);
 
     SIZE EstimateSize(SIZE szAvailable);
-
+	void SetPos(RECT rc, bool bNeedInvalidate) override;
 protected:
     int m_iIndex;
     int m_iDrawIndex;

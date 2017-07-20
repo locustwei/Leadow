@@ -91,6 +91,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 			{
 				m_ErasureLib = new CErasureLib();
 
+
 			}
 			CFramWnd* frame = m_ErasureLib->LibraryUI(nullptr);
 			_ASSERTE(frame);
