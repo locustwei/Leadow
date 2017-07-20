@@ -481,6 +481,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Control\UITreeView.cpp" />
+    <ClCompile Include="LeadowUI\ChildWnd.cpp" />
     <ClCompile Include="LeadowUI\DuiUtils.cpp" />
     <ClCompile Include="LeadowUI\FramWnd.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -569,6 +570,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Control\UITreeView.h" />
+    <ClInclude Include="LeadowUI\ChildWnd.h" />
     <ClInclude Include="LeadowUI\DuiUtils.h" />
     <ClInclude Include="LeadowUI\FramWnd.h" />
     <ClInclude Include="StdAfx.h" />

@@ -56,6 +56,7 @@ public:
 	DUI_DECLARE_MESSAGE_MAP()
 private:
 	CDuiStringPtrMap m_VirtualWndMap;
+	CNotifyPump* FindNotify(LPCTSTR key);
 };
 
 class DUILIB_API CWindowWnd
