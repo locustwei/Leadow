@@ -1,7 +1,7 @@
 #pragma once
 
 
-class LDLIB_API CProtectMainWnd : public CFramWnd
+class LDLIB_API CProtectMainWnd : public CFramNotifyPump
 {
 public:
 	CProtectMainWnd();

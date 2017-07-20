@@ -2,34 +2,12 @@
 #include "../LdFileEraser/ErasureLibrary.h"
 #include "../LdFileProtect/ProtectLibrary.h"
 
-static class CLdLibray
+class CLdLibray
 {
 public:
-	CLdLibray();
-	~CLdLibray();
-
-protected:
-	HMODULE m_hModule;
-	virtual PVOID InitLib(TCHAR * pLibFile);
-	virtual VOID UnInitLib();
-};
-
-class CErasureLib: public CLdLibray
-{
-public:
-	CErasureLib();
-	~CErasureLib();
-	CFramWnd* LibraryUI(CPaintManagerUI* pm);
+	static IErasureLibrary* LoadEraserLarary(PAuthorization pAut = nullptr);
+	static IErasureLibrary* LoadProtectLarary(PAuthorization pAut = nullptr);
+	static CControlUI * BuildXml(TCHAR * skinXml, CPaintManagerUI* pm);
 private:
-	IErasureLibrary* m_Library;
-};
-
-class CProtectLib : public CLdLibray
-{
-public:
-	CProtectLib();
-	~CProtectLib() {};
-	CFramWnd* LibraryUI();
-private:
-	IProtectLibrary* m_Library;
+	static PVOID InitLib(TCHAR * pLibFile, PAuthorization pAut = nullptr);
 };

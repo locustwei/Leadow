@@ -5,7 +5,7 @@
 
 class LDLIB_API CErasureRecycleUI : 
 	public CShFileViewUI,
-	//public CFramWnd, 
+	//public CFramNotifyPump, 
 	IGernalCallback<PERASE_CALLBACK_PARAM>,
 	IGernalCallback<LPWIN32_FIND_DATA>,  //回收站实际文件
 	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）

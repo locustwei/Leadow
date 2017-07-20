@@ -2,6 +2,7 @@
 
 #ifdef _DEBUG
 #include <shlwapi.h>
+#include "UIBase.h"
 #pragma comment(lib, "shlwapi.lib")
 #endif
 
@@ -121,11 +122,18 @@ static const DUI_MSGMAP_ENTRY* DuiFindMessageEntry(const DUI_MSGMAP_ENTRY* lpEnt
 	return pMsgTypeEntry;
 }
 
-bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
+	CNotifyPump::~CNotifyPump()
+	{
+		if (m_Parent)
+			m_Parent->RemoveVirtualWnd(m_Name);
+	}
+
+	bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
 {
 	if( m_VirtualWndMap.Find(strName) == NULL )
 	{
 		m_VirtualWndMap.Insert(strName.GetData(),(LPVOID)pObject);
+		pObject->m_Parent = this;
 		return true;
 	}
 	return false;
@@ -186,6 +194,11 @@ LDispatch:
 		break;
 	}
 	return bRet;
+}
+
+LPCTSTR CNotifyPump::GetName()
+{
+	return m_Name;
 }
 
 CNotifyPump* CNotifyPump::FindNotify(LPCTSTR key)

@@ -112,4 +112,4 @@
 //#include "Control/UIFlash.h"
 
 #include "LeadowUI/DuiUtils.h"
-#include "LeadowUI/FramWnd.h"
+#include "LeadowUI/FramNotifyPump.h"

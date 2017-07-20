@@ -19,7 +19,7 @@ public:
 			delete m_MainWnd;
 	};
 	// Í¨¹ý IProtectLibrary ¼Ì³Ð
-	virtual CFramWnd * LibraryUI() override
+	virtual CFramNotifyPump * LibraryUI() override
 	{
 		if (m_MainWnd == NULL)
 		{

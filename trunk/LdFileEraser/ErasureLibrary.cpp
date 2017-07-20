@@ -9,25 +9,38 @@ public:
 	CErasureLibrary() 
 	{ 
 		m_MainWnd = NULL; 
+		m_Ctrl = nullptr;
 	};
+
 	~CErasureLibrary() 
 	{
 		if (m_MainWnd)
 			delete m_MainWnd;
 	};
-	virtual CFramWnd* LibraryUI(CPaintManagerUI* pm) override
+
+	virtual CFramNotifyPump* GetNotifyPump() override
 	{
 		if (!m_MainWnd)
 		{
 			m_MainWnd = new CErasureMainWnd();
-			m_MainWnd->BuildXml(_T("erasure\\erasuremain.xml"), pm);
 		}
 		assert(m_MainWnd);
 
 		return m_MainWnd;
 	};
+	TCHAR* UIResorce() override
+	{
+		return _T("erasure/erasuremain.xml");
+	};
+
+	void SetUI(CControlUI* pCtrl) override
+	{
+		m_Ctrl = pCtrl;
+	};
+
 private:
 	CErasureMainWnd* m_MainWnd;
+	CControlUI* m_Ctrl;
 };
 
 CErasureLibrary* g_Library = NULL;

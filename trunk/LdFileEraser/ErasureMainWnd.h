@@ -1,7 +1,7 @@
 #pragma once
 
 
-class LDLIB_API CErasureMainWnd : public CFramWnd
+class LDLIB_API CErasureMainWnd : public CFramNotifyPump
 {
 public:
 	CErasureMainWnd();
@@ -15,10 +15,11 @@ private:
 	virtual void OnItemClick(TNotifyUI &msg);
 	
 	CTabLayoutUI* m_TabUI;
-	CFramWnd* m_ErasureFile;
-	CFramWnd* m_ErasureRecycle;
-	CFramWnd* m_ErasureVolume;
+	CFramNotifyPump* m_ErasureFile;
+	CFramNotifyPump* m_ErasureRecycle;
+	CFramNotifyPump* m_ErasureVolume;
 protected:
+	TCHAR* UIResorce() override;
 	virtual void OnInit() override;
 
 };
