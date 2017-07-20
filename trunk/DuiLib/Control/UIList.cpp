@@ -1073,6 +1073,14 @@ bool CListUI::SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData)
 	return bResult;
 }
 
+CListHeaderItemUI * CListUI::AddHeaderItem(LPCTSTR lpStyle)
+{
+	CListHeaderItemUI * pItem = new CListHeaderItemUI();
+	pItem->SetAttributeList(m_pManager->GetStyleAttributeList(lpStyle));
+	GetHeader()->Add(pItem);
+	return pItem;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////
 //
 //

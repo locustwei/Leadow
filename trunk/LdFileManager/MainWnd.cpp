@@ -93,7 +93,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 
 
 			}
-			CFramWnd* frame = m_ErasureLib->LibraryUI(nullptr);
+			CFramWnd* frame = m_ErasureLib->LibraryUI(&m_PaintManager);
 			_ASSERTE(frame);
 			if (pControl->GetItemIndex(*frame) == -1)
 			{
