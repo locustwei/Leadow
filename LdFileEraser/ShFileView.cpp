@@ -126,13 +126,13 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 	{
 		if (i >= m_Columes.GetCount())
 			break;
-		CLabelUI* pItem = new CLabelUI();
-		pItem->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList( _T("lstHeaderitem_file")));
+		CListHeaderItemUI* pItem = lstFile->AddHeaderItem(_T("lstHeaderitem_file"));
+		//pItem->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList( _T("lstHeaderitem_file")));
 
 		pItem->SetText(m_Columes[i]->szName);
 		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
 		
-		pHeader->Add(pItem);
+		//pHeader->Add(pItem);
 	}
 	m_HeaderAdded = true;
 }

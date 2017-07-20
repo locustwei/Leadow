@@ -12,6 +12,7 @@ namespace DuiLib {
 typedef int (CALLBACK *PULVCompareFunc)(UINT_PTR, UINT_PTR, UINT_PTR);
 
 class CListHeaderUI;
+class CListHeaderItemUI;
 
 #define UILIST_MAX_COLUMNS 64
 
@@ -209,6 +210,7 @@ public:
     virtual CScrollBarUI* GetHorizontalScrollBar() const;
     bool SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData);
 
+	CListHeaderItemUI* AddHeaderItem(LPCTSTR lpStyle);
 protected:
     bool m_bScrollSelect;
     int m_iCurSel;
