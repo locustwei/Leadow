@@ -33,7 +33,7 @@ protected:
 	CListUI* lstFile;
 	TCHAR* m_ItemSkin;
 
-	virtual void OnInit() override;
+	virtual void OnInit();
 	void AddLstViewHeader(int ncount);
 	//ShGetFileInfo 回收站显示文件
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;

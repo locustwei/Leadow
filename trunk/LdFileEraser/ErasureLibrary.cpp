@@ -3,19 +3,29 @@
 #include "ErasureMainWnd.h"
 #include "ErasureLibrary.h"
 
+class CErasureLibrary;
+
+CErasureLibrary* g_Library = NULL;
+
 class CErasureLibrary : public IErasureLibrary
 {
 public:
+
 	CErasureLibrary() 
 	{ 
 		m_MainWnd = NULL; 
 		m_Ctrl = nullptr;
 	};
 
-	~CErasureLibrary() 
+	~CErasureLibrary() override
 	{
 		if (m_MainWnd)
+		{
 			delete m_MainWnd;
+			m_MainWnd = nullptr;
+		}
+		
+		g_Library = nullptr;
 	};
 
 	virtual CFramNotifyPump* GetNotifyPump() override
@@ -28,6 +38,7 @@ public:
 
 		return m_MainWnd;
 	};
+
 	TCHAR* UIResorce() override
 	{
 		return _T("erasure/erasuremain.xml");
@@ -36,6 +47,12 @@ public:
 	void SetUI(CControlUI* pCtrl) override
 	{
 		m_Ctrl = pCtrl;
+		GetNotifyPump()->AttanchControl(m_Ctrl);
+	};
+
+	CControlUI* GetUI() override
+	{
+		return m_Ctrl;
 	};
 
 private:
@@ -43,7 +60,6 @@ private:
 	CControlUI* m_Ctrl;
 };
 
-CErasureLibrary* g_Library = NULL;
 
 IErasureLibrary LDLIB_API * API_Init(PAuthorization)
 {

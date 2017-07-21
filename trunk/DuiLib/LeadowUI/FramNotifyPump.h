@@ -5,8 +5,10 @@ namespace DuiLib {
 	{
 	public:
 		CFramNotifyPump();
+		virtual void AttanchControl(CControlUI* pCtrl);
 		DUI_DECLARE_MESSAGE_MAP()
 	protected:
+		CControlUI* m_Ctrl;
 	};
 
 }

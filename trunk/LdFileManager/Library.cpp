@@ -5,7 +5,7 @@ typedef PVOID(*Library_Init)(PAuthorization);
 typedef VOID(*Library_UnInit)();
 
 
-PVOID CLdLibray::InitLib(TCHAR * pLibFile, PAuthorization pAut = nullptr)
+PVOID CLdLibray::InitLib(TCHAR * pLibFile, PAuthorization pAut)
 {
 	HMODULE hModule = LoadLibrary(pLibFile);
 	if (hModule == NULL)
@@ -16,12 +16,23 @@ PVOID CLdLibray::InitLib(TCHAR * pLibFile, PAuthorization pAut = nullptr)
 	return fnInit(pAut);
 }
 
-IErasureLibrary * CLdLibray::LoadEraserLarary(PAuthorization pAut = nullptr)
+IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, PAuthorization pAut)
 {
-	return (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
+	IErasureLibrary * result = (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
+
+	if(result)
+	{
+		CControlUI* lui = CLdLibray::BuildXml(result->UIResorce(), pm);
+		if (lui)
+		{
+			result->SetUI(lui);
+		}
+	}
+
+	return result;
 }
 
-IErasureLibrary * CLdLibray::LoadProtectLarary(PAuthorization pAut = nullptr)
+IErasureLibrary * CLdLibray::LoadProtectLarary(PAuthorization pAut)
 {
 	return (IErasureLibrary*)InitLib(_T("LdFileProtect_d64.dll"));
 }
