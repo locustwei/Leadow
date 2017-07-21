@@ -9,7 +9,6 @@ CErasureRecycleUI::CErasureRecycleUI():
 {
 	btnOk = nullptr;
 	m_ItemSkin = _T("erasure\\listitem.xml");
-	BuildXml(_T("erasure\\erasurerecycle.xml"), nullptr);
 }
 
 
@@ -140,7 +139,7 @@ void CErasureRecycleUI::OnInit()
 {
 	__super::OnInit();
 
-	btnOk = static_cast<CButtonUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
+//	btnOk = static_cast<CButtonUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
 	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
 	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）

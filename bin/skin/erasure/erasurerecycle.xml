@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <Window>
 		<Default name="Progress" value="float=&quot;false&quot; foreimage=&quot;file='erasure/progress_fore.png'&quot; maxheight=&quot;7&quot;"/>
-    <VerticalLayout bordersize="1" inset="1,1,1,1">
+    <VerticalLayout name="ErasureRecycle" bordersize="1" inset="1,1,1,1">
         <HorizontalLayout height="1"  />
         <HorizontalLayout inset="3,0,3,3">
             <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true" hscrollbar="true">

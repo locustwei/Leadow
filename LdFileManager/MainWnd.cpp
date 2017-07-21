@@ -87,14 +87,14 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 		{
 			if (!m_ErasureLib)
 			{
-				m_ErasureLib = CLdLibray::LoadEraserLarary();
-				CControlUI* lui = CLdLibray::BuildXml(m_ErasureLib->UIResorce(), &m_PaintManager);
-				if(lui)
+				m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager);
+				if(m_ErasureLib)
 				{
-					m_ErasureLib->SetUI(lui);
 					CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
 					if (frame)
+					{
 						AddVirtualWnd(frame->GetName(), frame);
+					}
 				}
 			}
 			_ASSERTE(m_ErasureLib);

@@ -5,7 +5,7 @@ class LDLIB_API CErasureMainWnd : public CFramNotifyPump
 {
 public:
 	CErasureMainWnd();
-	virtual ~CErasureMainWnd() override;
+	~CErasureMainWnd() override;
 
 	DUI_DECLARE_MESSAGE_MAP()
 
@@ -19,8 +19,7 @@ private:
 	CFramNotifyPump* m_ErasureRecycle;
 	CFramNotifyPump* m_ErasureVolume;
 protected:
-	TCHAR* UIResorce() override;
-	virtual void OnInit() override;
+	void AttanchControl(CControlUI* pCtrl) override;
 
 };
 

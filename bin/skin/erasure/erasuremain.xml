@@ -7,10 +7,10 @@
             <Option name="unusedspace" text="磁盘擦除" style="op_defualt" float="true" pos="166,0,0,0" height="26" group="contenttab" />
             <Option name="truemove" text="移动文件" style="op_defualt" float="true" pos="246,0,0,0" height="26" group="contenttab" />
         </HorizontalLayout>
-        <TabLayout name="pagelist" selectedid="-1">
-        		<include />
-        		<include />
-        		<include />
+        <TabLayout name="pagelist" selectedid="0">
+        		<Include source="erasure/erasurefile.xml"/>
+        		<Include source="erasure/erasurerecycle.xml"/>
+        		<Include source="erasure/erasurevolume.xml"/>
         </TabLayout>
     </VerticalLayout>
 </Window>

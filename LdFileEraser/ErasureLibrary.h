@@ -3,6 +3,7 @@
 class LDLIB_API IErasureLibrary
 {
 public:
+	virtual ~IErasureLibrary() {};
 	/*窗口资源ID
 	*用于builer窗口*/
 	virtual TCHAR* UIResorce() = 0;

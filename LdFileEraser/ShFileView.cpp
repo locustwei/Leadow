@@ -29,7 +29,7 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 	if (m_ItemSkin)
 	{
 		CDialogBuilder builder;
-		pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
+//		pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
 	}
 	if(pItem)
 	{
@@ -120,7 +120,7 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 		return;
 
 	CListHeaderUI * pHeader = lstFile->GetHeader();
-	pHeader->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList(_T("lstHeader_file")));
+//	pHeader->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList(_T("lstHeader_file")));
 
 	for(int i=0; i<ncount; i++)
 	{
@@ -159,6 +159,6 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 
 void CShFileViewUI::OnInit()
 {
-	lstFile = static_cast<CListUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0));
+//	lstFile = static_cast<CListUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0));
 }
 
