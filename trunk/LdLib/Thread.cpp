@@ -50,22 +50,22 @@ DWORD CThread::GetId() const
 	 return m_ThreadId; 
 }
 
-int CThread::Start(UINT_PTR Param)
+HANDLE CThread::Start(UINT_PTR Param)
 {
 	if (m_hThread != INVALID_HANDLE_VALUE)		
-		return -1;
+		return INVALID_HANDLE_VALUE;
+
 	m_Param = Param;
 	m_Terminated = false;
 
 	if(m_Runer)
 		m_Runer->OnThreadInit(this, m_Param);
 
-	m_hThread = CreateThread(nullptr, 0, &ThreadProcedure, this, 0, &m_ThreadId);
-
-	if (!m_hThread)	
-		return -3;
-
-	return 0;
+	HANDLE hThread = CreateThread(nullptr, 0, &ThreadProcedure, this, CREATE_SUSPENDED, &m_ThreadId);
+	m_hThread = hThread;  //这么啰嗦防止线程过早结束this无效
+	if(hThread != 0)
+		ResumeThread(hThread);
+	return hThread;
 }
 
 VOID CThread::ResetHandle()

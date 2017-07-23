@@ -13,6 +13,7 @@ typedef int (CALLBACK *PULVCompareFunc)(UINT_PTR, UINT_PTR, UINT_PTR);
 
 class CListHeaderUI;
 class CListHeaderItemUI;
+class CListContainerElementUI;
 
 #define UILIST_MAX_COLUMNS 64
 
@@ -211,6 +212,7 @@ public:
     bool SortItems(PULVCompareFunc pfnCompare, UINT_PTR dwData);
 
 	CListHeaderItemUI* AddHeaderItem(LPCTSTR lpStyle);
+	CListContainerElementUI* AddItem(TCHAR* resouceid);
 protected:
     bool m_bScrollSelect;
     int m_iCurSel;

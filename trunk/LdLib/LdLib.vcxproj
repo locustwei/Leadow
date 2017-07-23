@@ -161,6 +161,7 @@
     <ClInclude Include="LdNamedPipe.h" />
     <ClInclude Include="LdString.h" />
     <ClInclude Include="LdStructs.h" />
+    <ClInclude Include="LdTree.h" />
     <ClInclude Include="NtfsUtils.h" />
     <ClInclude Include="ProcessUtils.h" />
     <ClInclude Include="PublicRoutimes.h" />

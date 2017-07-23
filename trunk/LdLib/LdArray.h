@@ -10,6 +10,13 @@ public:
 };
 
 template <typename T >
+class IFindCompare
+{
+public:
+	virtual int ArrayFindCompare(PVOID key, T* it) = 0;
+};
+
+template <typename T >
 class CLdArray
 {
 public:
@@ -21,6 +28,7 @@ public:
 		FCount = 0;
 		FCapacity = 0;
 		FList = NULL;
+		m_Sorted = false;
 	};
 
 	CLdArray(CLdArray& LSource)
@@ -31,9 +39,10 @@ public:
 		SetCapacity(LSource.FCapacity);
 		for (int I = 0; I < LSource.FCount; I++)
 			Add(LSource[I]);
+		m_Sorted = false;
 	}
 
-	~CLdArray()
+	virtual ~CLdArray()
 	{
 		Clear();
 	};
@@ -99,12 +108,14 @@ public:
 		memset(&FList[Result], 0, sizeof(T));
 		FList[Result] = Item;
 		FCount++;
+		m_Sorted = false;
 		return Result;
 	};
 	void Clear()
 	{
 		SetCount(0);
 		SetCapacity(0);
+		m_Sorted = false;
 	};
 	void Delete(int Index)
 	{
@@ -122,6 +133,7 @@ public:
 		T Item = FList[Index1];
 		FList[Index1] = FList[Index2];
 		FList[Index2] = Item;
+		m_Sorted = false;
 	};
 	int IndexOf(T Item)
 	{
@@ -162,19 +174,31 @@ public:
 // 				Delete(I);
 		FCount = NewCount;
 	};
-	int GetCount()
+	int GetCount() const
 	{
 		return FCount;
 	}
 	void Sort(ISortCompare<T>* compare)
 	{
-		qsort_s(FList, GetCount(), sizeof(T*), array_compare, compare);
+		qsort_s(FList, GetCount(), sizeof(T*), array_sort_compare, compare);
+		m_Sorted = true;
 		//qsort_s()
 	};
+
+	T* Find(PVOID pKey, IFindCompare<T>* compare)
+	{
+		UINT count = GetCount();
+		if (m_Sorted)
+			return (T*)bsearch_s(pKey, FList, count, sizeof(T*), array_find_compare, (void*)compare);
+		else
+			return (T*)_lsearch_s(pKey, FList, &count, sizeof(T*), array_find_compare, (void*)compare);
+	}
+
 	T Put(int index, T Item)
 	{
 		T tmp = FList[index];
 		FList[index] = Item;
+		m_Sorted = false;
 		return tmp;
 	};
 	void SetCapacity(int NewCapacity)
@@ -190,6 +214,9 @@ public:
 		};
 	};
 protected:
+	int FCount, FCapacity;
+	T* FList;
+
 	void Grow()
 	{
 		int Delta;
@@ -202,15 +229,20 @@ protected:
 		SetCapacity(FCapacity + Delta);
 	};
 
-
 private:
-	int FCount, FCapacity;
-	T* FList;
+	bool m_Sorted;
 
-	static int array_compare(void * context, const void *it1, const void *it2)
+	static int array_sort_compare(void * context, const void *it1, const void *it2)
 	{
 		ISortCompare<T>* sc = (ISortCompare<T>*)context;
 		return sc->ArraySortCompare((T*)it1, (T*)it2);
+	};
+
+	static int array_find_compare(void * context, const void * key, const void * datum)
+	{
+		IFindCompare<T>* sc = (IFindCompare<T>*)context;
+		int result = sc->ArrayFindCompare((PVOID)key, (T*)datum);
+		return result;
 	};
 };
 

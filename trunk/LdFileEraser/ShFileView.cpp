@@ -19,21 +19,15 @@ CShFileViewUI::~CShFileViewUI()
 	}
 }
 
-void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
+CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 {
 	if (!m_HeaderAdded)
 		AddLstViewHeader(values->GetCount());
 
-	CListContainerElementUI* pItem = nullptr;
+	CListContainerElementUI* pItem = lstFile->AddItem(m_ItemSkin);
 
-	if (m_ItemSkin)
-	{
-		CDialogBuilder builder;
-//		pItem = (CListContainerElementUI*)builder.Create(m_ItemSkin, NULL, nullptr, m_Control->GetManager(), NULL);
-	}
 	if(pItem)
 	{
-		lstFile->Add(pItem);
 		for (int i = 1; i < values->GetCount(); i++)
 		{
 			CControlUI* ctrl = pItem->GetItemAt(i-1);
@@ -52,15 +46,8 @@ void CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 			}
 		}
 	}
-	else
-	{
-		CListTextElementUI* pItem1 = new CListTextElementUI();
-		lstFile->Add(pItem1);
-		for (int i = 0; i < values->GetCount(); i++)
-		{
-			pItem1->SetText(0, values->Get(i));
-		}
-	}
+
+	return pItem;
 }
 
 DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
@@ -118,23 +105,22 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 {
 	if (m_HeaderAdded)
 		return;
-
-	CListHeaderUI * pHeader = lstFile->GetHeader();
-//	pHeader->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList(_T("lstHeader_file")));
-
+	lstFile->GetHeader()->SetAttribute(_T("style"), _T("lstHeader_file"));
 	for(int i=0; i<ncount; i++)
 	{
 		if (i >= m_Columes.GetCount())
 			break;
 		CListHeaderItemUI* pItem = lstFile->AddHeaderItem(_T("lstHeaderitem_file"));
-		//pItem->SetAttributeList(GetUI()->GetManager()->GetStyleAttributeList( _T("lstHeaderitem_file")));
 
 		pItem->SetText(m_Columes[i]->szName);
 		pItem->SetFixedWidth(m_Columes[i]->cxChar * 8);
-		
-		//pHeader->Add(pItem);
 	}
 	m_HeaderAdded = true;
+}
+void CShFileViewUI::AttanchControl(CControlUI * pCtrl)
+{
+	__super::AttanchControl(pCtrl);
+	lstFile = (CListUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0);
 }
 //找到虚拟文件并与实际文件对应，
 BOOL CShFileViewUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
@@ -157,8 +143,4 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 	return true;
 };
 
-void CShFileViewUI::OnInit()
-{
-//	lstFile = static_cast<CListUI*>(GetUI()->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0));
-}
 
