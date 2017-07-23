@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 
-CEreaserThrads::CEreaserThrads(IGernalCallback<PERASE_CALLBACK_PARAM>* callback):
-	m_Files()
+CEreaserThrads::CEreaserThrads(IGernalCallback<PERASE_CALLBACK_PARAM>* callback)
 {
 	m_callback = callback;
 	m_Abort = false;
 	m_hEvent = nullptr;
 	m_nMaxThreadCount = MAX_THREAD_COUNT;
 	m_ControlThread = nullptr;
+	m_Files = nullptr;
+	m_Method = nullptr;
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -29,9 +30,14 @@ void CEreaserThrads::StopThreads()
 		SetEvent(m_hEvent);
 }
 
-void CEreaserThrads::AddEreaureFile(PERASURE_FILE_DATA pFile)
+void CEreaserThrads::SetEreaureFiles(CTreeNodes<PERASURE_FILE_DATA> * pFiles)
 {
-	m_Files.Add(pFile);
+	m_Files = pFiles;
+}
+
+void CEreaserThrads::SetEreaureMethod(CErasureMethod* pMethod)
+{
+	m_Method = pMethod;
 }
 
 DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
@@ -51,47 +57,72 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	m_ControlThread->Start(0);
 	return 0;
 }
+
+void CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* pThreadCount, bool bWait, HANDLE* threads)
+{
+	for (int i = 0; i < files->GetCount(); i++)
+	{
+		if (m_Abort)
+			break;
+
+		if (bWait)  //线程已满等待其中一个结束
+		{
+			int n = WaitForThread(threads);
+			if (n == 0) //停止
+				break;
+			else if (n > m_nMaxThreadCount) //错误
+				break;
+			else
+				*pThreadCount = n - 1;
+		}
+
+		CTreeNode<PERASURE_FILE_DATA>* node = files->Get(i);
+		if (node->Get()->nStatus != efs_ready && node->Get()->nStatus != efs_abort)
+			continue;
+
+		if (node->GetCount())
+		{
+			ReEresareFile(node->GetItems(), pThreadCount, bWait, threads);
+			if (bWait)  //线程已满等待其中一个结束
+			{
+				int n = WaitForThread(threads);
+				if (n == 0) //停止
+					break;
+				else if (n > m_nMaxThreadCount) //错误
+					break;
+				else
+					*pThreadCount = n - 1;
+			}
+		}
+			
+		PERASURE_FILE_DATA pinfo = files->GetValue(i);
+		if (pinfo->nStatus == efs_erasured)
+			continue;
+		CThread* thread = new CThread(this);
+
+		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)pinfo);
+		if (!bWait)
+			bWait = (*pThreadCount) >= m_nMaxThreadCount;
+	}
+}
+
 //擦除控制线程
 void CEreaserThrads::ControlThreadRun()
 {
 	ERASE_CALLBACK_PARAM Param;
+	ZeroMemory(&Param, sizeof(ERASE_CALLBACK_PARAM));
 	Param.op = eto_begin;
 	m_callback->GernalCallback_Callback(&Param, 0);
 
-	m_Files.Sort(this);  //按文件->子目录->父目录排序
-	
 	//保持当前擦除线程
 	HANDLE* threads = new HANDLE[m_nMaxThreadCount + 1];             
 	ZeroMemory(threads, sizeof(HANDLE)*(m_nMaxThreadCount + 1));
 	threads[0] = m_hEvent;
-	int k = 1;
-	boolean bWait = false;
-	for (int i = 0; i < m_Files.GetCount(); i++)
-	{
-		if (m_Abort)
-			break;
-		if(bWait)  //线程已满等待其中一个结束
-		{
-			DWORD obj = WaitForMultipleObjects(k, threads, FALSE, INFINITE);
-			if (obj == WAIT_OBJECT_0)
-			{   //终止擦除，等待其他线程都结束。
-				WaitForMultipleObjects(k - 1, &threads[1], true, INFINITE);
-				break;
-			}
-			else
-				k = obj - WAIT_OBJECT_0;
-		}
-		PERASURE_FILE_DATA pinfo = m_Files[i];
-		if (pinfo->nStatus == efs_erasured)
-			continue;
+	int k = 0;
 
-		CThread* thread = new CThread(this);
-		thread->Start((UINT_PTR)pinfo);
-		threads[k++] = thread->GetHandle();
-		bWait = k >= m_nMaxThreadCount;
-	}
+	ReEresareFile(m_Files, &k, false, threads);
+
 	delete [] threads;
-	m_Files.Clear();
 
 	Param.op = eto_finished;
 	m_callback->GernalCallback_Callback(&Param, 0);
@@ -101,7 +132,7 @@ void CEreaserThrads::ErasureThreadRun(PERASURE_FILE_DATA pData)
 {
 	if (m_Abort)
 		return;
-
+	
 	CErasure erasure;
 	ERASE_CALLBACK_PARAM Param;
 	Param.pData = pData;
@@ -113,10 +144,10 @@ void CEreaserThrads::ErasureThreadRun(PERASURE_FILE_DATA pData)
 	{
 	case eft_file:
 	case eft_directory:
-		pData->nErrorCode = erasure.FileErasure(pData->cFileName, pData->pMethod, &impl);
+		pData->nErrorCode = erasure.FileErasure(pData->cFileName, m_Method, &impl);
 		break;
 	case eft_volume:
-		pData->nErrorCode = erasure.UnuseSpaceErasure(pData->cFileName, pData->pMethod, &impl);
+		pData->nErrorCode = erasure.UnuseSpaceErasure(pData->cFileName, m_Method, &impl);
 		break;
 	default:
 		break;
@@ -130,6 +161,7 @@ void CEreaserThrads::ErasureThreadRun(PERASURE_FILE_DATA pData)
 	{
 		pData->nStatus = efs_error;
 	}
+
 }
 
 void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
@@ -151,14 +183,49 @@ void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
 		m_ControlThread = nullptr;
 }
 
-int CEreaserThrads::ArraySortCompare(ERASURE_FILE_DATA ** it1, ERASURE_FILE_DATA ** it2)
+int CEreaserThrads::WaitForThread(HANDLE* threads)
 {
-	int result;
-	result = (*it1)->nFileType - (*it2)->nFileType;
-	if (result != 0)
-		return result;
-	result = _tcslen((*it1)->cFileName) - _tcslen((*it2)->cFileName);
-	return result;
+	int k = m_nMaxThreadCount + 1;
+
+	DWORD obj = WaitForMultipleObjects(m_nMaxThreadCount + 1, threads, FALSE, INFINITE);
+	if (obj == WAIT_FAILED)
+	{
+		DWORD dw = GetLastError();
+		switch (dw)
+		{
+		case ERROR_ACCESS_DENIED: //不明原因
+		case ERROR_INVALID_HANDLE: //擦除已经完成，Handle无效了
+			for (int j = 1; j <= m_nMaxThreadCount; j++)
+			{//找到那个无线的Thread
+				if (GetExitCodeThread(threads[j], &dw))
+					continue;
+				dw = 0;
+				dw = GetLastError();
+				if (dw == ERROR_INVALID_HANDLE || dw == ERROR_ACCESS_DENIED)
+				{
+					k = j;
+					break;
+				}
+			}
+			break;
+		default:
+			DebugOutput(L"错误 %d", dw);
+			break;
+		}
+	}
+	else if (obj == WAIT_OBJECT_0)
+	{   //终止擦除，等待其他线程都结束。
+
+		for (int j = 1; j <= m_nMaxThreadCount; j++)
+		{//找到那个无线的Thread
+			WaitForSingleObject(&threads[j], INFINITE);
+		}
+
+		k = 0;
+	}
+	else
+		k = obj - WAIT_OBJECT_0; 
+	return k;
 }
 
 CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(PERASE_CALLBACK_PARAM pData)
@@ -191,6 +258,8 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(UINT nStep, DWORD dw
 
 	if (m_Control->m_Abort)
 		return false;
+	if(dwErroCode!=0)
+		DebugOutput(L"ErasureCompleted %d=%s\n", dwErroCode, m_Data->pData->cFileName);
 	return true;
 }
 

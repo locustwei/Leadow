@@ -63,7 +63,7 @@ public:
 		if (Find(key, &index))
 		{
 			m_Array.Delete(index);
-			return true
+			return true;
 		}
 		else
 		{
@@ -159,6 +159,11 @@ public:
 		memset(m_aT, 0, nSize * sizeof(HASHMAP_TITEM*));
 	}
 
+	~CLdHashMap()
+	{
+		Resize(0);
+	};
+
 	BOOL GetValueAt(int iIndex, T& value)
 	{
 		if (m_nBuckets == 0 || GetCount() == 0) return false;
@@ -175,11 +180,6 @@ public:
 		}
 
 		return false;
-	};
-
-	~CLdHashMap()
-	{
-		Resize(0);
 	};
 
 	void RemoveAll()
@@ -309,11 +309,14 @@ public:
 		return GetAt(nIndex);
 	};
 
-	T* operator[] (TCHAR* key)
+	T& operator[] (TCHAR* key)
 	{
-		return Find(key);
+		T result;
+		Find(key, result);
+		return result;
 	};
-public:
+
+protected:
 
 	struct HASHMAP_TITEM
 	{

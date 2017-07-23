@@ -108,6 +108,9 @@
     <ClInclude Include="SHFolders.h">
       <Filter>Native</Filter>
     </ClInclude>
+    <ClInclude Include="LdTree.h">
+      <Filter>classes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />

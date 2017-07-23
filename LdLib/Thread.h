@@ -36,7 +36,7 @@ public:
 	开始线程
 	Param 回传到线程回掉函数
 	*/
-	virtual int Start(UINT_PTR Param);
+	virtual HANDLE Start(UINT_PTR Param);
 	/*
 	结束线程
 	dwWaitTime 等待线程结束时间，

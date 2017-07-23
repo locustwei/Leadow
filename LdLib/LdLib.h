@@ -11,6 +11,7 @@
 #include "LdArray.h"
 #include "LdMap.h"
 #include "DlgGetFileName.h"
+#include "LdTree.h"
 
 #include "ProcessUtils.h"
 #include "FileUtils.h"

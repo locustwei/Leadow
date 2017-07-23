@@ -11,7 +11,7 @@ public:
 	virtual ~CShFileViewUI() override;
 
 	//加一行
-	void AddRecord(CLdArray<TCHAR*>* values); 
+	CControlUI* AddRecord(CLdArray<TCHAR*>* values);
 	//加一个文件（CSHFolders::GetFileAttributeValue）
 	DWORD AddFile(TCHAR* lpFullName);
 	//添加目录（CSHFolders::EnumFolderObjects）
@@ -33,7 +33,8 @@ protected:
 	CListUI* lstFile;
 	TCHAR* m_ItemSkin;
 
-	virtual void OnInit();
+	void AttanchControl(CControlUI* pCtrl);
+
 	void AddLstViewHeader(int ncount);
 	//ShGetFileInfo 回收站显示文件
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;

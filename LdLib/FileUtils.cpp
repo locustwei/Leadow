@@ -153,7 +153,7 @@ BOOL CFileUtils::SetCompression(TCHAR* lpFullName, BOOL bCompress)
 
 	HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 	if (handle == INVALID_HANDLE_VALUE)
-		return FALSE;
+		return Result;
 	Result = DeviceIoControl(handle, FSCTL_SET_COMPRESSION, &compressionStatus, sizeof(DWORD), NULL, 0, &bytesReturned, NULL);
 	CloseHandle(handle);
 	return Result;
@@ -184,19 +184,14 @@ DWORD CFileUtils::FindFile(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<L
 
 		if (!callback->GernalCallback_Callback(&Data, Param))
 			break;
-//		if(bSubDir && (Data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0)
-//		{
-//			result = FindFile(path + Data.cFileName, lpFilter, bSubDir, callback, Param);
-//			if (result != 0)
-//				break;
-//		}
+
 	} while (FindNextFile(hFind, &Data));
 
 	FindClose(hFind);
 	return result;
 }
 
-int CFileUtils::DeleteFile(TCHAR * lpFileName, DWORD dwFlag)
+int CFileUtils::ShDeleteFile(TCHAR * lpFileName, DWORD dwFlag)
 {
 	SHFILEOPSTRUCT fo;
 	ZeroMemory(&fo, sizeof(SHFILEOPSTRUCT));
@@ -206,6 +201,22 @@ int CFileUtils::DeleteFile(TCHAR * lpFileName, DWORD dwFlag)
 	fo.fFlags = dwFlag;
 	fo.wFunc = FO_DELETE;
 	return SHFileOperation(&fo);
+}
+
+DWORD CFileUtils::DeleteFile(TCHAR * lpFileName)
+{
+	SetFileAttributes(lpFileName, FILE_ATTRIBUTE_NORMAL);
+	if (!::DeleteFile(lpFileName))
+		return GetLastError();
+
+/*
+	OBJECT_ATTRIBUTES ObjectAttributes;
+	UNICODE_STRING UnicodeString;
+	RtlInitUnicodeString(&UnicodeString, lpFileName);
+	InitializeObjectAttributes(&ObjectAttributes, &UnicodeString, 0x40, 0, nullptr, nullptr);
+*/
+
+	return 0;
 }
 
 #pragma endregion

@@ -41,7 +41,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureRecycle"), 0);
 			m_ErasureRecycle->AttanchControl(pCtrl);
 			AddVirtualWnd(m_ErasureRecycle->GetName(), m_ErasureRecycle);
-			((CErasureRecycleUI*)m_ErasureRecycle)->AddFolder(CSIDL_BITBUCKET);
+			//((CErasureRecycleUI*)m_ErasureRecycle)->AddFolder(CSIDL_BITBUCKET);
 		}
 		m_TabUI->SelectItem(1);
 	}

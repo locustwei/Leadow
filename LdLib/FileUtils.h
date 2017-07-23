@@ -62,6 +62,7 @@ public:
 	/*
 	É¾³ýÎÄ¼þ£¨SHFileOperation£©
 	*/
-	static int DeleteFile(TCHAR* lpFileName, DWORD dwFlag = FOF_NOCONFIRMATION | FOF_NO_UI | FOF_NOERRORUI);
+	static int ShDeleteFile(TCHAR* lpFileName, DWORD dwFlag = FOF_NO_UI);
+	static DWORD DeleteFile(TCHAR* lpFileName);
 };
 

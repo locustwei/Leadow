@@ -3,8 +3,8 @@
 #include "Winerror.h"
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
-#define MIN_TEMPFILESIZE 1024 * 1024 * 50   //历时文件最小值（文件太小会影响擦除速度）
-#define MAX_TEMPFILESIZE 1024 * 1024 * 1024
+#define MIN_TEMPFILESIZE 1024 * 1024 * 256   //历时文件最小值（文件太小会影响擦除速度）
+#define MAX_TEMPFILESIZE 1024 * 1024 * 4096
 
 CErasure::CErasure():
 	m_Tmpfiles(),
@@ -63,11 +63,10 @@ private:
 
 DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasureCallback* callback)
 {
-
 	//检查是否有管理员权限（错误）
 	//检查是否有系统还原点（警告）
 	//检查磁盘用户配额（警告 GetDiskFreeSpaceEx）
-	DWORD Result = 0;
+	DWORD Result;
 
 	do
 	{
@@ -85,9 +84,11 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasur
 
 		WORD wCompressStatus;
 		Result = CFileUtils::GetCompressStatus(m_tmpDir, &wCompressStatus);
-		BOOL IsCompressed = wCompressStatus & COMPRESSION_FORMAT_NONE;
-		if (IsCompressed)
-			CFileUtils::SetCompression(Driver, FALSE);
+		if(Result == 0)
+		{
+			if (wCompressStatus & COMPRESSION_FORMAT_NONE)
+				CFileUtils::SetCompression(Driver, FALSE);
+		}
 		m_tmpDir += Erasure_temp_path;
 		Result = CFileUtils::ForceDirectories(m_tmpDir + _T("\\"));
 		if (Result != 0)
@@ -97,7 +98,7 @@ DWORD CErasure::UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasur
 		Result = UnusedSpace2TempFile(callback);
 		
 		if (Result == 0)
-			Result = EraseMftFileRecord(callback);
+			EraseMftFileRecord(callback);
 
 		Result = DeleteTempFiles(callback);
 		RemoveDirectory(m_tmpDir);
@@ -114,42 +115,45 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	DWORD result = 0;
 
 	m_method = method;
-
+	
 	if (!callbck->ErasureStart(method->GetPassCount()))
 		return ERROR_CANCELED;
-
-	DWORD dwAttr = GetFileAttributes(lpFileName);
-	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
-	{
-		HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-		if (hFile == INVALID_HANDLE_VALUE)
-			return GetLastError();
-
-		LARGE_INTEGER fileSize;
-		if (!GetFileSizeEx(hFile, &fileSize))
-			result = GetLastError();
-
-
-		if (result == 0 && fileSize.QuadPart > 0)
-			result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
-
-		CloseHandle(hFile);
-	}
-
-	m_Tmpfiles.Add(lpFileName);
-	if(result == 0)
-		result = DeleteTempFiles(callbck);
+//
+//	DWORD dwAttr = GetFileAttributes(lpFileName);
+//	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+//	{
+//		HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+//		if (hFile == INVALID_HANDLE_VALUE)
+//			return GetLastError();
+//
+//		LARGE_INTEGER fileSize;
+//		if (!GetFileSizeEx(hFile, &fileSize))
+//			result = GetLastError();
+//
+//
+//		if (result == 0 && fileSize.QuadPart > 0)
+//			result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+//
+//		CloseHandle(hFile);
+//	}
+//
+//	m_Tmpfiles.Add(lpFileName);
+//	if(result == 0)
+//		result = DeleteTempFiles(callbck);
 
 	callbck->ErasureCompleted(method->GetPassCount(), result);
+
+	//DebugOutput(L"%d %s\n", result, lpFileName);
+
 	return result;
 }
 
 DWORD CErasure::UnusedSpace2TempFile(IErasureCallback* callback)
 {
-	DWORD Result = 0;
+	DWORD Result;
 	UINT64 nFreeSpace;
 	UINT nFileSize;
-	UINT nFileCount = 0; //被删除的文件数。（估算）
+	UINT nFileCount; //被删除的文件数。（估算）
 
 	Result = m_volInfo.GetTotalSize(&nFreeSpace);
 	if (Result == 0)
@@ -205,7 +209,7 @@ DWORD CErasure::UnusedSpace2TempFile(IErasureCallback* callback)
 
 DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck)
 {
-	DWORD Result;
+	DWORD Result = 0;
 
 	for (int i = 0; i < m_method->GetPassCount(); i++)
 	{
@@ -222,7 +226,6 @@ DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IEra
 		if(Result != 0)
 			break;
 	}
-
 	return Result;
 }
 
@@ -327,6 +330,9 @@ DWORD CErasure::EraseMftFileRecord(IErasureCallback* callback)
 {
 	VOLUME_FILE_SYSTEM fs;
 	DWORD Result = m_volInfo.GetFileSystem(&fs);
+	if (Result != 0)
+		return Result;
+
 	switch (fs)
 	{
 	case FS_NTFS:
@@ -343,7 +349,7 @@ DWORD CErasure::EraseMftFileRecord(IErasureCallback* callback)
 
 DWORD CErasure::EraseNtfsDeletedFile(IErasureCallback* callback)
 {
-	DWORD result = 0;
+	DWORD result;
 	DWORD dwBytesPreFile;
 	UINT64 nTotalSize;
 
@@ -435,7 +441,7 @@ DWORD CErasure::ResetFileDate(HANDLE hFile)
 
 DWORD CErasure::EraseFreeSpace(UINT64 nFileSize, IErasureCallback* callback)
 {
-	DWORD Result = 0;
+	DWORD Result;
 	HANDLE hFile = INVALID_HANDLE_VALUE;
 	Result = CreateTempFile(nFileSize, &hFile);
 	if (Result != 0 && hFile == INVALID_HANDLE_VALUE)
@@ -462,8 +468,8 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 			ResetFileDate(hFile);
 			CloseHandle(hFile);
 		};
-		//DeleteFile(m_Tmpfiles[i]);
-		CFileUtils::DeleteFileW(m_Tmpfiles[i]);
+		
+		Result = CFileUtils::ShDeleteFile(m_Tmpfiles[i]);
 		
 		if(callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
@@ -487,7 +493,9 @@ DWORD CErasure::EraseMftDeleteFile(IErasureCallback* callback)
 	DWORD nFileSize = 1024; //todo
 	do
 	{
-		callback->ErasureProgress(2, nTotalSize, 0);
+		if (!callback->ErasureProgress(2, nTotalSize, 0))
+			break;
+
 		int nCount = 0;
 		while (true)
 		{
@@ -498,7 +506,8 @@ DWORD CErasure::EraseMftDeleteFile(IErasureCallback* callback)
 					break;
 				nFileSize--;
 			}
-			callback->ErasureProgress(2, nTotalSize, nCount++);
+			if (!callback->ErasureProgress(2, nTotalSize, nCount++))
+				break;
 		}
 	} while (false);
 

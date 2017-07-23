@@ -1081,7 +1081,15 @@ CListHeaderItemUI * CListUI::AddHeaderItem(LPCTSTR lpStyle)
 	return pItem;
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+CListContainerElementUI* CListUI::AddItem(TCHAR* resouceid)
+{
+	CDialogBuilder builder;
+	CListContainerElementUI* pItem = (CListContainerElementUI*)builder.Create(resouceid, NULL, nullptr, GetManager(), NULL);
+	Add(pItem);
+	return pItem;
+}
+
+	/////////////////////////////////////////////////////////////////////////////////////
 //
 //
 
@@ -1427,7 +1435,6 @@ CListHeaderUI::CListHeaderUI()
 
 CListHeaderUI::~CListHeaderUI()
 {
-	DUI__Trace(L"CListHeaderUI free");
 }
 
 LPCTSTR CListHeaderUI::GetClass() const
@@ -1474,7 +1481,6 @@ m_iFont(-1), m_bShowHtml(false)
 
 CListHeaderItemUI::~CListHeaderItemUI()
 {
-	DUI__Trace(L"CListHeaderItemUI free");
 }
 
 LPCTSTR CListHeaderItemUI::GetClass() const
