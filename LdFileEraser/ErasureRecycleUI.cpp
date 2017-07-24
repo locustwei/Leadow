@@ -49,7 +49,6 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 {
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
-
 	CTreeNodes<PERASURE_FILE_DATA>* files = (CTreeNodes<PERASURE_FILE_DATA>*)Param;
 	
 	CLdString s = (LPTSTR)files->Tag;
@@ -61,6 +60,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 	s += pData->cFileName;
 	s.CopyTo(p->cFileName);
 	int index = files->Add(p);
+	DebugOutput(L"%s\n", s.GetData());
 
 	if ((pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
 	{
@@ -253,17 +253,17 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UIN
 		for (pFolderData = (PRECYCLE_FILE_DATA)pData->pData->Tag; pFolderData != nullptr; pFolderData = (PRECYCLE_FILE_DATA)pFolderData->pFolder->Tag)
 		{
 			pFolderData->nErasued++;
-			if(pFolderData->pFolder)
-				DebugOutput(L"%d %d %s\n", pFolderData->nErasued, pFolderData->nCount, pFolderData->pFolder->cFileName);
 			if (pFolderData->ui)
 			{
+				DebugOutput(L"%d %d %s\n", pFolderData->nErasued, pFolderData->nCount,pData->pData->cFileName);
+
 				pui = (CProgressUI*)pFolderData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 				if (pui)
 				{
 					if (pFolderData->nCount == 0 || pFolderData->nErasued > pFolderData->nCount)
 						pui->SetValue(pui->GetMaxValue());
 					else
-						pui->SetValue(pFolderData->nErasued / pFolderData->nCount * 100);
+						pui->SetValue(pFolderData->nErasued * 100 / pFolderData->nCount);
 				}
 			}
 			if (pFolderData->pFolder == 0)
@@ -293,7 +293,7 @@ void CErasureRecycleUI::StatErase()
 {
 	m_EreaserThreads.SetEreaureMethod(&CErasureMethod::Pseudorandom());
 	m_EreaserThreads.SetEreaureFiles(&m_RecycleFiles);
-	m_EreaserThreads.StartEreasure(10);
+	m_EreaserThreads.StartEreasure(20);
 }
 
 void CErasureRecycleUI::OnClick(TNotifyUI& msg)

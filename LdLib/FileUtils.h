@@ -17,7 +17,7 @@ public:
 	DWORD GetAttributes();
 	TCHAR* GetFileName();
 	VOID SetFileName(TCHAR* pFileName);
-	VOID SetFileData(TCHAR* pFolder, )
+	//VOID SetFileData(TCHAR* pFolder, )
 	static CLdString FormatFileSize(INT64 nSize);
 private:
 	FILE_BASIC_INFO m_Baseinfo;

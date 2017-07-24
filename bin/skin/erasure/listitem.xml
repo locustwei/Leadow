@@ -3,7 +3,7 @@
   <ListContainerElement height="40" >
   		<VerticalLayout inset="4,0,4,0">
 					<Label name="caption" text="" inset="0,0,5,0"/>
-					<Progress name="progress" visible="false" min="0" max="100" value="20" />
+					<Progress name="progress" visible="false" min="0" max="100" value="0" />
 			</VerticalLayout>
 			<Label text="" inset="5,0,5,0"/>
 			<Label text="" inset="5,0,5,0"/>
