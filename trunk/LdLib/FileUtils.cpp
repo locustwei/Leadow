@@ -283,7 +283,7 @@ DWORD CFileInfo::GetAttributes()
 	return m_Baseinfo.FileAttributes;
 }
 
-CLdString & CFileInfo::GetFileName()
+TCHAR* CFileInfo::GetFileName()
 {
 	return Name;
 }
