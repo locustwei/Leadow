@@ -118,7 +118,8 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	
 	if (!callbck->ErasureStart(method->GetPassCount()))
 		return ERROR_CANCELED;
-//
+	Sleep(100);
+
 //	DWORD dwAttr = GetFileAttributes(lpFileName);
 //	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
 //	{

@@ -59,7 +59,7 @@ public:
 	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 protected:
-	void ReEresareFile(CTreeNodes<ERASURE_FILE_DATA*>* files, int* pThredCount, bool bWait, HANDLE* threads);
+	bool ReEresareFile(CTreeNodes<ERASURE_FILE_DATA*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
 	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
 	void ErasureThreadRun(PERASURE_FILE_DATA pData);  //单个文件擦除线程
 

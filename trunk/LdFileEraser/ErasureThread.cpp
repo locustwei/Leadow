@@ -58,20 +58,20 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	return 0;
 }
 
-void CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* pThreadCount, bool bWait, HANDLE* threads)
+bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
 {
 	for (int i = 0; i < files->GetCount(); i++)
 	{
 		if (m_Abort)
-			break;
+			return false;
 
 		if (bWait)  //线程已满等待其中一个结束
 		{
 			int n = WaitForThread(threads);
 			if (n == 0) //停止
-				break;
+				return false;
 			else if (n > m_nMaxThreadCount) //错误
-				break;
+				return false;
 			else
 				*pThreadCount = n - 1;
 		}
@@ -81,15 +81,20 @@ void CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 			continue;
 
 		if (node->GetCount())
-		{
-			ReEresareFile(node->GetItems(), pThreadCount, bWait, threads);
+		{//目录，先递归擦除子目录文件
+			if (!ReEresareFile(node->GetItems(), pThreadCount, bWait, threads))
+				return false;
+
+			if (m_Abort)
+				return false;
+
 			if (bWait)  //线程已满等待其中一个结束
 			{
 				int n = WaitForThread(threads);
 				if (n == 0) //停止
-					break;
+					return false;
 				else if (n > m_nMaxThreadCount) //错误
-					break;
+					return false;
 				else
 					*pThreadCount = n - 1;
 			}
@@ -98,12 +103,14 @@ void CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 		PERASURE_FILE_DATA pinfo = files->GetValue(i);
 		if (pinfo->nStatus == efs_erasured)
 			continue;
-		CThread* thread = new CThread(this);
 
+		CThread* thread = new CThread(this);
 		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)pinfo);
 		if (!bWait)
 			bWait = (*pThreadCount) >= m_nMaxThreadCount;
 	}
+
+	return true;
 }
 
 //擦除控制线程
@@ -119,8 +126,14 @@ void CEreaserThrads::ControlThreadRun()
 	ZeroMemory(threads, sizeof(HANDLE)*(m_nMaxThreadCount + 1));
 	threads[0] = m_hEvent;
 	int k = 0;
+	bool bWait = false;
+	ReEresareFile(m_Files, &k, bWait, threads);
 
-	ReEresareFile(m_Files, &k, false, threads);
+//	for (int j = 1; j <= m_nMaxThreadCount; j++)
+//	{
+//		WaitForSingleObject(&threads[j], INFINITE);
+//	}
+
 
 	delete [] threads;
 
@@ -196,15 +209,16 @@ int CEreaserThrads::WaitForThread(HANDLE* threads)
 		case ERROR_ACCESS_DENIED: //不明原因
 		case ERROR_INVALID_HANDLE: //擦除已经完成，Handle无效了
 			for (int j = 1; j <= m_nMaxThreadCount; j++)
-			{//找到那个无线的Thread
-				if (GetExitCodeThread(threads[j], &dw))
-					continue;
-				dw = 0;
-				dw = GetLastError();
-				if (dw == ERROR_INVALID_HANDLE || dw == ERROR_ACCESS_DENIED)
+			{//找到那个无效的Thread
+				obj = WaitForSingleObject(threads[j], 1);
+				if (obj == WAIT_FAILED)
 				{
-					k = j;
-					break;
+					dw = GetLastError();
+					if (dw == ERROR_INVALID_HANDLE || dw == ERROR_ACCESS_DENIED)
+					{
+						k = j;
+						break;
+					}
 				}
 			}
 			break;
@@ -225,6 +239,7 @@ int CEreaserThrads::WaitForThread(HANDLE* threads)
 	}
 	else
 		k = obj - WAIT_OBJECT_0; 
+
 	return k;
 }
 
