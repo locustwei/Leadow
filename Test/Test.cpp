@@ -60,18 +60,20 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 
-	C1 c;
-	CImp* b = &c;
-	c.p();
-	b->p();
+	FILE_BASIC_INFO m_Baseinfo;
+	FILE_STANDARD_INFO m_StandrardInfo;
 
-	c.setb(123);
-	c.p();
-	b->p();
+	WIN32_FILE_ATTRIBUTE_DATA fdata = {0};
+	if (!GetFileAttributesEx(L"c:\\", GetFileExInfoStandard, &fdata))
+		printf("error = %d", GetLastError());
 
-	b->setb(456);
-	c.p();
-	b->p();
+	HANDLE hFile = CreateFile(L"G:\\Winobj.exe", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		GetFileInformationByHandleEx(hFile, FileStandardInfo, &m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
+		GetFileInformationByHandleEx(hFile, FileBasicInfo, &m_Baseinfo, sizeof(FILE_BASIC_INFO));
+		CloseHandle(hFile);
+	}
 
 	printf("\npress any key exit");
 	getchar();

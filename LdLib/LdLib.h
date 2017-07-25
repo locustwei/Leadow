@@ -12,6 +12,7 @@
 #include "LdMap.h"
 #include "DlgGetFileName.h"
 #include "LdTree.h"
+#include "FileInfo.h"
 
 #include "ProcessUtils.h"
 #include "FileUtils.h"
@@ -23,6 +24,7 @@
 
 #include "FormatSettings.h"
 #include "SHFolders.h"
+
 
 #define LDLIB_API __declspec(dllexport)
 
