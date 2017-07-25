@@ -48,6 +48,9 @@
       <Filter>Native</Filter>
     </ClCompile>
     <ClCompile Include="LdLib.cpp" />
+    <ClCompile Include="FileInfo.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -109,6 +112,9 @@
       <Filter>Native</Filter>
     </ClInclude>
     <ClInclude Include="LdTree.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="FileInfo.h">
       <Filter>classes</Filter>
     </ClInclude>
   </ItemGroup>

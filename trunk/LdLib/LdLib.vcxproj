@@ -149,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DateTimeUtils.h" />
+    <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="DlgGetFileName.h" />
     <ClInclude Include="FormatSettings.h" />
@@ -174,6 +175,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DateTimeUtils.cpp" />
+    <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="DlgGetFileName.cpp" />
     <ClCompile Include="FormatSettings.cpp" />
