@@ -9,6 +9,7 @@
 #include <shellapi.h>
 #include <io.h>
 #include <fcntl.h>
+#include <Ldlib.h>
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -60,20 +61,13 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 
-	FILE_BASIC_INFO m_Baseinfo;
-	FILE_STANDARD_INFO m_StandrardInfo;
+	CFileInfo Info;
+	Info.SetFileName(_T("C:\\Windows.old"));
 
-	WIN32_FILE_ATTRIBUTE_DATA fdata = {0};
-	if (!GetFileAttributesEx(L"c:\\", GetFileExInfoStandard, &fdata))
-		printf("error = %d", GetLastError());
+	printf("%S \n", (TCHAR*)CDateTimeUtils::DateTimeToString(Info.GetLastAccessTime()));
 
-	HANDLE hFile = CreateFile(L"G:\\Winobj.exe", GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		GetFileInformationByHandleEx(hFile, FileStandardInfo, &m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
-		GetFileInformationByHandleEx(hFile, FileBasicInfo, &m_Baseinfo, sizeof(FILE_BASIC_INFO));
-		CloseHandle(hFile);
-	}
+	Info.FindFiles();
+
 
 	printf("\npress any key exit");
 	getchar();

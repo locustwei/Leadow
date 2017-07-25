@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "FileUtils.h"
-#include "LdLib.h"
+#include "ldstring.h"
 
 BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
 {
@@ -41,7 +41,7 @@ UINT CFileUtils::ExtractFileName(TCHAR* lpFullName, TCHAR* lpName)
 		return 0;
 	s += 1;
 	if (lpName)
-		wcscat(lpName, s);
+		_tcscpy(lpName, s);
 	return wcslen(s);
 }
 
@@ -163,8 +163,7 @@ DWORD CFileUtils::FindFile(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<L
 	CLdString path = lpFullPath;
 	if (path.IsEmpty())
 		return 0;
-	if (!IsDirectoryExists(lpFullPath))
-		return ERROR_FILE_INVALID;
+
 	if(path[path.GetLength()-1]!='\\')
 	{
 		path += '\\';
@@ -215,4 +214,24 @@ DWORD CFileUtils::DeleteFile(TCHAR * lpFileName)
 */
 
 	return 0;
+}
+
+void CFileUtils::FormatFileSize(INT64 nSize, CLdString& result)
+{
+#define __KB 1024
+#define __MB (1024 * __KB)
+#define __GB (1024 * __MB)
+#define __TB 0x10000000000 
+	double Size = nSize;
+
+	if (Size < __KB)
+		result.Format(_T("%.2fBytes"), Size);
+	else if (Size < __MB)
+		result.Format(_T("%.2fKB"), Size / __KB);
+	else if (Size < __GB)
+		result.Format(_T("%.2fMB"), Size / __MB);
+	else if (Size < __TB)
+		result.Format(_T("%.2fGB"), Size / __GB);
+	else
+		result.Format(_T("%.2fTB"), Size / __TB);
 }

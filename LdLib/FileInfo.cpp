@@ -3,27 +3,32 @@
 #include "FileUtils.h"
 
 class CFindFileCallbackImpl: 
-	public IGernalCallback<LPWIN32_FIND_DATA>
+	public IGernalCallback<LPWIN32_FIND_DATA>,
+	public ISortCompare<CFileInfo*>
 {
 public:
+	int ArraySortCompare(CFileInfo** it1, CFileInfo** it2) override
+	{
+		return _tcsicmp((*it1)->m_FileName, (*it2)->m_FileName);
+	};
+
 	BOOL GernalCallback_Callback(_WIN32_FIND_DATAW* pData, UINT_PTR Param) override
 	{
 		CFileInfo* pFolder = (CFileInfo*)Param;
 		pFolder->AddFile(pData);
+		return true;
 	};
 };
 
-CFileInfo::CFileInfo():
-	m_Name()
+CFileInfo::CFileInfo()
 {
 	ClearValue();
 }
 
-CFileInfo::CFileInfo(TCHAR * pFileName):
-	m_Name()
+CFileInfo::CFileInfo(TCHAR * pFileName)
 {
 	ClearValue();
-	m_Name = pFileName;
+	SetFileName(pFileName);
 }
 
 CFileInfo::~CFileInfo()
@@ -48,16 +53,13 @@ FILETIME CFileInfo::GetLastAccessTime()
 	return m_AttributeData.ftLastAccessTime;
 }
 
-INT64 CFileInfo::GetAllocateSize()
-{
-	GetFileStandardInfo();
-	return m_StandrardInfo.AllocationSize.QuadPart;
-}
-
 INT64 CFileInfo::GetDataSize()
 {
-	GetFileStandardInfo();
-	return m_StandrardInfo.EndOfFile.QuadPart;
+	GetFileBasicInfo();
+	INT64 result = m_AttributeData.nFileSizeHigh;
+	result = result << 32;
+	result = result | m_AttributeData.nFileSizeLow;
+	return result;
 }
 
 DWORD CFileInfo::GetAttributes()
@@ -68,23 +70,47 @@ DWORD CFileInfo::GetAttributes()
 		return DWORD(-1);
 }
 
-const TCHAR* CFileInfo::GetFullName() const
+bool CFileInfo::GetFullName(CLdString& result)
 {
-	return m_Name;
+	if (m_FileName.IsEmpty())
+		return false;
+
+	result = GetPath();
+
+	result += '\\';
+	result += m_FileName;
+	return true;
 }
 
 const TCHAR* CFileInfo::GetFileName() const
 {
-	if(m_Name.IsEmpty())
-		return nullptr;
-	else
-		return _tcsrchr(m_Name.GetData(), '\\');
+	return m_FileName;
 }
 
-VOID CFileInfo::SetFileName(TCHAR * pFileName)
+const TCHAR* CFileInfo::GetPath()
+{
+	if (m_Path.IsEmpty())
+	{
+		if (m_Folder)
+			m_Folder->GetFullName(m_Path);
+	}
+	return m_Path;
+
+}
+
+bool CFileInfo::SetFileName(TCHAR * pFileName)
 {
 	ClearValue();
-	m_Name = pFileName;
+	if (pFileName == nullptr)
+		return false;
+	TCHAR fileName[260] = { 0 };
+	if (CFileUtils::ExtractFilePath(pFileName, fileName) == 0)
+		return false;
+	m_Path = fileName;
+	if (CFileUtils::ExtractFileName(pFileName, fileName) == 0)
+		return false;
+	m_FileName = fileName;
+	return true;
 }
 
 bool CFileInfo::IsDirectory()
@@ -93,89 +119,62 @@ bool CFileInfo::IsDirectory()
 	return dwAtt != DWORD(-1) && (dwAtt & FILE_ATTRIBUTE_DIRECTORY);
 }
 
-CLdString CFileInfo::FormatFileSize(INT64 nSize)
+UINT CFileInfo::GetFilesCount() const
 {
-#define __KB 1024
-#define __MB (1024 * __KB)
-#define __GB (1024 * __MB)
-#define __TB 0x10000000000 
-	double Size = nSize;
-	CLdString s((UINT)100);
-	if (Size < __KB)
-		s.Format(_T("%.2fBytes"), Size);
-	else if (Size < __MB)
-		s.Format(_T("%.2fKB"), Size / __KB);
-	else if (Size < __GB)
-		s.Format(_T("%.2fMB"), Size / __MB);
-	else if (Size < __TB)
-		s.Format(_T("%.2fGB"), Size / __GB);
-	else
-		s.Format(_T("%.2fTB"), Size / __TB);
-	return s;
+	return m_Files.GetCount();
 }
 
 DWORD CFileInfo::FindFiles()
 {
-	if (m_Name.IsEmpty())
-		return DWORD(-1);
 	if(!IsDirectory())
 		return DWORD(-1);
 	
+	CLdString fullName;
+	GetFullName(fullName);
+
 	CFindFileCallbackImpl impl;
 
-	return CFileUtils::FindFile(m_Name, _T("*.*"), &impl, (UINT_PTR)this);
+	DWORD result = CFileUtils::FindFile(fullName, _T("*.*"), &impl, (UINT_PTR)this);
+	if (m_Files.GetCount() > 0)
+		m_Files.Sort(&impl);
+	return result;
+}
+
+CFileInfo* CFileInfo::GetFolder()
+{	
+	return m_Folder;
 }
 
 void CFileInfo::ClearValue()
 {
 	m_Folder = nullptr;
-	ZeroMemory(&m_AttributeData, sizeof(FILE_BASIC_INFO));
+	ZeroMemory(&m_AttributeData, sizeof(WIN32_FILE_ATTRIBUTE_DATA));
 	m_AttributeData.nFileSizeHigh = -1;  //标志没数据
-	ZeroMemory(&m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
-	m_StandrardInfo.EndOfFile.QuadPart = -1;
-	m_Name.Empty();
 }
 
 bool CFileInfo::GetFileBasicInfo()
 {
 	if (m_AttributeData.nFileSizeHigh == -1)
 	{
-		if (GetFileAttributesEx(m_Name, GetFileExInfoStandard, &m_AttributeData))
+		CLdString fullName;
+		GetFullName(fullName);
+		if (GetFileAttributesEx(fullName, GetFileExInfoStandard, &m_AttributeData))
 		{
 			if (m_AttributeData.nFileSizeHigh == -1)
 				m_AttributeData.nFileSizeHigh = 0;
 		}
 		else
-			return false;
-	}
-	return true;
-}
-
-bool CFileInfo::GetFileStandardInfo()
-{
-	bool result = true;
-	if (m_StandrardInfo.EndOfFile.QuadPart == -1)
-	{
-		if (!m_Name.IsEmpty())
 		{
-			HANDLE hFile = CreateFile(m_Name, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
-			if (hFile != INVALID_HANDLE_VALUE)
-			{
-				result = GetFileInformationByHandleEx(hFile, FileStandardInfo, &m_StandrardInfo, sizeof(FILE_STANDARD_INFO));
-				CloseHandle(hFile);
-			}
-			else
-				result = false;
+			return false;
 		}
 	}
-
-	return result;
+	return true;
 }
 
 void CFileInfo::AddFile(PWIN32_FIND_DATAW pData)
 {
 	CFileInfo* file = new CFileInfo();
-	file->m_Name = pData->cFileName;
+	file->m_FileName = pData->cFileName;
 	file->m_AttributeData.nFileSizeHigh = pData->nFileSizeHigh;
 	file->m_AttributeData.nFileSizeLow = pData->nFileSizeLow;
 	file->m_AttributeData.dwFileAttributes = pData->dwFileAttributes;
