@@ -252,7 +252,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UIN
 	case eto_completed: 
 		for (pFolderData = (PRECYCLE_FILE_DATA)pData->pData->Tag; pFolderData != nullptr; pFolderData = (PRECYCLE_FILE_DATA)pFolderData->pFolder->Tag)
 		{
-			pFolderData->nErasued++;
+			InterlockedIncrement(&pFolderData->nErasued);
 			if (pFolderData->ui)
 			{
 				DebugOutput(L"%d %d %s\n", pFolderData->nErasued, pFolderData->nCount,pData->pData->cFileName);
