@@ -109,7 +109,11 @@ bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 		if (!bWait)
 			bWait = (*pThreadCount) >= m_nMaxThreadCount;
 	}
-
+	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
+	for (int j = 1; j <= m_nMaxThreadCount; j++)
+	{
+		WaitForSingleObject(&threads[j], INFINITE);
+	}
 	return true;
 }
 
@@ -128,12 +132,6 @@ void CEreaserThrads::ControlThreadRun()
 	int k = 0;
 	bool bWait = false;
 	ReEresareFile(m_Files, &k, bWait, threads);
-
-//	for (int j = 1; j <= m_nMaxThreadCount; j++)
-//	{
-//		WaitForSingleObject(&threads[j], INFINITE);
-//	}
-
 
 	delete [] threads;
 
