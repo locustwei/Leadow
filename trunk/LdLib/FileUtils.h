@@ -1,6 +1,8 @@
 #pragma once
 #include "LdStructs.h"
 
+class CLdString;
+
 class CFileUtils
 {
 public:
@@ -37,5 +39,8 @@ public:
 	*/
 	static int ShDeleteFile(TCHAR* lpFileName, DWORD dwFlag = FOF_NO_UI);
 	static DWORD DeleteFile(TCHAR* lpFileName);
+
+	static void FormatFileSize(INT64 nSize, CLdString& result);
+
 };
 
