@@ -11,16 +11,15 @@ public:
 	CFileInfo(TCHAR* pFileName);
 	~CFileInfo();
 
-	bool GetFullName(CLdString& result);
-	const TCHAR* GetFileName() const;
-	const TCHAR* GetPath();
+	const TCHAR* GetFullName();
+	const TCHAR* GetFileName();
 	bool SetFileName(TCHAR* pFileName);
 	bool IsDirectory();
 
 	UINT GetFilesCount() const;
 	DWORD FindFiles();
 
-	CFileInfo* GetFolder();
+	CFileInfo* GetFolder() const;
 
 	FILETIME GetCreateTime();
 	FILETIME GetLastWriteTime();
@@ -28,7 +27,15 @@ public:
 	INT64 GetDataSize();
 	DWORD GetAttributes();
 private:
-	WIN32_FILE_ATTRIBUTE_DATA m_AttributeData;
+	typedef struct FILE_ATTRIBUTE_DATA {
+		DWORD dwFileAttributes;
+		FILETIME ftCreationTime;
+		FILETIME ftLastAccessTime;
+		FILETIME ftLastWriteTime;
+		UINT64 nFileSize;
+	} *PFILE_ATTRIBUTE_DATA;
+
+	FILE_ATTRIBUTE_DATA m_AttributeData;
 	CLdString m_Path;
 	CLdString m_FileName;
 	CFileInfo* m_Folder;

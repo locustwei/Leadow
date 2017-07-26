@@ -7,7 +7,8 @@ CErasureFileUI::CErasureFileUI() :
 	btnOpenFile = nullptr;
 	btnOk = nullptr;
 	lstFile = nullptr;
-	BuildXml(_T("erasure\\erasurefile.xml"), nullptr);
+	m_Name = _T("ErasureRecycleUI");
+	m_ItemSkin = _T("erasure\\listitem.xml");
 }
 
 

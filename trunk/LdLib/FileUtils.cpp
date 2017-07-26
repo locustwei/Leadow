@@ -33,6 +33,7 @@ UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, TCHAR* lpFilePath)
 
 UINT CFileUtils::ExtractFileName(TCHAR* lpFullName, TCHAR* lpName)
 {
+	//_tsplitpath(lpDir, lpDrive, NULL, lpFile, lpExt);
 	if (!lpFullName)
 		return 0;
 

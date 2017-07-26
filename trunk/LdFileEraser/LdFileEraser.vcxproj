@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ErasureFileUI.cpp" />
     <ClCompile Include="ErasureMainWnd.cpp" />
     <ClCompile Include="ErasureMethod.cpp" />
     <ClCompile Include="ErasureLibrary.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="Erasure.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ErasureFileUI.h" />
     <ClInclude Include="ErasureMainWnd.h" />
     <ClInclude Include="ErasureMethod.h" />
     <ClInclude Include="ErasureLibrary.h" />
