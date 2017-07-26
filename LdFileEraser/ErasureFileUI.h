@@ -2,7 +2,7 @@
 #include "ErasureThread.h"
 
 class LDLIB_API CErasureFileUI : 
-	public CFramWnd, 
+	public CFramNotifyPump,
 	IThreadRunable,                      //文件擦除线程执行代码
 	IGernalCallback<LPVOID>              //擦除完成删除ListUI行（Send2MainThread）
 {

@@ -28,6 +28,8 @@
 
 #define LDLIB_API __declspec(dllexport)
 
+#define MAKEINT64(low, hi)      ((UINT64)low & 0xffff) | (((UINT64)hi & 0xffff) << 32)
+
 #define PAuthorization PVOID    //ÎªÊÚÈ¨ÁôÓÃ
 
 class CLdApp
