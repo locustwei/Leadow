@@ -5,6 +5,7 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 
+#pragma comment (lib, "Shlwapi.lib")
 
 DWORD CDlgGetFileName::OPEN_FILE_OPTION = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 DWORD CDlgGetFileName::SAVE_FILE_OPTION = OFN_EXPLORER | OFN_PATHMUSTEXIST;

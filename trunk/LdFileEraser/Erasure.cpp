@@ -118,8 +118,9 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	
 	if (!callbck->ErasureStart(method->GetPassCount()))
 		return ERROR_CANCELED;
-	//Sleep(100);
+	Sleep(100);
 
+/*
 	DWORD dwAttr = GetFileAttributes(lpFileName);
 	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
 	{
@@ -141,8 +142,9 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	m_Tmpfiles.Add(lpFileName);
 	if(result == 0)
 		result = DeleteTempFiles(callbck);
-
+*/
 	callbck->ErasureCompleted(method->GetPassCount(), result);
+
 
 	//DebugOutput(L"%d %s\n", result, lpFileName);
 

@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 
-CEreaserThrads::CEreaserThrads(IGernalCallback<PERASE_CALLBACK_PARAM>* callback)
+CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 {
 	m_callback = callback;
 	m_Abort = false;
 	m_hEvent = nullptr;
-	m_nMaxThreadCount = MAX_THREAD_COUNT;
+	m_nMaxThreadCount = 1;
 	m_ControlThread = nullptr;
 	m_Files = nullptr;
 	m_Method = nullptr;
@@ -30,7 +30,7 @@ void CEreaserThrads::StopThreads()
 		SetEvent(m_hEvent);
 }
 
-void CEreaserThrads::SetEreaureFiles(CTreeNodes<PERASURE_FILE_DATA> * pFiles)
+void CEreaserThrads::SetEreaureFiles(CLdArray<CFileInfo*> * pFiles)
 {
 	m_Files = pFiles;
 }
@@ -58,7 +58,7 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	return 0;
 }
 
-bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
+bool CEreaserThrads::ReEresareFile(CLdArray<CFileInfo*>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
 {
 	for (int i = 0; i < files->GetCount(); i++)
 	{
@@ -76,13 +76,12 @@ bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 				*pThreadCount = n - 1;
 		}
 
-		CTreeNode<PERASURE_FILE_DATA>* node = files->Get(i);
-		if (node->Get()->nStatus != efs_ready && node->Get()->nStatus != efs_abort)
-			continue;
+		CFileInfo* file = files->Get(i);
 
-		if (node->GetCount())
-		{//目录，先递归擦除子目录文件
-			if (!ReEresareFile(node->GetItems(), pThreadCount, bWait, threads))
+		if (file->IsDirectory())
+		{
+			//目录，先递归擦除子目录文件
+			if (!ReEresareFile(file->GetFiles(), pThreadCount, bWait, threads))
 				return false;
 
 			if (m_Abort)
@@ -99,13 +98,9 @@ bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 					*pThreadCount = n - 1;
 			}
 		}
-			
-		PERASURE_FILE_DATA pinfo = files->GetValue(i);
-		if (pinfo->nStatus == efs_erasured)
-			continue;
 
 		CThread* thread = new CThread(this);
-		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)pinfo);
+		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)file);
 		if (!bWait)
 			bWait = (*pThreadCount) >= m_nMaxThreadCount;
 	}
@@ -120,10 +115,7 @@ bool CEreaserThrads::ReEresareFile(CTreeNodes<PERASURE_FILE_DATA>* files, int* p
 //擦除控制线程
 void CEreaserThrads::ControlThreadRun()
 {
-	ERASE_CALLBACK_PARAM Param;
-	ZeroMemory(&Param, sizeof(ERASE_CALLBACK_PARAM));
-	Param.op = eto_begin;
-	m_callback->GernalCallback_Callback(&Param, 0);
+	m_callback->EraserThreadCallback(nullptr, eto_start, 0);
 
 	//保持当前擦除线程
 	HANDLE* threads = new HANDLE[m_nMaxThreadCount + 1];             
@@ -135,44 +127,20 @@ void CEreaserThrads::ControlThreadRun()
 
 	delete [] threads;
 
-	Param.op = eto_finished;
-	m_callback->GernalCallback_Callback(&Param, 0);
+	m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
 }
 //单个文件擦除
-void CEreaserThrads::ErasureThreadRun(PERASURE_FILE_DATA pData)
+void CEreaserThrads::ErasureThreadRun(CFileInfo* pFile)
 {
 	if (m_Abort)
 		return;
 	
 	CErasure erasure;
-	ERASE_CALLBACK_PARAM Param;
-	Param.pData = pData;
 
-	CErasureCallbackImpl impl(&Param);
+	CErasureCallbackImpl impl(pFile);
 	impl.m_Control = this;
 
-	switch (pData->nFileType)
-	{
-	case eft_file:
-	case eft_directory:
-		pData->nErrorCode = erasure.FileErasure(pData->cFileName, m_Method, &impl);
-		break;
-	case eft_volume:
-		pData->nErrorCode = erasure.UnuseSpaceErasure(pData->cFileName, m_Method, &impl);
-		break;
-	default:
-		break;
-	}
-
-	if (pData->nErrorCode == 0)
-	{
-		pData->nStatus = efs_erasured;
-	}
-	else
-	{
-		pData->nStatus = efs_error;
-	}
-
+	erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
 }
 
 void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
@@ -180,7 +148,7 @@ void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
 	if (Param == 0)
 		ControlThreadRun();
 	else
-		ErasureThreadRun((PERASURE_FILE_DATA)Param);
+		ErasureThreadRun((CFileInfo*)Param);
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
@@ -241,9 +209,9 @@ int CEreaserThrads::WaitForThread(HANDLE* threads)
 	return k;
 }
 
-CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(PERASE_CALLBACK_PARAM pData)
+CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CFileInfo* pFile)
 {
-	m_Data = pData;
+	m_File = pFile;
 	m_Control = nullptr;
 }
 
@@ -254,8 +222,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart(UINT nStepCount)
 {
-	m_Data->op = eto_start;
-	if (!m_Control->m_callback->GernalCallback_Callback(m_Data, 0))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_begin, nStepCount))
 		return false;
 
 	if (m_Control->m_Abort)
@@ -265,14 +232,14 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart(UINT nStepCount)
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(UINT nStep, DWORD dwErroCode)
 {
-	m_Data->op = eto_completed;
-	if (!m_Control->m_callback->GernalCallback_Callback(m_Data, 0))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_completed, dwErroCode))
 		return false;
 
 	if (m_Control->m_Abort)
 		return false;
+
 	if(dwErroCode!=0)
-		DebugOutput(L"ErasureCompleted %d=%s\n", dwErroCode, m_Data->pData->cFileName);
+		DebugOutput(L"ErasureCompleted %d=%s\n", dwErroCode, m_File->GetFullName());
 	return true;
 }
 
@@ -284,9 +251,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(UINT nStep, UINT64 nM
 	if (m_Control->m_Abort)
 		return false;
 
-	m_Data->op = eto_progress;
-	m_Data->nPercent = nCurent * 100 / nMaxCount;
-	if (!m_Control->m_callback->GernalCallback_Callback(m_Data, 0))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_progress, nCurent * 100 / nMaxCount))
 		return false;
 	return true;
 }

@@ -16,52 +16,59 @@ enum E_FILE_STATE
 	efs_error,      //擦除失败
 	efs_abort       //取消操作
 };
+/*
 
 //待擦除文件记录
 typedef struct ERASURE_FILE_DATA
 {
-	TCHAR        cFileName[MAX_PATH]; //文件名
 	E_FILE_TYPE  nFileType;           //文件类型
 	E_FILE_STATE nStatus;             //擦除状态
 	DWORD        nErrorCode;          //错误代码（如果错误）
 	UINT_PTR     Tag;                 //
 }*PERASURE_FILE_DATA;
+*/
 
 enum E_THREAD_OPTION
 {
-	eto_begin,     //控制线程开始
-	eto_start,     //开始擦除（单个文件）
+	eto_start,   //控制线程开始   
+	eto_begin,    //开始擦除（单个文件）
 	eto_completed, //擦除完成（单个文件）
 	eto_progress,  //擦除进度（单个文件）
 	eto_finished   //全部擦除完成
 };
+/*
+
 //擦除过程中回掉函数参数
 typedef struct ERASE_CALLBACK_PARAM
 {
 	E_THREAD_OPTION op; //当前操作
 	float nPercent;     //进度%
-	PERASURE_FILE_DATA pData;  //文件记录
+	CFileInfo* pFile;  //文件记录
 }*PERASE_CALLBACK_PARAM;
+*/
 
-
-#define MAX_THREAD_COUNT 6  //同时开启文件擦除线程数
+class IEraserThreadCallback
+{
+public:
+	virtual bool EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
+};
 //文件擦除线程（同时创建多个文件擦除线程）
 //线程池
 class CEreaserThrads : 
 	public IThreadRunable
 {
 public:
-	CEreaserThrads(IGernalCallback<PERASE_CALLBACK_PARAM>* callback);
+	CEreaserThrads(IEraserThreadCallback* callback);
 	~CEreaserThrads();
 
 	void StopThreads();     //终止擦除
-	void SetEreaureFiles(CTreeNodes<PERASURE_FILE_DATA> * pFiles);  //添加擦除文件
+	void SetEreaureFiles(CLdArray<CFileInfo*> * pFiles);  //添加擦除文件
 	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 protected:
-	bool ReEresareFile(CTreeNodes<ERASURE_FILE_DATA*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
+	bool ReEresareFile(CLdArray<CFileInfo*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
 	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
-	void ErasureThreadRun(PERASURE_FILE_DATA pData);  //单个文件擦除线程
+	void ErasureThreadRun(CFileInfo* pData);  //单个文件擦除线程
 
 	void ThreadRun(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -73,8 +80,8 @@ private:
 	CThread* m_ControlThread; //控制线程
 	CErasureMethod* m_Method;          //擦除算法
 
-	IGernalCallback<PERASE_CALLBACK_PARAM>* m_callback;  //擦除过程回掉函数，用于调用者界面操作
-	CTreeNodes<PERASURE_FILE_DATA> * m_Files;    //待擦除的文件
+	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
+	CLdArray<CFileInfo*>* m_Files;    //待擦除的文件
 	
 	int WaitForThread(HANDLE* threads);
 
@@ -83,10 +90,10 @@ private:
 		public IErasureCallback
 	{
 	public:
-		CErasureCallbackImpl(PERASE_CALLBACK_PARAM pData);
+		CErasureCallbackImpl(CFileInfo* pFile);
 		~CErasureCallbackImpl();
 
-		PERASE_CALLBACK_PARAM m_Data;
+		CFileInfo* m_File;
 		CEreaserThrads* m_Control;
 
 		virtual BOOL ErasureStart(UINT nStepCount) override;

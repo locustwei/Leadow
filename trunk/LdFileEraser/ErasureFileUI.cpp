@@ -2,7 +2,7 @@
 #include "ErasureFileUI.h"
 
 CErasureFileUI::CErasureFileUI() :
-	m_ErasureFiles(100)
+	m_ErasureFiles()
 {
 	btnOpenFile = nullptr;
 	btnOk = nullptr;
