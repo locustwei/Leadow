@@ -209,10 +209,10 @@ bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION o
 		}
 		break;
 	case eto_completed: //µ¥¸öÎÄ¼ş²Á³ıÍê³É
-						//ÉèÖÃ²Á³ı×´Ì¬
+		//ÉèÖÃ²Á³ı×´Ì¬
+		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
 		{
-			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 			if (pEraserData)
 			{
 				pEraserData->nStatus = efs_erasured;
