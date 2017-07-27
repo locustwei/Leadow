@@ -1,13 +1,11 @@
 #pragma once
 
-#include <commdlg.h>
-
 class CDlgGetFileName
 {
 public:
 	CDlgGetFileName();
 	~CDlgGetFileName();
-
+	BOOL VistaOpenDialog(HWND hWnd);
 	BOOL OpenFile(HWND hOwner);
 	BOOL SaveFile(HWND hOwner);
 	VOID SetDefaultExt(TCHAR* lpExt);

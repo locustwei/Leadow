@@ -1,12 +1,143 @@
 #include "stdafx.h"
 #include "LdString.h"
-#include "LdList.h"
 #include "LdMap.h"
 #include "DlgGetFileName.h"
+#include <shlobj.h>
+#include <shlwapi.h>
 
 
 DWORD CDlgGetFileName::OPEN_FILE_OPTION = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
 DWORD CDlgGetFileName::SAVE_FILE_OPTION = OFN_EXPLORER | OFN_PATHMUSTEXIST;
+
+class CFileDialogEventHandler :
+	public IFileDialogEvents,
+	public IFileDialogControlEvents
+{
+public:
+
+	static HRESULT CreateInstance(REFIID riid, void **ppv)
+	{
+		*ppv = NULL;
+		CFileDialogEventHandler* pFileDialogEventHandler = new CFileDialogEventHandler();
+		HRESULT hr = pFileDialogEventHandler ? S_OK : E_OUTOFMEMORY;
+		if (SUCCEEDED(hr))
+		{
+			hr = pFileDialogEventHandler->QueryInterface(riid, ppv);
+			pFileDialogEventHandler->Release();
+		}
+		return hr;
+	}
+
+protected:
+
+	IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv)
+	{
+		static const QITAB qit[] =
+		{
+			QITABENT(CFileDialogEventHandler, IFileDialogEvents),
+			QITABENT(CFileDialogEventHandler, IFileDialogControlEvents),
+			{ 0 }
+		};
+		return QISearch(this, qit, riid, ppv);
+	}
+
+	IFACEMETHODIMP_(ULONG) AddRef()
+	{
+		return InterlockedIncrement(&m_cRef);
+	}
+
+	IFACEMETHODIMP_(ULONG) Release()
+	{
+		long cRef = InterlockedDecrement(&m_cRef);
+		if (!cRef)
+		{
+			delete this;
+		}
+		return cRef;
+	}
+
+	// 
+	// IFileDialogEvents methods
+	// 
+
+	IFACEMETHODIMP OnFileOk(IFileDialog* pfd)
+	{
+		OutputDebugString(L"OnFileOk");
+		IFileOpenDialog* dlg;
+		pfd->QueryInterface(IID_IFileOpenDialog, (void**)&dlg);
+		IShellItemArray* items;
+		dlg->GetSelectedItems(&items);
+		DWORD nCount;
+		items->GetCount(&nCount);
+		for (int i = 0; i<nCount; i++)
+		{
+			IShellItem* item;
+			items->GetItemAt(i, &item);
+			TCHAR* s;
+			item->GetDisplayName(SIGDN_FILESYSPATH, &s);
+			OutputDebugString(s);
+			OutputDebugStringA("\n");
+		}
+		return S_OK;
+	}
+	IFACEMETHODIMP OnFolderChange(IFileDialog*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnFolderChanging(IFileDialog*, IShellItem*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnHelp(IFileDialog*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnSelectionChange(IFileDialog*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnTypeChange(IFileDialog*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnShareViolation(IFileDialog*, IShellItem*, FDE_SHAREVIOLATION_RESPONSE*)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnOverwrite(IFileDialog*, IShellItem*, FDE_OVERWRITE_RESPONSE*)
+	{
+		return E_NOTIMPL;
+	}
+
+	// 
+	// IFileDialogControlEvents methods
+	// 
+
+	IFACEMETHODIMP OnItemSelected(IFileDialogCustomize*pfdc, DWORD dwIDCtl, DWORD dwIDItem)
+	{
+		return E_NOTIMPL;
+	}
+
+	IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize*, DWORD dwID)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnControlActivating(IFileDialogCustomize*, DWORD dwID)
+	{
+		return E_NOTIMPL;
+	}
+	IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize*, DWORD dwID, BOOL)
+	{
+		return E_NOTIMPL;
+	}
+
+	CFileDialogEventHandler() : m_cRef(1) { }
+
+private:
+
+	~CFileDialogEventHandler() { }
+	long m_cRef;
+};
 
 UINT_PTR CALLBACK OFNHookProc(
 	_In_ HWND hdlg,
@@ -35,16 +166,58 @@ CDlgGetFileName::~CDlgGetFileName()
 {
 }
 
+BOOL CDlgGetFileName::VistaOpenDialog(HWND hOwner)
+{
+	HRESULT hr = S_OK;
+
+	IFileDialog *pfd = NULL;
+	hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
+	if (SUCCEEDED(hr))
+	{
+		pfd->SetOptions(m_Option);
+		// Create an event handling object, and hook it up to the dialog.
+		IFileDialogEvents *pfde = NULL;
+		hr = CFileDialogEventHandler::CreateInstance(IID_PPV_ARGS(&pfde));
+		if (SUCCEEDED(hr))
+		{
+			// Hook up the event handler.
+			DWORD dwCookie = 0;
+			hr = pfd->Advise(pfde, &dwCookie);
+			if (SUCCEEDED(hr))
+			{
+				// Show the open file dialog.
+				if (SUCCEEDED(hr))
+				{
+					hr = pfd->Show(hOwner);
+					if (SUCCEEDED(hr))
+					{
+						// You can add your own code here to handle the results...
+					}
+				}
+
+				// Unhook the event handler
+				pfd->Unadvise(dwCookie);
+			}
+			pfde->Release();
+		}
+		pfd->Release();
+	}
+
+	return SUCCEEDED(hr);
+}
+
+
 BOOL CDlgGetFileName::OpenFile(HWND hOwner)
 {
 	BOOL Result = FALSE;
 	
-	Result = GetOpenFileName(PrepareParam(hOwner));
 
-	if (Result)
-	{
-		ProcessResult();
-	}
+//	Result = GetOpenFileName(PrepareParam(hOwner));
+//
+//	if (Result)
+//	{
+//		ProcessResult();
+//	}
 	return Result;
 
 }
@@ -131,7 +304,6 @@ TCHAR* CDlgGetFileName::GetFilterStr()
 
 OPENFILENAME * CDlgGetFileName::PrepareParam(HWND hOwner)
 {
-	HWND hwnd = NULL;
 	ZeroMemory(&m_ofn, sizeof(m_ofn));
 	m_ofn.lStructSize = sizeof(m_ofn);
 	m_ofn.hwndOwner = hOwner;
