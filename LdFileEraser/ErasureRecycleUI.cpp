@@ -5,28 +5,21 @@
 记录文件的隶属路径
 用于统计目录下的文件被擦除进度，
 */
-typedef struct RECYCLE_FILE_DATA
-{
-	PERASURE_FILE_DATA pFolder;
-	CControlUI* ui;  
-	DWORD nCount;
-	DWORD nErasued;
-}*PRECYCLE_FILE_DATA;
 
 CErasureRecycleUI::CErasureRecycleUI():
 	CShFileViewUI(),
-	m_RecycleFiles(),
+	m_RecycleFile(),
 	m_EreaserThreads(this)
 {
 	btnOk = nullptr;
 	m_Name = _T("ErasureRecycleUI");
-	m_ItemSkin = _T("erasure\\listitem.xml");
+	m_ItemSkin = _T("erasure\\listitem.xml");            //
 }
 
 CErasureRecycleUI::~CErasureRecycleUI()
 {
 	m_EreaserThreads.StopThreads();
-	FreeRecycleFiles(&m_RecycleFiles);
+	FreeRecycleFiles(m_RecycleFile.GetFiles());
 }
 
 void CErasureRecycleUI::OnSelectChanged(TNotifyUI & msg)
@@ -44,58 +37,42 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
-//回收站实际文件暂存
+//回收站实际文件
 BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
 {
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
-	CTreeNodes<PERASURE_FILE_DATA>* files = (CTreeNodes<PERASURE_FILE_DATA>*)Param;
+	CFileInfo* file = new CFileInfo();
+	file->SetFindData((TCHAR*)Param, pData);
 	
-	CLdString s = (LPTSTR)files->Tag;
-
-	if (s[s.GetLength() - 1] != '\\')
-		s += '\\';
-	PERASURE_FILE_DATA p = new ERASURE_FILE_DATA;
-	ZeroMemory(p, sizeof(ERASURE_FILE_DATA));
-	s += pData->cFileName;
-	s.CopyTo(p->cFileName);
-	int index = files->Add(p);
-	DebugOutput(L"%s\n", s.GetData());
-
-	if ((pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+	if (file->IsDirectory())
 	{
-		p->nFileType = eft_directory;
-
-		CTreeNode<PERASURE_FILE_DATA>* node = files->Get(index);
-		CTreeNodes<PERASURE_FILE_DATA>* cfs = node->GetItems();
-		cfs->Tag = (UINT_PTR)s.GetData();
-
-		CFileUtils::FindFile(s, _T("*.*"), this, (UINT_PTR)cfs);
-		//cfs->Sort(this);
+		file->FindFiles(true);
 	}
-	else
-	{
-		p->nFileType = eft_file;
-	}
+	m_RecycleFile.GetFiles()->Add(file);
+
 	return true;
 }
 
-//设置文件的目录指向
-DWORD CErasureRecycleUI::SetFolderFilesData(PERASURE_FILE_DATA pFolder, CTreeNodes<ERASURE_FILE_DATA*>* files)
+//设置文件的目录指向，擦除时更新隶属文件夹的进度
+DWORD CErasureRecycleUI::SetFolderFilesData(CLdArray<CFileInfo*>* files)
 {
 	DWORD result = files->GetCount();
-	for(int i=0;i<files->GetCount();i++)
+	for (int i = 0; i < files->GetCount(); i++)
 	{
-		CTreeNode<PERASURE_FILE_DATA>* node = files->Get(i);
-		PRECYCLE_FILE_DATA p = new RECYCLE_FILE_DATA;
-		ZeroMemory(p, sizeof(RECYCLE_FILE_DATA));
-		p->pFolder = pFolder;
-		node->Get()->Tag = (UINT_PTR)p;
-		if (node->GetCount() > 0)
+		CFileInfo* file = files->Get(i);
+
+		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
+		file->SetTag((UINT_PTR)p);
+		if (file->IsDirectory())
 		{
-			result += SetFolderFilesData(node->Get(), node->GetItems());
+			DWORD count = SetFolderFilesData(file->GetFiles());
+			p->nCount = count;
+			result += count;
 		}
 	}
+
 	return result;
 }
 
@@ -107,21 +84,19 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		return true;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 
-	PERASURE_FILE_DATA* pinfo = m_RecycleFiles.Find(fi.szDisplayName, this);  //虚拟文件就在根目录
-	if(pinfo)
+	CFileInfo* file = m_RecycleFile.Find(fi.szDisplayName);
+	if (file)
 	{
-		PRECYCLE_FILE_DATA p = new RECYCLE_FILE_DATA;
-		ZeroMemory(p, sizeof(RECYCLE_FILE_DATA));
+		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		p->ui = AddRecord(pData);
-		
-		//设置文件的目录指向，便于擦除目录下的文件更新进度
-		(*pinfo)->Tag = (UINT_PTR)p;
-		CTreeNode<PERASURE_FILE_DATA>* node = m_RecycleFiles.Get(m_RecycleFiles.IndexOf(*pinfo));
-		if(node->GetCount() > 0)
+		file->SetTag((UINT_PTR)p);
+		if (file->IsDirectory())
 		{
-			p->nCount = SetFolderFilesData(*pinfo, node->GetItems());			
+			p->nCount = SetFolderFilesData(file->GetFiles());
 		}
 	}
+
 	return true;
 }
 
@@ -132,27 +107,6 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
 	pVolumes->Add(new CLdString(pData));
 	return TRUE;
 }
-
-int CErasureRecycleUI::ArraySortCompare(ERASURE_FILE_DATA** it1, ERASURE_FILE_DATA** it2)
-{
-	int result;
-	TCHAR file1[100] = { 0 };
-	TCHAR file2[100] = { 0 };
-	CFileUtils::ExtractFileName((*it1)->cFileName, file1);
-	CFileUtils::ExtractFileName((*it2)->cFileName, file2);
-
-//	result = (*it1)->nFileType - (*it2)->nFileType;
-//	if (result != 0)
-//		return result;
-	result = _tcsicmp(file1, file2);
-	return result;
-}
-int CErasureRecycleUI::ArrayFindCompare(PVOID key, ERASURE_FILE_DATA ** it)
-{
-	TCHAR file[100] = { 0 };
-	CFileUtils::ExtractFileName((*it)->cFileName, file);
-	return _tcsicmp((TCHAR*)key, file);
-};
 
 void CErasureRecycleUI::EnumRecyleFiels()
 {
@@ -189,26 +143,31 @@ void CErasureRecycleUI::EnumRecyleFiels()
 		}
 
 		recyclePath += _T("\\");
-		m_RecycleFiles.Tag = (UINT_PTR)recyclePath.GetData();
-		CFileUtils::FindFile(recyclePath, L"*.*", this, (UINT_PTR)&m_RecycleFiles);
+//		m_RecycleFiles.Tag = (UINT_PTR)recyclePath.GetData();
+		CFileUtils::FindFile(recyclePath, L"*.*", this, (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}
-	m_RecycleFiles.Sort(this);
+	m_RecycleFile.Sort();
 
 	SetThreadErrorMode(oldMode, &oldMode);
 }
 
-void CErasureRecycleUI::FreeRecycleFiles(CTreeNodes<PERASURE_FILE_DATA>* files)
+void CErasureRecycleUI::FreeRecycleFiles(CLdArray<CFileInfo*>* files)
 {
 	for(int i=0;i<files->GetCount();i++)
 	{
-		CTreeNode<PERASURE_FILE_DATA> * file = files->Get(i);
+		CFileInfo * file = files->Get(i);
 		if (file)
 		{
-			delete file->Get();
-			if (file->GetCount())
-				FreeRecycleFiles(file->GetItems());
+			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
+			if(pData)
+			{
+				delete pData;
+			}
+			file->SetTag(0);
+			if (file->IsDirectory())
+				FreeRecycleFiles(file->GetFiles());
 		}
 	}
 }
@@ -223,68 +182,84 @@ void CErasureRecycleUI::AttanchControl(CControlUI* pCtrl)
 	AddFolder(CSIDL_BITBUCKET);
 }
 
-BOOL CErasureRecycleUI::GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UINT_PTR Param)
+bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
-	PRECYCLE_FILE_DATA pFolderData = nullptr;// (PRECYCLE_FILE_DATA)pData->pData->Tag;
+	PFILE_ERASURE_DATA pEraserData;
 	CProgressUI* pui;
 
-	switch(pData->op)
+	switch(op)
 	{
-	case eto_begin: 
+	case eto_start:  //总进度开始
 		btnOk->SetTag(1);
 		btnOk->SetText(L"Cancel");
 		break;
-	case eto_start: 
-		for (pFolderData = (PRECYCLE_FILE_DATA)pData->pData->Tag; pFolderData!=nullptr; pFolderData = (PRECYCLE_FILE_DATA)pFolderData->pFolder->Tag)
-		{
-			if (pFolderData->ui)
+	case eto_begin:  //单个文件开始
+		for (CFileInfo* p = pFile; p!=nullptr; p=p->GetFolder())
+		{//找到所属文件夹对应listview行，显示进度条
+			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
+
+			if (pEraserData && pEraserData->ui)
 			{
-				pui = (CProgressUI*)pFolderData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+				pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 				if (pui)
 				{
 					pui->SetVisible(true);
 				}
 			}
-			if (pFolderData->pFolder == 0)
-				break;
 		}
 		break;
-	case eto_completed: 
-		for (pFolderData = (PRECYCLE_FILE_DATA)pData->pData->Tag; pFolderData != nullptr; pFolderData = (PRECYCLE_FILE_DATA)pFolderData->pFolder->Tag)
+	case eto_completed: //单个文件擦除完成
+						//设置擦除状态
+		if (dwValue == 0)
 		{
-			InterlockedIncrement(&pFolderData->nErasued);
-			if (pFolderData->ui)
+			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+			if (pEraserData)
 			{
-				DebugOutput(L"%d %d %s\n", pFolderData->nErasued, pFolderData->nCount,pData->pData->cFileName);
-
-				pui = (CProgressUI*)pFolderData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+				pEraserData->nStatus = efs_erasured;
+			}
+		}
+		else
+		{
+			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+			if (pEraserData)
+			{
+				pEraserData->nStatus = efs_error;
+				pEraserData->nErrorCode = dwValue;
+			}
+		}
+		for (CFileInfo* p = pFile; p != nullptr; p = p->GetFolder())
+		{
+			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
+			if (pEraserData)
+				InterlockedIncrement(&pEraserData->nErasued);
+			//更新所属文件夹进度
+			if (pEraserData && pEraserData->ui)
+			{
+				pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 				if (pui)
 				{
-					if (pFolderData->nCount == 0 || pFolderData->nErasued > pFolderData->nCount)
+					if (pEraserData->nCount == 0 || pEraserData->nErasued > pEraserData->nCount)
 						pui->SetValue(pui->GetMaxValue());
 					else
-						pui->SetValue(pFolderData->nErasued * 100 / pFolderData->nCount);
+						pui->SetValue(pEraserData->nErasued * 100 / pEraserData->nCount);
 				}
 			}
-			if (pFolderData->pFolder == 0)
-				break;
 		}
 		break;
-	case eto_progress: 
-		pFolderData = (PRECYCLE_FILE_DATA)pData->pData->Tag;
-		if (pFolderData && pFolderData->ui)
+	case eto_progress: //单个文件进度
+		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+		if (pEraserData && pEraserData->ui)
 		{
-			pui = (CProgressUI*)pFolderData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+			pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 			if (pui)
-				pui->SetValue(pData->nPercent);
+				pui->SetValue(dwValue);
 		}
 		break;
-	case eto_finished: 
+	case eto_finished:
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
 		btnOk->SetText(L"OK");
 		break;
-	default: break;
 	}
 	return true;
 }
@@ -292,7 +267,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UIN
 void CErasureRecycleUI::StatErase()
 {
 	m_EreaserThreads.SetEreaureMethod(&CErasureMethod::Pseudorandom());
-	m_EreaserThreads.SetEreaureFiles(&m_RecycleFiles);
+	m_EreaserThreads.SetEreaureFiles(m_RecycleFile.GetFiles());
 	m_EreaserThreads.StartEreasure(20);
 }
 
@@ -304,7 +279,7 @@ void CErasureRecycleUI::OnClick(TNotifyUI& msg)
 		if (!btnOk->GetTag())
 			StatErase();
 		else
-		{
+		{//擦除没有结束，取消当前任务
 			m_EreaserThreads.StopThreads();
 			btnOk->SetEnabled(false);
 		}

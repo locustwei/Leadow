@@ -27,7 +27,6 @@ private:
 	void ErasureAllFiles(CThread* Sender);
 	void ErasureSingleFile(CThread* Sender, TCHAR* Key);
 protected:
-	virtual void OnInit() override;
 	BOOL GernalCallback_Callback(LPVOID pData, UINT_PTR Param) override;
 	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) override;
 	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) override;

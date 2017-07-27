@@ -20,7 +20,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	return (int) 0;
 }
 
-class SaveFileDialogCallback : public IFileDialogEvents, public IFileDialogControlEvents {
+class SaveFileDialogCallback : public IFileDialogEvents, public IFileDialogControlEvents 
+	
+{
 public:
 	SaveFileDialogCallback(FileDialog * pFileDialog) {mFileDialog = pFileDialog;}
 

@@ -16,9 +16,9 @@
 class LDLIB_API CErasureRecycleUI : 
 	public CShFileViewUI,
 	//public CFramNotifyPump, 
-	IFindCompare<PERASURE_FILE_DATA>,    //文件搜索比较回掉
-	ISortCompare<PERASURE_FILE_DATA>,    //文件名排序比较函数。
-	IGernalCallback<PERASE_CALLBACK_PARAM>,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+//	IFindCompare<PERASURE_FILE_DATA>,    //文件搜索比较回掉
+//	ISortCompare<PERASURE_FILE_DATA>,    //文件名排序比较函数。
+	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	IGernalCallback<LPWIN32_FIND_DATA>,  //回收站实际文件
 	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
 {
@@ -30,29 +30,39 @@ public:
 
 private:
 	CButtonUI* btnOk;
-	CTreeNodes<PERASURE_FILE_DATA> m_RecycleFiles;//回收站中的实际文件（显示在UI中的不是真正文件）
+	CFileInfo m_RecycleFile;
+//	CTreeNodes<PERASURE_FILE_DATA> m_RecycleFiles;//回收站中的实际文件（显示在UI中的不是真正文件）
 	CEreaserThrads m_EreaserThreads;  //管理擦除线程
+
+	typedef struct FILE_ERASURE_DATA
+	{
+		E_FILE_STATE nStatus;             //擦除状态
+		DWORD        nErrorCode;          //错误代码（如果错误）
+		CControlUI* ui;                   //listView 行
+		DWORD nCount;                     //文件夹下的总的文件数
+		DWORD nErasued;                   //已经被擦除的文件数
+	}*PFILE_ERASURE_DATA;
+
 
 	void StatErase();
 	virtual void OnClick(TNotifyUI& msg);
 	void OnSelectChanged(TNotifyUI &msg) override;
 	void OnItemClick(TNotifyUI &msg) override;
 	void EnumRecyleFiels();  
-	void FreeRecycleFiles(CTreeNodes<PERASURE_FILE_DATA>* files);
-	DWORD SetFolderFilesData(PERASURE_FILE_DATA pFolder, CTreeNodes<ERASURE_FILE_DATA*>* files);
+	void FreeRecycleFiles(CLdArray<CFileInfo*>* files);
+	DWORD SetFolderFilesData(CLdArray<CFileInfo*>* files);
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 
-	BOOL GernalCallback_Callback(PERASE_CALLBACK_PARAM pData, UINT_PTR Param) override;
-
+	bool EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 	//FindFirst 回收站实际文件
 	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param) override;
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//FindFirstVolume 枚举磁盘（按卷路径）
 	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override;
 	//数组接口
-	int ArraySortCompare(ERASURE_FILE_DATA** it1, ERASURE_FILE_DATA** it2) override;
-	int ArrayFindCompare(PVOID key, ERASURE_FILE_DATA** it) override;
+//	int ArraySortCompare(ERASURE_FILE_DATA** it1, ERASURE_FILE_DATA** it2) override;
+//	int ArrayFindCompare(PVOID key, ERASURE_FILE_DATA** it) override;
 
 };
 
