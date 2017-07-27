@@ -175,6 +175,18 @@ BOOL CDlgGetFileName::VistaOpenDialog(HWND hOwner)
 	if (SUCCEEDED(hr))
 	{
 		pfd->SetOptions(m_Option);
+		if(m_Filters.GetCount()>0)
+		{
+			COMDLG_FILTERSPEC* filters = new COMDLG_FILTERSPEC[m_Filters.GetCount()];
+			for (int i = 0; i<m_Filters.GetCount(); i++)
+			{
+				CLdString* pName, *pSpec;
+				pName = m_Filters.GetAt(i, &pSpec);
+				filters[i].pszName = pName->GetData();
+				filters[i].pszSpec = pSpec->GetData();
+			}
+			pfd->SetFileTypes(m_Filters.GetCount(), filters);
+		}
 		// Create an event handling object, and hook it up to the dialog.
 		IFileDialogEvents *pfde = NULL;
 		hr = CFileDialogEventHandler::CreateInstance(IID_PPV_ARGS(&pfde));
@@ -240,9 +252,9 @@ VOID CDlgGetFileName::SetDefaultName(TCHAR* lpFileName)
 	m_DefaultName = lpFileName;
 }
 
-VOID CDlgGetFileName::AddFilter(TCHAR* lpFilter)
+VOID CDlgGetFileName::AddFilter(TCHAR* pszName, TCHAR* pszSpec)
 {
-	m_Filters.Add(lpFilter);
+	m_Filters.Put(pszName, pszSpec);
 }
 
 VOID CDlgGetFileName::SetOption(DWORD dwOption)
@@ -280,26 +292,27 @@ CLdString CDlgGetFileName::GetFileName(int index, BOOL bWithPath)
 
 TCHAR* CDlgGetFileName::GetFilterStr()
 {
-	memset(m_FilterTmp.GetData(), 0, MAX_PATH * sizeof(TCHAR));
-	int k = 0;
-	TCHAR* p = m_FilterTmp;
-
-	for (int i = 0; i < m_Filters.GetCount(); i++)
-	{
-		CLdString s = m_Filters[i];
-		if(s.GetLength() == 0)
-			continue;
-		s.CopyTo(p);
-		p += s.GetLength() + 1;
-		k += s.GetLength() + 1;
-	}
-
-	for (int i = 0; i < k; i++)
-	{
-		if (m_FilterTmp[i] == '|')
-			m_FilterTmp.SetAt(i, '\0');
-	}
-	return m_FilterTmp.GetData();
+//	memset(m_FilterTmp.GetData(), 0, MAX_PATH * sizeof(TCHAR));
+//	int k = 0;
+//	TCHAR* p = m_FilterTmp;
+//
+//	for (int i = 0; i < m_Filters.GetCount(); i++)
+//	{
+//		CLdString s = m_Filters[i];
+//		if(s.GetLength() == 0)
+//			continue;
+//		s.CopyTo(p);
+//		p += s.GetLength() + 1;
+//		k += s.GetLength() + 1;
+//	}
+//
+//	for (int i = 0; i < k; i++)
+//	{
+//		if (m_FilterTmp[i] == '|')
+//			m_FilterTmp.SetAt(i, '\0');
+//	}
+//	return m_FilterTmp.GetData();
+	return nullptr;
 }
 
 OPENFILENAME * CDlgGetFileName::PrepareParam(HWND hOwner)
