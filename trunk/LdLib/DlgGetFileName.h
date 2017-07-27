@@ -5,12 +5,12 @@ class CDlgGetFileName
 public:
 	CDlgGetFileName();
 	~CDlgGetFileName();
-	BOOL VistaOpenDialog(HWND hWnd);
 	BOOL OpenFile(HWND hOwner);
 	BOOL SaveFile(HWND hOwner);
 	VOID SetDefaultExt(TCHAR* lpExt);
 	VOID SetDefaultName(TCHAR* lpFileName);
-	VOID AddFilter(TCHAR* lpFilter);
+	//Ìí¼Ó¹ýÂËÈç£º "Word Documents",   "*.doc;*.docx"
+	VOID AddFilter(TCHAR* pszName, TCHAR* pszSpec);
 	VOID SetOption(DWORD dwOption);
 	VOID SetInitDir(TCHAR* lpFolder);
 	int GetFileCount();
@@ -26,7 +26,7 @@ public:
 private:
 	OPENFILENAME m_ofn;
 	CLdArray<CLdString> m_Files;
-	CLdArray<CLdString> m_Filters;
+	CLdMap<CLdString, CLdString> m_Filters;
 	CLdString m_InitDir;
 	CLdString m_ResultFiles;
 	CLdString m_FilterTmp;
@@ -37,5 +37,6 @@ private:
 	TCHAR* GetFilterStr();
 	OPENFILENAME* PrepareParam(HWND hOwner);
 	VOID ProcessResult();
+	BOOL VistaOpenDialog(HWND hWnd);
 };
 

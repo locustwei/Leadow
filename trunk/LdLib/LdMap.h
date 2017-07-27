@@ -77,12 +77,12 @@ public:
 		return m_Array.GetCount();
 	};
 
-	T1 GetAt(int index, T2* pValue = NULL)
+	T1* GetAt(int index, T2** pValue = NULL)
 	{
 		MAP_ITEM Item = m_Array[index];
 		if (pValue)
-			*pValue = Item.value;
-		return Item.key;
+			*pValue = &Item.value;
+		return &Item.key;
 	};
 
 	T2* operator[](T1 key)
