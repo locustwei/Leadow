@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window >
+  <ListContainerElement height="40" >
+  	<HorizontalLayout>
+  		<CheckBox name="ckselect" style="ckbox_default" width="20"/>
+  		<VerticalLayout inset="4,0,4,0">
+					<Label name="caption" text="" inset="0,0,5,0"/>
+					<Progress name="progress" visible="false" min="0" max="100" value="0" />
+			</VerticalLayout>
+		</HorizontalLayout>
+  </ListContainerElement>
+</Window>
