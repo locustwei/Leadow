@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "NtfsUtils.h"
 
-DWORD CNtfsUtils::GetNtfsVolumeData(CVolumeInfo& Volume, PNTFS_VOLUME_DATA_BUFFER pVolumeData)
+DWORD CNtfsUtils::GetNtfsVolumeData(CVolumeInfo* Volume, PNTFS_VOLUME_DATA_BUFFER pVolumeData)
 {
-	HANDLE hVolume = Volume.OpenVolumeHandle();
+	HANDLE hVolume = Volume->OpenVolumeHandle();
 
 	if (hVolume == INVALID_HANDLE_VALUE)
 		return GetLastError();
@@ -17,22 +17,4 @@ DWORD CNtfsUtils::GetNtfsVolumeData(CVolumeInfo& Volume, PNTFS_VOLUME_DATA_BUFFE
 
 	CloseHandle(hVolume);
 	return Result;
-}
-
-DWORD CNtfsUtils::GetBytesPerFileRecord(CVolumeInfo & Volume, PDWORD pOut)
-{
-	NTFS_VOLUME_DATA_BUFFER data = { 0 };
-	DWORD Result = GetNtfsVolumeData(Volume, &data);
-	if (Result == 0 && pOut)
-		*pOut = data.BytesPerFileRecordSegment;
-	return Result;
-}
-
-DWORD CNtfsUtils::GetMftValidSize(CVolumeInfo & Volume, PUINT64 pOut)
-{
-	NTFS_VOLUME_DATA_BUFFER data = { 0 };
-	DWORD Result = GetNtfsVolumeData(Volume, &data);
-	if (Result == 0 && pOut)
-		*pOut = data.MftValidDataLength.QuadPart;
-	return Result;;
 }

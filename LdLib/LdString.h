@@ -15,6 +15,7 @@ public:
 	
 	void Empty();
 	int GetLength() const;
+	void SetLength(UINT cSize);
 	bool IsEmpty() const;
 	TCHAR GetAt(int nIndex) const;
 	void Append(TCHAR* pstr);

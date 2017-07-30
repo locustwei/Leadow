@@ -158,7 +158,7 @@ HRESULT CSHFolders::EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<C
 
 	if (SUCCEEDED(hr))
 	{
-		while (hr = penumFiles->Next(1, &pidl, NULL) != S_FALSE)
+		while (penumFiles->Next(1, &pidl, NULL) != S_FALSE)
 		{
 			attributeValues.Add((TCHAR*)pidl);
 			int iSubItem = 0;
@@ -174,18 +174,14 @@ HRESULT CSHFolders::EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<C
 					break;
 				//printf("%d\n", iSubItem);
 
-				StrRetToStr(&sd.str, pidl, &szTemp);  //第一个字符=0x200E表示靠右排列。
+				StrRetToStr(&sd.str, pidl, &szTemp);  
 				TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];
 				_tcscpy(sz, szTemp);
 				attributeValues.Add(sz);
 				CoTaskMemFree(szTemp);
 			}
 
-			if (!callback->GernalCallback_Callback(&attributeValues, Param))
-			{
-				CoTaskMemFree(pidl);
-				break;
-			}
+			bool b = callback->GernalCallback_Callback(&attributeValues, Param);
 			CoTaskMemFree(pidl);
 
 			for (int i = 1; i<attributeValues.GetCount(); i++)
@@ -193,7 +189,8 @@ HRESULT CSHFolders::EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<C
 				delete attributeValues[i];
 			}
 			attributeValues.Clear();
-
+			if (!b)
+				break;
 		}
 	}
 
@@ -239,7 +236,6 @@ HRESULT CSHFolders::EnumFolderColumes(DWORD dwFolder, IGernalCallback<PSH_HEAD_I
 {
 	HRESULT			hr;
 	IShellFolder2*	pFolder = NULL;
-	LPITEMIDLIST	pidl = NULL;
 
 	hr = GetShellFolder(dwFolder, &pFolder, nullptr);
 	if(SUCCEEDED(hr))
@@ -254,7 +250,6 @@ HRESULT CSHFolders::EnumFolderColumes(TCHAR * lpFullName, IGernalCallback<PSH_HE
 {
 	HRESULT			hr;
 	IShellFolder2*	pFolder = NULL;
-	SH_HEAD_INFO    colInfo;
 
 	hr = GetShellFolder(lpFullName, &pFolder, nullptr);
 	if (SUCCEEDED(hr))

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 #include "ldstring.h"
+#include "../LdFileEraser/stdafx.h"
 
 BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
 {
@@ -198,7 +199,10 @@ int CFileUtils::ShDeleteFile(TCHAR * lpFileName, DWORD dwFlag)
 	fo.pFrom = name;
 	fo.fFlags = dwFlag;
 	fo.wFunc = FO_DELETE;
-	return SHFileOperation(&fo);
+	int result = SHFileOperation(&fo);
+	if (result != 0)
+		DebugOutput(L"delete error %d", result);
+	return result;
 }
 
 DWORD CFileUtils::DeleteFile(TCHAR * lpFileName)
@@ -235,4 +239,16 @@ void CFileUtils::FormatFileSize(INT64 nSize, CLdString& result)
 		result.Format(_T("%.2fGB"), Size / __GB);
 	else
 		result.Format(_T("%.2fTB"), Size / __TB);
+}
+
+void CFileUtils::GenerateRandomFileName(int length, CLdString& Out)
+{
+	TCHAR validFileNameChars[] = _T("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _+=-()[]{}',`~!");
+	Out.SetLength(length + 1);
+	//	TCHAR* result = new TCHAR[length + 1];
+	//	ZeroMemory(result, (length + 1) * sizeof(TCHAR));
+	for (int j = 0; j < length; j++)
+	{
+		Out.GetData()[j] = validFileNameChars[rand() % 78];
+	}
 }

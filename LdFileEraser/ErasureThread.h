@@ -1,5 +1,6 @@
 #pragma once
 #include "Erasure.h"
+/*
 
 enum E_FILE_TYPE
 {
@@ -7,6 +8,7 @@ enum E_FILE_TYPE
 	eft_directory, //1：目录；
 	eft_volume     //2：盘符
 };
+*/
 
 enum E_FILE_STATE
 {
@@ -43,14 +45,14 @@ typedef struct ERASE_CALLBACK_PARAM
 {
 	E_THREAD_OPTION op; //当前操作
 	float nPercent;     //进度%
-	CFileInfo* pFile;  //文件记录
+	CVirtualFile* pFile;  //文件记录
 }*PERASE_CALLBACK_PARAM;
 */
 
 class IEraserThreadCallback
 {
 public:
-	virtual bool EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
 };
 //文件擦除线程（同时创建多个文件擦除线程）
 //线程池
@@ -62,13 +64,13 @@ public:
 	~CEreaserThrads();
 
 	void StopThreads();     //终止擦除
-	void SetEreaureFiles(CLdArray<CFileInfo*> * pFiles);  //添加擦除文件
+	void SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles);  //添加擦除文件
 	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 protected:
-	bool ReEresareFile(CLdArray<CFileInfo*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
+	bool ReEresareFile(CLdArray<CVirtualFile*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
 	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
-	void ErasureThreadRun(CFileInfo* pData);  //单个文件擦除线程
+	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
 
 	void ThreadRun(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -81,7 +83,7 @@ private:
 	CErasureMethod* m_Method;          //擦除算法
 
 	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
-	CLdArray<CFileInfo*>* m_Files;    //待擦除的文件
+	CLdArray<CVirtualFile*>* m_Files;    //待擦除的文件
 	
 	int WaitForThread(HANDLE* threads);
 
@@ -90,10 +92,10 @@ private:
 		public IErasureCallback
 	{
 	public:
-		CErasureCallbackImpl(CFileInfo* pFile);
+		CErasureCallbackImpl(CVirtualFile* pFile);
 		~CErasureCallbackImpl();
 
-		CFileInfo* m_File;
+		CVirtualFile* m_File;
 		CEreaserThrads* m_Control;
 
 		virtual BOOL ErasureStart(UINT nStepCount) override;

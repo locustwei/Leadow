@@ -45,6 +45,9 @@
     <ClCompile Include="ErasureThread.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
+    <ClCompile Include="ErasureVolumeUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -76,6 +79,9 @@
     </ClInclude>
     <ClInclude Include="ErasureThread.h">
       <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureVolumeUI.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -8,7 +8,7 @@ namespace DuiLib
 		CDuiUtils();
 		~CDuiUtils();
 		static CControlUI* CALLBACK FindControlByNameProc(CControlUI* ctrl, LPVOID lpName);
-
+		static CControlUI* CALLBACK FindControlByClassProc(CControlUI* ctrl, LPVOID lpName);
 	};
 
 }
