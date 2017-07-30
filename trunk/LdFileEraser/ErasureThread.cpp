@@ -30,7 +30,7 @@ void CEreaserThrads::StopThreads()
 		SetEvent(m_hEvent);
 }
 
-void CEreaserThrads::SetEreaureFiles(CLdArray<CFileInfo*> * pFiles)
+void CEreaserThrads::SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles)
 {
 	m_Files = pFiles;
 }
@@ -58,46 +58,33 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	return 0;
 }
 
-bool CEreaserThrads::ReEresareFile(CLdArray<CFileInfo*>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
+bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
 {
 	for (int i = 0; i < files->GetCount(); i++)
 	{
 		if (m_Abort)
 			return false;
+		CVirtualFile* file = files->Get(i);
+		if (file->GetFileType()==vft_folder)
+		{
+			//目录，先递归擦除子目录文件
+			if (!ReEresareFile(file->GetFiles(), pThreadCount, bWait, threads))
+				return false;
+		}
 
 		if (bWait)  //线程已满等待其中一个结束
 		{
 			int n = WaitForThread(threads);
 			if (n == 0) //停止
-				return false;
+				break;
 			else if (n > m_nMaxThreadCount) //错误
 				return false;
 			else
 				*pThreadCount = n - 1;
 		}
 
-		CFileInfo* file = files->Get(i);
-
-		if (file->IsDirectory())
-		{
-			//目录，先递归擦除子目录文件
-			if (!ReEresareFile(file->GetFiles(), pThreadCount, bWait, threads))
-				return false;
-
-			if (m_Abort)
-				return false;
-
-			if (bWait)  //线程已满等待其中一个结束
-			{
-				int n = WaitForThread(threads);
-				if (n == 0) //停止
-					return false;
-				else if (n > m_nMaxThreadCount) //错误
-					return false;
-				else
-					*pThreadCount = n - 1;
-			}
-		}
+		if (m_Abort)
+			return false;
 
 		CThread* thread = new CThread(this);
 		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)file);
@@ -107,8 +94,15 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CFileInfo*>* files, int* pThreadCoun
 	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
 	for (int j = 1; j <= m_nMaxThreadCount; j++)
 	{
-		WaitForSingleObject(&threads[j], INFINITE);
+		while(WaitForSingleObject(threads[j], 1000) == WAIT_TIMEOUT)
+		{
+			DebugOutput(L"线程卡了\n");  //这里使用“INFINITE”回卡死，
+			if (m_Abort)
+				return false;
+		}
 	}
+	if (m_Abort)
+		return false;
 	return true;
 }
 
@@ -130,7 +124,7 @@ void CEreaserThrads::ControlThreadRun()
 	m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
 }
 //单个文件擦除
-void CEreaserThrads::ErasureThreadRun(CFileInfo* pFile)
+void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 {
 	if (m_Abort)
 		return;
@@ -139,8 +133,27 @@ void CEreaserThrads::ErasureThreadRun(CFileInfo* pFile)
 
 	CErasureCallbackImpl impl(pFile);
 	impl.m_Control = this;
-
-	erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
+	try
+	{
+		switch (pFile->GetFileType())
+		{
+		case vft_file:
+		case vft_folder:
+			erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
+			break;
+		case vft_volume:
+			erasure.UnuseSpaceErasure((CVolumeInfo*)pFile, m_Method, &impl);
+			break;
+		default:
+			break;
+		}
+		
+		
+	}
+	catch(...)
+	{
+		DebugOutput(L"异常！\n");
+	}
 }
 
 void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
@@ -148,7 +161,7 @@ void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
 	if (Param == 0)
 		ControlThreadRun();
 	else
-		ErasureThreadRun((CFileInfo*)Param);
+		ErasureThreadRun((CVirtualFile*)Param);
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
@@ -189,18 +202,12 @@ int CEreaserThrads::WaitForThread(HANDLE* threads)
 			}
 			break;
 		default:
-			DebugOutput(L"错误 %d", dw);
+			DebugOutput(L"错误 %d\n", dw);
 			break;
 		}
 	}
 	else if (obj == WAIT_OBJECT_0)
 	{   //终止擦除，等待其他线程都结束。
-
-		for (int j = 1; j <= m_nMaxThreadCount; j++)
-		{//找到那个无线的Thread
-			WaitForSingleObject(&threads[j], INFINITE);
-		}
-
 		k = 0;
 	}
 	else
@@ -209,7 +216,7 @@ int CEreaserThrads::WaitForThread(HANDLE* threads)
 	return k;
 }
 
-CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CFileInfo* pFile)
+CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CVirtualFile* pFile)
 {
 	m_File = pFile;
 	m_Control = nullptr;

@@ -41,6 +41,7 @@ public:
 	static DWORD DeleteFile(TCHAR* lpFileName);
 
 	static void FormatFileSize(INT64 nSize, CLdString& result);
+	static void GenerateRandomFileName(int length, CLdString& Out);
 
 };
 

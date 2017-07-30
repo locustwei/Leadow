@@ -41,7 +41,7 @@ public:
 	// Parameter: CErasureMethod & method 
 	// Parameter: IErasureCallback * callback
 	//************************************
-	DWORD UnuseSpaceErasure(TCHAR* Driver, CErasureMethod* method, IErasureCallback* callback);
+	DWORD UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMethod* method, IErasureCallback* callback);
 	//************************************
 	// Qualifier: 擦除文件，同时删除。
 	// Parameter: TCHAR * lpFileName
@@ -50,23 +50,38 @@ public:
 	//************************************
 	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod* method, IErasureCallback* callbck);
 private:
-	CVolumeInfo m_volInfo;
+	CVolumeInfo* m_volInfo;
 	CLdString m_tmpDir;
 	//IErasureCallback* m_callback;
 	CErasureMethod* m_method; 
 	CLdArray<CLdString> m_Tmpfiles;
-
-	DWORD UnusedSpace2TempFile(IErasureCallback* callback);
+	
+	//擦除文件
 	DWORD EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
+	//写随机数据
 	DWORD WriteFileRandom(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
+	//写常理
 	DWORD WriteFileConst(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck, PBYTE bytes, UINT nCount);
-	DWORD EraseMftFileRecord(IErasureCallback* callback);
-	DWORD EraseNtfsDeletedFile(IErasureCallback* callback);
-	DWORD CreateTempFile(UINT64 nFileSize, HANDLE* pOut);
-	DWORD ResetFileDate(HANDLE hFile);
-	DWORD EraseFreeSpace(UINT64 nFileSize, IErasureCallback* callback);
+
+	//数据区的空闲空间
+	DWORD EraseFreeDataSpace(IErasureCallback* callback);
+	//创建nFileSize的文件并擦除
+	DWORD CrateTempFileAndErase(UINT64 nFileSize, IErasureCallback* callback);
+	DWORD CreateTempFile(UINT64 nFileSize, HANDLE* pOut, int nFileNameLength=20);
+
+	//MFT空闲空间
+	DWORD EraseFreeMftSpace(IErasureCallback* callback);
+	DWORD EraseNtfsFreeSpace(IErasureCallback* callback);
+	DWORD EraseFatFreeSpace(IErasureCallback* callback);
+	//擦除删除文件痕迹
+	DWORD EraseDelFileTrace(IErasureCallback* callback);
+	DWORD EraseNtfsTrace(IErasureCallback* callback);
+	DWORD EraseFatTrace(IErasureCallback* callback);
+
+	//设置文件的时间
+	static DWORD ResetFileDate(HANDLE hFile);
+
+	//删除产生的临时文件
 	DWORD DeleteTempFiles(IErasureCallback* callback);
-	void GenerateRandomFileName(int length, CLdString& Out);
-	DWORD EraseMftDeleteFile(IErasureCallback* callback);
 };
 

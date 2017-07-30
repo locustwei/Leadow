@@ -164,6 +164,7 @@
     <ClCompile Include="ErasureLibrary.cpp" />
     <ClCompile Include="ErasureRecycleUI.cpp" />
     <ClCompile Include="ErasureThread.cpp" />
+    <ClCompile Include="ErasureVolumeUI.cpp" />
     <ClCompile Include="ShFileView.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Erasure.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="ErasureLibrary.h" />
     <ClInclude Include="ErasureRecycleUI.h" />
     <ClInclude Include="ErasureThread.h" />
+    <ClInclude Include="ErasureVolumeUI.h" />
     <ClInclude Include="FileEraser.h" />
     <ClInclude Include="ShFileView.h" />
     <ClInclude Include="stdafx.h" />

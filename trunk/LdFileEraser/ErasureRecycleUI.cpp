@@ -31,7 +31,7 @@ void CErasureRecycleUI::OnItemClick(TNotifyUI & msg)
 	
 }
 
-DUI_BEGIN_MESSAGE_MAP(CErasureRecycleUI, CFramNotifyPump)
+DUI_BEGIN_MESSAGE_MAP(CErasureRecycleUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
@@ -42,12 +42,16 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 {
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
-	CFileInfo* file = new CFileInfo();
+	CFileInfo* file;
+	if (pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		file = new CFolderInfo();
+	else
+		file = new CFileInfo();
 	file->SetFindData((TCHAR*)Param, pData);
 	
-	if (file->IsDirectory())
+	if (file->GetFileType() ==  vft_folder)
 	{
-		file->FindFiles(true);
+		((CFolderInfo*)file)->FindFiles(true);
 	}
 	m_RecycleFile.GetFiles()->Add(file);
 
@@ -55,17 +59,17 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PT
 }
 
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
-DWORD CErasureRecycleUI::SetFolderFilesData(CLdArray<CFileInfo*>* files)
+DWORD CErasureRecycleUI::SetFolderFilesData(CLdArray<CVirtualFile*>* files)
 {
 	DWORD result = files->GetCount();
 	for (int i = 0; i < files->GetCount(); i++)
 	{
-		CFileInfo* file = files->Get(i);
+		CVirtualFile* file = files->Get(i);
 
 		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		file->SetTag((UINT_PTR)p);
-		if (file->IsDirectory())
+		if (file->GetFileType() == vft_folder)
 		{
 			DWORD count = SetFolderFilesData(file->GetFiles());
 			p->nCount = count;
@@ -84,16 +88,17 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		return true;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 
-	CFileInfo* file = m_RecycleFile.Find(fi.szDisplayName);
+	CVirtualFile* file = m_RecycleFile.Find(fi.szDisplayName);
 	if (file)
 	{
 		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		p->ui = AddRecord(pData);
 		file->SetTag((UINT_PTR)p);
-		if (file->IsDirectory())
+		if (file->GetFileType() == vft_folder)
 		{
 			p->nCount = SetFolderFilesData(file->GetFiles());
+			DebugOutput(L"file count %d\n", p->nCount);
 		}
 	}
 
@@ -153,11 +158,11 @@ void CErasureRecycleUI::EnumRecyleFiels()
 	SetThreadErrorMode(oldMode, &oldMode);
 }
 
-void CErasureRecycleUI::FreeRecycleFiles(CLdArray<CFileInfo*>* files)
+void CErasureRecycleUI::FreeRecycleFiles(CLdArray<CVirtualFile*>* files)
 {
 	for(int i=0;i<files->GetCount();i++)
 	{
-		CFileInfo * file = files->Get(i);
+		CVirtualFile * file = files->Get(i);
 		if (file)
 		{
 			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
@@ -166,7 +171,7 @@ void CErasureRecycleUI::FreeRecycleFiles(CLdArray<CFileInfo*>* files)
 				delete pData;
 			}
 			file->SetTag(0);
-			if (file->IsDirectory())
+			if (file->GetFileType() == vft_folder)
 				FreeRecycleFiles(file->GetFiles());
 		}
 	}
@@ -180,9 +185,32 @@ void CErasureRecycleUI::AttanchControl(CControlUI* pCtrl)
 	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）
 	AddFolder(CSIDL_BITBUCKET);
+	if (lstFile->GetCount() == 0)
+		AddLstViewHeader(5);
 }
 
-bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue)
+void CErasureRecycleUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
+{
+	for(int i=files->GetCount()-1;i>=0;i--)
+	{
+		CVirtualFile* file = files->Get(i);
+		PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
+		if (pData && pData->nStatus == efs_erasured)
+		{
+			if (file->GetFileType() == vft_folder)
+				DeleteErasuredFile(file->GetFiles());
+			if (file->GetTag())
+			{
+				delete (PFILE_ERASURE_DATA)file->GetTag();
+				file->SetTag(0);
+			}
+			files->Delete(i);
+			delete file;
+		}
+	}
+}
+
+bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
 	CProgressUI* pui;
@@ -194,11 +222,17 @@ bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION o
 		btnOk->SetText(L"Cancel");
 		break;
 	case eto_begin:  //单个文件开始
-		for (CFileInfo* p = pFile; p!=nullptr; p=p->GetFolder())
+		for (CVirtualFile* p = pFile; p!=nullptr; p=p->GetFolder())
 		{//找到所属文件夹对应listview行，显示进度条
 			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
-
-			if (pEraserData && pEraserData->ui)
+			if(!pEraserData)
+			{//删除记录文件，补上Data；
+				pEraserData = new FILE_ERASURE_DATA;
+				ZeroMemory(pEraserData, sizeof(FILE_ERASURE_DATA));
+				p->SetTag((UINT_PTR)pEraserData);
+				continue;
+			}
+			if (pEraserData->ui)
 			{
 				pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 				if (pui)
@@ -213,21 +247,15 @@ bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION o
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
 		{
-			if (pEraserData)
-			{
-				pEraserData->nStatus = efs_erasured;
-			}
+			pEraserData->nStatus = efs_erasured;
 		}
 		else
 		{
 			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-			if (pEraserData)
-			{
-				pEraserData->nStatus = efs_error;
-				pEraserData->nErrorCode = dwValue;
-			}
+			pEraserData->nStatus = efs_error;
+			pEraserData->nErrorCode = dwValue;
 		}
-		for (CFileInfo* p = pFile; p != nullptr; p = p->GetFolder())
+		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
 		{
 			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
 			if (pEraserData)
@@ -256,6 +284,7 @@ bool CErasureRecycleUI::EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION o
 		}
 		break;
 	case eto_finished:
+		DeleteErasuredFile(m_RecycleFile.GetFiles());
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
 		btnOk->SetText(L"OK");
@@ -268,12 +297,11 @@ void CErasureRecycleUI::StatErase()
 {
 	m_EreaserThreads.SetEreaureMethod(&CErasureMethod::Pseudorandom());
 	m_EreaserThreads.SetEreaureFiles(m_RecycleFile.GetFiles());
-	m_EreaserThreads.StartEreasure(20);
+	m_EreaserThreads.StartEreasure(10);
 }
 
 void CErasureRecycleUI::OnClick(TNotifyUI& msg)
 {
-	CDuiString name = msg.pSender->GetName();
 	if (msg.pSender == btnOk)
 	{
 		if (!btnOk->GetTag())

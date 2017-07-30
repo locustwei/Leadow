@@ -17,4 +17,12 @@ namespace DuiLib
 		else
 			return nullptr;
 	}
+
+	CControlUI* CDuiUtils::FindControlByClassProc(CControlUI* ctrl, LPVOID lpName)
+	{
+		if (ctrl && _tcscmp(ctrl->GetClass(), (TCHAR*)lpName) == 0)
+			return ctrl;
+		else
+			return nullptr;
+	}
 }

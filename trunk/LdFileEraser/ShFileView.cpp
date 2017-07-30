@@ -43,6 +43,7 @@ CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 			{
 				CLabelUI* cap = new CLabelUI();
 				cap->SetText(values->Get(i));
+				pItem->Add(cap);
 			}
 		}
 	}

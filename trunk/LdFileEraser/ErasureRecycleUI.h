@@ -30,7 +30,7 @@ public:
 
 private:
 	CButtonUI* btnOk;
-	CFileInfo m_RecycleFile;
+	CFolderInfo m_RecycleFile;
 //	CTreeNodes<PERASURE_FILE_DATA> m_RecycleFiles;//回收站中的实际文件（显示在UI中的不是真正文件）
 	CEreaserThrads m_EreaserThreads;  //管理擦除线程
 
@@ -49,12 +49,13 @@ private:
 	void OnSelectChanged(TNotifyUI &msg) override;
 	void OnItemClick(TNotifyUI &msg) override;
 	void EnumRecyleFiels();  
-	void FreeRecycleFiles(CLdArray<CFileInfo*>* files);
-	DWORD SetFolderFilesData(CLdArray<CFileInfo*>* files);
+	void FreeRecycleFiles(CLdArray<CVirtualFile*>* files);
+	DWORD SetFolderFilesData(CLdArray<CVirtualFile*>* files);
+	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 
-	bool EraserThreadCallback(CFileInfo* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
+	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 	//FindFirst 回收站实际文件
 	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param) override;
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;

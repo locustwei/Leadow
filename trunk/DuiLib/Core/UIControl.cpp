@@ -144,7 +144,9 @@ CDuiString CControlUI::GetText() const
 
 void CControlUI::SetText(LPCTSTR pstrText)
 {
-    if( m_sText == pstrText ) return;
+	if (!pstrText)
+		m_sText.Empty();
+	else if( m_sText == pstrText ) return;
 
     m_sText = pstrText;
     Invalidate();

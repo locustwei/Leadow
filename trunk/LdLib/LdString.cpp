@@ -30,10 +30,16 @@ CLdString::CLdString(TCHAR* lpsz)
 	Assign(lpsz);
 }
 
+void CLdString::SetLength(UINT cSize)
+{
+	m_pstr = reallocstr(m_pstr, cSize);
+	ZeroMemory(m_pstr, cSize * sizeof(TCHAR));
+}
+
 CLdString::CLdString(UINT ccSize)
 {
-	m_pstr = reallocstr(NULL, ccSize);
-	ZeroMemory(m_pstr, ccSize * sizeof(TCHAR));
+	m_pstr = NULL;
+	SetLength(ccSize);
 }
 
 CLdString::CLdString(const CLdString& src)

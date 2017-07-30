@@ -16,11 +16,14 @@ class CSHFolders
 {
 public:
 	/*
-	枚举特殊列信息（保护所有类型的列信息，指定类型（dwFolder）放前面）
+	枚举特殊列信息（所有类型的列信息，指定类型（dwFolder）放前面）
 	dwFolder 特殊文件夹CLSID
 	PSH_HEAD_INFO 列信息
 	*/
 	static HRESULT EnumFolderColumes(DWORD dwFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
+	/*
+	枚举文件夹
+	*/
 	static HRESULT EnumFolderColumes(TCHAR* lpFullName, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 	/*
 	枚举特殊目录下的文件（如桌面（CSIDL_DESKTOP）、回收站（CSIDL_BITBUCKET）
@@ -43,7 +46,6 @@ private:
 	static HRESULT GetShellFolder(TCHAR* lpFullName, IShellFolder2** pFolder, LPITEMIDLIST* pidlist);
 	static HRESULT GetFileItemid(TCHAR* lpFullName, LPITEMIDLIST* pidl);
 	static HRESULT EnumFolderColumes(IShellFolder2* pFolder, IGernalCallback<PSH_HEAD_INFO>* callback, UINT_PTR Param);
-
 	static HRESULT EnumFolderObjects(IShellFolder2 * pFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 };
 

@@ -121,7 +121,8 @@ public:
 	{
 		if (Index < 0 || Index >= FCount)
 			return;
-		memmove(&FList[Index], &FList[Index + 1], (FCount - Index) * sizeof(T));
+		if(Index < FCount - 1)
+			memmove(&FList[Index], &FList[Index + 1], (FCount - Index - 1) * sizeof(T));
 		FCount--;
 	};
 	void Exchange(int Index1, int Index2)

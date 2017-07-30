@@ -2,9 +2,12 @@
 #include "ErasureMainWnd.h"
 //#include "ErasureFileUI.h"
 #include "ErasureRecycleUI.h"
+#include "ErasureVolumeUI.h"
+
 //#include "ErasureVolumeUI.h"
 
-CErasureMainWnd::CErasureMainWnd()
+CErasureMainWnd::CErasureMainWnd(): 
+	m_TabUI(nullptr)
 {
 	m_ErasureFile = nullptr;
 	m_ErasureRecycle = nullptr;
@@ -17,7 +20,8 @@ CErasureMainWnd::~CErasureMainWnd()
 {
 	if (m_ErasureRecycle)
 		delete m_ErasureRecycle;
-
+	if (m_ErasureVolume)
+		delete m_ErasureVolume;
 }
 
 void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
@@ -41,7 +45,6 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureRecycle"), 0);
 			m_ErasureRecycle->AttanchControl(pCtrl);
 			AddVirtualWnd(m_ErasureRecycle->GetName(), m_ErasureRecycle);
-			//((CErasureRecycleUI*)m_ErasureRecycle)->AddFolder(CSIDL_BITBUCKET);
 		}
 		m_TabUI->SelectItem(1);
 	}
@@ -49,9 +52,10 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	{
 		if (m_ErasureVolume == nullptr)
 		{
-//			m_ErasureVolume = new CErasureVolumeUI();
-//			AddVirtualWnd(m_ErasureVolume->GetUI()->GetVirtualWnd(), m_ErasureVolume);
-//			m_TabUI->Add(m_ErasureVolume->GetUI());
+			m_ErasureVolume = new CErasureVolumeUI();
+			CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureVolume"), 0);
+			m_ErasureVolume->AttanchControl(pCtrl);
+			AddVirtualWnd(m_ErasureVolume->GetName(), m_ErasureVolume);
 		}
 		m_TabUI->SelectItem(2);
 	}
