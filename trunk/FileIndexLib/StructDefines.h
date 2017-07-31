@@ -61,34 +61,34 @@ typedef struct MFTFILERECORD {                //转存文件记录结构
 
 class IVolumeInterface;
 //使用者回掉接口
-class WJS_API IVolumeEvent {
+class IVolumeEvent {
 public:
-	virtual VOID __stdcall OnSearchCompeleted(IVolumeInterface*) = 0;
-	virtual VOID __stdcall OnRenewDump(IVolumeInterface*) = 0;
-	virtual VOID __stdcall OnFindDupCompeleted(IVolumeInterface*) = 0;
+	virtual VOID  OnSearchCompeleted(IVolumeInterface*) = 0;
+	virtual VOID  OnRenewDump(IVolumeInterface*) = 0;
+	virtual VOID  OnFindDupCompeleted(IVolumeInterface*) = 0;
 };
 
 //用于动态库导出接口。
-class WJS_API IVolumeInterface {
+class IVolumeInterface {
 public:
-	virtual BOOL __stdcall OpenVolume(PWSTR) = 0;
-	virtual PCWSTR __stdcall GetVolumeGuid() = 0;
-	virtual BOOL __stdcall OpenVolumePath(const PWSTR wsz_volume) = 0;
-	virtual PCWSTR __stdcall GetVolumePath() = 0;
-	virtual BOOL __stdcall SetDumpFilePath(PCWSTR wsz_path) = 0;
-	virtual BOOL __stdcall UnLoadDumpFile() = 0;
-	virtual PCWSTR __stdcall GetDumpFileName() = 0;
-	virtual VOID __stdcall SetHolper(IVolumeEvent* pHoler) = 0;
+	virtual BOOL  OpenVolume(PWSTR) = 0;
+	virtual PCWSTR  GetVolumeGuid() = 0;
+	virtual BOOL  OpenVolumePath(const PWSTR wsz_volume) = 0;
+	virtual PCWSTR  GetVolumePath() = 0;
+	virtual BOOL  SetDumpFilePath(PCWSTR wsz_path) = 0;
+	virtual BOOL  UnLoadDumpFile() = 0;
+	virtual PCWSTR  GetDumpFileName() = 0;
+	virtual VOID  SetHolper(IVolumeEvent* pHoler) = 0;
 
-	virtual BOOL __stdcall UpdateMftDump(BOOL async) = 0;
-	virtual BOOL __stdcall ListenFileChange() = 0;
+	virtual BOOL  UpdateMftDump(BOOL async) = 0;
+	virtual BOOL  ListenFileChange() = 0;
 
-	virtual BOOL __stdcall SearchFile(PFILE_FILTER pFilter, BOOL asyn) = 0;
+	virtual BOOL  SearchFile(PFILE_FILTER pFilter, BOOL asyn) = 0;
 };
 
-class WJS_API IWJLibInterface {
+class IWJLibInterface {
 public:
-	virtual UINT __stdcall GetVolumeCount() = 0;
-	virtual IVolumeInterface* __stdcall GetVolume(ULONG idx) = 0;
-	virtual BOOL __stdcall SetDumpFilePath(PCWSTR wsz_path) = 0;      //设置转存文件存放路径
+	virtual UINT  GetVolumeCount() = 0;
+	virtual IVolumeInterface*  GetVolume(ULONG idx) = 0;
+	virtual BOOL  SetDumpFilePath(PCWSTR wsz_path) = 0;      //设置转存文件存放路径
 };

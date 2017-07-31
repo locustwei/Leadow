@@ -11,12 +11,12 @@ public:
 	CWJSLib(void);
 	~CWJSLib(void);
 
-	virtual BOOL __stdcall SetDumpFilePath(PCWSTR wsz_path) override;
-	virtual UINT __stdcall GetVolumeCount() override;
-	virtual IVolumeInterface* __stdcall GetVolume(ULONG idx) override;
+	virtual BOOL  SetDumpFilePath(PCWSTR wsz_path) override;
+	virtual UINT  GetVolumeCount() override;
+	virtual IVolumeInterface*  GetVolume(ULONG idx) override;
 private:
 
-	vector<CDiskVolume*> m_Volumes;
+	CLdArray<CDiskVolume*> m_Volumes;
 	VOID EnumDiskVolumes();
 
 

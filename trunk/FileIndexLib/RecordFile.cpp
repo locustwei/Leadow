@@ -181,7 +181,7 @@ CRecordFile::PRECORD_POINTER CRecordFile::AddFileReference(ULONGLONG ReferenceNu
 			return NULL;
 		*(PULONG)(File2MapPointer(Tmp + RECORD_BLOCK_SIZE)) = m_Header->LastReferenceBlock;
 		m_Header->LastReferenceBlock = (ULONG)Tmp;
-		m_RecordIndexBlocks.push_back(Tmp);
+		m_RecordIndexBlocks.Add(Tmp);
 	}
 
 	return GetRecordPointer(ReferenceNumber);
@@ -377,23 +377,23 @@ int _cdecl sortCompare(void * context, const void * id1, const void *id2)
 // Returns:   PINDEX_RECORD
 // Qualifier:
 // Parameter: PVOID param
-// Parameter: vector<ULONGLONG> * pReferences
+// Parameter: CLdArray<ULONGLONG> * pReferences
 //************************************
-PINDEX_RECORD CRecordFile::SortRecord(PVOID param, vector<ULONGLONG>* pReferences)
+PINDEX_RECORD CRecordFile::SortRecord(PVOID param, CLdArray<ULONGLONG>* pReferences)
 {
 	if(m_RecordIndexBlocks.empty() || !m_Holder)
 		return NULL;
 	PINDEX_RECORD result = NULL; 
 
 	
-	vector<ULONGLONG> tmp;
+	CLdArray<ULONGLONG> tmp;
 	if(!pReferences){
 		ULONGLONG count = GetLastReference(); //m_ReferenceBlocks.size() * BLOCK_REFERENCE_COUNT;
 		tmp.reserve(count);
 		for(ULONGLONG i = 0; i < count; i ++ ){
 			PRECORD_POINTER rs = GetRecordPointer(i);
 			if(rs && rs->Pointer)
-				tmp.push_back(i);
+				tmp.Add(i);
 		}
 		pReferences = &tmp;
 	}
@@ -513,7 +513,7 @@ BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchComp
 	if(Index<1 || Index>MAX_INDEX)
 		return FALSE;
 
-	vector<BLOCK_RECORD>* pVector;
+	CLdArray<BLOCK_RECORD>* pVector;
 	pVector = &m_IndexBlocks[Index - 1];
 
 	if(pVector->empty())
@@ -534,7 +534,7 @@ BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchComp
 			block.PrvPointer = pVector->at(pVector->size() - 1).Pointer;
 			block.Pointer = WriteBlockToFile(&block, INDEX_BLOCK_SIZE);
 			m_Header.IndexPointer[Index] = block.Pointer;
-			pVector->push_back(block);
+			pVector->Add(block);
 		}
 
 		UpdateHeader();
@@ -649,7 +649,7 @@ ULONGLONG CRecordFile::SearchRecord(PINDEX_RECORD pIndex, PVOID Param, PLONG com
 }
 
 /*
-CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(vector<BLOCK_RECORD>* pVector, ULONGLONG IndexReference)
+CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(CLdArray<BLOCK_RECORD>* pVector, ULONGLONG IndexReference)
 {
 	ULONG i = (ULONG)(IndexReference / BLOCK_REFERENCE_COUNT);
 	ULONG j = (ULONG)(IndexReference % BLOCK_REFERENCE_COUNT);

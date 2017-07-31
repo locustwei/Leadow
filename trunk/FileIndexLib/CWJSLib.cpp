@@ -47,7 +47,7 @@ VOID CWJSLib::EnumDiskVolumes()
 		if(!volume->OpenVolume(Volume)){
 			delete volume;
 		}else{
-			m_Volumes.push_back(volume);
+			m_Volumes.Add(volume);
 		}
 
 		ZeroMemory(Volume, ARRAYSIZE(Volume));
@@ -62,7 +62,7 @@ VOID CWJSLib::EnumDiskVolumes()
 
 BOOL CWJSLib::SetDumpFilePath(PCWSTR wsz_path)
 {
-	for (std::vector<CDiskVolume*>::iterator it = m_Volumes.begin() ; it != m_Volumes.end(); ++it)
+	for (std::CLdArray<CDiskVolume*>::iterator it = m_Volumes.begin() ; it != m_Volumes.end(); ++it)
 		(*it)->SetDumpFilePath(wsz_path);
 	return TRUE;
 }

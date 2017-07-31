@@ -6,9 +6,7 @@
 #pragma once
 
 #include <Windows.h>
-#include "string_x.h"
-using namespace std;
-
+#include "../LdLib/LdLib.h"
 #define FIL_API __declspec(dllexport)
 
 //#define HIDWORD(a) ((DWORD)((ULONGLONG)(a) >> 32))

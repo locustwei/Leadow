@@ -187,7 +187,7 @@ BOOL CMftReader::OpenVolume(const wchar_t* wsz_volum)
 		m_wstr_volum = wsz_volum;
 		m_wstr_volum.to_lower();
 		//m_wstr_volum.convert_code(m_str_volum_u8, CP_UTF8);
-		stringxw wstr_volum = L"\\\\.\\";
+		CLdString wstr_volum = L"\\\\.\\";
 		wstr_volum += m_wstr_volum;
 		hVolume = CreateFile(wstr_volum.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, 0, OPEN_EXISTING, 0, 0);
 
