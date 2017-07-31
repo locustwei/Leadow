@@ -336,7 +336,6 @@ DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 		Result = EraseNtfsFreeSpace(callback);
 		break;
 	case FS_FAT32:
-		Result = EraseFatFreeSpace(callback);
 		break;
 	case FS_UNKNOW: break;
 	case FS_FAT16: break;
@@ -345,7 +344,6 @@ DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 	default: break;
 	}
 
-	//callback->ErasureCompleted(2, Result);
 	return Result;
 }
 
@@ -490,34 +488,6 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 		if(callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
 	}
-	return Result;
-}
-
-DWORD CErasure::EraseFatFreeSpace(IErasureCallback* callback)
-{
-	DWORD Result = 0;
-	UINT64 nTotalSize = 10000; //todo
-	DWORD nFileSize = 1024; //todo
-	do
-	{
-		if (!callback->ErasureProgress(2, nTotalSize, 0))
-			break;
-
-		int nCount = 0;
-		while (true)
-		{
-			Result = CrateTempFileAndErase(nFileSize, NULL);
-			if (Result != 0)
-			{
-				if(nFileSize == 0)
-					break;
-				nFileSize--;
-			}
-			if (!callback->ErasureProgress(2, nTotalSize, nCount++))
-				break;
-		}
-	} while (false);
-
 	return Result;
 }
 
