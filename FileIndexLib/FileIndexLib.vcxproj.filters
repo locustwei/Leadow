@@ -54,9 +54,6 @@
     <ClInclude Include="RecordFile.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="string_x.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="CWJSLib.h">
       <Filter>源文件</Filter>
     </ClInclude>

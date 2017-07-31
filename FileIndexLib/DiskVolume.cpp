@@ -127,11 +127,11 @@ BOOL CDiskVolume::FilterRecord(PFILE_FILTER pFilter, PMFTFILERECORD pRecord)
 
 	if(pFilter->ParentDircetoryReferences){            //处在目录
 
-		vector<ULONGLONG> ParentDir;
+		CLdArray<ULONGLONG> ParentDir;
 		ULONGLONG DirectoryReference = pRecord->DirectoryFileReferenceNumber;
 		MFTFILERECORD mfr = {0};
 		while(DirectoryReference){ // 包含子目录
-			ParentDir.push_back(DirectoryReference);
+			ParentDir.Add(DirectoryReference);
 
 			if(m_MftFile->ReadRecord(DirectoryReference, (PUCHAR)&mfr, sizeof(mfr)))
 				DirectoryReference = mfr.DirectoryFileReferenceNumber;
@@ -166,26 +166,26 @@ BOOL CDiskVolume::FilterRecord(PFILE_FILTER pFilter, PMFTFILERECORD pRecord)
 // Access:    private 
 // Returns:   LONG
 // Qualifier:
-// Parameter: vector<vector<PMFTFILERECORD> * > * pFiles  //重复文件列表
+// Parameter: CLdArray<CLdArray<PMFTFILERECORD> * > * pFiles  //重复文件列表
 // Parameter: PMFTFILERECORD pPrv
 // Parameter: RECORD_FIELD_CLASS * c
 // Parameter: PMFTFILERECORD pRecord
 // Parameter: USHORT Length
 //************************************
 /*
-LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFTFILERECORD pPrv, RECORD_FIELD_CLASS* c, PMFTFILERECORD pRecord, USHORT Length)
+LONG CDiskVolume::DoDuplicateFile(CLdArray<CLdArray<PMFTFILERECORD> *>* pFiles, PMFTFILERECORD pPrv, RECORD_FIELD_CLASS* c, PMFTFILERECORD pRecord, USHORT Length)
 {
 	BOOL equ = CompareFileRecord(pPrv, c, pRecord) == 0;
 
-	vector<PMFTFILERECORD>* items = NULL;
+	CLdArray<PMFTFILERECORD>* items = NULL;
 	
 	if(pFiles->size() > 0)
 		items = pFiles->at(pFiles->size() - 1);
 	 
 	if(equ){        //与上一记录相同
 		if(!items){
-			items = new vector<PMFTFILERECORD>();
-			pFiles->push_back(items);
+			items = new CLdArray<PMFTFILERECORD>();
+			pFiles->Add(items);
 		}
 		
 		try
@@ -195,11 +195,11 @@ LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFT
 				Length = sizeof(MFTFILERECORD) + (pPrv->NameLength + 1) * sizeof(WCHAR) - sizeof(WCHAR) * (MAX_PATH + 1);
 				pTmp = (PMFTFILERECORD)new PUCHAR[Length];
 				memcpy(pTmp, pPrv, Length);
-				items->push_back(pTmp);
+				items->Add(pTmp);
 			}
 			pTmp = (PMFTFILERECORD)new PUCHAR[Length];
 			memcpy(pTmp, pRecord, Length);
-			items->push_back(pTmp);
+			items->Add(pTmp);
 		}catch (...){
 			return FALSE;
 		}
@@ -207,8 +207,8 @@ LONG CDiskVolume::DoDuplicateFile(vector<vector<PMFTFILERECORD> *>* pFiles, PMFT
 	}else{
 		CopyMemory(pPrv, pRecord, Length);
 		if(items && items->size() > 0){
-			items = new vector<PMFTFILERECORD>();
-			pFiles->push_back(items);
+			items = new CLdArray<PMFTFILERECORD>();
+			pFiles->Add(items);
 		}
 	}
 
@@ -420,7 +420,7 @@ BOOL CDiskVolume::OpenVolumePath(const PWSTR wsz_volume)
 	if(m_hVolume != INVALID_HANDLE_VALUE || wsz_volume == NULL)
 		return FALSE;
 
-	stringxw path = wsz_volume;
+	CLdString path = wsz_volume;
 	if(wsz_volume[wcslen(wsz_volume)-1] != '\\')
 		path += '\\';
 	WCHAR guid[MAX_PATH + 1] = {0};
@@ -450,7 +450,7 @@ ULONG CDiskVolume::GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Name
 		return 0;
 	
 	ULONG length = 0;
-	stringxw s;
+	CLdString s;
 	ULONGLONG ReferenceNumber = FileReferenceNumber;
 	while(ReferenceNumber != 0){
 		MFTFILERECORD record = {0};
@@ -538,7 +538,7 @@ PINDEX_RECORD CDiskVolume::CreateIndex(RECORD_FIELD_CLASS* c, PFILE_FILTER pFilt
 	if(!m_MftFile )
 		return NULL;
 
-	vector<ULONGLONG> FilterResult;
+	CLdArray<ULONGLONG> FilterResult;
 
 	if(pFilter && (pFilter->pExcludeNames || pFilter->pIncludeNames || pFilter->ParentDircetoryReferences || pFilter->beginSize >=0 || pFilter->endSize >=0 || pFilter->onlyFile)){
 		//有过滤条件，把记录过滤出来
@@ -591,7 +591,7 @@ PINDEX_RECORD CDiskVolume::CreateIndex(RECORD_FIELD_CLASS* c, PFILE_FILTER pFilt
 				idxr.c[i] = c[i];
 			}
 			idxr.c[k] = RFC_NONE;
-			m_Indexs.push_back(idxr);
+			m_Indexs.Add(idxr);
 		}
 	}
 	catch (...)
@@ -858,7 +858,7 @@ LONG CDiskVolume::RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR p1, US
 // void CDiskVolume::CleanDuplicateFiles()
 // {
 // 	for(ULONG i=0; i<DuplicateResult.size(); i++){
-// 		vector<PMFTFILERECORD>* item = DuplicateResult.at(i);
+// 		CLdArray<PMFTFILERECORD>* item = DuplicateResult.at(i);
 // 		for (ULONG j=0; j<item->size(); j++){
 // 			PMFTFILERECORD p = item->at(j);
 // 			if(p)
@@ -970,7 +970,7 @@ VOID CDiskVolume::RunListenFileChange()
 	
 	HANDLE hMonitor = INVALID_HANDLE_VALUE;
 	if(!m_VolumePath.empty()){
-		stringxw path = m_VolumePath;
+		CLdString path = m_VolumePath;
 		path += '\\';
 		hMonitor = FindFirstChangeNotification(path.c_str(), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE);
 	}

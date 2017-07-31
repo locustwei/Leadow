@@ -103,7 +103,7 @@ public:
 
 	PINDEX_RECORD SortRecord(            //创建索引（索引不永久保存)
 		PVOID param,                      //比较函数参数（IRecordFileHolder::RecordComparer）
-		vector<ULONGLONG>* pReferences = NULL //指定记录序号
+		CLdArray<ULONGLONG>* pReferences = NULL //指定记录序号
 		);                                //返回索引序号
 
 	//void UpdateIndexToFile();             //当文件内容有改变时把内存改变内容写回文件中
@@ -113,7 +113,7 @@ public:
 private:
 	PRecordFileHolder m_Holder;         //回掉函数接口（创建时传入）
 	HANDLE m_hFile;                      //打开的物理文件句柄
-	vector<ULONGLONG> m_RecordIndexBlocks;  //文件索引块
+	CLdArray<ULONGLONG> m_RecordIndexBlocks;  //文件索引块
 
 	PFILE_HEADER m_Header;             //文件头
 	

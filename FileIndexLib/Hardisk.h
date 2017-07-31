@@ -12,7 +12,7 @@ public:
 	static CHardisk *CreateHardisk(ULONG nIndex);
 private:
 	HANDLE m_hDisk;
-	std::vector<CDiskVolume*> m_Volumes;
+	std::CLdArray<CDiskVolume*> m_Volumes;
 	VOID GetDiskPartitions();
 };
 

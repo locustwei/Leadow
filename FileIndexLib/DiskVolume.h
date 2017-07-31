@@ -24,21 +24,21 @@ public:
 	CDiskVolume(void);
 	~CDiskVolume(void);
 
-	virtual BOOL __stdcall OpenVolume(PWSTR wsz_guid);         //用卷GUID，打开卷句柄
-	virtual PCWSTR __stdcall GetVolumeGuid();
-	virtual BOOL __stdcall OpenVolumePath(const PWSTR wsz_volume); //卷路径（盘符），打开卷句柄
-	virtual PCWSTR __stdcall GetVolumePath();
-	virtual BOOL __stdcall SetDumpFilePath(PCWSTR wsz_path);      //加载转存文件
-	virtual BOOL __stdcall UnLoadDumpFile();                    //释放转存文件
-	virtual PCWSTR __stdcall GetDumpFileName();
-	virtual VOID __stdcall SetHolper(IVolumeEvent* pHoler);
+	BOOL  OpenVolume(PWSTR wsz_guid) override;         //用卷GUID，打开卷句柄
+	PCWSTR  GetVolumeGuid() override;
+	BOOL  OpenVolumePath(const PWSTR wsz_volume) override; //卷路径（盘符），打开卷句柄
+	PCWSTR  GetVolumePath() override;
+	BOOL  SetDumpFilePath(PCWSTR wsz_path) override;      //加载转存文件
+	BOOL  UnLoadDumpFile() override;                    //释放转存文件
+	virtual PCWSTR  GetDumpFileName();
+	VOID  SetHolper(IVolumeEvent* pHoler) override;
 
-	virtual BOOL __stdcall UpdateMftDump(BOOL async);       //生成文件分配表转存文件，如果已存在则更新。
-	virtual BOOL __stdcall ListenFileChange();               //启动线程定时更新文件。
+	virtual BOOL  UpdateMftDump(BOOL async);       //生成文件分配表转存文件，如果已存在则更新。
+	virtual BOOL  ListenFileChange();               //启动线程定时更新文件。
 		
 	//virtual BOOL FindDuplicateFiles(PENUM_FILERECORD_PARAM pParam, BOOL asyn);  //搜索相同文件（同名、大小、MD5）
-	virtual BOOL __stdcall SearchFile(PFILE_FILTER pFilter, BOOL asyn);                             //搜索文件
-	ULONG __stdcall GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Directory, ULONG nameLength);
+	BOOL  SearchFile(PFILE_FILTER pFilter, BOOL asyn) override;                             //搜索文件
+	ULONG  GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Directory, ULONG nameLength);
 private:
 
 #pragma pack(push, 1)
@@ -54,10 +54,10 @@ private:
 		RECORD_FIELD_CLASS* c;
 	};
 
-	stringxw m_VolumeGuid;           //卷GUID
-	stringxw m_VolumePath;           //路径
-	stringxw m_MftDumpFileName;      //文件分配表转存文件
-	vector<INDEX_RECORD> m_Indexs;   //排序索引（搜索文件使创建）
+	CLdString m_VolumeGuid;           //卷GUID
+	CLdString m_VolumePath;           //路径
+	CLdString m_MftDumpFileName;      //文件分配表转存文件
+	CLdArray<INDEX_RECORD> m_Indexs;   //排序索引（搜索文件使创建）
 
 	HANDLE m_hVolume;                //卷句柄（读取MFT）
 	CMftReader* m_MftReader;     //MFT分析对象。

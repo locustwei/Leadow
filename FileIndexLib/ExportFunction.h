@@ -2,4 +2,4 @@
 
 #define  WJSLIB_HANDLE PVOID
 
-WJS_API IWJLibInterface*  WJSOpen();
+IWJLibInterface*  WJSOpen();

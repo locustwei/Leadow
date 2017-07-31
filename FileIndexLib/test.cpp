@@ -243,7 +243,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		devInfoData.cbSize = sizeof (SP_DEVINFO_DATA);
 		DWORD len;
 		SetupDiGetDeviceInterfaceDetail(devInfoSet, &devInterface, NULL, 0, &len, &devInfoData);
-		std::vector<char> buf(len);
+		std::CLdArray<char> buf(len);
 		SP_DEVICE_INTERFACE_DETAIL_DATA *devInterfaceDetail = (SP_DEVICE_INTERFACE_DETAIL_DATA *) &buf[0];
 		devInterfaceDetail->cbSize = sizeof (SP_DEVICE_INTERFACE_DETAIL_DATA);
 		if (SetupDiGetDeviceInterfaceDetail(devInfoSet, &devInterface, devInterfaceDetail, len, NULL, &devInfoData)) {
@@ -359,7 +359,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		IsElevated(&b_elevate);
 		if (!b_elevate)
 		{
-			stringxw wstr_path;
+			CLdString wstr_path;
 			get_app_path(wstr_path);
 			wstr_path += L"wjslib.exe";
 			WipeShellExecuteEx(wstr_path, L"autorun", SW_SHOWNORMAL, 0, 0, true);
@@ -374,7 +374,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//printf("输入索引文件存放位置 如：D:\\ \n");
 	//_getws_s(IndexPath, 80);
 
-	std::vector<CDiskVolume*> volumes;
+	CLdArray<CDiskVolume*> volumes;
 	ULONG tickt;
 	//CWJSLib::EnumDiskVolumes();
 	
@@ -382,7 +382,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	CDiskVolume* volume = new CDiskVolume();
 	
 	volume->OpenVolumePath(L"C:");
-	if(!volume->LoadDumpFile(L"C:\\")){
+	if(!volume->UpdateMftDump(false)){
 	}
 
 	printf("create index.... \n");
@@ -394,7 +394,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//volume->StartThreadUpdateChange();
 	
 	tickt = GetTickCount();
-	volumes.push_back(volume);
+	volumes.Add(volume);
 	
 	while(TRUE){
 		printf("\n input option; press \"exit\" to quit \n");
@@ -446,39 +446,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			break;
 		case 3:
 			
-			tickt = GetTickCount();
-			for(ULONG i=0; i<volumes.size(); i++){
-				tmp = 0;
-				RECORD_FIELD_CLASS c[] = {RFC_NAME, RFC_NONE};
-				ENUM_FILERECORD_PARAM Param = {0};
-				Param.sortField = c;
-				Param.Filter.onlyFile = TRUE;
-				Param.Filter.beginSize = -1;
-				Param.Filter.endSize = -1;
-				vector<vector<PMFTFILERECORD>*>* result = volumes[i]->FindDuplicateFiles(&Param, FALSE);
-				TCHAR directname[MAX_PATH];
-				if(result){
-					WCHAR fullName[512] = {0};
-					//printf("找到 %d 组 \n", result->size());
-					for(ULONG m=0; m<result->size(); m++){
-						vector<PMFTFILERECORD>* item = result->at(m);
-						//printf("第 %d 组 %d 个------------------------------------  \n", m+1, item->size());
-						for(size_t j=0; j<item->size(); j++){
-							PMFTFILERECORD p = item->at(j);
-							ZeroMemory(directname, MAX_PATH * sizeof(TCHAR));
-							volumes[i]->GetFullFileName(p->DirectoryFileReferenceNumber, directname, MAX_PATH);
-							//printf("%d  %S\\%S \n", p->DataSize, directname, p->Name);
-							delete (PUCHAR)p;
-						}
-						item->clear();
-						delete item;
-					}
-					result->clear();
-					delete result;
-				}
-				//found += volumes[i]->FindDuplicateFiles(&tmp);
-				count += tmp;
-			}
+			
 			
 			break;
 		default:

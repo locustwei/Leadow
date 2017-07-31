@@ -64,7 +64,7 @@ protected:
 	HANDLE m_Handle, m_hVolumeBack;
 	PMftReadeHolder m_Holder;
 	//PVOID m_Param;
-	stringxw m_wstr_volum;
+	CLdString m_wstr_volum;
 
 	virtual bool Init();
 	BOOL ReadSector(ULONGLONG sector, ULONG count, PVOID buffer);
