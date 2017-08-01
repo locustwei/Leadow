@@ -149,6 +149,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DateTimeUtils.h" />
+    <ClInclude Include="Fat.h" />
+    <ClInclude Include="FatUtils.h" />
     <ClInclude Include="FileInfo.h" />
     <ClInclude Include="FileUtils.h" />
     <ClInclude Include="DlgGetFileName.h" />
@@ -163,6 +165,7 @@
     <ClInclude Include="LdString.h" />
     <ClInclude Include="LdStructs.h" />
     <ClInclude Include="LdTree.h" />
+    <ClInclude Include="ntfs.h" />
     <ClInclude Include="NtfsUtils.h" />
     <ClInclude Include="ProcessUtils.h" />
     <ClInclude Include="PublicRoutimes.h" />
@@ -171,10 +174,12 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="VolumeInfo.h" />
     <ClInclude Include="VolumeUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DateTimeUtils.cpp" />
+    <ClCompile Include="FatUtils.cpp" />
     <ClCompile Include="FileInfo.cpp" />
     <ClCompile Include="FileUtils.cpp" />
     <ClCompile Include="DlgGetFileName.cpp" />
@@ -196,6 +201,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Thread.cpp" />
+    <ClCompile Include="VolumeInfo.cpp" />
     <ClCompile Include="VolumeUtils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,7 +1,7 @@
 /*!
  * author asa
  *
- * 分区文件分配表直接读取抽象Class
+ * 文件分配表直接读取抽象Class
  * 1、分析文件分配表MFT，读取磁盘文件信息
  * 2、数据更新
  *
@@ -12,29 +12,22 @@
 
 //文件信息
 typedef struct _FILE_INFO{
-// 	union{
-// 		struct{
-// 			USHORT nVolume;
-// 			ULONGLONG DirectoryReferenceNumber :48;
-// 		};
-// 		ULONGLONG DirectoryFileReferenceNumber;  //0x00000004
-// 	};
-	ULONGLONG DirectoryFileReferenceNumber;         //
+	UINT64 DirectoryFileReferenceNumber;         //
 	_FILETIME CreationTime;       // Saved when filename last changed
 	_FILETIME ChangeTime;         //
 	_FILETIME LastWriteTime;      //
 	_FILETIME LastAccessTime;     //
-	ULONGLONG AllocatedSize;      //
-	ULONGLONG DataSize;           //
-	ULONG FileAttributes;         //
+	UINT64 AllocatedSize;      //
+	UINT64 DataSize;           //
+	DWORD FileAttributes;         //
 	UCHAR NameLength;             //
-	WCHAR Name[1];                //
+	TCHAR Name[1];                //
 }FILE_INFO, *PFILE_INFO;
 
 //使用者回掉接口
 typedef struct IMftReadeHolder{
 	//枚举文件回掉
-	virtual BOOL EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) = 0; 
+	virtual BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) = 0; 
 	//文件更新回掉
 	virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param) = 0;
 }*PMftReadeHolder;
@@ -42,35 +35,26 @@ typedef struct IMftReadeHolder{
 class CMftReader
 {
 public:
-	BOOL OpenVolume(const wchar_t* wsz_volum); //打开盘符
-	BOOL SetHandle(HANDLE hVolume);            //已有Handle
 	PMftReadeHolder SetHolder(PMftReadeHolder pHolder); //设置回掉接口
 
-	virtual ULONGLONG EnumFiles(PVOID Param);    //读取MFT文件
-	virtual const PFILE_INFO GetFileInfo(ULONGLONG ReferenceNumber);  //读取文件信息，文件序号
+	virtual UINT64 EnumFiles(PVOID Param) = 0;    //读取MFT文件
+	virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);  //读取文件信息，文件序号
 	virtual USN GetLastUsn();      //获取MFT当前标识，用于更新文件时传入
 	virtual USN UpdateFiles(USN LastUsn, PVOID param); //更新文件信息
 
 	BOOL IsValid();     //
 
-	static CMftReader* CreateReader(HANDLE hVolume);
+	static CMftReader* CreateReader(CVolumeInfo * pVolume);
 public:
 	CMftReader(void);
 	virtual ~CMftReader(void);
 protected:
-	//PUCHAR m_Bpb;
-	USHORT m_BytesPerSector;
-	USHORT m_SectorsPerCluster;
-	HANDLE m_Handle, m_hVolumeBack;
+	HANDLE m_Handle;
 	PMftReadeHolder m_Holder;
-	//PVOID m_Param;
-	CLdString m_wstr_volum;
+	CVolumeInfo * m_Volume;
 
-	virtual bool Init();
-	BOOL ReadSector(ULONGLONG sector, ULONG count, PVOID buffer);
-	BOOL Callback(ULONGLONG ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param);
+	BOOL ReadSector(UINT64 sector, DWORD count, PVOID buffer);
+	BOOL Callback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param);
 
 	virtual void ZeroMember();
 };
-
-void SaveDebugData(LPCTSTR lpName, PUCHAR pData, ULONG nSize);

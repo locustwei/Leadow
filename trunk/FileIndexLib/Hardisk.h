@@ -9,7 +9,7 @@ public:
 	CHardisk(void);
 	~CHardisk(void);
 
-	static CHardisk *CreateHardisk(ULONG nIndex);
+	static CHardisk *CreateHardisk(DWORD nIndex);
 private:
 	HANDLE m_hDisk;
 	std::CLdArray<CDiskVolume*> m_Volumes;

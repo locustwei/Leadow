@@ -38,13 +38,13 @@ public:
 		
 	//virtual BOOL FindDuplicateFiles(PENUM_FILERECORD_PARAM pParam, BOOL asyn);  //搜索相同文件（同名、大小、MD5）
 	BOOL  SearchFile(PFILE_FILTER pFilter, BOOL asyn) override;                             //搜索文件
-	ULONG  GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Directory, ULONG nameLength);
+	DWORD  GetFullFileName(UINT64 FileReferenceNumber, PWSTR wsz_Directory, DWORD nameLength);
 private:
 
 #pragma pack(push, 1)
 	typedef struct VOLUME_MFT_INFO{
 		USN LastUsn;
-		ULONGLONG FileCount;
+		UINT64 FileCount;
 		//BOOL Md5ed;
 	};
 #pragma pack(pop)
@@ -68,7 +68,7 @@ private:
 
 	BOOL CreateMftDump();                                 //删除已有记录重新生成转存文件    
 	BOOL UpdateFiles();                             //根据USNJoural更新转存文件
-	BOOL MakeFileMd5(ULONGLONG ReferenceNumber, BYTE* Md5Code);  //生成文件MD5
+	BOOL MakeFileMd5(UINT64 ReferenceNumber, BYTE* Md5Code);  //生成文件MD5
 
 	CRITICAL_SECTION m_cs;                                  //线程临界区（读取转存文件时互斥） 
 	inline void lock(){EnterCriticalSection(&m_cs);}
@@ -88,13 +88,13 @@ private:
 	BOOL FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG ReferenceNumber);
 
 private:  //接口函数
-	virtual BOOL EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFileName, PVOID Param);
+	virtual BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileName, PVOID Param);
 
 	virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param);
 
-	virtual LONG EnumFileRecordCallback(ULONGLONG ReferenceNumber, const PUCHAR pRecord, USHORT Length, PVOID Param);
+	virtual LONG EnumFileRecordCallback(UINT64 ReferenceNumber, const PUCHAR pRecord, USHORT Length, PVOID Param);
 
-	virtual LONG RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR pRecord1, USHORT Length1, ULONGLONG ReferenceNumber2, const PUCHAR pRecord2, USHORT Length2, PVOID Param);
+	virtual LONG RecordComparer(UINT64 ReferenceNumber1, const PUCHAR pRecord1, USHORT Length1, UINT64 ReferenceNumber2, const PUCHAR pRecord2, USHORT Length2, PVOID Param);
 
 	virtual VOID ThreadRun(CThread* Sender, WPARAM Param);
 

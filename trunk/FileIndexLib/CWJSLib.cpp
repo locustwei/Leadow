@@ -10,15 +10,15 @@ CWJSLib::CWJSLib(void):
 
 CWJSLib::~CWJSLib(void)
 {
-	for(ULONG i=0; i<m_Volumes.size(); i++)
+	for(DWORD i=0; i<m_Volumes.size(); i++)
 		delete m_Volumes[i];
 }
 
 
 VOID CWJSLib::EnumDiskVolumes()
 {
-	WCHAR Volume[MAX_PATH] = {0};
-	ULONG CharCount = MAX_PATH;
+	TCHAR Volume[MAX_PATH] = {0};
+	DWORD CharCount = MAX_PATH;
 
 	HANDLE hFind = FindFirstVolume(Volume, ARRAYSIZE(Volume));
 	if(hFind == INVALID_HANDLE_VALUE)
@@ -73,7 +73,7 @@ UINT  CWJSLib::GetVolumeCount()
 }
 
 
-IVolumeInterface* CWJSLib::GetVolume(ULONG idx)
+IVolumeInterface* CWJSLib::GetVolume(DWORD idx)
 {
 	if (idx >= m_Volumes.size())
 		return NULL;

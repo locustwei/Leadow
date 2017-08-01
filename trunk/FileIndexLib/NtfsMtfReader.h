@@ -14,18 +14,18 @@
 
 
 typedef struct RUN_LINKE{
-	ULONGLONG lcn;
-	ULONG size;
+	UINT64 lcn;
+	DWORD size;
 	struct RUN_LINKE* next;
 }*PRUN_LINKE;
 
 /*
 typedef struct FILE_HANDLE{
-	ULONGLONG FileReferenceNumber;
+	UINT64 FileReferenceNumber;
 	PFILE_RECORD_HEADER pFile;
 	PATTRIBUTE DataAttr;
 	PRUN_LINKE Run;
-	ULONGLONG DataSize;
+	UINT64 DataSize;
 }*PFILE_HANDLE;
 */
 
@@ -35,8 +35,8 @@ public:
 	CNtfsMtfReader();
 	~CNtfsMtfReader(void);
 	
-	virtual ULONGLONG EnumFiles(PVOID Param);
-	virtual const PFILE_INFO GetFileInfo(ULONGLONG ReferenceNumber);
+	virtual UINT64 EnumFiles(PVOID Param);
+	virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);
 	virtual USN GetLastUsn();
 	virtual USN UpdateFiles(USN LastUsn, PVOID param);
 protected:
@@ -45,48 +45,48 @@ protected:
 private:
 
 	typedef struct CACHE_INFO{
-		ULONGLONG cache_lcn_begin;
-		ULONGLONG cache_lcn_count;
+		UINT64 cache_lcn_begin;
+		UINT64 cache_lcn_count;
 		BYTE* g_pb;
-		ULONGLONG cache_lcn_orl_begin;
-		ULONGLONG cache_lcn_total;
+		UINT64 cache_lcn_orl_begin;
+		UINT64 cache_lcn_total;
 	};
 
-	ULONG m_BytesPerFileRecord;
+	DWORD m_BytesPerFileRecord;
 	CACHE_INFO m_cache_info;
 	PFILE_RECORD_HEADER m_Mft;
 	PUCHAR m_MftBitmap;
 	PUCHAR m_MftData;
 
 	PFILE_RECORD_HEADER m_File;
-	ULONGLONG m_FileCount;
-	ULONG m_ClustersPerFileRecord;
-	ULONG m_BytesPerClusters;
+	UINT64 m_FileCount;
+	DWORD m_ClustersPerFileRecord;
+	DWORD m_BytesPerClusters;
 
 	VOID FixupUpdateSequenceArray(PFILE_RECORD_HEADER file);
 	PATTRIBUTE FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count = 0);
-	ULONGLONG AttributeLengthAllocated(PATTRIBUTE attr);
-	BOOL ReadAttribute(PATTRIBUTE attr, PVOID buffer, ULONG size = 0);
-	BOOL  ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,ULONGLONG vcn, ULONG count, PVOID buffer, bool b_allow_cache = false);
-	BOOL FindRun(PNONRESIDENT_ATTRIBUTE attr, ULONGLONG vcn, PULONGLONG lcn, PULONGLONG count);
-	BOOL NeedCache(ULONGLONG lcn);
-	void NewCache(ULONGLONG lcn, ULONGLONG lcn_count);
-	BOOL CanReadFromCache(ULONGLONG lcn);
-	BOOL ReadLCN(ULONGLONG lcn, ULONG count, PVOID buffer);
-	LONGLONG RunLCN(PUCHAR run);
-	LONGLONG RunCount(PUCHAR run);
-	ULONG RunLength(PUCHAR run);
-	ULONGLONG AttributeLength(PATTRIBUTE attr);
-	BOOL bitset(PUCHAR bitmap, ULONGLONG i);
-	BOOL ReadFileRecord(PFILE_RECORD_HEADER Mft, ULONGLONG index, PFILE_RECORD_HEADER file);
-	BOOL ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,ULONGLONG vcn, ULONG count, PVOID buffer);
-	ULONGLONG GetFileCount();
-	PFILENAME_ATTRIBUTE ReadFileNameInfoEx(ULONGLONG ReferenceNumber);
+	UINT64 AttributeLengthAllocated(PATTRIBUTE attr);
+	BOOL ReadAttribute(PATTRIBUTE attr, PVOID buffer, DWORD size = 0);
+	BOOL  ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,UINT64 vcn, DWORD count, PVOID buffer, bool b_allow_cache = false);
+	BOOL FindRun(PNONRESIDENT_ATTRIBUTE attr, UINT64 vcn, PULONGLONG lcn, PULONGLONG count);
+	BOOL NeedCache(UINT64 lcn);
+	void NewCache(UINT64 lcn, UINT64 lcn_count);
+	BOOL CanReadFromCache(UINT64 lcn);
+	BOOL ReadLCN(UINT64 lcn, DWORD count, PVOID buffer);
+	INT64 RunLCN(PUCHAR run);
+	INT64 RunCount(PUCHAR run);
+	DWORD RunLength(PUCHAR run);
+	UINT64 AttributeLength(PATTRIBUTE attr);
+	BOOL bitset(PUCHAR bitmap, UINT64 i);
+	BOOL ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER file);
+	BOOL ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer);
+	UINT64 GetFileCount();
+	PFILENAME_ATTRIBUTE ReadFileNameInfoEx(UINT64 ReferenceNumber);
 	PRUN_LINKE BuildRun(PNONRESIDENT_ATTRIBUTE attr);
-	BOOL ReadAttributeData(PATTRIBUTE attr, PUCHAR Buffer, ULONG bufferSize);
+	BOOL ReadAttributeData(PATTRIBUTE attr, PUCHAR Buffer, DWORD bufferSize);
 	PFILE_INFO FileAttribute2Info(PFILENAME_ATTRIBUTE name);
-	const PFILENAME_ATTRIBUTE ReadMtfFileNameAttribute(ULONGLONG ReferenceNumber);
-	PATTRIBUTE EnumAttribute(PATTRIBUTE pAttrHeader, ULONG size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/);
+	const PFILENAME_ATTRIBUTE ReadMtfFileNameAttribute(UINT64 ReferenceNumber);
+	PATTRIBUTE EnumAttribute(PATTRIBUTE pAttrHeader, DWORD size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/);
 private:
 	static BOOL QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus);
 	static BOOL CreateUsnJournal(HANDLE hVolume);

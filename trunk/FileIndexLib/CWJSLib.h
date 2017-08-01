@@ -13,7 +13,7 @@ public:
 
 	virtual BOOL  SetDumpFilePath(PCWSTR wsz_path) override;
 	virtual UINT  GetVolumeCount() override;
-	virtual IVolumeInterface*  GetVolume(ULONG idx) override;
+	virtual IVolumeInterface*  GetVolume(DWORD idx) override;
 private:
 
 	CLdArray<CDiskVolume*> m_Volumes;

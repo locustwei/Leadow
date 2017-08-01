@@ -17,7 +17,7 @@
 
 using namespace  std;
 
-WCHAR IndexPath[81] = {0};
+TCHAR IndexPath[81] = {0};
 
 
 BOOL WINAPI UsnEnumCallback(PUSN_RECORD record, PVOID Param)
@@ -28,14 +28,14 @@ BOOL WINAPI UsnEnumCallback(PUSN_RECORD record, PVOID Param)
 	return TRUE;
 }
 
-BOOL WINAPI MtfEnumCallback(ULONGLONG ReferenceNumber, ATTRIBUTE_TYPE attr, PVOID record, PVOID Param)
+BOOL WINAPI MtfEnumCallback(UINT64 ReferenceNumber, ATTRIBUTE_TYPE attr, PVOID record, PVOID Param)
 {
 	CRecordFile *f = (CRecordFile*)Param;
 	PFILE_INFO pFileName = (PFILE_INFO)record;
 	switch(attr){
 	case AttributeFileName:
 		//wprintf(L"%4d   %s \n", ReferenceNumber, pFileName->Name);
-		f->WriteRecord(ReferenceNumber, (PUCHAR)pFileName->Name, pFileName->NameLength * sizeof(WCHAR));
+		f->WriteRecord(ReferenceNumber, (PUCHAR)pFileName->Name, pFileName->NameLength * sizeof(TCHAR));
 		break;
 	}
 	return TRUE;
@@ -172,7 +172,7 @@ void DisplayVolumePaths(
 	{
 		//
 		//  Allocate a buffer to hold the paths.
-		Names = (PWCHAR) new BYTE [CharCount * sizeof(WCHAR)];
+		Names = (PWCHAR) new BYTE [CharCount * sizeof(TCHAR)];
 
 		if ( !Names ) 
 		{
@@ -266,13 +266,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	DWORD  CharCount            = 0;
-	WCHAR  DeviceName[MAX_PATH] = L"";
+	TCHAR  DeviceName[MAX_PATH] = L"";
 	DWORD  Error                = ERROR_SUCCESS;
 	HANDLE FindHandle           = INVALID_HANDLE_VALUE;
 	BOOL   Found                = FALSE;
 	size_t Index                = 0;
 	BOOL   Success              = FALSE;
-	WCHAR  VolumeName[MAX_PATH] = L"";
+	TCHAR  VolumeName[MAX_PATH] = L"";
 
 	//
 	//  Enumerate all volumes in the system.
@@ -375,7 +375,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//_getws_s(IndexPath, 80);
 
 	CLdArray<CDiskVolume*> volumes;
-	ULONG tickt;
+	DWORD tickt;
 	//CWJSLib::EnumDiskVolumes();
 	
 	
@@ -401,12 +401,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		printf("1:search by name eg: abc, *abc, *abc* \n");
 		printf("2:search by size \n");
 		//printf("3¡¢se \n");
-		WCHAR buffer[81] = {0};
+		TCHAR buffer[81] = {0};
 		_getws_s(buffer, 80);
 
 		if(_wcsicmp(buffer, L"exit") == 0)
 			break;
-		ULONGLONG count = 0, found = 0, tmp;
+		UINT64 count = 0, found = 0, tmp;
 		int m, n;
 
 		switch(StrToInt(buffer)){
@@ -414,7 +414,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			printf("input file name \n");
 			_getws_s(buffer, 80);
 			tickt = GetTickCount();
-			for(ULONG i=0; i<volumes.size(); i++){
+			for(DWORD i=0; i<volumes.size(); i++){
 				tmp = 0;
 				FILE_FILTER filter = {0};
 				filter.beginSize = -1;
@@ -435,7 +435,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			n = StrToInt(buffer);
 
 			tickt = GetTickCount();
-			for(ULONG i=0; i<volumes.size(); i++){
+			for(DWORD i=0; i<volumes.size(); i++){
 				tmp = 0;
 				FILE_FILTER filter = {0};
 				filter.beginSize = m;
@@ -455,7 +455,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				
 	}
 	
-	for(ULONG i=0; i<volumes.size(); i++){
+	for(DWORD i=0; i<volumes.size(); i++){
 		delete volumes[i];
 	}
 

@@ -13,11 +13,11 @@ CHardisk::~CHardisk(void)
 		CloseHandle(m_hDisk);
 }
 
-CHardisk * CHardisk::CreateHardisk(ULONG nIndex)
+CHardisk * CHardisk::CreateHardisk(DWORD nIndex)
 {
 	CHardisk * result = NULL;
 
-	WCHAR sdisk[200] = {0};
+	TCHAR sdisk[200] = {0};
 
 	wsprintf(sdisk, L"\\.\\PhysicalDrive%d", nIndex);
 
@@ -35,13 +35,13 @@ VOID CHardisk::GetDiskPartitions()
 	if(m_hDisk == INVALID_HANDLE_VALUE)
 		return;
 
-	ULONG cb = sizeof(DRIVE_LAYOUT_INFORMATION_EX) + sizeof(PARTITION_INFORMATION_EX) * 1024;
+	DWORD cb = sizeof(DRIVE_LAYOUT_INFORMATION_EX) + sizeof(PARTITION_INFORMATION_EX) * 1024;
 	PDRIVE_LAYOUT_INFORMATION_EX buffer = (PDRIVE_LAYOUT_INFORMATION_EX)malloc(cb);
 	ZeroMemory(buffer, cb);
 
 	if(!(DeviceIoControl(m_hDisk,IOCTL_DISK_GET_DRIVE_LAYOUT_EX,NULL, 0, &buffer, cb, &cb, NULL)))
 		return;
-	for(ULONG i=0; i<buffer->PartitionCount; i++){
+	for(DWORD i=0; i<buffer->PartitionCount; i++){
 	}
 
 }

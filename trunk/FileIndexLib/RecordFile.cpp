@@ -88,11 +88,11 @@ BOOL CRecordFile::OpenFile(LPCTSTR Filename)
 // Access:    private 
 // Returns:   BOOL
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
+// Parameter: UINT64 ReferenceNumber
 // Parameter: PUCHAR pRecord
 // Parameter: USHORT Length
 //************************************
-BOOL CRecordFile::WriteRecord(ULONGLONG ReferenceNumber, PUCHAR pRecord, USHORT Length)
+BOOL CRecordFile::WriteRecord(UINT64 ReferenceNumber, PUCHAR pRecord, USHORT Length)
 {
 	PRECORD_POINTER rs = GetRecordPointer(ReferenceNumber);
 	if(rs == NULL)
@@ -103,7 +103,7 @@ BOOL CRecordFile::WriteRecord(ULONGLONG ReferenceNumber, PUCHAR pRecord, USHORT 
 	}
 
 	if(rs->Pointer == 0 || rs->Length < Length) {
-		ULONGLONG Pointer = AllocSpace(Length);  //分配空间可能引起内存影像重建
+		UINT64 Pointer = AllocSpace(Length);  //分配空间可能引起内存影像重建
 		if(Pointer == 0)
 			return FALSE;
 		rs = GetRecordPointer(ReferenceNumber);
@@ -113,7 +113,7 @@ BOOL CRecordFile::WriteRecord(ULONGLONG ReferenceNumber, PUCHAR pRecord, USHORT 
 	return WriteRecord(rs, pRecord, Length);
 }
 
-ULONG CRecordFile::WriteRecord(PRECORD_POINTER rs, PUCHAR pRecord, USHORT Length)
+DWORD CRecordFile::WriteRecord(PRECORD_POINTER rs, PUCHAR pRecord, USHORT Length)
 {
 	if(!rs|| rs->Pointer == 0)
 		return 0;
@@ -149,11 +149,11 @@ BOOL CRecordFile::Init()
 // Access:    private 
 // Returns:   CRecordFile::PRECORD_POINTER
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
+// Parameter: UINT64 ReferenceNumber
 //************************************
-CRecordFile::PRECORD_POINTER CRecordFile::GetRecordPointer(ULONGLONG ReferenceNumber)
+CRecordFile::PRECORD_POINTER CRecordFile::GetRecordPointer(UINT64 ReferenceNumber)
 {
-	ULONG m = (ULONG)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (ULONG)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
+	DWORD m = (DWORD)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (DWORD)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
 	if(m_RecordIndexBlocks.size() <= m)
 		return NULL;
 	return (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[m] + n * sizeof(RECORD_POINTER)));
@@ -165,23 +165,23 @@ CRecordFile::PRECORD_POINTER CRecordFile::GetRecordPointer(ULONGLONG ReferenceNu
 // Access:    private 
 // Returns:   CRecordFile::PRECORD_POINTER
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
+// Parameter: UINT64 ReferenceNumber
 //************************************
-CRecordFile::PRECORD_POINTER CRecordFile::AddFileReference(ULONGLONG ReferenceNumber)
+CRecordFile::PRECORD_POINTER CRecordFile::AddFileReference(UINT64 ReferenceNumber)
 {
 	if (!m_Header)
 		return nullptr;
 
-	ULONG m = (ULONG)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (ULONG)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
+	DWORD m = (DWORD)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (DWORD)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
 
 	for (size_t i=m_RecordIndexBlocks.size(); i<=m; i++){
-		ULONGLONG Tmp = 0;
-		Tmp = AllocSpace(RECORD_BLOCK_SIZE + sizeof(ULONG));
+		UINT64 Tmp = 0;
+		Tmp = AllocSpace(RECORD_BLOCK_SIZE + sizeof(DWORD));
 		if(Tmp == 0)
 			return NULL;
 		*(PULONG)(File2MapPointer(Tmp + RECORD_BLOCK_SIZE)) = m_Header->LastReferenceBlock;
-		m_Header->LastReferenceBlock = (ULONG)Tmp;
-		m_RecordIndexBlocks.Add(Tmp);
+		m_Header->LastReferenceBlock = (DWORD)Tmp;
+		m_RecordIndexBlocks.push_back(Tmp);
 	}
 
 	return GetRecordPointer(ReferenceNumber);
@@ -193,11 +193,11 @@ CRecordFile::PRECORD_POINTER CRecordFile::AddFileReference(ULONGLONG ReferenceNu
 // Access:    private 
 // Returns:   void
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
-// Parameter: ULONG Pointer
+// Parameter: UINT64 ReferenceNumber
+// Parameter: DWORD Pointer
 // Parameter: USHORT Length
 //************************************
-void CRecordFile::SetRecordPointer(ULONGLONG ReferenceNumber, ULONG Pointer, USHORT Length)
+void CRecordFile::SetRecordPointer(UINT64 ReferenceNumber, DWORD Pointer, USHORT Length)
 {
 	PRECORD_POINTER ps = GetRecordPointer(ReferenceNumber);
 	if(!ps)
@@ -212,11 +212,11 @@ void CRecordFile::SetRecordPointer(ULONGLONG ReferenceNumber, ULONG Pointer, USH
 // Access:    private 
 // Returns:   USHORT
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
+// Parameter: UINT64 ReferenceNumber
 // Parameter: PVOID Buffer
 // Parameter: USHORT Length
 //************************************
-USHORT CRecordFile::ReadRecord(ULONGLONG ReferenceNumber, PVOID Buffer, USHORT Length)
+USHORT CRecordFile::ReadRecord(UINT64 ReferenceNumber, PVOID Buffer, USHORT Length)
 {
 	PRECORD_POINTER rs = GetRecordPointer(ReferenceNumber);
 	if(rs == NULL || rs->Pointer == 0)
@@ -248,9 +248,9 @@ USHORT CRecordFile::ReadRecord(PRECORD_POINTER rs, PVOID Buffer, USHORT Length)
 // Access:    public 
 // Returns:   VOID
 // Qualifier:
-// Parameter: ULONGLONG ReferenceNumber
+// Parameter: UINT64 ReferenceNumber
 //************************************
-VOID CRecordFile::DeleteRecord(ULONGLONG ReferenceNumber)
+VOID CRecordFile::DeleteRecord(UINT64 ReferenceNumber)
 {
 	SetRecordPointer(ReferenceNumber, 0, 0);
 }
@@ -259,19 +259,19 @@ VOID CRecordFile::DeleteRecord(ULONGLONG ReferenceNumber)
 // Method:    EnumRecord
 // FullName:  遍历文件数据。
 // Access:    public 
-// Returns:   ULONGLONG
+// Returns:   UINT64
 // Qualifier:
 // Parameter: PVOID Param  回掉函数参数
 // Parameter: PINDEX_RECORD pIndex  使用索引（可以为NULL）
-// Parameter: ULONGLONG begin  其实记录号
-// Parameter: ULONGLONG end   结束记录号
+// Parameter: UINT64 begin  其实记录号
+// Parameter: UINT64 end   结束记录号
 //************************************
-ULONGLONG CRecordFile::EnumRecord(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG begin, ULONGLONG end)
+UINT64 CRecordFile::EnumRecord(PVOID Param, PINDEX_RECORD pIndex, UINT64 begin, UINT64 end)
 {
 	if(m_Holder == NULL)
 		return 0;
 
-	ULONGLONG result = 0;
+	UINT64 result = 0;
 	BOOL b = TRUE;
 
 	if(pIndex)
@@ -281,7 +281,7 @@ ULONGLONG CRecordFile::EnumRecord(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG b
 
 	UCHAR pRecord[MAX_RECORD_LENGTH] = {0}; // = new UCHAR[rs->Length];
 
-	for(ULONGLONG i=0; i<GetLastReference(); i++){
+	for(UINT64 i=0; i<GetLastReference(); i++){
 		rs = GetRecordPointer(i); 
 		if(!rs || rs->Pointer == 0 || rs->Length == 0){
 			continue;
@@ -297,15 +297,15 @@ ULONGLONG CRecordFile::EnumRecord(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG b
 	return result;
 }
 
-ULONGLONG CRecordFile::EnumRecordByIndex(PVOID Param, PINDEX_RECORD pIndex, ULONGLONG begin, ULONGLONG end)
+UINT64 CRecordFile::EnumRecordByIndex(PVOID Param, PINDEX_RECORD pIndex, UINT64 begin, UINT64 end)
 {
-	ULONGLONG Reference, result = 0;
+	UINT64 Reference, result = 0;
 	PRECORD_POINTER rs;
 
 	UCHAR pRecord[MAX_RECORD_LENGTH] = {0}; // = new UCHAR[rs->Length];
 	if(end == 0)
 		end = pIndex->count;
-	for(ULONGLONG i=begin; i<end; i++){
+	for(UINT64 i=begin; i<end; i++){
 		Reference = pIndex->Index[i]; 
 		rs = GetRecordPointer(Reference); 
 		//printf("%lld, %lld, %lld \n", i*BLOCK_REFERENCE_COUNT + j, Reference, (*pVector)[i].IndexBlock[j].IndexReference);
@@ -377,35 +377,35 @@ int _cdecl sortCompare(void * context, const void * id1, const void *id2)
 // Returns:   PINDEX_RECORD
 // Qualifier:
 // Parameter: PVOID param
-// Parameter: CLdArray<ULONGLONG> * pReferences
+// Parameter: vector<UINT64> * pReferences
 //************************************
-PINDEX_RECORD CRecordFile::SortRecord(PVOID param, CLdArray<ULONGLONG>* pReferences)
+PINDEX_RECORD CRecordFile::SortRecord(PVOID param, vector<UINT64>* pReferences)
 {
 	if(m_RecordIndexBlocks.empty() || !m_Holder)
 		return NULL;
 	PINDEX_RECORD result = NULL; 
 
 	
-	CLdArray<ULONGLONG> tmp;
+	vector<UINT64> tmp;
 	if(!pReferences){
-		ULONGLONG count = GetLastReference(); //m_ReferenceBlocks.size() * BLOCK_REFERENCE_COUNT;
+		UINT64 count = GetLastReference(); //m_ReferenceBlocks.size() * BLOCK_REFERENCE_COUNT;
 		tmp.reserve(count);
-		for(ULONGLONG i = 0; i < count; i ++ ){
+		for(UINT64 i = 0; i < count; i ++ ){
 			PRECORD_POINTER rs = GetRecordPointer(i);
 			if(rs && rs->Pointer)
-				tmp.Add(i);
+				tmp.push_back(i);
 		}
 		pReferences = &tmp;
 	}
 
 	COMPARE_CONTEXT context = {this, m_Holder, param};
-	qsort_s(pReferences->data(), pReferences->size(), sizeof(ULONGLONG), &sortCompare, &context);
+	qsort_s(pReferences->data(), pReferences->size(), sizeof(UINT64), &sortCompare, &context);
 
-	//ULONGLONG* ReferenceNumbers = ;
+	//UINT64* ReferenceNumbers = ;
 	result = new INDEX_RECORD;
 	result->count = pReferences->size();
-	result->Index = new ULONGLONG[pReferences->size()];
-	memcpy(result->Index, pReferences->data(), pReferences->size()*sizeof(ULONGLONG));
+	result->Index = new UINT64[pReferences->size()];
+	memcpy(result->Index, pReferences->data(), pReferences->size()*sizeof(UINT64));
 
 	tmp.clear();
 
@@ -430,7 +430,7 @@ BOOL CRecordFile::WriteOptionRecord(UCHAR ReferenceNumber, PUCHAR pRecord, USHOR
 	PRECORD_POINTER rs = &m_Header->OptionRecord[ReferenceNumber];
 
 	if(rs->Pointer == 0 || rs->Length < Length) {
-		ULONGLONG Pointer = AllocSpace(Length);  
+		UINT64 Pointer = AllocSpace(Length);  
 		if(Pointer == 0)
 			return FALSE;
 		rs = &m_Header->OptionRecord[ReferenceNumber];
@@ -459,7 +459,7 @@ USHORT CRecordFile::ReadOptionRecord(UCHAR ReferenceNumber, PUCHAR Buffer, USHOR
 	return ReadRecord(&m_Header->OptionRecord[ReferenceNumber], Buffer, Length);
 }
 /*
-BOOL CRecordFile::MyReadFile(LPVOID lpBuffer, DWORD nNumberOfBytesToRead, ULONG Pointer)
+BOOL CRecordFile::MyReadFile(LPVOID lpBuffer, DWORD nNumberOfBytesToRead, DWORD Pointer)
 {
 	PVOID p = File2MapPointer(Pointer);
 	if(!p)
@@ -473,7 +473,7 @@ BOOL CRecordFile::MyReadFile(LPVOID lpBuffer, DWORD nNumberOfBytesToRead, ULONG 
 }
 */
 /*
-ULONG CRecordFile::MyWriteFile(LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, ULONG Pointer)
+DWORD CRecordFile::MyWriteFile(LPCVOID lpBuffer, DWORD nNumberOfBytesToWrite, DWORD Pointer)
 {
 	PVOID p = File2MapPointer(Pointer);
 	if(!p)
@@ -495,8 +495,8 @@ BOOL CRecordFile::LoadRecordIndex()
 	if(!m_Header || m_Header->LastReferenceBlock == 0)
 		return FALSE;
 
-	ULONG nRead = 0;
-	ULONG Pointer = m_Header->LastReferenceBlock;
+	DWORD nRead = 0;
+	DWORD Pointer = m_Header->LastReferenceBlock;
 	
 	while (Pointer) {
 		m_RecordIndexBlocks.insert(m_RecordIndexBlocks.begin(), Pointer);
@@ -508,12 +508,12 @@ BOOL CRecordFile::LoadRecordIndex()
 
 }
 /*
-BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchCompare compare, PVOID param)
+BOOL CMftFile::UpdateIndex(UCHAR Index, UINT64 ReferenceNumber, BinSearchCompare compare, PVOID param)
 {
 	if(Index<1 || Index>MAX_INDEX)
 		return FALSE;
 
-	CLdArray<BLOCK_RECORD>* pVector;
+	vector<BLOCK_RECORD>* pVector;
 	pVector = &m_IndexBlocks[Index - 1];
 
 	if(pVector->empty())
@@ -521,7 +521,7 @@ BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchComp
 			return FALSE;
 
 	if(ReferenceNumber >= pVector->size() * BLOCK_REFERENCE_COUNT){
-		ULONGLONG number = pVector->size() * BLOCK_REFERENCE_COUNT;
+		UINT64 number = pVector->size() * BLOCK_REFERENCE_COUNT;
 		while(pVector->size() * BLOCK_REFERENCE_COUNT <= ReferenceNumber){
 			BLOCK_RECORD block = {0};
 			block.Pointer = 0;
@@ -534,22 +534,22 @@ BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchComp
 			block.PrvPointer = pVector->at(pVector->size() - 1).Pointer;
 			block.Pointer = WriteBlockToFile(&block, INDEX_BLOCK_SIZE);
 			m_Header.IndexPointer[Index] = block.Pointer;
-			pVector->Add(block);
+			pVector->push_back(block);
 		}
 
 		UpdateHeader();
 	}
 
 	LONG cr;
-	ULONGLONG indexReference = BinSearch(pVector, compare, param, &cr);
-	ULONGLONG oldIndex = (*pVector)[ReferenceNumber / BLOCK_REFERENCE_COUNT].IndexBlock[ReferenceNumber % BLOCK_REFERENCE_COUNT].IndexReference;
+	UINT64 indexReference = BinSearch(pVector, compare, param, &cr);
+	UINT64 oldIndex = (*pVector)[ReferenceNumber / BLOCK_REFERENCE_COUNT].IndexBlock[ReferenceNumber % BLOCK_REFERENCE_COUNT].IndexReference;
 	if(indexReference == oldIndex)
 		return TRUE;
 
 	int n = indexReference > oldIndex ? -1 : 1;
-	ULONGLONG reference = (*pVector)[indexReference / BLOCK_REFERENCE_COUNT].IndexBlock[indexReference % BLOCK_REFERENCE_COUNT].RecordReference;
-	for(ULONGLONG i=indexReference+n; ; i+=n){
-		ULONGLONG tmp = (*pVector)[i / BLOCK_REFERENCE_COUNT].IndexBlock[i % BLOCK_REFERENCE_COUNT].RecordReference;
+	UINT64 reference = (*pVector)[indexReference / BLOCK_REFERENCE_COUNT].IndexBlock[indexReference % BLOCK_REFERENCE_COUNT].RecordReference;
+	for(UINT64 i=indexReference+n; ; i+=n){
+		UINT64 tmp = (*pVector)[i / BLOCK_REFERENCE_COUNT].IndexBlock[i % BLOCK_REFERENCE_COUNT].RecordReference;
 		(*pVector)[i / BLOCK_REFERENCE_COUNT].IndexBlock[i % BLOCK_REFERENCE_COUNT].RecordReference = reference;
 		(*pVector)[reference / BLOCK_REFERENCE_COUNT].IndexBlock[reference % BLOCK_REFERENCE_COUNT].IndexReference = i;
 		reference = tmp;
@@ -567,24 +567,24 @@ BOOL CMftFile::UpdateIndex(UCHAR Index, ULONGLONG ReferenceNumber, BinSearchComp
 // Method:    SearchRecord
 // FullName:  二分法定位记录，返回记录序号
 // Access:    public 
-// Returns:   ULONGLONG
+// Returns:   UINT64
 // Qualifier:
 // Parameter: PINDEX_RECORD pIndex
 // Parameter: PVOID Param
 // Parameter: PLONG compResult
 //************************************
-ULONGLONG CRecordFile::SearchRecord(PINDEX_RECORD pIndex, PVOID Param, PLONG compResult)
+UINT64 CRecordFile::SearchRecord(PINDEX_RECORD pIndex, PVOID Param, PLONG compResult)
 {
 	if(!pIndex)
 		return 0;
 
 	PRECORD_POINTER rs = NULL;
-	ULONGLONG b = 0, m;
-	ULONGLONG e = pIndex->count;
+	UINT64 b = 0, m;
+	UINT64 e = pIndex->count;
 	LONG r = 0xFFF;        
 	UCHAR Record[MAX_RECORD_LENGTH] = {0};
 	BOOL bHave = FALSE;
-	ULONGLONG lastEq = 0;
+	UINT64 lastEq = 0;
 
 	while(b < e){
 		m = (b + e) / 2;
@@ -649,10 +649,10 @@ ULONGLONG CRecordFile::SearchRecord(PINDEX_RECORD pIndex, PVOID Param, PLONG com
 }
 
 /*
-CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(CLdArray<BLOCK_RECORD>* pVector, ULONGLONG IndexReference)
+CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(vector<BLOCK_RECORD>* pVector, UINT64 IndexReference)
 {
-	ULONG i = (ULONG)(IndexReference / BLOCK_REFERENCE_COUNT);
-	ULONG j = (ULONG)(IndexReference % BLOCK_REFERENCE_COUNT);
+	DWORD i = (DWORD)(IndexReference / BLOCK_REFERENCE_COUNT);
+	DWORD j = (DWORD)(IndexReference % BLOCK_REFERENCE_COUNT);
 	return GetRecordPointer((*pVector)[i].IndexBlock[j].RecordReference);
 }
 */
@@ -660,12 +660,12 @@ CMftFile::PRECORD_POINTER CMftFile::GetIndexRecordPointer(CLdArray<BLOCK_RECORD>
 // Method:    GetLastReference
 // FullName:  最后一个有效的记录序号
 // Access:    private 
-// Returns:   ULONGLONG
+// Returns:   UINT64
 // Qualifier:
 //************************************
-ULONGLONG CRecordFile::GetLastReference()
+UINT64 CRecordFile::GetLastReference()
 {
-	for(LONGLONG i = m_RecordIndexBlocks.size() -1; i >= 0; i--)
+	for(INT64 i = m_RecordIndexBlocks.size() -1; i >= 0; i--)
 		for(int j = BLOCK_REFERENCE_COUNT - 1; j >= 0; j--){
 			PRECORD_POINTER ps = (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[i] + j * sizeof(RECORD_POINTER)));
 			if(ps->Pointer > 0 && ps->Length >0)
@@ -722,10 +722,10 @@ bool CRecordFile::IsValid()
 // Method:    DeleteAllRecord
 // FullName:  清空文件记录，文件长度设置为0
 // Access:    public 
-// Returns:   ULONG
+// Returns:   DWORD
 // Qualifier:
 //************************************
-ULONG CRecordFile::DeleteAllRecord()
+DWORD CRecordFile::DeleteAllRecord()
 {
 
 	if(m_hFile != INVALID_HANDLE_VALUE)
@@ -751,17 +751,17 @@ ULONG CRecordFile::DeleteAllRecord()
 // Method:    AllocSpace
 // FullName:  在文件中分配一段未使用空间
 // Access:    private 
-// Returns:   ULONG
+// Returns:   DWORD
 // Qualifier:
-// Parameter: ULONG nSize
+// Parameter: DWORD nSize
 //************************************
-ULONGLONG CRecordFile::AllocSpace(ULONG nSize)
+UINT64 CRecordFile::AllocSpace(DWORD nSize)
 {
 	if (m_hFile == INVALID_HANDLE_VALUE)
 	{
 		PVOID p = new BYTE[nSize];
 		ZeroMemory(p, nSize);
-		return (ULONGLONG)p;
+		return (UINT64)p;
 	}		
 	else
 	{
@@ -833,7 +833,7 @@ BOOL CRecordFile::SaveFile()
 	return true;
 }
 
-PVOID CRecordFile::File2MapPointer(ULONGLONG Pointer)
+PVOID CRecordFile::File2MapPointer(UINT64 Pointer)
 {
 	if (m_hFile == INVALID_HANDLE_VALUE)
 		return (PVOID)Pointer;
