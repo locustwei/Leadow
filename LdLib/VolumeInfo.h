@@ -52,12 +52,6 @@ public:
 	UINT64 GetTotalFreeSpace(PDWORD pErrorCode = nullptr);
 	//总空间
 	UINT64 GetTotalSize(PDWORD pErrorCode = nullptr);
-	//Cluster 字节数
-	UINT GetClusterSize(PDWORD pErrorCode = nullptr);
-	//Sector 字节数
-	UINT GetSectorSize(PDWORD pErrorCode = nullptr);
-	//Cluter 数
-	UINT64 GetTotalClusters(PDWORD pErrorCode = nullptr);
 	//磁盘配额（为用户分配的空间）
 	BOOL HasQuota();
 	//是否分配盘符
@@ -68,28 +62,16 @@ public:
 	//分区信息IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS
 
 	HANDLE OpenVolumeHandle(PDWORD pErrorCode = nullptr) const;             //CreateFile，
-	VF_FILE_TYPE GetFileType() override { return vft_volume; };
+	VF_FILE_TYPE GetFileType() override { return vft_volume; }
 
-	UINT GetBytesPerFileRecord(PDWORD pErrorCode = nullptr);
-	UINT64 GetMftValidSize(PDWORD pErrorCode = nullptr);
+	VOID RefreshBpbData();;
+
+	PVOLUME_BPB_DATA GetVolumeMftData(PDWORD pErrorCode = nullptr);
 private:
-	typedef struct VOLUME_MFT_DATA {
-		LARGE_INTEGER NumberSectors;
-		LARGE_INTEGER TotalClusters;
-		LARGE_INTEGER FreeClusters;
-		DWORD BytesPerSector;
-		DWORD BytesPerCluster;
-		DWORD BytesPerFileRecordSegment;
-		DWORD ClustersPerFileRecordSegment;
-		LARGE_INTEGER MftValidDataLength;
-		LARGE_INTEGER MftStartLcn;
-	}*PVOLUME_MFT_DATA;
-
-	PVOLUME_MFT_DATA m_MftData;  //NTFS_VOLUME_DATA_BUFFER;
+	PVOLUME_BPB_DATA m_MftData;  //NTFS_VOLUME_DATA_BUFFER;
 	CLdString m_VolumeGuid;           //卷GUID
 	VOLUME_FILE_SYSTEM m_FileSystemName;
 	DWORD m_FileSystemFlags;
 	DWORD GetVolumeInfo();
-	DWORD GetVolumeMftData();
 private:  //接口函数
 };

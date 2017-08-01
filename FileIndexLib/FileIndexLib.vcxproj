@@ -151,12 +151,10 @@
   <ItemGroup>
     <ClInclude Include="CWJSLib.h" />
     <ClInclude Include="DiskVolume.h" />
-    <ClInclude Include="Fat.h" />
     <ClInclude Include="FatMftReader.h" />
     <ClInclude Include="Hardisk.h" />
     <ClInclude Include="MD5.h" />
     <ClInclude Include="MftReader.h" />
-    <ClInclude Include="ntfs.h" />
     <ClInclude Include="NtfsMtfReader.h" />
     <ClInclude Include="RecordFile.h" />
     <ClInclude Include="stdafx.h" />

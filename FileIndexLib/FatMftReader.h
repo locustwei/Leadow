@@ -23,11 +23,6 @@ private:
 		BYTE* pFAT;
 	};
 
-	USHORT m_SectorsPerRootDirectory;
-	DWORD m_SectorsPerFAT;
-	DWORD m_FirstDataSector;
-	DWORD m_FirstFatSector;
-	DWORD m_TotalSectors;
 	UCHAR m_EntrySize;
 	FAT_CACHE m_fatCache;
 	FAT_FILE m_Root;

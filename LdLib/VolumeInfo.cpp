@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "VolumeInfo.h"
 #include "NtfsUtils.h"
+#include "FatUtils.h"
 
 CVolumeInfo::CVolumeInfo(void) :
 	m_VolumeGuid(),
@@ -80,32 +81,6 @@ HANDLE CVolumeInfo::OpenVolumeHandle(PDWORD pErrorCode) const
 	return result;
 }
 
-UINT CVolumeInfo::GetBytesPerFileRecord(PDWORD pErrorCode)
-{
-	DWORD result = GetVolumeMftData();
-
-	if (pErrorCode)
-		*pErrorCode = result;
-	if (result == 0)
-		return m_MftData->BytesPerFileRecordSegment;
-	else
-		return 0;
-}
-
-UINT64 CVolumeInfo::GetMftValidSize(PDWORD pErrorCode)
-{
-	DWORD result = GetVolumeMftData();
-
-	if (pErrorCode)
-		*pErrorCode = result;
-
-	if (result == 0)
-		return m_MftData->MftValidDataLength.QuadPart;
-	else
-		return 0;
-
-}
-
 DWORD CVolumeInfo::GetVolumeInfo()
 {
 	CLdString path;
@@ -128,55 +103,65 @@ DWORD CVolumeInfo::GetVolumeInfo()
 			m_FileSystemName = FS_FAT32;
 		else if (FileSystemNameBuffer == _T("FAT"))
 		{
-			UINT64 totlCluters = GetTotalClusters();
-			if (totlCluters <= 0x0FF)
-				m_FileSystemName = FS_FAT12;
-			else
+//			UINT64 totlCluters = GetTotalClusters();
+//			if (totlCluters <= 0x0FF)
+//				m_FileSystemName = FS_FAT12;
+//			else
 				m_FileSystemName = FS_FAT16;
 		}
 	}
 	return 0;
 }
 
-DWORD CVolumeInfo::GetVolumeMftData()
+void CVolumeInfo::RefreshBpbData()
 {
 	if (m_MftData)
-		return 0;
+		delete m_MftData;
+	GetVolumeMftData(nullptr);
+}
 
-	NTFS_VOLUME_DATA_BUFFER data = { 0 };
+PVOLUME_BPB_DATA CVolumeInfo::GetVolumeMftData(PDWORD pErrorCode)
+{
 	DWORD result = 0;
-	if (m_FileSystemName == FS_UNKNOW)
+	if (!m_MftData)
 	{
-		result = GetVolumeInfo();
-	}
-	if (result != 0)
-		return result;
-	switch (m_FileSystemName)
-	{
-	case FS_UNKNOW: break;
-	case FS_NTFS:
-		result = CNtfsUtils::GetNtfsVolumeData(this, &data);
-		if (result == 0)
+		if (m_FileSystemName == FS_UNKNOW)
 		{
-			m_MftData = new VOLUME_MFT_DATA;
-			m_MftData->BytesPerCluster = data.BytesPerCluster;
-			m_MftData->BytesPerFileRecordSegment = data.BytesPerFileRecordSegment;
-			m_MftData->BytesPerSector = data.BytesPerSector;
-			m_MftData->ClustersPerFileRecordSegment = data.ClustersPerFileRecordSegment;
-			m_MftData->FreeClusters = data.FreeClusters;
-			m_MftData->MftStartLcn = data.MftStartLcn;
-			m_MftData->MftValidDataLength = data.MftValidDataLength;
-			m_MftData->NumberSectors = data.NumberSectors;
-			m_MftData->TotalClusters = data.TotalClusters;
+			result = GetVolumeInfo();
 		}
-		break;
-	case FS_FAT32: break;
-	case FS_FAT16: break;
-	case FS_FAT12: break;
-	case FS_EXFAT: break;
-	default: break;
+		VOLUME_BPB_DATA tmp = { 0 };
+		switch (m_FileSystemName)
+		{
+		case FS_UNKNOW:
+			result = -1;
+			break;
+		case FS_NTFS:
+			result = CNtfsUtils::GetBpbData(this, &tmp);
+			if(result == 0)
+			{
+				m_MftData = new VOLUME_BPB_DATA;
+				*m_MftData = tmp;
+			}
+			break;
+		case FS_FAT32:
+		case FS_FAT16:
+		case FS_FAT12:
+			result = CFatUtils::GetBpbData(this, &tmp);
+			if (result == 0)
+			{
+				m_MftData = new VOLUME_BPB_DATA;
+				*m_MftData = tmp;
+			}
+			break;
+		case FS_EXFAT: break;
+		default:
+			result = -1;
+			break;
+		}
 	}
-	return result;
+	if (pErrorCode)
+		*pErrorCode = result;
+	return m_MftData;
 }
 
 TCHAR* CVolumeInfo::GetVolumeGuid()
@@ -219,39 +204,6 @@ UINT64 CVolumeInfo::GetTotalSize(PDWORD pErrorCode)
 	ULARGE_INTEGER TotalSize;
 	if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, &TotalSize, NULL))
 		return TotalSize.QuadPart;
-	else
-		return 0;
-}
-
-UINT CVolumeInfo::GetClusterSize(PDWORD pErrorCode)
-{
-	DWORD result = GetVolumeMftData();
-	if (pErrorCode)
-		*pErrorCode = result;
-	if (result == 0)
-		return m_MftData->BytesPerCluster;
-	else
-		return 0;
-}
-
-UINT CVolumeInfo::GetSectorSize(PDWORD pErrorCode)
-{
-	DWORD result = GetVolumeMftData();
-	if (pErrorCode)
-		*pErrorCode = result;
-	if (result == 0)
-		return m_MftData->BytesPerSector;
-	else
-		return 0;
-}
-
-UINT64 CVolumeInfo::GetTotalClusters(PDWORD pErrorCode)
-{
-	DWORD result = GetVolumeMftData();
-	if (pErrorCode)
-		*pErrorCode = result;
-	if (result == 0)
-		return m_MftData->TotalClusters.QuadPart;
 	else
 		return 0;
 }

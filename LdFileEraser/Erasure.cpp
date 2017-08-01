@@ -349,19 +349,17 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 {
 	DWORD result;
 	DWORD dwBytesPreFile;
-	UINT64 nTotalSize;
-
+	UINT64 nMaxFileCount;
+	PVOLUME_BPB_DATA pBpb = m_volInfo->GetVolumeMftData(&result);
 	do 
 	{
-		dwBytesPreFile = m_volInfo->GetBytesPerFileRecord();
-		if (dwBytesPreFile == 0)
-			return GetLastError();
-		nTotalSize = m_volInfo->GetMftValidSize(&result);
-		if(result != 0)
+		if (result != 0)
 			break;
-		nTotalSize = nTotalSize / dwBytesPreFile;
 
-		if (callback && !callback->ErasureProgress(1, nTotalSize, 0))
+		dwBytesPreFile = pBpb->BytesPerFileRecordSegment;
+		nMaxFileCount = pBpb->MftValidDataLength / dwBytesPreFile;
+
+		if (callback && !callback->ErasureProgress(1, nMaxFileCount, 0))
 			return ERROR_CANCELED;
 
 		int nCount = 0;
@@ -375,7 +373,7 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 				dwBytesPreFile--;
 			}
 
-			if (callback && !callback->ErasureProgress(1, nTotalSize, nCount++))
+			if (callback && !callback->ErasureProgress(1, nMaxFileCount, nCount++))
 				return ERROR_CANCELED;
 		}
 	} while (false);
@@ -492,23 +490,17 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 {
 	DWORD result;
-	DWORD dwBytesPreFile;
-	UINT64 nTotalSize;
-	UINT nClusterSize;
-	NTFS_VOLUME_DATA_BUFFER volData;
+	UINT64 nMftSize;
+	PVOLUME_BPB_DATA pBpb = m_volInfo->GetVolumeMftData(&result);
 	do
 	{
-		dwBytesPreFile = m_volInfo->GetBytesPerFileRecord();
-		if (dwBytesPreFile == 0)
-			return GetLastError();
-		nTotalSize = m_volInfo->GetMftValidSize(&result);
 		if (result != 0)
 			break;
-		nClusterSize = m_volInfo->GetClusterSize(&result);
+		nMftSize = pBpb->MftValidDataLength;
 		if (result != 0)
 			break;
-		int pollingInterval = min(max(1, nTotalSize / nClusterSize / 20), 128);
-		int totalFiles = max(1L, nTotalSize / dwBytesPreFile);
+		int pollingInterval = min(max(1, nMftSize / pBpb->BytesPerClusters / 20), 128);
+		int totalFiles = max(1L, nMftSize / pBpb->BytesPerFileRecordSegment);
 
 		if (callback && !callback->ErasureProgress(1, totalFiles, 0))
 			return ERROR_CANCELED;
@@ -528,9 +520,8 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 			nCount++;
 			if (nCount % pollingInterval == 0)
 			{
-				if (CNtfsUtils::GetNtfsVolumeData(m_volInfo, &volData) != 0)
-					break;
-				if (volData.MftValidDataLength.QuadPart > nTotalSize)
+				m_volInfo->RefreshBpbData();
+				if (pBpb->MftValidDataLength > nMftSize)
 					break;
 			}
 			if (callback && !callback->ErasureProgress(1, totalFiles, nCount))
