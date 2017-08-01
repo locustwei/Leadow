@@ -109,9 +109,10 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 	for (int i = m_Volumes.GetCount() - 1; i>=0; i--)
 	{
 		CVolumeInfo* volume = (CVolumeInfo*)m_Volumes.Get(i);
-		VOLUME_FILE_SYSTEM fs;
+		DWORD dwError;
+		VOLUME_FILE_SYSTEM fs = volume->GetFileSystem(&dwError);
 		//ÅÐ¶Ï´ÅÅÌÊÇ·ñ¿ÉÓÃ
-		if (volume->GetFileSystem(&fs) != 0)
+		if (dwError != 0)
 		{
 			m_Volumes.Delete(i);
 			continue;

@@ -16,55 +16,46 @@ CFatMftReader::~CFatMftReader(void)
 
 bool CFatMftReader::Init()
 {
-	bool result = __super::Init();
+	PUCHAR pBpb = new UCHAR[m_Volume->GetSectorSize()];
+	if(!ReadSector(0, 1, pBpb))
+		return false;
 
+	if(((PFAT_BPB)pBpb)->SectorsPerFAT16){
+		if(((PFAT_BPB)pBpb)->FAT1216.FilSysType[4] == '2')
+			m_EntrySize = 12;
+		else
+			m_EntrySize = 16;
+	}else
+		m_EntrySize = 32;
 
-	if(result){
-		PUCHAR pBpb = new UCHAR[m_BytesPerSector];
-		if(!ReadSector(0, 1, pBpb))
-			return false;
+	m_SectorsPerRootDirectory = (((PFAT_BPB)pBpb)->RootEntriesCount * 0x20 + ((PFAT_BPB)pBpb)->BytesPerSector - 1) / ((PFAT_BPB)pBpb)->BytesPerSector; //FAT16有效
 
-		if(((PFAT_BPB)pBpb)->SectorsPerFAT16){
-			if(((PFAT_BPB)pBpb)->FAT1216.FilSysType[4] == '2')
-				m_EntrySize = 12;
-			else
-				m_EntrySize = 16;
-		}else
-			m_EntrySize = 32;
+	m_SectorsPerFAT = ((PFAT_BPB)pBpb)->SectorsPerFAT16?((PFAT_BPB)pBpb)->SectorsPerFAT16:((PFAT_BPB)pBpb)->FAT32.SectorsPerFAT32;
+	m_FirstDataSector = ((PFAT_BPB)pBpb)->ReservedSectors + ((PFAT_BPB)pBpb)->NumFATs * m_SectorsPerFAT + m_SectorsPerRootDirectory;
+	m_FirstFatSector = ((PFAT_BPB)pBpb)->ReservedSectors;
+	m_TotalSectors = ((PFAT_BPB)pBpb)->TotalSectors16?((PFAT_BPB)pBpb)->TotalSectors16:((PFAT_BPB)pBpb)->TotalSectors32;
 
-		m_SectorsPerCluster = ((PFAT_BPB)pBpb)->SectorsPerCluster;
-		
-		m_SectorsPerRootDirectory = (((PFAT_BPB)pBpb)->RootEntriesCount * 0x20 + ((PFAT_BPB)pBpb)->BytesPerSector - 1) / ((PFAT_BPB)pBpb)->BytesPerSector; //FAT16有效
-
-		m_SectorsPerFAT = ((PFAT_BPB)pBpb)->SectorsPerFAT16?((PFAT_BPB)pBpb)->SectorsPerFAT16:((PFAT_BPB)pBpb)->FAT32.SectorsPerFAT32;
-		m_FirstDataSector = ((PFAT_BPB)pBpb)->ReservedSectors + ((PFAT_BPB)pBpb)->NumFATs * m_SectorsPerFAT + m_SectorsPerRootDirectory;
-		m_FirstFatSector = ((PFAT_BPB)pBpb)->ReservedSectors;
-		m_TotalSectors = ((PFAT_BPB)pBpb)->TotalSectors16?((PFAT_BPB)pBpb)->TotalSectors16:((PFAT_BPB)pBpb)->TotalSectors32;
-
-		m_Root.Attr = 0x10;
-		switch(m_EntrySize){
-		case 12:
-		case 16:
-			m_Root.ClusterNumberHigh = 0;
-			m_Root.ClusterNumberLow = 2;
-			break;
-		case 32:
-			m_Root.ClusterNumberHigh = HIWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
-			m_Root.ClusterNumberLow = LOWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
-			break;
-		}
-
-		delete [] pBpb;
+	m_Root.Attr = 0x10;
+	switch(m_EntrySize){
+	case 12:
+	case 16:
+		m_Root.ClusterNumberHigh = 0;
+		m_Root.ClusterNumberLow = 2;
+		break;
+	case 32:
+		m_Root.ClusterNumberHigh = HIWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
+		m_Root.ClusterNumberLow = LOWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
+		break;
 	}
 
-	return result;
+	delete [] pBpb;
 }
 
-ULONGLONG CFatMftReader::EnumFiles(PVOID Param)
+UINT64 CFatMftReader::EnumFiles(PVOID Param)
 {
 	__super::EnumFiles(Param);
 	
-	ULONGLONG Result = EnumDirectoryFiles(&m_Root, Param);
+	UINT64 Result = EnumDirectoryFiles(&m_Root, Param);
 
 	return Result;
 }
@@ -87,18 +78,18 @@ void CFatMftReader::ZeroMember()
 // Method:    EnumDirectoryFiles
 // FullName:  枚举目录下的文件（递归）
 // Access:    protected 
-// Returns:   ULONGLONG
+// Returns:   UINT64
 // Qualifier:
 // Parameter: PFAT_FILE pParentDir
 //************************************
-LONGLONG CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
+INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 {
-	LONGLONG Result = 0;
+	INT64 Result = 0;
 
-	ULONG ClusterNumber;    //目录数据起始Cluster
-	ULONG BufferLength;
+	DWORD ClusterNumber;    //目录数据起始Cluster
+	DWORD BufferLength;
 	PFAT_FILE pFatFile;
-	ULONG nNamePos = MAX_PATH - 1;           //当前文件名长度(留一个结束符）
+	DWORD nNamePos = MAX_PATH - 1;           //当前文件名长度(留一个结束符）
 
 
 	if(m_EntrySize == 32)
@@ -107,14 +98,14 @@ LONGLONG CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 		ClusterNumber = pParentDir->ClusterNumberLow;
 
 	if(m_EntrySize != 32 && pParentDir == &m_Root)  //FAT16根目录山区固定
-		BufferLength = m_SectorsPerRootDirectory * m_BytesPerSector;
+		BufferLength = m_SectorsPerRootDirectory * m_Volume->GetSectorSize();
 	else
-		BufferLength = m_SectorsPerCluster * m_BytesPerSector;
+		BufferLength = m_Volume->GetClusterSize();
 
-	PWCHAR FileName = new WCHAR[MAX_PATH]; //长文件名暂存
+	PWCHAR FileName = new TCHAR[MAX_PATH]; //长文件名暂存
 	PUCHAR Buffer = new UCHAR[BufferLength];
 	//PFILE_INFO aFileInfo =(PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_FILE];
-	ZeroMemory(FileName, MAX_PATH * sizeof(WCHAR));
+	ZeroMemory(FileName, MAX_PATH * sizeof(TCHAR));
 
 	while(ClusterNumber){
 
@@ -123,11 +114,11 @@ LONGLONG CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 			if(!ReadSector(m_FirstDataSector - m_SectorsPerRootDirectory, m_SectorsPerRootDirectory, Buffer))
 				break;
 		}else{
-			if(!ReadSector(DataClusterStartSector(ClusterNumber), m_SectorsPerCluster, Buffer))
+			if(!ReadSector(DataClusterStartSector(ClusterNumber), m_Volume->GetClusterSize(), Buffer))
 				break;
 		}
 		
-		for(ULONG pos=0; pos<BufferLength; pos+=sizeof(FAT_FILE)){
+		for(DWORD pos=0; pos<BufferLength; pos+=sizeof(FAT_FILE)){
 
 			pFatFile = (PFAT_FILE)(Buffer + pos);
 
@@ -175,11 +166,11 @@ LONGLONG CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 				if((pFatFile->Attr & FFT_DIRECTORY) == FFT_DIRECTORY){  //子目录递归
 					if((FileName[nNamePos] == '.' && FileName[nNamePos+1] == 0) || 
 						(FileName[nNamePos] == '.' && FileName[nNamePos+1] == '.' && FileName[nNamePos+2] == 0)){
-							ZeroMemory(FileName, MAX_PATH * sizeof(WCHAR));
+							ZeroMemory(FileName, MAX_PATH * sizeof(TCHAR));
 							nNamePos = MAX_PATH - 1;
 							continue;
 					}else{
-						LONGLONG k = EnumDirectoryFiles(pFatFile, Param);
+						INT64 k = EnumDirectoryFiles(pFatFile, Param);
 						if(k == -1){
 							Result = -1;
 							goto exit;
@@ -196,7 +187,7 @@ LONGLONG CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 					Result ++;
 				}
 
-				ZeroMemory(FileName, MAX_PATH * sizeof(WCHAR));
+				ZeroMemory(FileName, MAX_PATH * sizeof(TCHAR));
 				nNamePos = MAX_PATH - 1;
 			}
 		}
@@ -216,7 +207,7 @@ exit:
 	return Result;
 }
 
-const PFILE_INFO CFatMftReader::GetFileInfo(ULONGLONG ReferenceNumber)
+const PFILE_INFO CFatMftReader::GetFileInfo(UINT64 ReferenceNumber)
 {
 	return __super::GetFileInfo(ReferenceNumber);	
 }
@@ -225,11 +216,11 @@ const PFILE_INFO CFatMftReader::GetFileInfo(ULONGLONG ReferenceNumber)
 // Method:    DataClusterStartSector
 // FullName:  转换数据区Cluster号起始扇区号
 // Access:    protected 
-// Returns:   ULONG
+// Returns:   DWORD
 // Qualifier:
-// Parameter: ULONG ClusterNumber
+// Parameter: DWORD ClusterNumber
 //************************************
-ULONG CFatMftReader::DataClusterStartSector(ULONG ClusterNumber)
+DWORD CFatMftReader::DataClusterStartSector(DWORD ClusterNumber)
 {
 	return (ClusterNumber-2) * m_SectorsPerCluster + m_FirstDataSector;
 }
@@ -238,22 +229,22 @@ ULONG CFatMftReader::DataClusterStartSector(ULONG ClusterNumber)
 // Method:    GetNextClusterNumber
 // FullName:  查找下一个数据存储Cluster
 // Access:    protected 
-// Returns:   ULONG
+// Returns:   DWORD
 // Qualifier:
-// Parameter: ULONG ClusterNumber
+// Parameter: DWORD ClusterNumber
 //************************************
-ULONG CFatMftReader::GetNextClusterNumber(ULONG ClusterNumber)
+DWORD CFatMftReader::GetNextClusterNumber(DWORD ClusterNumber)
 {
-	ULONG Result = 0;
-	ULONGLONG bitOffset = ClusterNumber * m_EntrySize;
-	ULONGLONG byteOffset = bitOffset / 8; 
+	DWORD Result = 0;
+	UINT64 bitOffset = ClusterNumber * m_EntrySize;
+	UINT64 byteOffset = bitOffset / 8; 
 
-	ULONG sectorOffset = (ULONG)(byteOffset / m_BytesPerSector);
+	DWORD sectorOffset = (DWORD)(byteOffset / m_BytesPerSector);
 
 	PUCHAR pFAT = ReadFat(sectorOffset, 1, TRUE);
 	switch(m_EntrySize){
 	case 32:
-		Result = *(ULONG*)(pFAT+byteOffset % m_BytesPerSector);
+		Result = *(DWORD*)(pFAT+byteOffset % m_BytesPerSector);
 		if(Result == EOC32 || Result == BAD32 || Result == RES32)
 			Result = 0;
 		break;
@@ -263,7 +254,7 @@ ULONG CFatMftReader::GetNextClusterNumber(ULONG ClusterNumber)
 			Result = 0;
 		break;
 	case 12:
-		Result = *(ULONG*)(pFAT+byteOffset % m_BytesPerSector);
+		Result = *(DWORD*)(pFAT+byteOffset % m_BytesPerSector);
 		Result = Result << bitOffset % 8;
 		Result &= 0xFFF00000;
 		Result >>= 20;
@@ -281,11 +272,11 @@ ULONG CFatMftReader::GetNextClusterNumber(ULONG ClusterNumber)
 // Access:    protected 
 // Returns:   PUCHAR
 // Qualifier:
-// Parameter: ULONG sector 起始山区
-// Parameter: ULONG count  扇区数
+// Parameter: DWORD sector 起始山区
+// Parameter: DWORD count  扇区数
 // Parameter: BOOL cache  使用缓存数据
 //************************************
-PUCHAR CFatMftReader::ReadFat(ULONG sector, ULONG count, BOOL cache)
+PUCHAR CFatMftReader::ReadFat(DWORD sector, DWORD count, BOOL cache)
 {
 	if(cache && m_fatCache.pFAT){
 		if(m_fatCache.beginSector <= sector && m_fatCache.beginSector + m_fatCache.sectorCount >= sector + count)
@@ -312,8 +303,8 @@ PUCHAR CFatMftReader::ReadFat(ULONG sector, ULONG count, BOOL cache)
 
 BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, PVOID Param)
 {
-	static PFILE_INFO aFileInfo =(PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR)];
-	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR));
+	static PFILE_INFO aFileInfo =(PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR)];
+	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR));
 
 	if(pParentDir == &m_Root)
 		aFileInfo->DirectoryFileReferenceNumber = 0;
@@ -326,7 +317,7 @@ BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pP
 	if(pFatFile->Attr & FFT_DIRECTORY)
 		aFileInfo->AllocatedSize = MAKELONG(pFatFile->ClusterNumberLow, pFatFile->ClusterNumberHigh);
 	else{
-		ULARGE_INTEGER l = {(ULONG)(pParentDir->ReferenceNumber - pFatFile->ReferenceNumber), MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh)};
+		ULARGE_INTEGER l = {(DWORD)(pParentDir->ReferenceNumber - pFatFile->ReferenceNumber), MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh)};
 		aFileInfo->AllocatedSize =  l.QuadPart;
 	}
 

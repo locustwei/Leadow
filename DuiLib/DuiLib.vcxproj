@@ -483,6 +483,7 @@
     <ClCompile Include="Control\UITreeView.cpp" />
     <ClCompile Include="LeadowUI\DuiUtils.cpp" />
     <ClCompile Include="LeadowUI\FramNotifyPump.cpp" />
+    <ClCompile Include="LeadowUI\ShellTree.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -571,6 +572,7 @@
     <ClInclude Include="Control\UITreeView.h" />
     <ClInclude Include="LeadowUI\DuiUtils.h" />
     <ClInclude Include="LeadowUI\FramNotifyPump.h" />
+    <ClInclude Include="LeadowUI\ShellTree.h" />
     <ClInclude Include="StdAfx.h" />
     <ClInclude Include="UIlib.h" />
     <ClInclude Include="Utils\downloadmgr.h" />

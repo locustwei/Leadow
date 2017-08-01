@@ -5,9 +5,6 @@
     <ClCompile Include="HandleUitls.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="FileUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
@@ -29,12 +26,6 @@
     <ClCompile Include="RegisterUtils.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="VolumeUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="NtfsUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="DlgGetFileName.cpp">
       <Filter>classes</Filter>
     </ClCompile>
@@ -49,7 +40,22 @@
     </ClCompile>
     <ClCompile Include="LdLib.cpp" />
     <ClCompile Include="FileInfo.cpp">
-      <Filter>classes</Filter>
+      <Filter>File&amp;disk</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeUtils.cpp">
+      <Filter>File&amp;disk</Filter>
+    </ClCompile>
+    <ClCompile Include="NtfsUtils.cpp">
+      <Filter>File&amp;disk</Filter>
+    </ClCompile>
+    <ClCompile Include="FileUtils.cpp">
+      <Filter>File&amp;disk</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeInfo.cpp">
+      <Filter>File&amp;disk</Filter>
+    </ClCompile>
+    <ClCompile Include="FatUtils.cpp">
+      <Filter>File&amp;disk</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -58,9 +64,6 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="HandleUitls.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="FileUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="ProcessUtils.h">
@@ -84,17 +87,11 @@
     <ClInclude Include="RegisterUtils.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="VolumeUtils.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="LdList.h">
       <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="LdArray.h">
       <Filter>classes</Filter>
-    </ClInclude>
-    <ClInclude Include="NtfsUtils.h">
-      <Filter>Utils</Filter>
     </ClInclude>
     <ClInclude Include="LdMap.h">
       <Filter>classes</Filter>
@@ -115,7 +112,28 @@
       <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="FileInfo.h">
-      <Filter>classes</Filter>
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="Fat.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="ntfs.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeUtils.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="NtfsUtils.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="FileUtils.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeInfo.h">
+      <Filter>File&amp;disk</Filter>
+    </ClInclude>
+    <ClInclude Include="FatUtils.h">
+      <Filter>File&amp;disk</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -130,6 +148,9 @@
     </Filter>
     <Filter Include="Native">
       <UniqueIdentifier>{4f34f589-47f8-4b1c-80fd-b1694e9da5e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File&amp;disk">
+      <UniqueIdentifier>{71954b12-1fb0-4022-9fcf-9111f76610ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

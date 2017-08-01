@@ -157,7 +157,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 
 DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 {
-	DWORD Result;
+	DWORD result;
 	UINT64 nFreeSpace;
 	UINT64 nFileSize;
 	UINT nFileCount; //被删除的文件数。（估算）
@@ -171,11 +171,9 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 //
 //	nFileCount = nFreeSpace / MAX_TEMPFILESIZE;
 
-	Result = m_volInfo->GetAvailableFreeSpace(&nFreeSpace);
-	if (Result != 0)
-		return Result;
-	if (nFreeSpace == 0)
-		return 0;
+	nFreeSpace = m_volInfo->GetAvailableFreeSpace(&result);
+	if (result != 0)
+		return result;
 
 	if (nFreeSpace > MAX_TEMPFILESIZE)
 		nFileSize = MAX_TEMPFILESIZE;
@@ -189,19 +187,19 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 
 	while (true)
 	{
-		Result = m_volInfo->GetAvailableFreeSpace(&nFreeSpace);
-		if(Result != 0 || nFreeSpace==0)
+		nFreeSpace = m_volInfo->GetAvailableFreeSpace();
+		if(nFreeSpace==0)
 			break;
 		nFileSize = nFileSize > nFreeSpace ? nFreeSpace : nFileSize;
 		
-		Result = CrateTempFileAndErase(nFileSize, callback);
-		if (Result != 0)
+		result = CrateTempFileAndErase(nFileSize, callback);
+		if (result != 0)
 			break;
 		if (callback && !callback->ErasureProgress(1, nFileCount + 1, nCount++))
 			return ERROR_CANCELED;
 	}
 	
-	return Result;
+	return result;
 }
 
 DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck)
@@ -325,15 +323,15 @@ DWORD CErasure::WriteFileConst(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize,
 
 DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 {
-	VOLUME_FILE_SYSTEM fs;
-	DWORD Result = m_volInfo->GetFileSystem(&fs);
-	if (Result != 0)
-		return Result;
+	DWORD result;
+	VOLUME_FILE_SYSTEM fs = m_volInfo->GetFileSystem(&result);
+	if (result != 0)
+		return result;
 
 	switch (fs)
 	{
 	case FS_NTFS:
-		Result = EraseNtfsFreeSpace(callback);
+		result = EraseNtfsFreeSpace(callback);
 		break;
 	case FS_FAT32:
 		break;
@@ -344,7 +342,7 @@ DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 	default: break;
 	}
 
-	return Result;
+	return result;
 }
 
 DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
@@ -355,10 +353,10 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 
 	do 
 	{
-		result = m_volInfo->GetBytesPerFileRecord(&dwBytesPreFile);
-		if (result != 0)
-			break;
-		result = m_volInfo->GetMftValidSize(&nTotalSize);
+		dwBytesPreFile = m_volInfo->GetBytesPerFileRecord();
+		if (dwBytesPreFile == 0)
+			return GetLastError();
+		nTotalSize = m_volInfo->GetMftValidSize(&result);
 		if(result != 0)
 			break;
 		nTotalSize = nTotalSize / dwBytesPreFile;
@@ -369,7 +367,7 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 		int nCount = 0;
 		while (true)
 		{
-			result = CrateTempFileAndErase(dwBytesPreFile, NULL);
+			result = CrateTempFileAndErase(dwBytesPreFile, nullptr);
 			if (result != 0)
 			{
 				if (dwBytesPreFile == 0)
@@ -500,13 +498,13 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 	NTFS_VOLUME_DATA_BUFFER volData;
 	do
 	{
-		result = m_volInfo->GetBytesPerFileRecord(&dwBytesPreFile);
+		dwBytesPreFile = m_volInfo->GetBytesPerFileRecord();
+		if (dwBytesPreFile == 0)
+			return GetLastError();
+		nTotalSize = m_volInfo->GetMftValidSize(&result);
 		if (result != 0)
 			break;
-		result = m_volInfo->GetMftValidSize(&nTotalSize);
-		if (result != 0)
-			break;
-		result = m_volInfo->GetClusterSize(&nClusterSize);
+		nClusterSize = m_volInfo->GetClusterSize(&result);
 		if (result != 0)
 			break;
 		int pollingInterval = min(max(1, nTotalSize / nClusterSize / 20), 128);
@@ -551,18 +549,18 @@ DWORD CErasure::EraseFatTrace(IErasureCallback* callback)
 
 DWORD CErasure::EraseDelFileTrace(IErasureCallback* callback)
 {
-	VOLUME_FILE_SYSTEM fs;
-	DWORD Result = m_volInfo->GetFileSystem(&fs);
-	if (Result != 0)
-		return Result;
+	DWORD result;
+	VOLUME_FILE_SYSTEM fs = m_volInfo->GetFileSystem(&result);
+	if (result != 0)
+		return result;
 
 	switch (fs)
 	{
 	case FS_NTFS:
-		Result = EraseNtfsTrace(callback);
+		result = EraseNtfsTrace(callback);
 		break;
 	case FS_FAT32:
-		Result = EraseFatTrace(callback);
+		result = EraseFatTrace(callback);
 		break;
 	case FS_UNKNOW: break;
 	case FS_FAT16: break;
@@ -571,6 +569,6 @@ DWORD CErasure::EraseDelFileTrace(IErasureCallback* callback)
 	default: break;
 	}
 
-	return Result;
+	return result;
 
 }

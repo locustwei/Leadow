@@ -6,36 +6,36 @@
 class CFatMftReader: public CMftReader
 {
 public:
-	virtual ULONGLONG EnumFiles(PVOID Param);
-public:
 	CFatMftReader(void);
 	~CFatMftReader(void);
+	bool Init();
+	UINT64 EnumFiles(PVOID Param) override;
+
 protected:
-	virtual bool Init();
 	void ZeroMember() override;
 
-	virtual const PFILE_INFO GetFileInfo(ULONGLONG ReferenceNumber);
+	const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber) override;
 private:
 
 	typedef struct FAT_CACHE{
-		ULONG beginSector;
-		ULONG sectorCount;
+		DWORD beginSector;
+		DWORD sectorCount;
 		BYTE* pFAT;
 	};
 
 	USHORT m_SectorsPerRootDirectory;
-	ULONG m_SectorsPerFAT;
-	ULONG m_FirstDataSector;
-	ULONG m_FirstFatSector;
-	ULONG m_TotalSectors;
+	DWORD m_SectorsPerFAT;
+	DWORD m_FirstDataSector;
+	DWORD m_FirstFatSector;
+	DWORD m_TotalSectors;
 	UCHAR m_EntrySize;
 	FAT_CACHE m_fatCache;
 	FAT_FILE m_Root;
 
-	LONGLONG EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param);
-	ULONG DataClusterStartSector(ULONG ClusterNumber);
-	ULONG GetNextClusterNumber(ULONG ClusterNumber);
-	PUCHAR ReadFat(ULONG sector, ULONG count, BOOL cache);
+	INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param);
+	DWORD DataClusterStartSector(DWORD ClusterNumber);
+	DWORD GetNextClusterNumber(DWORD ClusterNumber);
+	PUCHAR ReadFat(DWORD sector, DWORD count, BOOL cache);
 	BOOL DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, PVOID Param);
 };
 

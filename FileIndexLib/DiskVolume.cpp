@@ -48,7 +48,7 @@ typedef struct ENUM_RECORD_CONTEXT{
 //************************************
 LONG CDiskVolume::CompareFileRecord(PMFTFILERECORD pSource, RECORD_FIELD_CLASS* c, PMFTFILERECORD pRecord)
 {
-	LONGLONG r = 0;
+	INT64 r = 0;
 
 	while(*c){
 		switch(*c){
@@ -100,9 +100,9 @@ BOOL CDiskVolume::FilterRecord(PFILE_FILTER pFilter, PMFTFILERECORD pRecord)
 
 	if(pFilter->onlyFile && pRecord->IsDir)
 		return TRUE;
-	if(pFilter->beginSize >= 0 && pFilter->beginSize > (LONGLONG)pRecord->DataSize)    //大于字节
+	if(pFilter->beginSize >= 0 && pFilter->beginSize > (INT64)pRecord->DataSize)    //大于字节
 		return TRUE;
-	if(pFilter->endSize >= 0 && pFilter->endSize < (LONGLONG)pRecord->DataSize)        //小于字节
+	if(pFilter->endSize >= 0 && pFilter->endSize < (INT64)pRecord->DataSize)        //小于字节
 		return TRUE;
 
 	PCWSTR* pName = pFilter->pExcludeNames;  //文件名不包含
@@ -127,8 +127,8 @@ BOOL CDiskVolume::FilterRecord(PFILE_FILTER pFilter, PMFTFILERECORD pRecord)
 
 	if(pFilter->ParentDircetoryReferences){            //处在目录
 
-		CLdArray<ULONGLONG> ParentDir;
-		ULONGLONG DirectoryReference = pRecord->DirectoryFileReferenceNumber;
+		CLdArray<UINT64> ParentDir;
+		UINT64 DirectoryReference = pRecord->DirectoryFileReferenceNumber;
 		MFTFILERECORD mfr = {0};
 		while(DirectoryReference){ // 包含子目录
 			ParentDir.Add(DirectoryReference);
@@ -192,7 +192,7 @@ LONG CDiskVolume::DoDuplicateFile(CLdArray<CLdArray<PMFTFILERECORD> *>* pFiles, 
 		{
 			PMFTFILERECORD pTmp;
 			if(items->size() == 0){
-				Length = sizeof(MFTFILERECORD) + (pPrv->NameLength + 1) * sizeof(WCHAR) - sizeof(WCHAR) * (MAX_PATH + 1);
+				Length = sizeof(MFTFILERECORD) + (pPrv->NameLength + 1) * sizeof(TCHAR) - sizeof(TCHAR) * (MAX_PATH + 1);
 				pTmp = (PMFTFILERECORD)new PUCHAR[Length];
 				memcpy(pTmp, pPrv, Length);
 				items->Add(pTmp);
@@ -253,7 +253,7 @@ CDiskVolume::~CDiskVolume(void)
 		m_MftFile = nullptr;
 	}
 
-	for(ULONG i=0; i<m_Indexs.size(); i++){
+	for(DWORD i=0; i<m_Indexs.size(); i++){
 		delete [] m_Indexs[i].Index;
 	}
 	m_Indexs.clear();
@@ -269,8 +269,8 @@ BOOL CDiskVolume::OpenVolume(PWSTR wsz_guid)
 	if(m_hVolume != INVALID_HANDLE_VALUE || wsz_guid == NULL)
 		return FALSE;
 	
-	WCHAR Names[MAX_PATH + 1] = {0};
-	ULONG cb = sizeof(Names); 
+	TCHAR Names[MAX_PATH + 1] = {0};
+	DWORD cb = sizeof(Names); 
 	GetVolumePathNamesForVolumeName(wsz_guid, Names, cb, &cb);
 	if(wcslen(Names)>0)
 		Names[wcslen(Names) - 1] = '\0';
@@ -372,7 +372,7 @@ BOOL CDiskVolume::SetDumpFilePath(PCWSTR wsz_path)
  */
 BOOL CDiskVolume::CreateMftDump()
 {
-	ULONGLONG count = 0;
+	UINT64 count = 0;
 	if(m_hVolume == INVALID_HANDLE_VALUE || !m_MftReader || !m_MftReader->IsValid() || !m_MftFile || !m_MftFile->IsValid())
 		return FALSE;
 
@@ -423,8 +423,8 @@ BOOL CDiskVolume::OpenVolumePath(const PWSTR wsz_volume)
 	CLdString path = wsz_volume;
 	if(wsz_volume[wcslen(wsz_volume)-1] != '\\')
 		path += '\\';
-	WCHAR guid[MAX_PATH + 1] = {0};
-	ULONG cb = sizeof(guid); 
+	TCHAR guid[MAX_PATH + 1] = {0};
+	DWORD cb = sizeof(guid); 
 	GetVolumeNameForVolumeMountPoint(path.c_str(), guid, cb);
 	if(wcslen(guid)>0)
 		guid[wcslen(guid) - 1] = '\0';
@@ -444,14 +444,14 @@ BOOL CDiskVolume::OpenVolumePath(const PWSTR wsz_volume)
 /*
  *	根据文件索引获取完整文件名（包含路径）
  */
-ULONG CDiskVolume::GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Name, ULONG nameLength)
+DWORD CDiskVolume::GetFullFileName(UINT64 FileReferenceNumber, PWSTR wsz_Name, DWORD nameLength)
 {
 	if(m_MftFile == NULL || FileReferenceNumber == 0)
 		return 0;
 	
-	ULONG length = 0;
+	DWORD length = 0;
 	CLdString s;
-	ULONGLONG ReferenceNumber = FileReferenceNumber;
+	UINT64 ReferenceNumber = FileReferenceNumber;
 	while(ReferenceNumber != 0){
 		MFTFILERECORD record = {0};
 		if(m_MftFile->ReadRecord(ReferenceNumber, (PUCHAR)&record, sizeof(record)) == 0)
@@ -462,14 +462,14 @@ ULONG CDiskVolume::GetFullFileName(ULONGLONG FileReferenceNumber, PWSTR wsz_Name
 			s.insert(0, record.Name, record.NameLength);
 			s.insert(0, L"\\");
 			length ++;
-//			CopyMemory(wsz_Directory + length, record.Name, record.NameLength * sizeof(WCHAR));
+//			CopyMemory(wsz_Directory + length, record.Name, record.NameLength * sizeof(TCHAR));
 		}else
 			break;
 		length += record.NameLength;
 		ReferenceNumber = record.DirectoryFileReferenceNumber;
 	}
 	s.insert(0, m_VolumePath.c_str(), m_VolumePath.length());
-	CopyMemory(wsz_Name, s.c_str(), s.length() * sizeof(WCHAR));
+	CopyMemory(wsz_Name, s.c_str(), s.length() * sizeof(TCHAR));
 	return length;
 }
 /*
@@ -538,7 +538,7 @@ PINDEX_RECORD CDiskVolume::CreateIndex(RECORD_FIELD_CLASS* c, PFILE_FILTER pFilt
 	if(!m_MftFile )
 		return NULL;
 
-	CLdArray<ULONGLONG> FilterResult;
+	CLdArray<UINT64> FilterResult;
 
 	if(pFilter && (pFilter->pExcludeNames || pFilter->pIncludeNames || pFilter->ParentDircetoryReferences || pFilter->beginSize >=0 || pFilter->endSize >=0 || pFilter->onlyFile)){
 		//有过滤条件，把记录过滤出来
@@ -581,13 +581,13 @@ PINDEX_RECORD CDiskVolume::CreateIndex(RECORD_FIELD_CLASS* c, PFILE_FILTER pFilt
 			INDEX_RECORD idxr = {0};
 			idxr.Index = idx;
 			RECORD_FIELD_CLASS* c1 = c;
-			ULONG k = 0;
+			DWORD k = 0;
 			while(*c1){
 				k ++;
 				c1++;
 			}
 			idxr.c = new RECORD_FIELD_CLASS[k + 1];
-			for(ULONG i=0; i < k; i++){
+			for(DWORD i=0; i < k; i++){
 				idxr.c[i] = c[i];
 			}
 			idxr.c[k] = RFC_NONE;
@@ -612,7 +612,7 @@ BOOL CDiskVolume::FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG Referenc
 		return FALSE;
 
 	PWCHAR pTmp = wsFullName + wcslen(GetVolumePath()) + 1;
-	ULONGLONG ParentReference = 0;
+	UINT64 ParentReference = 0;
 	
 	RECORD_FIELD_CLASS c[] = {RFC_DRN, RFC_NAME, RFC_NONE};
 	PINDEX_RECORD idx = CreateIndex(c, NULL);
@@ -622,7 +622,7 @@ BOOL CDiskVolume::FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG Referenc
 	MFTFILERECORD record = {0};
 	ENUM_RECORD_CONTEXT context = {EK_BINSEARCH, c, &record};
 
-	ULONG i = 0;
+	DWORD i = 0;
 	LONG cmpRt = 0;
 	while(pTmp && pTmp[0] != '\0'){
 		if(pTmp[0] == '\\'){
@@ -645,13 +645,13 @@ BOOL CDiskVolume::FullName2ReferenceNumber(PWSTR wsFullName, PULONGLONG Referenc
  *	对文件MD5
  */
 
-BOOL CDiskVolume::MakeFileMd5(ULONGLONG ReferenceNumber, BYTE* Md5Code)
+BOOL CDiskVolume::MakeFileMd5(UINT64 ReferenceNumber, BYTE* Md5Code)
 {
 #define DATA_BUFFER_LEN  1024 * 100
 	BOOL result = FALSE;
 	/*
 	PUCHAR b = new UCHAR[DATA_BUFFER_LEN];
-	ULONG readLength = DATA_BUFFER_LEN, cb;
+	DWORD readLength = DATA_BUFFER_LEN, cb;
 
 	PFILE_HANDLE hFile = NULL;
 	PMD5_HANDLE hMd5 = NULL;
@@ -661,13 +661,13 @@ BOOL CDiskVolume::MakeFileMd5(ULONGLONG ReferenceNumber, BYTE* Md5Code)
 			break;
 		if(Md5_Init(&hMd5))
 			break;
-		ULONGLONG FileLength = hFile->DataSize;
-		ULONGLONG tlen = 0;
+		UINT64 FileLength = hFile->DataSize;
+		UINT64 tlen = 0;
 		while(TRUE){
 			if(!m_MftReader->ReadFile(hFile, b, readLength, tlen, &cb) || cb == 0)
 				break;
 			if(cb > FileLength - tlen)
-				cb = (ULONG)(FileLength - tlen);
+				cb = (DWORD)(FileLength - tlen);
 			tlen += cb;
 
 			Md5_HashData(hMd5, b, cb, NULL);
@@ -694,7 +694,7 @@ BOOL CDiskVolume::MakeFileMd5(ULONGLONG ReferenceNumber, BYTE* Md5Code)
 /*
  *	创建Mft转存文件回掉函数（逐个把Mft文件记录写到转存文件中）
  */
-BOOL CDiskVolume::EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFileName, PVOID Param)
+BOOL CDiskVolume::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileName, PVOID Param)
 {
 	if(pFileName == NULL)
 		return FALSE;
@@ -704,13 +704,13 @@ BOOL CDiskVolume::EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFil
 	mfr.DirectoryFileReferenceNumber = pFileName->DirectoryFileReferenceNumber & 0x0000FFFFFFFFFFFF;
 	mfr.DataSize = pFileName->DataSize;
 	mfr.NameLength = pFileName->NameLength;
-	CopyMemory(mfr.Name, pFileName->Name, pFileName->NameLength * sizeof(WCHAR));
+	CopyMemory(mfr.Name, pFileName->Name, pFileName->NameLength * sizeof(TCHAR));
 
 #ifdef _DEBUG
 	//wprintf(L"%lld   %s \n", ReferenceNumber, mfr.Name);
 #endif // _DEBUG
 	
-	m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (pFileName->NameLength + 1) * sizeof(WCHAR));
+	m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (pFileName->NameLength + 1) * sizeof(TCHAR));
 	return !m_DumpThread.GetTerminated();
 
 }
@@ -719,7 +719,7 @@ BOOL CDiskVolume::EnumMftFileCallback(ULONGLONG ReferenceNumber, PFILE_INFO pFil
  */
 BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 {
-	ULONGLONG ReferenceNumber = record->FileReferenceNumber & 0x0000FFFFFFFFFFFF;
+	UINT64 ReferenceNumber = record->FileReferenceNumber & 0x0000FFFFFFFFFFFF;
 
 	MFTFILERECORD mfr = {0};
 
@@ -733,10 +733,10 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 			mfr.DirectoryFileReferenceNumber = pFileName->DirectoryFileReferenceNumber & 0x0000FFFFFFFFFFFF;
 			mfr.DataSize = pFileName->DataSize;
 			mfr.NameLength = pFileName->NameLength;
-			CopyMemory(mfr.Name, pFileName->Name, pFileName->NameLength * sizeof(WCHAR));
+			CopyMemory(mfr.Name, pFileName->Name, pFileName->NameLength * sizeof(TCHAR));
 			if(mfr.DataSize && !mfr.IsDir)
 				MakeFileMd5(ReferenceNumber, mfr.MD5);
-			m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (mfr.NameLength + 1) * sizeof(WCHAR));
+			m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + (mfr.NameLength + 1) * sizeof(TCHAR));
 
 #ifdef _DEBUG
 			wprintf(L"%4d   %s -----\n", ReferenceNumber, mfr.Name);
@@ -748,7 +748,7 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 			//mfr.FileReferenceNumber = ReferenceNumber;
 			mfr.IsDir = (record->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
 			mfr.DirectoryReferenceNumber = record->ParentFileReferenceNumber & 0x0000FFFFFFFFFFFF;
-			mfr.NameLength = (UCHAR)(record->FileNameLength / sizeof(WCHAR));
+			mfr.NameLength = (UCHAR)(record->FileNameLength / sizeof(TCHAR));
 			CopyMemory(mfr.Name, record->FileName, record->FileNameLength);
 
 		}
@@ -758,11 +758,11 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 		m_MftFile->ReadRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr));
 		//wprintf(L"%4d   %s -----\n", ReferenceNumber, mfr.Name);
 		mfr.DirectoryFileReferenceNumber = record->ParentFileReferenceNumber  & 0x0000FFFFFFFFFFFF;
-		mfr.NameLength = (UCHAR)(record->FileNameLength / sizeof(WCHAR));
+		mfr.NameLength = (UCHAR)(record->FileNameLength / sizeof(TCHAR));
 		CopyMemory(mfr.Name, record->FileName, record->FileNameLength);
-		mfr.Name[record->FileNameLength / sizeof(WCHAR)] = '\0';
+		mfr.Name[record->FileNameLength / sizeof(TCHAR)] = '\0';
 		//wprintf(L"%4d   %s \n", ReferenceNumber, mfr.Name);
-		m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + record->FileNameLength + sizeof(WCHAR));
+		m_MftFile->WriteRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr) - sizeof(mfr.Name) + record->FileNameLength + sizeof(TCHAR));
 
 	}else if(record->Reason & (USN_REASON_DATA_OVERWRITE | USN_REASON_DATA_TRUNCATION | USN_REASON_DATA_EXTEND)){  //文件内容修改
 		USHORT cb = m_MftFile->ReadRecord(ReferenceNumber, (PUCHAR)&mfr, sizeof(mfr));
@@ -778,7 +778,7 @@ BOOL CDiskVolume::EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param)
 /**
 搜索文件回掉函数
 **/
-LONG CDiskVolume::EnumFileRecordCallback(ULONGLONG ReferenceNumber, const PUCHAR pRecord, USHORT Length, PVOID Param)
+LONG CDiskVolume::EnumFileRecordCallback(UINT64 ReferenceNumber, const PUCHAR pRecord, USHORT Length, PVOID Param)
 {
 	PENUM_RECORD_CONTEXT context = (PENUM_RECORD_CONTEXT)Param;
 	switch(context->op){
@@ -800,13 +800,13 @@ LONG CDiskVolume::EnumFileRecordCallback(ULONGLONG ReferenceNumber, const PUCHAR
 /*
  *	创建索引比较函数
  */
-LONG CDiskVolume::RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR p1, USHORT Length1, ULONGLONG ReferenceNumber2, const PUCHAR p2, USHORT Length2, PVOID Param)
+LONG CDiskVolume::RecordComparer(UINT64 ReferenceNumber1, const PUCHAR p1, USHORT Length1, UINT64 ReferenceNumber2, const PUCHAR p2, USHORT Length2, PVOID Param)
 {
 	RECORD_FIELD_CLASS* c = (RECORD_FIELD_CLASS*)Param;
 	PMFTFILERECORD pRecord1 = (PMFTFILERECORD)p1;
 	PMFTFILERECORD pRecord2 = (PMFTFILERECORD)p2;
 	
-	LONGLONG r = 0;
+	INT64 r = 0;
 
 	while(*c){
 		switch((*c)){
@@ -857,9 +857,9 @@ LONG CDiskVolume::RecordComparer(ULONGLONG ReferenceNumber1, const PUCHAR p1, US
 
 // void CDiskVolume::CleanDuplicateFiles()
 // {
-// 	for(ULONG i=0; i<DuplicateResult.size(); i++){
+// 	for(DWORD i=0; i<DuplicateResult.size(); i++){
 // 		CLdArray<PMFTFILERECORD>* item = DuplicateResult.at(i);
-// 		for (ULONG j=0; j<item->size(); j++){
+// 		for (DWORD j=0; j<item->size(); j++){
 // 			PMFTFILERECORD p = item->at(j);
 // 			if(p)
 // 				delete [] p;
@@ -918,7 +918,7 @@ BOOL CDiskVolume::SearchFile(PFILE_FILTER pFilter)
 	if(!pFilter || !m_MftFile || !m_MftFile->IsValid())
 		return FALSE;
 
-	ULONGLONG count = 0;
+	UINT64 count = 0;
 	lock();
 	try{
 		ENUM_RECORD_CONTEXT context = {EK_FILTER_RECORD, NULL, nullptr, pFilter};

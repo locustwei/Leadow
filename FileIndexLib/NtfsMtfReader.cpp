@@ -67,13 +67,13 @@ CNtfsMtfReader::~CNtfsMtfReader(void)
 36   System Volume Information
 */
 
-ULONGLONG CNtfsMtfReader::EnumFiles(PVOID Param)
+UINT64 CNtfsMtfReader::EnumFiles(PVOID Param)
 {
 	__super::EnumFiles(Param);
 	
-	ULONGLONG result = 0;	
+	UINT64 result = 0;	
 	
-	for(ULONGLONG i = 0; i < m_FileCount; i++){
+	for(UINT64 i = 0; i < m_FileCount; i++){
 		if (!bitset(m_MftBitmap, i)) //跳过被删除的文件
 			continue;
 		PFILENAME_ATTRIBUTE name = ReadFileNameInfoEx(i);
@@ -102,10 +102,10 @@ VOID CNtfsMtfReader::FixupUpdateSequenceArray(PFILE_RECORD_HEADER file)
 	if(file->Ntfs.UsaCount == 0)
 		return;
 
-	ULONG i = 0;
+	DWORD i = 0;
 	PUSHORT usa = PUSHORT(Padd(file, file->Ntfs.UsaOffset));
 	PUSHORT sector = PUSHORT(file);
-	ULONG X = m_BytesPerSector / sizeof(USHORT), index;
+	DWORD X = m_BytesPerSector / sizeof(USHORT), index;
 	index = X -1;
 	for (i = 1; i < file->Ntfs.UsaCount; i++){
 		if (sector[index] != usa[0]){
@@ -116,10 +116,10 @@ VOID CNtfsMtfReader::FixupUpdateSequenceArray(PFILE_RECORD_HEADER file)
 	}
 }
 
-PATTRIBUTE CNtfsMtfReader::EnumAttribute(PATTRIBUTE pAttrHeader, ULONG size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/)
+PATTRIBUTE CNtfsMtfReader::EnumAttribute(PATTRIBUTE pAttrHeader, DWORD size, ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count /*= 0*/)
 {
 	PATTRIBUTE result = NULL, attr = NULL;
-	ULONG tl = 0;
+	DWORD tl = 0;
 	int n_ctrl = 0;
 	for (attr = pAttrHeader; tl < size;attr = Padd(attr, attr->Length))
 	{
@@ -145,19 +145,19 @@ PATTRIBUTE CNtfsMtfReader::EnumAttribute(PATTRIBUTE pAttrHeader, ULONG size, ATT
 		}
 		else if (attr->AttributeType == AttributeAttributeList)
 		{
-			printf("AttributeAttributeList %d\n", attr->Nonresident);
+			//printf("AttributeAttributeList %d\n", attr->Nonresident);
 			if (!attr->Nonresident)
 			{
-				printf("Attribute Flag=%d, Length=%d, Offset=%d\n", PRESIDENT_ATTRIBUTE(attr)->Flags, PRESIDENT_ATTRIBUTE(attr)->ValueLength, PRESIDENT_ATTRIBUTE(attr)->ValueOffset);
-				result = EnumAttribute(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset), attr->Length, type, name, n_attr_count);
+				//printf("Attribute Flag=%d, Length=%d, Offset=%d\n", PRESIDENT_ATTRIBUTE(attr)->Flags, PRESIDENT_ATTRIBUTE(attr)->ValueLength, PRESIDENT_ATTRIBUTE(attr)->ValueOffset);
+				result = EnumAttribute(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset), PRESIDENT_ATTRIBUTE(attr)->ValueLength, type, name, n_attr_count);
 			}
 			else
 			{
-				printf("Nonresident Attribute DataSize=%lld, HighVcn=%lld, LowVcn=%lld, RunArrayOffset=%lld\n", 
-					PNONRESIDENT_ATTRIBUTE(attr)->DataSize, 
-					PNONRESIDENT_ATTRIBUTE(attr)->HighVcn, 
-					PNONRESIDENT_ATTRIBUTE(attr)->LowVcn,
-					PNONRESIDENT_ATTRIBUTE(attr)->RunArrayOffset);
+//				printf("Nonresident Attribute DataSize=%lld, HighVcn=%lld, LowVcn=%lld, RunArrayOffset=%lld\n", 
+//					PNONRESIDENT_ATTRIBUTE(attr)->DataSize, 
+//					PNONRESIDENT_ATTRIBUTE(attr)->HighVcn, 
+//					PNONRESIDENT_ATTRIBUTE(attr)->LowVcn,
+//					PNONRESIDENT_ATTRIBUTE(attr)->RunArrayOffset);
 				PUCHAR p = new UCHAR[m_BytesPerSector* m_SectorsPerCluster];
 				ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE(attr), 0, 1, p, true);
 				result = EnumAttribute(PATTRIBUTE(p), PNONRESIDENT_ATTRIBUTE(attr)->DataSize, type, name, n_attr_count);
@@ -179,12 +179,12 @@ PATTRIBUTE CNtfsMtfReader::FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE
 	return result;
 }
 
-ULONGLONG CNtfsMtfReader::AttributeLengthAllocated(PATTRIBUTE attr)
+UINT64 CNtfsMtfReader::AttributeLengthAllocated(PATTRIBUTE attr)
 {
 	return attr->Nonresident == FALSE ? PRESIDENT_ATTRIBUTE(attr)->ValueLength : PNONRESIDENT_ATTRIBUTE(attr)->AllocatedSize;
 }
 
-BOOL CNtfsMtfReader::ReadAttribute(PATTRIBUTE attr, PVOID buffer, ULONG size)
+BOOL CNtfsMtfReader::ReadAttribute(PATTRIBUTE attr, PVOID buffer, DWORD size)
 {
 	PRESIDENT_ATTRIBUTE rattr = NULL;
 	PNONRESIDENT_ATTRIBUTE nattr = NULL;
@@ -205,19 +205,19 @@ BOOL CNtfsMtfReader::ReadAttribute(PATTRIBUTE attr, PVOID buffer, ULONG size)
 		if(size != 0)
 			size = size / m_BytesPerSector / m_SectorsPerCluster;
 		else
-			size = ULONG(nattr->HighVcn) + 1;
+			size = DWORD(nattr->HighVcn) + 1;
 		return ReadExternalAttribute(nattr, 0, size, buffer);
 	}
 }
 
-BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,ULONGLONG vcn, ULONG count, PVOID buffer, bool b_allow_cache /*= false*/)
+BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,UINT64 vcn, DWORD count, PVOID buffer, bool b_allow_cache /*= false*/)
 {
-	ULONG readcount, left;
+	DWORD readcount, left;
 	PUCHAR bytes = (PUCHAR)buffer;
 	BOOL result = FALSE;
 	left = count;
 	
-	ULONGLONG lcn, runcount;
+	UINT64 lcn, runcount;
 	for(left = count; left > 0; left -= readcount)
 	{
 		if(!FindRun(attr, vcn, &lcn, &runcount))
@@ -227,8 +227,8 @@ BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,ULONGLONG
 		{
 			NewCache(lcn, runcount);
 		}
-		readcount = ULONG(min(runcount, left));
-		ULONG n = readcount * m_BytesPerSector * m_SectorsPerCluster;
+		readcount = DWORD(min(runcount, left));
+		DWORD n = readcount * m_BytesPerSector * m_SectorsPerCluster;
 
 		if(lcn == 0)
 			memset(bytes, 0, n);
@@ -258,16 +258,16 @@ PRUN_LINKE CNtfsMtfReader::BuildRun(PNONRESIDENT_ATTRIBUTE attr)
 {
 	PUCHAR run = NULL;
 	*lcn = 0;
-	ULONGLONG base = attr->LowVcn & 0x0000FFFFFFFFFFFF, Lcn = 0;
+	UINT64 base = attr->LowVcn & 0x0000FFFFFFFFFFFF, Lcn = 0;
 
 	if (vcn < base || vcn >(attr->HighVcn & 0x0000FFFFFFFFFFFF))
 		return FALSE;
 
 	for (run = PUCHAR(Padd(attr, attr->RunArrayOffset)); *run != 0; run += RunLength(run))
 	{
-		LONGLONG offset = RunLCN(run);
+		INT64 offset = RunLCN(run);
 		Lcn += offset;
-		LONGLONG size = RunCount(run);
+		INT64 size = RunCount(run);
 
 		if (base <= vcn && vcn < base + size)
 		{
@@ -280,21 +280,22 @@ PRUN_LINKE CNtfsMtfReader::BuildRun(PNONRESIDENT_ATTRIBUTE attr)
 	return FALSE;
 }
 */
-BOOL CNtfsMtfReader::FindRun(PNONRESIDENT_ATTRIBUTE attr, ULONGLONG vcn, PULONGLONG lcn, PULONGLONG count)
+BOOL CNtfsMtfReader::FindRun(PNONRESIDENT_ATTRIBUTE attr, UINT64 vcn, PULONGLONG lcn, PULONGLONG count)
 {
 	PUCHAR run = NULL;
 	*lcn = 0;
-	ULONGLONG base = attr->LowVcn & 0x0000FFFFFFFFFFFF, Lcn = 0;
-
+	UINT64 base = attr->LowVcn & 0x0000FFFFFFFFFFFF, Lcn = 0;
+//
 	if (vcn < base || vcn > (attr->HighVcn & 0x0000FFFFFFFFFFFF))
 		return FALSE;
 
 	for(run = PUCHAR(Padd(attr, attr->RunArrayOffset));   *run != 0;  run += RunLength(run))
 	{
-		LONGLONG offset = RunLCN(run);
+		INT64 offset = RunLCN(run);
 		Lcn += offset;
-		LONGLONG size = RunCount(run);
-		
+		INT64 size = RunCount(run);
+
+
 		if (base <= vcn && vcn < base + size)
 		{
 			*lcn = offset == 0 ? 0 : vcn+Lcn-base; //offset + vcn - base;
@@ -306,7 +307,7 @@ BOOL CNtfsMtfReader::FindRun(PNONRESIDENT_ATTRIBUTE attr, ULONGLONG vcn, PULONGL
 	return FALSE;
 }
 
-BOOL CNtfsMtfReader::NeedCache(ULONGLONG lcn)
+BOOL CNtfsMtfReader::NeedCache(UINT64 lcn)
 {
 	if (!m_cache_info.g_pb)
 	{
@@ -320,7 +321,7 @@ BOOL CNtfsMtfReader::NeedCache(ULONGLONG lcn)
 
 }
 
-void CNtfsMtfReader::NewCache(ULONGLONG lcn, ULONGLONG lcn_count)
+void CNtfsMtfReader::NewCache(UINT64 lcn, UINT64 lcn_count)
 {
 	if (lcn < m_cache_info.cache_lcn_begin)
 	{
@@ -331,7 +332,7 @@ void CNtfsMtfReader::NewCache(ULONGLONG lcn, ULONGLONG lcn_count)
 		delete [] m_cache_info.g_pb;
 		m_cache_info.g_pb = NULL;
 	}
-	ULONGLONG new_len;
+	UINT64 new_len;
 	if (!m_cache_info.cache_lcn_orl_begin)
 	{
 		new_len = MAX_CACHE_SECTORS >= lcn_count ? lcn_count : MAX_CACHE_SECTORS;
@@ -348,17 +349,17 @@ void CNtfsMtfReader::NewCache(ULONGLONG lcn, ULONGLONG lcn_count)
 	{
 		new_len = MAX_CACHE_SECTORS >= m_cache_info.cache_lcn_orl_begin + m_cache_info.cache_lcn_total - lcn ? m_cache_info.cache_lcn_orl_begin + m_cache_info.cache_lcn_total - lcn : MAX_CACHE_SECTORS;
 	}
-	BYTE* p_tmp = new (std::nothrow) BYTE[(ULONG)(new_len * m_SectorsPerCluster * m_BytesPerSector)];
+	BYTE* p_tmp = new (std::nothrow) BYTE[(DWORD)(new_len * m_SectorsPerCluster * m_BytesPerSector)];
 	if (p_tmp)
 	{
 		m_cache_info.g_pb = p_tmp;
 		m_cache_info.cache_lcn_begin = lcn;
 		m_cache_info.cache_lcn_count = new_len;
-		ReadLCN(lcn, (ULONG)new_len, m_cache_info.g_pb);
+		ReadLCN(lcn, (DWORD)new_len, m_cache_info.g_pb);
 	}
 }
 
-BOOL CNtfsMtfReader::CanReadFromCache(ULONGLONG lcn)
+BOOL CNtfsMtfReader::CanReadFromCache(UINT64 lcn)
 {
 	if (m_cache_info.g_pb && lcn >= m_cache_info.cache_lcn_begin && lcn < m_cache_info.cache_lcn_begin + m_cache_info.cache_lcn_count)
 	{
@@ -368,17 +369,17 @@ BOOL CNtfsMtfReader::CanReadFromCache(ULONGLONG lcn)
 
 }
 
-BOOL CNtfsMtfReader::ReadLCN(ULONGLONG lcn, ULONG count, PVOID buffer)
+BOOL CNtfsMtfReader::ReadLCN(UINT64 lcn, DWORD count, PVOID buffer)
 {
 	return ReadSector(lcn * m_SectorsPerCluster,count * m_SectorsPerCluster, buffer);
 }
 
-LONGLONG CNtfsMtfReader::RunLCN(PUCHAR run)
+INT64 CNtfsMtfReader::RunLCN(PUCHAR run)
 {
 	
 	LONG i = 0;
 	UCHAR n1 = 0 , n2 = 0;
-	LONGLONG lcn = 0;
+	INT64 lcn = 0;
 
 	n1 = *run & 0xf;
 	n2 = (*run >> 4) & 0xf;
@@ -398,11 +399,11 @@ LONGLONG CNtfsMtfReader::RunLCN(PUCHAR run)
 	return lcn;
 }
 
-LONGLONG CNtfsMtfReader::RunCount(PUCHAR run)
+INT64 CNtfsMtfReader::RunCount(PUCHAR run)
 {
 	UCHAR n = *run & 0xf;
-	ULONGLONG count = 0;
-	ULONG i;
+	UINT64 count = 0;
+	DWORD i;
 
 
 	for (i = n; i > 0; i--)
@@ -411,34 +412,34 @@ LONGLONG CNtfsMtfReader::RunCount(PUCHAR run)
 	return count;
 }
 
-ULONG CNtfsMtfReader::RunLength(PUCHAR run)
+DWORD CNtfsMtfReader::RunLength(PUCHAR run)
 {
 	return (*run & 0xf) + ((*run >> 4) & 0xf) + 1;
 }
 
-ULONGLONG CNtfsMtfReader::AttributeLength(PATTRIBUTE attr)
+UINT64 CNtfsMtfReader::AttributeLength(PATTRIBUTE attr)
 {
-	return attr->Nonresident == FALSE ? PRESIDENT_ATTRIBUTE(attr)->ValueLength : ULONG(PNONRESIDENT_ATTRIBUTE(attr)->DataSize);
+	return attr->Nonresident == FALSE ? PRESIDENT_ATTRIBUTE(attr)->ValueLength : DWORD(PNONRESIDENT_ATTRIBUTE(attr)->DataSize);
 }
 
-BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, ULONGLONG i)
+BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, UINT64 i)
 {
 	return (bitmap[i >> 3] & (1 << (i & 7))) != 0;
 }
 
-BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, ULONGLONG index, PFILE_RECORD_HEADER file)
+BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER file)
 {
-	ULONG clusters = m_ClustersPerFileRecord;
+	DWORD clusters = m_ClustersPerFileRecord;
 
 	if (clusters > 0x80)
 		clusters = 1;
 
 	PUCHAR p = new UCHAR[m_BytesPerSector* m_SectorsPerCluster * clusters];
-	ULONGLONG vcn = ULONGLONG(index) * m_BytesPerFileRecord/m_BytesPerSector/m_SectorsPerCluster;
+	UINT64 vcn = UINT64(index) * m_BytesPerFileRecord/m_BytesPerSector/m_SectorsPerCluster;
 	if(ReadVCN(Mft, AttributeData, vcn, clusters, p))
 	{
 		LONG m = (m_SectorsPerCluster * m_BytesPerSector/m_BytesPerFileRecord) - 1;
-		ULONG n = m > 0 ? (index & m) : 0;
+		DWORD n = m > 0 ? (index & m) : 0;
 		memcpy(file, p + n * m_BytesPerFileRecord, m_BytesPerFileRecord);
 		FixupUpdateSequenceArray(file);
 	}else
@@ -465,7 +466,7 @@ BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, ULONGLONG index, PF
 	return TRUE;
 }
 
-BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,ULONGLONG vcn, ULONG count, PVOID buffer)
+BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer)
 {
 	PATTRIBUTE attrlist = NULL;
 	PNONRESIDENT_ATTRIBUTE attr = PNONRESIDENT_ATTRIBUTE(FindAttribute(file, type, 0));
@@ -480,7 +481,7 @@ BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,ULONG
 	return ReadExternalAttribute(attr, vcn, count, buffer, TRUE);
 }
 
-ULONGLONG CNtfsMtfReader::GetFileCount()
+UINT64 CNtfsMtfReader::GetFileCount()
 {
 	NTFS_VOLUME_DATA_BUFFER ntfsVolData;
 	DWORD dwWritten = 0;
@@ -489,12 +490,12 @@ ULONGLONG CNtfsMtfReader::GetFileCount()
 }
 
 
-const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(ULONGLONG ReferenceNumber)
+const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(UINT64 ReferenceNumber)
 {
 	return ReadFileNameInfoEx(ReferenceNumber);
 }
 
-PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(ULONGLONG ReferenceNumber)
+PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 {
 	ZeroMemory(m_File, m_BytesPerFileRecord);
 
@@ -611,10 +612,10 @@ bool CNtfsMtfReader::Init()
 		PATTRIBUTE attrBitmap = FindAttribute(m_Mft, AttributeBitmap, 0);
 		if (attrBitmap)
 		{
-			ULONGLONG allocSize = AttributeLengthAllocated(attrBitmap);
+			UINT64 allocSize = AttributeLengthAllocated(attrBitmap);
 			if (!m_MftBitmap)
 				delete[] m_MftBitmap;
-			m_MftBitmap = new UCHAR[(ULONG)allocSize];
+			m_MftBitmap = new UCHAR[(DWORD)allocSize];
 			if (!ReadAttribute(attrBitmap, m_MftBitmap)) {//$MFT元文件中的$Bitmap属性，此属性中标识了$MFT元文件中MFT项的使用状况
 #ifdef _DEBUG
 				printf("get mft bitmap error code = %d \n", GetLastError());
@@ -638,6 +639,30 @@ bool CNtfsMtfReader::Init()
 
 		delete [] pBpb;
 
+		PATTRIBUTE attr = FindAttribute(m_Mft, AttributeData, nullptr);
+		if(attr)
+		{
+			PUCHAR p = (PUCHAR)malloc(5*m_BytesPerClusters);
+			if(ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE(attr), 0, 4, p))
+			{
+				HANDLE h = CreateFile(L"C:\\Temp\\Mft_data_attribute.dat", GENERIC_READ | GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+				if (h != INVALID_HANDLE_VALUE)
+				{
+					DWORD dw;
+					if (!WriteFile(h, p, 4 * m_BytesPerClusters, &dw, nullptr))
+						printf("write file error code = %d", GetLastError());
+					CloseHandle(h);
+				}
+				else
+					printf("create file error code = %d", GetLastError());
+			}
+			else
+				printf("error read attribute data!");
+			free(p);
+		}else
+		{
+			printf("error not found data attribute");
+		}
 #ifdef _DEBUG
 		printf("init completed mft file count = %lld %d, %d \n", m_FileCount, m_BytesPerFileRecord, m_SectorsPerCluster);
 #endif
@@ -651,8 +676,8 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 	if (!name)
 		return NULL;
 
-	static PFILE_INFO aFileInfo = (PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR)];
-	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(WCHAR));
+	static PFILE_INFO aFileInfo = (PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR)];
+	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR));
 	aFileInfo->AllocatedSize = name->AllocatedSize;
 	aFileInfo->ChangeTime = name->ChangeTime;
 	aFileInfo->CreationTime = name->CreationTime;
@@ -662,12 +687,12 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 	aFileInfo->LastAccessTime = name->LastAccessTime;
 	aFileInfo->LastWriteTime = name->LastWriteTime;
 	aFileInfo->NameLength = name->NameLength;
-	memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(WCHAR));
-	//wcscpy_s(aFileInfo->Name,name->NameLength * sizeof(WCHAR), name->Name);
+	memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(TCHAR));
+	//wcscpy_s(aFileInfo->Name,name->NameLength * sizeof(TCHAR), name->Name);
 	return aFileInfo;
 }
 
-const PFILE_INFO CNtfsMtfReader::GetFileInfo(ULONGLONG ReferenceNumber)
+const PFILE_INFO CNtfsMtfReader::GetFileInfo(UINT64 ReferenceNumber)
 {
 	return FileAttribute2Info(ReadMtfFileNameAttribute(ReferenceNumber));
 }
@@ -693,7 +718,7 @@ USN CNtfsMtfReader::GetLastUsn()
 
 BOOL CNtfsMtfReader::QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus)
 {
-	ULONG br;
+	DWORD br;
 	return DeviceIoControl(hVolume, FSCTL_QUERY_USN_JOURNAL, NULL, 0, outStatus, sizeof(USN_JOURNAL_DATA), &br, NULL);
 }
 
@@ -712,12 +737,12 @@ USN CNtfsMtfReader::UpdateFiles(USN LastUsn, PVOID param)
 	if (LastUsn >= qujd.FirstUsn && LastUsn < qujd.NextUsn){
 		BYTE* buffer = new BYTE[USN_PAGE_SIZE];
 		if (buffer){
-			ULONG BytesReturned = 0;
+			DWORD BytesReturned = 0;
 			READ_USN_JOURNAL_DATA rujd = {LastUsn == 0 ? qujd.FirstUsn : LastUsn , 
 				USN_REASON_CLOSE/*USN_REASON_FILE_CREATE | USN_REASON_FILE_DELETE | USN_REASON_FILE_CREATE | USN_REASON_RENAME_OLD_NAME0xffffffff/*to get all reason*/, 
 				0, 0, 0, qujd.UsnJournalID};
 			memset(buffer, 0, USN_PAGE_SIZE);
-			ULONG cb = 0;
+			DWORD cb = 0;
 			BOOL fOk = TRUE;
 			while (fOk) {
 				fOk = DeviceIoControl(m_Handle, FSCTL_READ_USN_JOURNAL, &rujd, sizeof(rujd), buffer, USN_PAGE_SIZE, &cb, NULL);
@@ -757,7 +782,7 @@ USN CNtfsMtfReader::UpdateFiles(USN LastUsn, PVOID param)
 BOOL CNtfsMtfReader::CreateUsnJournal(HANDLE hVolume)
 {
 	CREATE_USN_JOURNAL_DATA cujd = {1024 * 1024 * 100, 1024 * 1024 * 20};
-	ULONG br;
+	DWORD br;
 	return DeviceIoControl(hVolume, FSCTL_CREATE_USN_JOURNAL, &cujd, sizeof(cujd), NULL, 0, &br, NULL);
 }
 
@@ -766,7 +791,7 @@ BOOL CNtfsMtfReader::DeleteUsnJournal(HANDLE hVolume)
 	USN_JOURNAL_DATA uujd = {0};
 	if(!QueryUsnStatus(hVolume, &uujd))
 		return FALSE;
-	ULONG br;
+	DWORD br;
 	DELETE_USN_JOURNAL_DATA dujd = {uujd.UsnJournalID, USN_DELETE_FLAG_DELETE || USN_DELETE_FLAG_NOTIFY};
 	return DeviceIoControl(hVolume, FSCTL_DELETE_USN_JOURNAL, &dujd, sizeof(dujd), NULL, 0, &br, NULL);
 }

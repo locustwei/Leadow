@@ -5,7 +5,7 @@
 
 PWSTR Md5Code2Str(BYTE* Md5Code, PWSTR pStr)
 {
-	WCHAR rgbDigits[] = L"0123456789abcdef";
+	TCHAR rgbDigits[] = L"0123456789abcdef";
 	PWSTR result = pStr;
 
 	for (DWORD i = 0; i < MD5_CODE_LEN; i++){
