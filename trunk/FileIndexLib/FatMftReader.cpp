@@ -16,24 +16,22 @@ CFatMftReader::~CFatMftReader(void)
 
 bool CFatMftReader::Init()
 {
-	PUCHAR pBpb = new UCHAR[m_Volume->GetSectorSize()];
-	if(!ReadSector(0, 1, pBpb))
-		return false;
-
-	if(((PFAT_BPB)pBpb)->SectorsPerFAT16){
-		if(((PFAT_BPB)pBpb)->FAT1216.FilSysType[4] == '2')
-			m_EntrySize = 12;
-		else
-			m_EntrySize = 16;
-	}else
+	PVOLUME_BPB_DATA pBpb = m_Volume->GetVolumeMftData();
+	switch(m_Volume->GetFileSystem())
+	{
+	case FS_FAT12:
+		m_EntrySize = 12;
+		break;
+	case FS_FAT16:
+		m_EntrySize = 16;
+		break;
+	case FS_FAT32:
 		m_EntrySize = 32;
+		break;
+	default:
+		return false;
+	}
 
-	m_SectorsPerRootDirectory = (((PFAT_BPB)pBpb)->RootEntriesCount * 0x20 + ((PFAT_BPB)pBpb)->BytesPerSector - 1) / ((PFAT_BPB)pBpb)->BytesPerSector; //FAT16有效
-
-	m_SectorsPerFAT = ((PFAT_BPB)pBpb)->SectorsPerFAT16?((PFAT_BPB)pBpb)->SectorsPerFAT16:((PFAT_BPB)pBpb)->FAT32.SectorsPerFAT32;
-	m_FirstDataSector = ((PFAT_BPB)pBpb)->ReservedSectors + ((PFAT_BPB)pBpb)->NumFATs * m_SectorsPerFAT + m_SectorsPerRootDirectory;
-	m_FirstFatSector = ((PFAT_BPB)pBpb)->ReservedSectors;
-	m_TotalSectors = ((PFAT_BPB)pBpb)->TotalSectors16?((PFAT_BPB)pBpb)->TotalSectors16:((PFAT_BPB)pBpb)->TotalSectors32;
 
 	m_Root.Attr = 0x10;
 	switch(m_EntrySize){
@@ -43,12 +41,11 @@ bool CFatMftReader::Init()
 		m_Root.ClusterNumberLow = 2;
 		break;
 	case 32:
-		m_Root.ClusterNumberHigh = HIWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
-		m_Root.ClusterNumberLow = LOWORD(((PFAT_BPB)pBpb)->FAT32.RootClus);
+		m_Root.ClusterNumberHigh = HIWORD(pBpb->RootClus);
+		m_Root.ClusterNumberLow = LOWORD(pBpb->RootClus);
 		break;
 	}
-
-	delete [] pBpb;
+	return true;
 }
 
 UINT64 CFatMftReader::EnumFiles(PVOID Param)
@@ -64,10 +61,6 @@ void CFatMftReader::ZeroMember()
 {
 	__super::ZeroMember();
 	
-	m_SectorsPerRootDirectory = 0;
-	m_SectorsPerFAT = 0;
-	m_FirstDataSector = 0;
-	m_TotalSectors = 0;
 	m_EntrySize = 0;
 
 	ZeroMemory(&m_Root, sizeof m_Root);
@@ -90,7 +83,7 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 	DWORD BufferLength;
 	PFAT_FILE pFatFile;
 	DWORD nNamePos = MAX_PATH - 1;           //当前文件名长度(留一个结束符）
-
+	PVOLUME_BPB_DATA pBpb = m_Volume->GetVolumeMftData();
 
 	if(m_EntrySize == 32)
 		ClusterNumber = MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh);
@@ -98,9 +91,9 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 		ClusterNumber = pParentDir->ClusterNumberLow;
 
 	if(m_EntrySize != 32 && pParentDir == &m_Root)  //FAT16根目录山区固定
-		BufferLength = m_SectorsPerRootDirectory * m_Volume->GetSectorSize();
+		BufferLength = pBpb->SectorsPerRootDirectory * pBpb->BytesPerSector;
 	else
-		BufferLength = m_Volume->GetClusterSize();
+		BufferLength = pBpb->BytesPerClusters;
 
 	PWCHAR FileName = new TCHAR[MAX_PATH]; //长文件名暂存
 	PUCHAR Buffer = new UCHAR[BufferLength];
@@ -111,10 +104,10 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, PVOID Param)
 
 		ZeroMemory(Buffer, BufferLength);
 		if(m_EntrySize != 32 && pParentDir == &m_Root){
-			if(!ReadSector(m_FirstDataSector - m_SectorsPerRootDirectory, m_SectorsPerRootDirectory, Buffer))
+			if(!ReadSector(pBpb->FirstDataSector - pBpb->SectorsPerRootDirectory, pBpb->SectorsPerRootDirectory, Buffer))
 				break;
 		}else{
-			if(!ReadSector(DataClusterStartSector(ClusterNumber), m_Volume->GetClusterSize(), Buffer))
+			if(!ReadSector(DataClusterStartSector(ClusterNumber), pBpb->BytesPerClusters, Buffer))
 				break;
 		}
 		
@@ -222,7 +215,7 @@ const PFILE_INFO CFatMftReader::GetFileInfo(UINT64 ReferenceNumber)
 //************************************
 DWORD CFatMftReader::DataClusterStartSector(DWORD ClusterNumber)
 {
-	return (ClusterNumber-2) * m_SectorsPerCluster + m_FirstDataSector;
+	return (ClusterNumber-2) * m_Volume->GetVolumeMftData()->SectorsPerCluster + m_Volume->GetVolumeMftData()->FirstDataSector;
 }
 
 //************************************
@@ -239,22 +232,22 @@ DWORD CFatMftReader::GetNextClusterNumber(DWORD ClusterNumber)
 	UINT64 bitOffset = ClusterNumber * m_EntrySize;
 	UINT64 byteOffset = bitOffset / 8; 
 
-	DWORD sectorOffset = (DWORD)(byteOffset / m_BytesPerSector);
+	DWORD sectorOffset = (DWORD)(byteOffset / m_Volume->GetVolumeMftData()->BytesPerSector);
 
 	PUCHAR pFAT = ReadFat(sectorOffset, 1, TRUE);
 	switch(m_EntrySize){
 	case 32:
-		Result = *(DWORD*)(pFAT+byteOffset % m_BytesPerSector);
+		Result = *(DWORD*)(pFAT+byteOffset %  m_Volume->GetVolumeMftData()->BytesPerSector);
 		if(Result == EOC32 || Result == BAD32 || Result == RES32)
 			Result = 0;
 		break;
 	case 16:
-		Result = *(USHORT*)(pFAT+byteOffset % m_BytesPerSector);
+		Result = *(USHORT*)(pFAT+byteOffset %  m_Volume->GetVolumeMftData()->BytesPerSector);
 		if(Result == EOC16 || Result == BAD16 || Result == RES16)
 			Result = 0;
 		break;
 	case 12:
-		Result = *(DWORD*)(pFAT+byteOffset % m_BytesPerSector);
+		Result = *(DWORD*)(pFAT+byteOffset %  m_Volume->GetVolumeMftData()->BytesPerSector);
 		Result = Result << bitOffset % 8;
 		Result &= 0xFFF00000;
 		Result >>= 20;
@@ -280,7 +273,7 @@ PUCHAR CFatMftReader::ReadFat(DWORD sector, DWORD count, BOOL cache)
 {
 	if(cache && m_fatCache.pFAT){
 		if(m_fatCache.beginSector <= sector && m_fatCache.beginSector + m_fatCache.sectorCount >= sector + count)
-			return m_fatCache.pFAT + (sector - m_fatCache.beginSector)*m_BytesPerSector;
+			return m_fatCache.pFAT + (sector - m_fatCache.beginSector)* m_Volume->GetVolumeMftData()->BytesPerSector;
 	}
 
 	if(m_fatCache.pFAT){
@@ -288,8 +281,8 @@ PUCHAR CFatMftReader::ReadFat(DWORD sector, DWORD count, BOOL cache)
 		m_fatCache.pFAT = NULL;
 	}
 
-	PBYTE Buffer = new BYTE[m_BytesPerSector * count];
-	if(!ReadSector(m_FirstFatSector + sector, count, Buffer)){
+	PBYTE Buffer = new BYTE[m_Volume->GetVolumeMftData()->BytesPerSector * count];
+	if(!ReadSector(m_Volume->GetVolumeMftData()->FirstFatSector + sector, count, Buffer)){
 		delete Buffer;
 		return NULL;
 	}

@@ -34,13 +34,13 @@ class CNtfsMtfReader: public CMftReader
 public:
 	CNtfsMtfReader();
 	~CNtfsMtfReader(void);
-	
-	virtual UINT64 EnumFiles(PVOID Param);
-	virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);
-	virtual USN GetLastUsn();
-	virtual USN UpdateFiles(USN LastUsn, PVOID param);
+
+	UINT64 EnumFiles(PVOID Param) override;
+	const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber) override;
+	USN GetLastUsn() override;
+	USN UpdateFiles(USN LastUsn, PVOID param) override;
 protected:
-	virtual void ZeroMember();
+	void ZeroMember() override;
 	virtual bool Init();
 private:
 
@@ -52,7 +52,6 @@ private:
 		UINT64 cache_lcn_total;
 	};
 
-	DWORD m_BytesPerFileRecord;
 	CACHE_INFO m_cache_info;
 	PFILE_RECORD_HEADER m_Mft;
 	PUCHAR m_MftBitmap;
@@ -60,8 +59,6 @@ private:
 
 	PFILE_RECORD_HEADER m_File;
 	UINT64 m_FileCount;
-	DWORD m_ClustersPerFileRecord;
-	DWORD m_BytesPerClusters;
 
 	VOID FixupUpdateSequenceArray(PFILE_RECORD_HEADER file);
 	PATTRIBUTE FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count = 0);

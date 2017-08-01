@@ -7,6 +7,6 @@
 class CFatUtils
 {
 public:
-	static DWORD GetFatBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData);
+	static DWORD GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData);
 };
 

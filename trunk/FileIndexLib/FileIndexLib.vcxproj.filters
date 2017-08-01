@@ -30,9 +30,6 @@
     <ClInclude Include="DiskVolume.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Fat.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FatMftReader.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -43,9 +40,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="MftReader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ntfs.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="NtfsMtfReader.h">

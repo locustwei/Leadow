@@ -13,6 +13,7 @@
 #include "DlgGetFileName.h"
 #include "LdTree.h"
 #include "FileInfo.h"
+#include "VolumeInfo.h"
 
 #include "ProcessUtils.h"
 #include "FileUtils.h"

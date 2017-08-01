@@ -71,10 +71,10 @@ BOOL CMftReader::ReadSector(UINT64 sector, DWORD count, PVOID buffer)
 	ULARGE_INTEGER offset;
 	OVERLAPPED overlap = {0};
 	DWORD n;
-	offset.QuadPart = sector * m_Volume->GetSectorSize();
+	offset.QuadPart = sector * m_Volume->GetVolumeMftData()->BytesPerSector;
 	overlap.Offset = offset.LowPart;
 	overlap.OffsetHigh = offset.HighPart;
-	return ::ReadFile(m_Handle, buffer, count * m_Volume->GetSectorSize(), &n, &overlap);
+	return ::ReadFile(m_Handle, buffer, count * m_Volume->GetVolumeMftData()->BytesPerSector, &n, &overlap);
 }
 
 //************************************

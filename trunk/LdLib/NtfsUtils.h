@@ -7,7 +7,6 @@
 class CNtfsUtils
 {
 public:
-	static DWORD GetNtfsVolumeData(CVolumeInfo* Volume, PNTFS_VOLUME_DATA_BUFFER pVolumeData);
-	static DWORD GetNtfsBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData);
+	static DWORD GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData);
 };
 
