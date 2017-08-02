@@ -13,6 +13,13 @@ class CSearchLibrary : public ISearchLibrary
 public:
 	UINT64 EnumVolumeFiles(CVolumeInfo* pVolume, IMftReadeHolder* callback, PVOID Context) override
 	{
+		CMftReader* reader = CMftReader::CreateReader(pVolume);
+		if (reader)
+		{
+			reader->SetHolder(callback);
+			return reader->EnumFiles(Context);
+			
+		}
 		return 0;
 	};
 

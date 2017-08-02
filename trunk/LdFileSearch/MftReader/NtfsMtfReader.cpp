@@ -69,7 +69,9 @@ CNtfsMtfReader::~CNtfsMtfReader(void)
 UINT64 CNtfsMtfReader::EnumFiles(PVOID Param)
 {
 	UINT64 result = 0;	
-	
+	if (!Init())
+		return 0;
+
 	for(UINT64 i = 0; i < m_FileCount; i++){
 		if (!bitset(m_MftBitmap, i)) //跳过被删除的文件
 			continue;
@@ -424,11 +426,11 @@ BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE
 {
 	DWORD clusters = m_Volume->GetVolumeMftData()->ClustersPerFileRecord;
 
-	if (clusters > 0x80)
+	if (clusters > 0x80 || clusters == 0)
 		clusters = 1;
 
 	PUCHAR p = new UCHAR[m_Volume->GetVolumeMftData()->BytesPerClusters * clusters];
-	UINT64 vcn = UINT64(index) * m_Volume->GetVolumeMftData()->ClustersPerFileRecord;
+	UINT64 vcn = UINT64(index) * m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment/m_Volume->GetVolumeMftData()->BytesPerClusters/ m_Volume->GetVolumeMftData()->BytesPerSector;
 	if(ReadVCN(Mft, AttributeData, vcn, clusters, p))
 	{
 		LONG m = (m_Volume->GetVolumeMftData()->BytesPerClusters/ m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment) - 1;
@@ -469,15 +471,6 @@ BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT6
 	}
 	return ReadExternalAttribute(attr, vcn, count, buffer, TRUE);
 }
-
-UINT64 CNtfsMtfReader::GetFileCount()
-{
-	NTFS_VOLUME_DATA_BUFFER ntfsVolData;
-	DWORD dwWritten = 0;
-	BOOL bDioControl = DeviceIoControl(m_Handle, FSCTL_GET_NTFS_VOLUME_DATA, NULL, 0, &ntfsVolData, sizeof(ntfsVolData), &dwWritten, NULL);
-	return ntfsVolData.MftValidDataLength.QuadPart / m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment;
-}
-
 
 const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(UINT64 ReferenceNumber)
 {
@@ -553,39 +546,43 @@ void CNtfsMtfReader::ZeroMember()
 
 bool CNtfsMtfReader::Init()
 {
-		if(!m_Mft)
-			m_Mft = PFILE_RECORD_HEADER(new UCHAR[m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment]);
-		ZeroMemory(m_Mft, m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment);
-		if(!ReadSector(m_Volume->GetVolumeMftData()->MftStartLcn*(m_Volume->GetVolumeMftData()->SectorsPerCluster), (m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment)/(m_Volume->GetVolumeMftData()->BytesPerSector), m_Mft)){
+	m_Handle = m_Volume->OpenVolumeHandle();
+	if (m_Handle == INVALID_HANDLE_VALUE)
+		return false;
+
+	if(!m_Mft)
+		m_Mft = PFILE_RECORD_HEADER(new UCHAR[m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment]);
+	ZeroMemory(m_Mft, m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment);
+	if(!ReadSector(m_Volume->GetVolumeMftData()->MftStartLcn*(m_Volume->GetVolumeMftData()->SectorsPerCluster), (m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment)/(m_Volume->GetVolumeMftData()->BytesPerSector), m_Mft)){
+		return 0;
+	}
+	FixupUpdateSequenceArray(m_Mft);
+	PATTRIBUTE attrBitmap = FindAttribute(m_Mft, AttributeBitmap, 0);
+	if (attrBitmap)
+	{
+		UINT64 allocSize = AttributeLengthAllocated(attrBitmap);
+		if (!m_MftBitmap)
+			delete[] m_MftBitmap;
+		m_MftBitmap = new UCHAR[(DWORD)allocSize];
+		if (!ReadAttribute(attrBitmap, m_MftBitmap)) {//$MFT元文件中的$Bitmap属性，此属性中标识了$MFT元文件中MFT项的使用状况
 			return 0;
 		}
-		FixupUpdateSequenceArray(m_Mft);
-		PATTRIBUTE attrBitmap = FindAttribute(m_Mft, AttributeBitmap, 0);
-		if (attrBitmap)
-		{
-			UINT64 allocSize = AttributeLengthAllocated(attrBitmap);
-			if (!m_MftBitmap)
-				delete[] m_MftBitmap;
-			m_MftBitmap = new UCHAR[(DWORD)allocSize];
-			if (!ReadAttribute(attrBitmap, m_MftBitmap)) {//$MFT元文件中的$Bitmap属性，此属性中标识了$MFT元文件中MFT项的使用状况
-				return 0;
-			}
-		}
+	}
 
-		if(!m_File)
-			m_File = PFILE_RECORD_HEADER(new UCHAR[m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment]);
+	if(!m_File)
+		m_File = PFILE_RECORD_HEADER(new UCHAR[m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment]);
 
-		m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/ m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment; //MTF的总项数
-		if (m_cache_info.g_pb){
-			delete [] m_cache_info.g_pb;
-			m_cache_info.g_pb = NULL;
-			m_cache_info.cache_lcn_begin = 0;
-			m_cache_info.cache_lcn_count = 0;
-			m_cache_info.cache_lcn_orl_begin = 0;
-			m_cache_info.cache_lcn_total = 0;
-		}
+	m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/ m_Volume->GetVolumeMftData()->BytesPerFileRecordSegment; //MTF的总项数
+	if (m_cache_info.g_pb){
+		delete [] m_cache_info.g_pb;
+		m_cache_info.g_pb = NULL;
+		m_cache_info.cache_lcn_begin = 0;
+		m_cache_info.cache_lcn_count = 0;
+		m_cache_info.cache_lcn_orl_begin = 0;
+		m_cache_info.cache_lcn_total = 0;
+	}
 
-		return true;
+	return true;
 }
 
 PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
