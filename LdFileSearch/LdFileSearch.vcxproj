@@ -29,14 +29,14 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
-    <UseOfMfc>Dynamic</UseOfMfc>
+    <UseOfMfc>false</UseOfMfc>
     <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -98,10 +98,10 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ModuleDefinitionFile>.\LdFileSearch.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>LdFileSearch.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
       <ImportLibrary>../lib/LdFileSearch_d32.lib</ImportLibrary>
-      <AdditionalDependencies>DuiLib_d32.lib;FileIndexLib_d32.lib;LdLib_d32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DuiLib_d32.lib;LdLib_d32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -127,7 +127,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>.\LdFileSearch.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LdLib_d64.lib;LdFileProtect_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/LdFileSearch_d64.lib</ImportLibrary>
     </Link>
     <Midl>
@@ -201,8 +201,10 @@
     <None Include="res\LdFileSearch.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ExprotFunctions.cpp" />
-    <ClCompile Include="LdFileSearch.cpp" />
+    <ClCompile Include="MftReader\FatMftReader.cpp" />
+    <ClCompile Include="MftReader\MftReader.cpp" />
+    <ClCompile Include="MftReader\NtfsMtfReader.cpp" />
+    <ClCompile Include="SearchLibrary.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -211,8 +213,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExprotFunctions.h" />
-    <ClInclude Include="LdFileSearch.h" />
+    <ClInclude Include="MftReader\FatMftReader.h" />
+    <ClInclude Include="MftReader\MftReader.h" />
+    <ClInclude Include="MftReader\NtfsMtfReader.h" />
+    <ClInclude Include="SearchLibrary.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -221,9 +225,6 @@
     <ResourceCompile Include="LdFileSearch.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FileIndexLib\FileIndexLib.vcxproj">
-      <Project>{b448f5f6-9afa-46e8-9fa8-30c54fca5e39}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\LdLib\LdLib.vcxproj">
       <Project>{55055ab2-8705-4f35-b9fa-271c09c35a8c}</Project>
     </ProjectReference>

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "NtfsMtfReader.h"
 
 #define MAX_CACHE_SECTORS  4000
@@ -607,6 +608,7 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 	//wcscpy_s(aFileInfo->Name,name->NameLength * sizeof(TCHAR), name->Name);
 	return aFileInfo;
 }
+/*
 
 const PFILE_INFO CNtfsMtfReader::GetFileInfo(UINT64 ReferenceNumber)
 {
@@ -637,6 +639,8 @@ BOOL CNtfsMtfReader::QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus)
 	DWORD br;
 	return DeviceIoControl(hVolume, FSCTL_QUERY_USN_JOURNAL, NULL, 0, outStatus, sizeof(USN_JOURNAL_DATA), &br, NULL);
 }
+*/
+/*
 
 USN CNtfsMtfReader::UpdateFiles(USN LastUsn, PVOID param)
 {
@@ -655,7 +659,7 @@ USN CNtfsMtfReader::UpdateFiles(USN LastUsn, PVOID param)
 		if (buffer){
 			DWORD BytesReturned = 0;
 			READ_USN_JOURNAL_DATA rujd = {LastUsn == 0 ? qujd.FirstUsn : LastUsn , 
-				USN_REASON_CLOSE/*USN_REASON_FILE_CREATE | USN_REASON_FILE_DELETE | USN_REASON_FILE_CREATE | USN_REASON_RENAME_OLD_NAME0xffffffff/*to get all reason*/, 
+				USN_REASON_CLOSE/*USN_REASON_FILE_CREATE | USN_REASON_FILE_DELETE | USN_REASON_FILE_CREATE | USN_REASON_RENAME_OLD_NAME0xffffffff/*to get all reason#1#, 
 				0, 0, 0, qujd.UsnJournalID};
 			memset(buffer, 0, USN_PAGE_SIZE);
 			DWORD cb = 0;
@@ -694,6 +698,8 @@ USN CNtfsMtfReader::UpdateFiles(USN LastUsn, PVOID param)
 	return ret;
 
 }
+*/
+/*
 
 BOOL CNtfsMtfReader::CreateUsnJournal(HANDLE hVolume)
 {
@@ -711,3 +717,4 @@ BOOL CNtfsMtfReader::DeleteUsnJournal(HANDLE hVolume)
 	DELETE_USN_JOURNAL_DATA dujd = {uujd.UsnJournalID, USN_DELETE_FLAG_DELETE || USN_DELETE_FLAG_NOTIFY};
 	return DeviceIoControl(hVolume, FSCTL_DELETE_USN_JOURNAL, &dujd, sizeof(dujd), NULL, 0, &br, NULL);
 }
+*/
