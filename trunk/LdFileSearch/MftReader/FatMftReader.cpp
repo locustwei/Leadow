@@ -201,10 +201,12 @@ exit:
 	return Result;
 }
 
+/*
 const PFILE_INFO CFatMftReader::GetFileInfo(UINT64 ReferenceNumber)
 {
 	return __super::GetFileInfo(ReferenceNumber);	
 }
+*/
 
 //************************************
 // Method:    DataClusterStartSector

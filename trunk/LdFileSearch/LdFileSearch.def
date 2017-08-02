@@ -4,4 +4,5 @@ LIBRARY
 
 EXPORTS
     ; 此处可以是显式导出
-	EntryFunction
+	API_Init
+	API_UnInit

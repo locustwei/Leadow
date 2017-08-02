@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="MftReader">
+      <UniqueIdentifier>{099d6dd5-d63a-4218-a89c-b919e1851cc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -27,61 +30,28 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="DiskVolume.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="FatMftReader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Hardisk.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MD5.h">
-      <Filter>头文件</Filter>
+      <Filter>MftReader</Filter>
     </ClInclude>
     <ClInclude Include="MftReader.h">
-      <Filter>头文件</Filter>
+      <Filter>MftReader</Filter>
     </ClInclude>
     <ClInclude Include="NtfsMtfReader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RecordFile.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="CWJSLib.h">
-      <Filter>源文件</Filter>
+      <Filter>MftReader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="DiskVolume.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="FatMftReader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Hardisk.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="MD5.cpp">
-      <Filter>源文件</Filter>
+      <Filter>MftReader</Filter>
     </ClCompile>
     <ClCompile Include="MftReader.cpp">
-      <Filter>源文件</Filter>
+      <Filter>MftReader</Filter>
     </ClCompile>
     <ClCompile Include="NtfsMtfReader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RecordFile.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CWJSLib.cpp">
-      <Filter>源文件</Filter>
+      <Filter>MftReader</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

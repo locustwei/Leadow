@@ -149,33 +149,22 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CWJSLib.h" />
-    <ClInclude Include="DiskVolume.h" />
     <ClInclude Include="FatMftReader.h" />
-    <ClInclude Include="Hardisk.h" />
-    <ClInclude Include="MD5.h" />
     <ClInclude Include="MftReader.h" />
     <ClInclude Include="NtfsMtfReader.h" />
-    <ClInclude Include="RecordFile.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CWJSLib.cpp" />
-    <ClCompile Include="DiskVolume.cpp" />
     <ClCompile Include="FatMftReader.cpp" />
-    <ClCompile Include="Hardisk.cpp" />
-    <ClCompile Include="MD5.cpp" />
     <ClCompile Include="MftReader.cpp" />
     <ClCompile Include="NtfsMtfReader.cpp" />
-    <ClCompile Include="RecordFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

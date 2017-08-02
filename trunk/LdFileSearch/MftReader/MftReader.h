@@ -11,7 +11,7 @@
 #pragma once
 
 //文件信息
-typedef struct _FILE_INFO{
+typedef struct LDLIB_API _FILE_INFO{
 	UINT64 DirectoryFileReferenceNumber;         //
 	_FILETIME CreationTime;       // Saved when filename last changed
 	_FILETIME ChangeTime;         //
@@ -25,24 +25,24 @@ typedef struct _FILE_INFO{
 }FILE_INFO, *PFILE_INFO;
 
 //使用者回掉接口
-typedef struct IMftReadeHolder{
+typedef struct LDLIB_API IMftReadeHolder{
 	//枚举文件回掉
 	virtual BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) = 0; 
 	//文件更新回掉
 	//virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param) = 0;
 }*PMftReadeHolder;
 
-class CMftReader
+class LDLIB_API CMftReader
 {
 public:
 	PMftReadeHolder SetHolder(PMftReadeHolder pHolder); //设置回掉接口
 
 	virtual UINT64 EnumFiles(PVOID Param) = 0;    //读取MFT文件
-	virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);  //读取文件信息，文件序号
-	virtual USN GetLastUsn();      //获取MFT当前标识，用于更新文件时传入
-	virtual USN UpdateFiles(USN LastUsn, PVOID param); //更新文件信息
+	//virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);  //读取文件信息，文件序号
+	//virtual USN GetLastUsn();      //获取MFT当前标识，用于更新文件时传入
+	//virtual USN UpdateFiles(USN LastUsn, PVOID param); //更新文件信息
 
-	BOOL IsValid();     //
+	//BOOL IsValid();     //
 
 	static CMftReader* CreateReader(CVolumeInfo * pVolume);
 public:

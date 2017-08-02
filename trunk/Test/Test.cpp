@@ -10,6 +10,8 @@
 #include <io.h>
 #include <fcntl.h>
 #include <Ldlib.h>
+#include "../LdFileSearch/SearchLibrary.h"
+
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -21,54 +23,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 }
 
 
-class CImp
-{
-public:
-	CImp()
-	{
-		a = 10;
-		b = 0;
-	};
-	int a;
-	void p()
-	{
-		printf("cimp.a=%d\n", b);
-	}
-
-	void setb(int value)
-	{
-		b = value;
-	}
-protected:
-	int b;
-};
-
-class C1: public CImp
-{
-public:
-	void p()
-	{
-		printf("c1.a=%d\n", b);
-	}
-
-	void setb(int value)
-	{
-		b = value;
-	}
-
-};
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 
-	CLdString tmpName;
-	for(int i=0;i<100;i++)
-	{
-		CFileUtils::GenerateRandomFileName(220, tmpName);
-		printf("%S\n", tmpName.GetData());
-	}
-
+	CVolumeInfo volume;
+	volume.SetFileName(L"E:\\");
+	ISearchLibrary * library = 
 
 	printf("\npress any key exit");
 	getchar();
