@@ -9,7 +9,7 @@ DWORD CNtfsUtils::GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData)
 	if (hVolume == INVALID_HANDLE_VALUE)
 		return GetLastError();
 	
-	PNTFS_BPB pBpb = (PNTFS_BPB)new UCHAR[512];
+	/*PNTFS_BPB pBpb = (PNTFS_BPB)new UCHAR[512];
 	DWORD CB;
 	if (!::ReadFile(hVolume, pBpb, 512, &CB, nullptr))
 		return false;
@@ -25,7 +25,7 @@ DWORD CNtfsUtils::GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData)
 	pBpbData->MftStartLcn = pBpb->MftStartLcn;
 	pBpbData->TotalSectors = pBpb->TotalSectors;
 
-	delete[] pBpb;
+	delete[] pBpb;*/
 
 	DWORD dwCb, Result = 0;
 	NTFS_VOLUME_DATA_BUFFER data = { 0 };
@@ -34,11 +34,14 @@ DWORD CNtfsUtils::GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData)
 		Result = GetLastError();
 	}
 
-	//pBpbData->SectorsPerCluster = data.BytesPerCluster / data.BytesPerSector;
-	//pBpbData->BytesPerClusters = data.BytesPerCluster;
-	//pBpbData->BytesPerFileRecordSegment = data.BytesPerFileRecordSegment;
-	//pBpbData->ClustersPerFileRecord = data.ClustersPerFileRecordSegment;
+	pBpbData->BytesPerSector = data.BytesPerSector;
+	pBpbData->SectorsPerCluster = data.BytesPerCluster / data.BytesPerSector;
+	pBpbData->BytesPerClusters = data.BytesPerCluster;
+	pBpbData->BytesPerFileRecordSegment = data.BytesPerFileRecordSegment;
+	pBpbData->ClustersPerFileRecord = data.ClustersPerFileRecordSegment;
 	pBpbData->MftValidDataLength = data.MftValidDataLength.QuadPart;
+	pBpbData->MftStartLcn = data.MftStartLcn.QuadPart;
+	pBpbData->TotalSectors = data.NumberSectors.QuadPart;
 
 	CloseHandle(hVolume);
 
