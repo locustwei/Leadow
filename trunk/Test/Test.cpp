@@ -38,11 +38,18 @@ ISearchLibrary* InitLib(TCHAR * pLibFile, PAuthorization pAut)
 class CMftReadImpl: public IMftReadeHolder
 {
 public:
+	CMftReadImpl()
+	{
+		nCount = 0;
+	};
+
 	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) override
 	{
-		printf("%S\n", pFileInfo->Name);
+		printf("%lld  %S\n", nCount++, pFileInfo->Name);
 		return true;
 	};
+private:
+	UINT64 nCount;
 };
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -50,7 +57,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 
 	CVolumeInfo volume;
-	volume.SetFileName(L"E:\\");
+	volume.SetFileName(L"j:\\");
 	ISearchLibrary * library = InitLib(L"LdFileSearch_d64.dll", nullptr);
 	CMftReadImpl impl;
 	library->EnumVolumeFiles(&volume, &impl, nullptr);

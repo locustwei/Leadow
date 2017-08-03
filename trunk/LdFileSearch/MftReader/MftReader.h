@@ -52,6 +52,7 @@ protected:
 	HANDLE m_Handle;
 	PMftReadeHolder m_Holder;
 	CVolumeInfo * m_Volume;
+	PVOLUME_BPB_DATA m_BpbData;
 
 	BOOL ReadSector(UINT64 sector, DWORD count, PVOID buffer);
 	BOOL Callback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param);
