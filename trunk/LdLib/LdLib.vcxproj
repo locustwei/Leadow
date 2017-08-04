@@ -145,64 +145,61 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="DateTimeUtils.h" />
-    <ClInclude Include="Fat.h" />
-    <ClInclude Include="FatUtils.h" />
-    <ClInclude Include="FileInfo.h" />
-    <ClInclude Include="FileUtils.h" />
-    <ClInclude Include="DlgGetFileName.h" />
-    <ClInclude Include="FormatSettings.h" />
-    <ClInclude Include="HandleUitls.h" />
-    <ClInclude Include="LdArray.h" />
-    <ClInclude Include="LdDriver.h" />
+    <ClInclude Include="classes\LdArray.h" />
+    <ClInclude Include="classes\LdDriver.h" />
+    <ClInclude Include="classes\LdList.h" />
+    <ClInclude Include="classes\LdMap.h" />
+    <ClInclude Include="classes\LdString.h" />
+    <ClInclude Include="classes\LdTree.h" />
+    <ClInclude Include="classes\Thread.h" />
+    <ClInclude Include="file\FileInfo.h" />
+    <ClInclude Include="file\FileUtils.h" />
+    <ClInclude Include="ldapp\LdNamedPipe.h" />
+    <ClInclude Include="ldapp\LdStructs.h" />
+    <ClInclude Include="ldapp\PublicRoutimes.h" />
     <ClInclude Include="LdLib.h" />
-    <ClInclude Include="LdList.h" />
-    <ClInclude Include="LdMap.h" />
-    <ClInclude Include="LdNamedPipe.h" />
-    <ClInclude Include="LdString.h" />
-    <ClInclude Include="LdStructs.h" />
-    <ClInclude Include="LdTree.h" />
-    <ClInclude Include="ntfs.h" />
-    <ClInclude Include="NtfsUtils.h" />
-    <ClInclude Include="ProcessUtils.h" />
-    <ClInclude Include="PublicRoutimes.h" />
-    <ClInclude Include="RegisterUtils.h" />
-    <ClInclude Include="SHFolders.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Thread.h" />
-    <ClInclude Include="VolumeInfo.h" />
-    <ClInclude Include="VolumeUtils.h" />
+    <ClInclude Include="utils\DateTimeUtils.h" />
+    <ClInclude Include="utils\DlgGetFileName.h" />
+    <ClInclude Include="utils\FormatSettings.h" />
+    <ClInclude Include="utils\HandleUitls.h" />
+    <ClInclude Include="utils\ProcessUtils.h" />
+    <ClInclude Include="utils\RegisterUtils.h" />
+    <ClInclude Include="utils\SHFolders.h" />
+    <ClInclude Include="volume\Fat.h" />
+    <ClInclude Include="volume\FatUtils.h" />
+    <ClInclude Include="volume\ntfs.h" />
+    <ClInclude Include="volume\NtfsUtils.h" />
+    <ClInclude Include="volume\VolumeInfo.h" />
+    <ClInclude Include="volume\VolumeUtils.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DateTimeUtils.cpp" />
-    <ClCompile Include="FatUtils.cpp" />
-    <ClCompile Include="FileInfo.cpp" />
-    <ClCompile Include="FileUtils.cpp" />
-    <ClCompile Include="DlgGetFileName.cpp" />
-    <ClCompile Include="FormatSettings.cpp" />
-    <ClCompile Include="HandleUitls.cpp" />
-    <ClCompile Include="LdDriver.cpp" />
+    <ClCompile Include="classes\LdDriver.cpp" />
+    <ClCompile Include="classes\LdString.cpp" />
+    <ClCompile Include="classes\Thread.cpp" />
+    <ClCompile Include="file\FileInfo.cpp" />
+    <ClCompile Include="file\FileUtils.cpp" />
+    <ClCompile Include="ldapp\LdNamedPipe.cpp" />
+    <ClCompile Include="ldapp\PulicRoutimes.cpp" />
     <ClCompile Include="LdLib.cpp" />
-    <ClCompile Include="LdNamedPipe.cpp" />
-    <ClCompile Include="LdString.cpp" />
-    <ClCompile Include="NtfsUtils.cpp" />
-    <ClCompile Include="ProcessUtils.cpp" />
-    <ClCompile Include="PulicRoutimes.cpp" />
-    <ClCompile Include="RegisterUtils.cpp" />
-    <ClCompile Include="SHFolders.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Thread.cpp" />
-    <ClCompile Include="VolumeInfo.cpp" />
-    <ClCompile Include="VolumeUtils.cpp" />
+    <ClCompile Include="utils\DateTimeUtils.cpp" />
+    <ClCompile Include="utils\DlgGetFileName.cpp" />
+    <ClCompile Include="utils\FormatSettings.cpp" />
+    <ClCompile Include="utils\HandleUitls.cpp" />
+    <ClCompile Include="utils\ProcessUtils.cpp" />
+    <ClCompile Include="utils\RegisterUtils.cpp" />
+    <ClCompile Include="utils\SHFolders.cpp" />
+    <ClCompile Include="volume\FatUtils.cpp" />
+    <ClCompile Include="volume\NtfsUtils.cpp" />
+    <ClCompile Include="volume\VolumeInfo.cpp" />
+    <ClCompile Include="volume\VolumeUtils.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

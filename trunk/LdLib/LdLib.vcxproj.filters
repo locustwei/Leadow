@@ -2,155 +2,157 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="HandleUitls.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ProcessUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="LdDriver.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="LdNamedPipe.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="LdString.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="Thread.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="PulicRoutimes.cpp">
-      <Filter>Native</Filter>
-    </ClCompile>
-    <ClCompile Include="RegisterUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="DlgGetFileName.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
-    <ClCompile Include="DateTimeUtils.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="FormatSettings.cpp">
-      <Filter>Native</Filter>
-    </ClCompile>
-    <ClCompile Include="SHFolders.cpp">
-      <Filter>Native</Filter>
-    </ClCompile>
     <ClCompile Include="LdLib.cpp" />
-    <ClCompile Include="FileInfo.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="file\FileInfo.cpp">
+      <Filter>files</Filter>
     </ClCompile>
-    <ClCompile Include="VolumeUtils.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="file\FileUtils.cpp">
+      <Filter>files</Filter>
     </ClCompile>
-    <ClCompile Include="NtfsUtils.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="utils\DateTimeUtils.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="FileUtils.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="utils\DlgGetFileName.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="VolumeInfo.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="utils\FormatSettings.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="FatUtils.cpp">
-      <Filter>File&amp;disk</Filter>
+    <ClCompile Include="utils\HandleUitls.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\ProcessUtils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\RegisterUtils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\SHFolders.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ldapp\LdNamedPipe.cpp">
+      <Filter>ldapp</Filter>
+    </ClCompile>
+    <ClCompile Include="ldapp\PulicRoutimes.cpp">
+      <Filter>ldapp</Filter>
+    </ClCompile>
+    <ClCompile Include="classes\LdDriver.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="classes\LdString.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="classes\Thread.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\FatUtils.cpp">
+      <Filter>volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\NtfsUtils.cpp">
+      <Filter>volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\VolumeInfo.cpp">
+      <Filter>volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\VolumeUtils.cpp">
+      <Filter>volume</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
-    <ClInclude Include="LdStructs.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="HandleUitls.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="file\FileInfo.h">
+      <Filter>files</Filter>
     </ClInclude>
-    <ClInclude Include="ProcessUtils.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="file\FileUtils.h">
+      <Filter>files</Filter>
     </ClInclude>
-    <ClInclude Include="LdDriver.h">
+    <ClInclude Include="utils\DateTimeUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\DlgGetFileName.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\FormatSettings.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\HandleUitls.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\ProcessUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\RegisterUtils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\SHFolders.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ldapp\LdNamedPipe.h">
+      <Filter>ldapp</Filter>
+    </ClInclude>
+    <ClInclude Include="ldapp\LdStructs.h">
+      <Filter>ldapp</Filter>
+    </ClInclude>
+    <ClInclude Include="ldapp\PublicRoutimes.h">
+      <Filter>ldapp</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\LdArray.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="LdNamedPipe.h">
+    <ClInclude Include="classes\LdDriver.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="LdString.h">
+    <ClInclude Include="classes\LdList.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h">
+    <ClInclude Include="classes\LdMap.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="PublicRoutimes.h">
-      <Filter>Native</Filter>
-    </ClInclude>
-    <ClInclude Include="RegisterUtils.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="LdList.h">
+    <ClInclude Include="classes\LdString.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="LdArray.h">
+    <ClInclude Include="classes\LdTree.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="LdMap.h">
+    <ClInclude Include="classes\Thread.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="DlgGetFileName.h">
-      <Filter>classes</Filter>
+    <ClInclude Include="volume\Fat.h">
+      <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="DateTimeUtils.h">
-      <Filter>Utils</Filter>
+    <ClInclude Include="volume\FatUtils.h">
+      <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="FormatSettings.h">
-      <Filter>Native</Filter>
+    <ClInclude Include="volume\ntfs.h">
+      <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="SHFolders.h">
-      <Filter>Native</Filter>
+    <ClInclude Include="volume\NtfsUtils.h">
+      <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="LdTree.h">
-      <Filter>classes</Filter>
+    <ClInclude Include="volume\VolumeInfo.h">
+      <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="FileInfo.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="Fat.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="ntfs.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeUtils.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="NtfsUtils.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="FileUtils.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="VolumeInfo.h">
-      <Filter>File&amp;disk</Filter>
-    </ClInclude>
-    <ClInclude Include="FatUtils.h">
-      <Filter>File&amp;disk</Filter>
+    <ClInclude Include="volume\VolumeUtils.h">
+      <Filter>volume</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Filter Include="Utils">
-      <UniqueIdentifier>{10f1a77c-6fa1-4889-873c-1007297aa435}</UniqueIdentifier>
+    <Filter Include="files">
+      <UniqueIdentifier>{3112c00b-5bdd-49ad-8319-61f1be2caf64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{ee9693b2-74c6-4e59-941a-2bfb6330c538}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ldapp">
+      <UniqueIdentifier>{9084f05a-c897-4594-a3df-c53ebeb4be6d}</UniqueIdentifier>
     </Filter>
     <Filter Include="classes">
-      <UniqueIdentifier>{720b3d8f-1705-4498-8d60-fb9f0ccd2cdc}</UniqueIdentifier>
+      <UniqueIdentifier>{98ff1b42-62d1-4062-9914-259d35faff37}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Native">
-      <UniqueIdentifier>{4f34f589-47f8-4b1c-80fd-b1694e9da5e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="File&amp;disk">
-      <UniqueIdentifier>{71954b12-1fb0-4022-9fcf-9111f76610ab}</UniqueIdentifier>
+    <Filter Include="volume">
+      <UniqueIdentifier>{2dba6579-275d-404d-9b5b-c71c4814df11}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
