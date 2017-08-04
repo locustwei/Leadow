@@ -8,6 +8,8 @@
 // Windows 头文件:
 #include <windows.h>
 
+#pragma warning(disable:4996 4091)
+
 // C 运行时头文件
 #include <stdlib.h>
 #include <malloc.h>
@@ -20,6 +22,6 @@
 #include "../DuiLib/Uilib.h"
 
 using namespace DuiLib;
-
+using namespace LeadowLib;
 
 

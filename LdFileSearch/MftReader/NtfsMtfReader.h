@@ -10,8 +10,7 @@
 
 #include "stdafx.h"
 #include "MftReader.h"
-#include "ntfs.h"
-
+#include <volume/ntfs.h>
 
 typedef struct RUN_LINKE{
 	UINT64 lcn;

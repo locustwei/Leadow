@@ -1,7 +1,7 @@
 #pragma once
 
 #include "MftReader.h"
-#include "Fat.h"
+#include <volume/fat.h>
 
 class CFatMftReader: public CMftReader
 {
