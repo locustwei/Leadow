@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Erasure.h"
-#include "Winerror.h"
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
 #define MIN_TEMPFILESIZE 1024 * 1024 * 256   //历时文件最小值（文件太小会影响擦除速度）
