@@ -1,7 +1,8 @@
 #pragma once
 #include "../ldapp/LdStructs.h"
+#include "../classes/LdString.h"
+
 namespace LeadowLib {
-	class CLdString;
 
 	class CFileUtils
 	{

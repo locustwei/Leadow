@@ -3,7 +3,7 @@
 #include "ShFileView.h"
 
 
-class LDLIB_API CErasureVolumeUI : 
+class CErasureVolumeUI : 
 	public CShFileViewUI,
 	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）

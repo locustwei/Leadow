@@ -5,7 +5,7 @@ typedef enum ErasureMethodPassFunction {
 	WriteConstant
 };
 
-class LDLIB_API ErasureMethodPass
+class ErasureMethodPass
 {
 public:
 	ErasureMethodPass()

@@ -9,7 +9,6 @@
 #include <shellapi.h>
 #include <io.h>
 #include <fcntl.h>
-#include <Ldlib.h>
 #include "../LdFileSearch/SearchLibrary.h"
 
 

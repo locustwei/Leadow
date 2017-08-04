@@ -156,6 +156,7 @@
     <ClInclude Include="file\FileUtils.h" />
     <ClInclude Include="ldapp\LdNamedPipe.h" />
     <ClInclude Include="ldapp\LdStructs.h" />
+    <ClInclude Include="ldapp\Ldbrary.h" />
     <ClInclude Include="ldapp\PublicRoutimes.h" />
     <ClInclude Include="LdLib.h" />
     <ClInclude Include="stdafx.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />
     <ClCompile Include="ldapp\LdNamedPipe.cpp" />
+    <ClCompile Include="ldapp\Ldbrary.cpp" />
     <ClCompile Include="ldapp\PulicRoutimes.cpp" />
     <ClCompile Include="LdLib.cpp" />
     <ClCompile Include="stdafx.cpp">

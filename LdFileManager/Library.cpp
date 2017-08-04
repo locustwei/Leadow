@@ -1,24 +1,9 @@
 #include "stdafx.h"
 #include "Library.h"
 
-typedef PVOID(*Library_Init)(PAuthorization);
-typedef VOID(*Library_UnInit)();
-
-
-PVOID CLdLibray::InitLib(TCHAR * pLibFile, PAuthorization pAut)
-{
-	HMODULE hModule = LoadLibrary(pLibFile);
-	if (hModule == NULL)
-		return nullptr;
-	Library_Init fnInit = (Library_Init)GetProcAddress(hModule, "API_Init");
-	if (fnInit == NULL)
-		return NULL;
-	return fnInit(pAut);
-}
-
 IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, PAuthorization pAut)
 {
-	IErasureLibrary * result = (IErasureLibrary*)InitLib(_T("LdFileEraser_d64.dll"));
+	IErasureLibrary * result = (IErasureLibrary*)CLdDynamicLibrary::InitLib(_T("LdFileEraser_d64.dll"));
 
 	if(result)
 	{
@@ -34,7 +19,7 @@ IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, PAuthorizatio
 
 IErasureLibrary * CLdLibray::LoadProtectLarary(PAuthorization pAut)
 {
-	return (IErasureLibrary*)InitLib(_T("LdFileProtect_d64.dll"));
+	return (IErasureLibrary*)CLdDynamicLibrary::InitLib(_T("LdFileProtect_d64.dll"));
 }
 
 CControlUI * CLdLibray::BuildXml(TCHAR * skinXml, CPaintManagerUI * pm)

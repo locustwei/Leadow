@@ -1,7 +1,7 @@
 #pragma once
 
 
-class LDLIB_API CShFileViewUI : 
+class CShFileViewUI : 
 	public CFramNotifyPump, 
 	IGernalCallback<CLdArray<TCHAR*>*>,  	 //CSHFolders::EnumFolderObjects »Øµô
 	public IGernalCallback<PSH_HEAD_INFO>           //CSHFolders::EnumFolderColumes »Øµô

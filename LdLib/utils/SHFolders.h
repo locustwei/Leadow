@@ -36,6 +36,7 @@ namespace LeadowLib {
 		static HRESULT EnumFolderObjects(DWORD dwFolder, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 		static HRESULT EnumFolderObjects(TCHAR* lpFullName, IGernalCallback<CLdArray<TCHAR*>*>* callback, UINT_PTR Param, HWND hOwnerWnd = nullptr);
 		//FOLDERID_Downloads
+#pragma warning(disable:4114) //不理解这个警告
 		static CLdString GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag = KF_FLAG_DEFAULT, HANDLE hToken = nullptr);
 		/*
 		获取文件的属性值90
