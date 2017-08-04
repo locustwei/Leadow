@@ -1,7 +1,7 @@
 #pragma once
 
 
-class LDLIB_API CErasureMainWnd : public CFramNotifyPump
+class CErasureMainWnd : public CFramNotifyPump
 {
 public:
 	CErasureMainWnd();

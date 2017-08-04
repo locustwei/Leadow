@@ -258,7 +258,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(UINT nStep, UINT64 nM
 	if (m_Control->m_Abort)
 		return false;
 
-	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_progress, nCurent * 100 / nMaxCount))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_progress, (DWORD)(nCurent * 100 / nMaxCount)))
 		return false;
 	return true;
 }

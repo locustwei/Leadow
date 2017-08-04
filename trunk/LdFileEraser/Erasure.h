@@ -29,7 +29,7 @@ public:
 	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) = 0;
 };
 
-class LDLIB_API CErasure
+class CErasure
 {
 public:
 	CErasure();

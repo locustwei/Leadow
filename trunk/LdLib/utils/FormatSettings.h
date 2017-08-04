@@ -30,7 +30,7 @@ namespace LeadowLib {
 		//WORD GetTwoDigitYearCenturyWindow();
 		static BYTE GetNegCurrFormat();
 
-		static CLdString GetLocaleStr(LCTYPE LocalType, TCHAR* Default = _T(""), LCID Local = 0);
+		static CLdString GetLocaleStr(LCTYPE LocalType, TCHAR* Default = nullptr, LCID Local = 0);
 	};
 
 };

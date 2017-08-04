@@ -13,7 +13,7 @@
 #include "ErasureThread.h"
 #include "ShFileView.h"
 
-class LDLIB_API CErasureRecycleUI : 
+class CErasureRecycleUI : 
 	public CShFileViewUI,
 	//public CFramNotifyPump, 
 //	IFindCompare<PERASURE_FILE_DATA>,    //文件搜索比较回掉

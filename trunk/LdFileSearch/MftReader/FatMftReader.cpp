@@ -314,7 +314,7 @@ BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pP
 	if(pFatFile->Attr & FFT_DIRECTORY)
 		aFileInfo->AllocatedSize = MAKELONG(pFatFile->ClusterNumberLow, pFatFile->ClusterNumberHigh);
 	else{
-		ULARGE_INTEGER l = {(DWORD)(pParentDir->ReferenceNumber - pFatFile->ReferenceNumber), MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh)};
+		ULARGE_INTEGER l = {(DWORD)(pParentDir->ReferenceNumber - pFatFile->ReferenceNumber), (DWORD)MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh)};
 		aFileInfo->AllocatedSize =  l.QuadPart;
 	}
 

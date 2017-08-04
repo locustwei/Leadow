@@ -12,6 +12,7 @@
 #include "classes/LdTree.h"
 #include "file/FileInfo.h"
 #include "volume/VolumeInfo.h"
+#include "ldapp/Ldbrary.h"
 
 #include "utils/ProcessUtils.h"
 #include "file/FileUtils.h"
@@ -29,9 +30,8 @@
 
 #define MAKEINT64(low, hi)      ((UINT64)low & 0xffff) | (((UINT64)hi & 0xffff) << 32)
 
-#define PAuthorization PVOID    //ÎªÊÚÈ¨ÁôÓÃ
-
 namespace LeadowLib {
+
 	class CLdApp
 	{
 	public:

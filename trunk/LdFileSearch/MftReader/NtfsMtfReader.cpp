@@ -154,7 +154,7 @@ PATTRIBUTE CNtfsMtfReader::EnumAttribute(PATTRIBUTE pAttrHeader, DWORD size, ATT
 //					PNONRESIDENT_ATTRIBUTE(attr)->RunArrayOffset);
 				PUCHAR p = new UCHAR[m_BpbData->BytesPerClusters];
 				ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE(attr), 0, 1, p, true);
-				result = EnumAttribute(PATTRIBUTE(p), PNONRESIDENT_ATTRIBUTE(attr)->DataSize, type, name, n_attr_count);
+				result = EnumAttribute(PATTRIBUTE(p), (DWORD)PNONRESIDENT_ATTRIBUTE(attr)->DataSize, type, name, n_attr_count);
 				delete [] p;
 			}
 			if(result)

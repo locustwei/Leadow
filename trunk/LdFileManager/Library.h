@@ -8,6 +8,4 @@ public:
 	static IErasureLibrary* LoadEraserLarary(CPaintManagerUI* pm, PAuthorization pAut = nullptr);
 	static IErasureLibrary* LoadProtectLarary(PAuthorization pAut = nullptr);
 	static CControlUI * BuildXml(TCHAR * skinXml, CPaintManagerUI* pm);
-private:
-	static PVOID InitLib(TCHAR * pLibFile, PAuthorization pAut = nullptr);
 };

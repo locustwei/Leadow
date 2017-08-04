@@ -24,13 +24,12 @@ class CErasureCallbackImpl : public IErasureCallback
 {
 public:
 	IErasureCallback* m_Callback;
-	UINT64 m_Max, m_Current, m_Step;
+	UINT64 m_Max, m_Current;
 
 	CErasureCallbackImpl()
 	{
 		m_Current = 0;
 		m_Max = 0;
-		m_Step = 0;
 		m_Callback = NULL;
 	};
 
@@ -54,7 +53,7 @@ public:
 	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) override
 	{
 		m_Current += nCurent;
-		return m_Callback->ErasureProgress(m_Step, m_Max, m_Current);
+		return m_Callback->ErasureProgress(nStep, m_Max, m_Current);
 	}
 
 private:
@@ -159,7 +158,7 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 	DWORD result;
 	UINT64 nFreeSpace;
 	UINT64 nFileSize;
-	UINT nFileCount; //被删除的文件数。（估算）
+	UINT64 nFileCount; //被删除的文件数。（估算）
 
 //	Result = m_volInfo->GetTotalSize(&nFreeSpace);
 //	if (Result == 0)
@@ -205,7 +204,7 @@ DWORD CErasure::EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IEra
 {
 	DWORD Result = 0;
 
-	for (int i = 0; i < m_method->GetPassCount(); i++)
+	for (UINT i = 0; i < m_method->GetPassCount(); i++)
 	{
 		ErasureMethodPass* pd = m_method->GetPassData(i);
 		switch (pd->function)
@@ -242,11 +241,11 @@ DWORD CErasure::WriteFileRandom(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize
 {
 	if (callbck && !callbck->ErasureProgress(1, nFileSize - nStartPos, 0))
 		return ERROR_CANCELED;
-
-	if(SetFilePointer(hFile, nStartPos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	LARGE_INTEGER pos; pos.QuadPart = nStartPos;
+	if(SetFilePointerEx(hFile, pos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return GetLastError();
 
-	DWORD result = 0, dwCb, nBufferSize = min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
+	DWORD result = 0, dwCb, nBufferSize = (DWORD)min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
 
 	PBYTE Buffer = new BYTE[nBufferSize];
 	for (int i = 0; i < nBufferSize / sizeof(UINT64); i++)
@@ -256,7 +255,7 @@ DWORD CErasure::WriteFileRandom(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize
 	int tryCount = 3;
 	while (nFileSize > nCurrent)
 	{
-		UINT nSize = min(nBufferSize, nFileSize - nStartPos - nCurrent);
+		UINT nSize = (UINT)min(nBufferSize, nFileSize - nStartPos - nCurrent);
 		
 		if (!WriteFile(hFile, Buffer, nSize, &dwCb, NULL))
 		{
@@ -283,21 +282,21 @@ DWORD CErasure::WriteFileConst(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize,
 {
 	if (callbck && !callbck->ErasureProgress(1, nFileSize - nStartPos, 0))
 		return ERROR_CANCELED;
-
-	if(SetFilePointer(hFile, nStartPos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	LARGE_INTEGER pos; pos.QuadPart = nStartPos;
+	if(SetFilePointerEx(hFile, pos, NULL /*DWORD((nStartPos >> 32) & 0xFFFFFFFF)*/, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return GetLastError();
 	
-	DWORD result = 0, dwCb, nBufferSize = min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
+	DWORD result = 0, dwCb, nBufferSize = (DWORD)min(nFileSize - nStartPos, MAX_BUFFER_SIZE);
 	nBufferSize = nBufferSize - (nBufferSize % nCount);
 	PBYTE Buffer = new BYTE[nBufferSize];
-	for (int i = 0; i < nBufferSize / nCount; i++)
+	for (UINT i = 0; i < nBufferSize / nCount; i++)
 		memcpy(Buffer + i*nCount, bytes, nCount);
 
 	UINT64 nCurrent = 0;
 	int tryCount = 3;
 	while (nFileSize > nCurrent)
 	{
-		UINT nSize = min(nBufferSize, nFileSize - nStartPos - nCurrent);
+		UINT nSize = (DWORD)min(nBufferSize, nFileSize - nStartPos - nCurrent);
 		if (!WriteFile(hFile, Buffer, nSize, &dwCb, NULL))
 		{
 			tryCount--;
@@ -498,8 +497,8 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 		nMftSize = pBpb->MftValidDataLength;
 		if (result != 0)
 			break;
-		int pollingInterval = min(max(1, nMftSize / pBpb->BytesPerClusters / 20), 128);
-		int totalFiles = max(1L, nMftSize / pBpb->BytesPerFileRecordSegment);
+		int pollingInterval = (int)min(max(1, nMftSize / pBpb->BytesPerClusters / 20), 128);
+		int totalFiles = (int)max(1L, nMftSize / pBpb->BytesPerFileRecordSegment);
 
 		if (callback && !callback->ErasureProgress(1, totalFiles, 0))
 			return ERROR_CANCELED;

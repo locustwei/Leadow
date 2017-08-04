@@ -1,8 +1,13 @@
 #pragma once
 
+#define PAuthorization PVOID    //为授权留用
+
 namespace LeadowLib {
 	//功能函数ID
 	//
+
+#pragma warning(disable:4091) //不理解这个警告
+
 	typedef enum LD_FUNCTION_ID
 	{
 		LFI_NONE,
@@ -42,4 +47,5 @@ namespace LeadowLib {
 	public:
 		virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
 	};
+
 };
