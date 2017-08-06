@@ -114,7 +114,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;MftLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/LdFileEraser_d64.lib</ImportLibrary>
       <ModuleDefinitionFile>LdFileEraser.def</ModuleDefinitionFile>
     </Link>
