@@ -153,6 +153,16 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	return result;
 }
 
+DWORD CErasure::AnalysisVolume(CVolumeInfo* pvolume)
+{
+	CMftReader* reader = CMftReader::CreateReader(pvolume);
+	if (!reader)
+		return -1;
+	reader->SetHolder(this);
+	reader->EnumFiles(1);
+	return 0;
+}
+
 DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 {
 	DWORD result;
@@ -332,6 +342,7 @@ DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 		result = EraseNtfsFreeSpace(callback);
 		break;
 	case FS_FAT32:
+		result = EraseFatFreeSpace(callback);
 		break;
 	case FS_UNKNOW: break;
 	case FS_FAT16: break;
@@ -381,6 +392,11 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 	return result;
 }
 
+DWORD CErasure::EraseFatFreeSpace(IErasureCallback* callback)
+{//这里没事可干
+	return 0;
+}
+
 DWORD CErasure::CreateTempFile(UINT64 nFileSize, HANDLE* pOut, int nFileNameLength)
 {
 	DWORD Result = 0;
@@ -416,13 +432,13 @@ DWORD CErasure::ResetFileDate(HANDLE hFile)
 	FILE_BASIC_INFO binfo = { 0 };
 	SYSTEMTIME ts = { 0 };
 
-	ts.wYear = 1601;
+	ts.wYear = 1980;
 	ts.wMonth = 1;
 	ts.wDay = 1;
 	ts.wMinute = 1;
 	FILETIME ft;
 	SystemTimeToFileTime(&ts, &ft);
-
+	
 	binfo.ChangeTime.HighPart = ft.dwHighDateTime;
 	binfo.ChangeTime.LowPart = ft.dwLowDateTime;
 
@@ -435,7 +451,7 @@ DWORD CErasure::ResetFileDate(HANDLE hFile)
 	binfo.CreationTime.HighPart = ft.dwHighDateTime;
 	binfo.CreationTime.LowPart = ft.dwLowDateTime;
 
-	binfo.FileAttributes = FILE_ATTRIBUTE_SYSTEM;
+	binfo.FileAttributes = FILE_ATTRIBUTE_NORMAL;
 
 	//return NtSetInformationFile(hFile, &binfo, sizeof(FILE_BASIC_INFO), FileBasicInformation);
 	if (!SetFileInformationByHandle(hFile, FileBasicInfo, &binfo, sizeof(FILE_BASIC_INFO)))
@@ -461,7 +477,6 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 	DWORD Result = 0;
 	if (callback)
 		callback->ErasureProgress(3, m_Tmpfiles.GetCount(), 0);
-	
 	for (int i = 0; i < m_Tmpfiles.GetCount(); i++)
 	{
 		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
@@ -483,6 +498,16 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 			callback->ErasureProgress(3, m_Tmpfiles.GetCount(), i);
 	}
 	return Result;
+}
+
+BOOL CErasure::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param)
+{
+	if(!pFileInfo)
+	{
+		if(pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
+			
+	}
+	return Param == 0;
 }
 
 DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
@@ -533,6 +558,13 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 
 DWORD CErasure::EraseFatTrace(IErasureCallback* callback)
 {
+	CMftReader* reader = CMftReader::CreateReader(m_volInfo);
+	reader->SetHolder(this);
+	//reader->EnumFiles(nullptr);
+	DWORD dwFileCount = 0;
+	DWORD result = ((CFatMftReader*)reader)->EraseTrace(dwFileCount);
+	delete reader;
+
 	return 0;
 }
 

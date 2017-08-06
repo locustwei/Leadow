@@ -173,40 +173,68 @@ namespace LeadowLib {
 	UINT64 CVolumeInfo::GetAvailableFreeSpace(PDWORD pErrorCode)
 	{
 		CLdString path;
+
 		if (!m_FileName.IsEmpty())
 			path = m_FileName;
 		else if (!m_VolumeGuid.IsEmpty())
 			path = m_VolumeGuid + _T("\\");
-		else
+		else if(pErrorCode)
+		{
+			*pErrorCode = -1;
 			return 0;
+		}
 
 		ULARGE_INTEGER FreeBytesAvailable;
-		if (GetDiskFreeSpaceEx(path, &FreeBytesAvailable, NULL, NULL))
+		if (::GetDiskFreeSpaceEx(path, &FreeBytesAvailable, NULL, NULL))
+		{
+			if (pErrorCode)
+				*pErrorCode = 0;
 			return FreeBytesAvailable.QuadPart;
-		else
-			return 0;
+		}
+		else if(pErrorCode)
+			*pErrorCode = GetLastError();
+		return 0;
 	}
 
 	UINT64 CVolumeInfo::GetTotalFreeSpace(PDWORD pErrorCode)
 	{
 		if (m_VolumeGuid.IsEmpty())
+		{
+			if (pErrorCode)
+				*pErrorCode = -1;
 			return 0;
+		}
 		ULARGE_INTEGER TotalFreeSpace;
+
 		if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, NULL, &TotalFreeSpace))
+		{
+			if (pErrorCode)
+				*pErrorCode = 0;
 			return TotalFreeSpace.QuadPart;
-		else
-			return 0;
+		}
+		else if(pErrorCode)
+			*pErrorCode = GetLastError();
+		return 0;
 	}
 
 	UINT64 CVolumeInfo::GetTotalSize(PDWORD pErrorCode)
 	{
 		if (m_VolumeGuid.IsEmpty())
+		{
+			if (pErrorCode)
+				*pErrorCode = -1;
 			return 0;
+		}
 		ULARGE_INTEGER TotalSize;
 		if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, &TotalSize, NULL))
+		{
+			if (pErrorCode)
+				*pErrorCode = 0;
 			return TotalSize.QuadPart;
-		else
-			return 0;
+		}
+		else if (pErrorCode)
+			*pErrorCode = GetLastError();
+		return 0;
 	}
 
 	BOOL CVolumeInfo::HasQuota()

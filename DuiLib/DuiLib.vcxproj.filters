@@ -159,9 +159,6 @@
     <ClCompile Include="LeadowUI\FramNotifyPump.cpp">
       <Filter>LeadowUI</Filter>
     </ClCompile>
-    <ClCompile Include="LeadowUI\ShellTree.cpp">
-      <Filter>LeadowUI</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -288,9 +285,6 @@
       <Filter>LeadowUI</Filter>
     </ClInclude>
     <ClInclude Include="LeadowUI\FramNotifyPump.h">
-      <Filter>LeadowUI</Filter>
-    </ClInclude>
-    <ClInclude Include="LeadowUI\ShellTree.h">
       <Filter>LeadowUI</Filter>
     </ClInclude>
   </ItemGroup>

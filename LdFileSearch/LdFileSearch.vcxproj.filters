@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="MftReader">
-      <UniqueIdentifier>{fd9aded2-052a-47f2-a11d-23f899a0a369}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -33,15 +30,6 @@
     <ClCompile Include="SearchLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MftReader\NtfsMtfReader.cpp">
-      <Filter>MftReader</Filter>
-    </ClCompile>
-    <ClCompile Include="MftReader\FatMftReader.cpp">
-      <Filter>MftReader</Filter>
-    </ClCompile>
-    <ClCompile Include="MftReader\MftReader.cpp">
-      <Filter>MftReader</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -55,15 +43,6 @@
     </ClInclude>
     <ClInclude Include="SearchLibrary.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MftReader\NtfsMtfReader.h">
-      <Filter>MftReader</Filter>
-    </ClInclude>
-    <ClInclude Include="MftReader\FatMftReader.h">
-      <Filter>MftReader</Filter>
-    </ClInclude>
-    <ClInclude Include="MftReader\MftReader.h">
-      <Filter>MftReader</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -87,8 +87,6 @@ namespace LeadowLib {
 		BYTE Reserved1;
 		union {
 			struct {
-				// 			CHAR Name[8];
-				// 			CHAR ExtName[3];
 				BYTE CreateTimeTength;
 				WORD CreateTime;
 				WORD CreateDate;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ErasureMethod.h"
+#include "../MftLib/FatMftReader.h"
 
 //#define ERASE_UNUSED_SPACE 0xF1
 #define ERROR_CANCELED 0xC0000001
@@ -29,7 +30,7 @@ public:
 	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) = 0;
 };
 
-class CErasure
+class CErasure: public IMftReadeHolder
 {
 public:
 	CErasure();
@@ -49,6 +50,7 @@ public:
 	// Parameter: IErasureCallback * callbck
 	//************************************
 	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod* method, IErasureCallback* callbck);
+	DWORD AnalysisVolume(CVolumeInfo* pvolume);
 private:
 	CVolumeInfo* m_volInfo;
 	CLdString m_tmpDir;
@@ -83,5 +85,7 @@ private:
 
 	//删除产生的临时文件
 	DWORD DeleteTempFiles(IErasureCallback* callback);
+
+	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) override;
 };
 

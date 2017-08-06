@@ -127,7 +127,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ModuleDefinitionFile>.\LdFileSearch.def</ModuleDefinitionFile>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>LdLib_d64.lib;DuiLib_d64.lib;MftLib_d64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>../lib/LdFileSearch_d64.lib</ImportLibrary>
     </Link>
     <Midl>
@@ -201,9 +201,6 @@
     <None Include="res\LdFileSearch.rc2" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="MftReader\FatMftReader.cpp" />
-    <ClCompile Include="MftReader\MftReader.cpp" />
-    <ClCompile Include="MftReader\NtfsMtfReader.cpp" />
     <ClCompile Include="SearchLibrary.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -213,9 +210,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="MftReader\FatMftReader.h" />
-    <ClInclude Include="MftReader\MftReader.h" />
-    <ClInclude Include="MftReader\NtfsMtfReader.h" />
     <ClInclude Include="SearchLibrary.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
