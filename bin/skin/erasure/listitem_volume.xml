@@ -8,5 +8,17 @@
 					<Progress name="progress" visible="false" min="0" max="100" value="0" />
 			</VerticalLayout>
 		</HorizontalLayout>
+		<VerticalLayout inset="4,0,4,0">
+				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="desc" text="asdfasdfasd" inset="0,0,5,0"/>
+		</VerticalLayout>
+		<VerticalLayout inset="4,0,4,0">
+				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="desc" text="sdfasdfasdfass" inset="0,0,5,0"/>
+		</VerticalLayout>
+		<VerticalLayout inset="4,0,4,0">
+				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="desc" text="asdfasdfasdf" inset="0,0,5,0"/>
+		</VerticalLayout>
   </ListContainerElement>
 </Window>

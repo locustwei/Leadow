@@ -169,7 +169,7 @@ public:
 	//ÐéÄâ´°¿Ú²ÎÊý
 	void SetVirtualWnd(LPCTSTR pstrValue);
 	CDuiString GetVirtualWnd() const;
-
+	virtual CControlUI* FindParentControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags);
 public:
     CEventSource OnInit;
     CEventSource OnDestroy;
