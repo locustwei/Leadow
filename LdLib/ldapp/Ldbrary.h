@@ -1,10 +1,7 @@
 #pragma once
-#include "../LdLib.h"
+#include "LdStructs.h"
 
 namespace LeadowLib {
-
-	typedef PVOID(*Library_Init)(PAuthorization);
-	typedef VOID(*Library_UnInit)();
 
 	class CLdDynamicLibrary
 	{
