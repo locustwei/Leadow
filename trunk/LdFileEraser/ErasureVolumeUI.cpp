@@ -19,11 +19,25 @@ CErasureVolumeUI::~CErasureVolumeUI()
 
 void CErasureVolumeUI::OnSelectChanged(TNotifyUI & msg)
 {
+	CCheckBoxUI* pchk_ui = (CCheckBoxUI*)msg.pSender->GetInterface(DUI_CTR_CHECKBOX);
+	if (pchk_ui)
+	{
+		CListContainerElementUI* p_ui = (CListContainerElementUI*)pchk_ui->FindParentControl(CDuiUtils::FindControlByClassProc, DUI_CTR_LISTCONTAINERELEMENT, 0);
+		if (!p_ui)
+			return;
+		if(pchk_ui->GetCheck())
+		{
+			CVolumeInfo* p_info = (CVolumeInfo*)p_ui->GetTag();
+
+			p_ui->SetFixedHeight(80);
+		}
+		else
+			p_ui->SetFixedHeight(40);
+	}
 }
 
 void CErasureVolumeUI::OnItemClick(TNotifyUI & msg)
 {
-	
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureVolumeUI, CShFileViewUI)
@@ -124,7 +138,7 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		p->ui = AddRecord(&atts);
-
+		p->ui->SetTag((UINT_PTR)volume);
 		volume->SetTag((UINT_PTR)p);
 
 		for (int j = 1; j < atts.GetCount(); j++)

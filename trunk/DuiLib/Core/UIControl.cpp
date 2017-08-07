@@ -889,7 +889,21 @@ CDuiString CControlUI::GetVirtualWnd() const
 	return str;
 }
 
-CDuiString CControlUI::GetAttribute(LPCTSTR pstrName)
+	CControlUI* CControlUI::FindParentControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)
+	{
+		if (GetParent())
+		{
+			CControlUI* pctrl_ui = Proc(GetParent(), pData);
+			if (pctrl_ui)
+				return pctrl_ui;
+			else
+				return GetParent()->FindParentControl(Proc, pData, uFlags);
+		}
+		else
+			return nullptr;
+	}
+
+	CDuiString CControlUI::GetAttribute(LPCTSTR pstrName)
 {
     return _T("");
 }

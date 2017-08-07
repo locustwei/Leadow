@@ -6,6 +6,12 @@
 //#define ERASE_UNUSED_SPACE 0xF1
 #define ERROR_CANCELED 0xC0000001
 
+typedef struct _ERASE_ANALY
+{
+	UINT64 n_free_size;
+	UINT   
+};
+
 /*!
 回掉函数，用于中断处理、报告进度
  */

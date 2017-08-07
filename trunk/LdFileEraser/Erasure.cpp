@@ -118,7 +118,10 @@ DWORD CErasure::AnalysisVolume(CVolumeInfo* pvolume)
 		return -1;
 	reader->SetHolder(this);
 	reader->EnumFiles(1);
-	pvolume->GetVolumeMftData();
+	PVOLUME_BPB_DATA pData = pvolume->GetVolumeMftData();
+	pvolume->GetAvailableFreeSpace();
+	pvolume->GetTotalSize();
+	
 	return 0;
 }
 
