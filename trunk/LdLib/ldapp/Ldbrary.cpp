@@ -1,7 +1,11 @@
 #include "stdafx.h"
 #include "Ldbrary.h"
+#include "../LdLib.h"
 
 namespace LeadowLib {
+
+	typedef PVOID(*Library_Init)(PAuthorization);
+	typedef VOID(*Library_UnInit)();
 
 	PVOID CLdDynamicLibrary::InitLib(TCHAR * pLibFile, PAuthorization pAut)
 	{
