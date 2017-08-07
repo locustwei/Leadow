@@ -53,11 +53,11 @@ public:
 	DWORD AnalysisVolume(CVolumeInfo* pvolume);
 private:
 	CVolumeInfo* m_volInfo;
-	CLdString m_tmpDir;
+	CLdString m_tmpDir;      //历史文件目录名
 	//IErasureCallback* m_callback;
-	CErasureMethod* m_method; 
-	CLdArray<CLdString> m_Tmpfiles;
-	
+	CErasureMethod* m_method;      //擦除方法
+	CLdArray<CLdString> m_Tmpfiles;     //保持生成的临时文件名
+	UINT64 m_DeleteFileTraces;    //被删除的文件个数
 	//擦除文件
 	DWORD EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
 	//写随机数据
@@ -86,6 +86,6 @@ private:
 	//删除产生的临时文件
 	DWORD DeleteTempFiles(IErasureCallback* callback);
 
-	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) override;
+	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override;
 };
 

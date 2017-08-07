@@ -8,7 +8,8 @@
 CErasure::CErasure():
 	m_Tmpfiles(),
 	m_tmpDir(),
-	m_volInfo()
+	m_volInfo(),
+	m_DeleteFileTraces(0)
 {
 	m_method = NULL;
 }
@@ -17,47 +18,6 @@ CErasure::CErasure():
 CErasure::~CErasure()
 {
 }
-/*!
-分步进行回掉函数实现
- */
-class CErasureCallbackImpl : public IErasureCallback
-{
-public:
-	IErasureCallback* m_Callback;
-	UINT64 m_Max, m_Current;
-
-	CErasureCallbackImpl()
-	{
-		m_Current = 0;
-		m_Max = 0;
-		m_Callback = NULL;
-	};
-
-	~CErasureCallbackImpl()
-	{
-	};
-
-
-	virtual BOOL ErasureStart(UINT nStepCount) override
-	{
-		return m_Callback->ErasureStart(nStepCount);
-	}
-
-
-	virtual BOOL ErasureCompleted(UINT nStep, DWORD dwErroCode) override
-	{
-		return m_Callback->ErasureCompleted(nStep, dwErroCode);
-	}
-
-
-	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) override
-	{
-		m_Current += nCurent;
-		return m_Callback->ErasureProgress(nStep, m_Max, m_Current);
-	}
-
-private:
-};
 
 DWORD CErasure::UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMethod* method, IErasureCallback* callback)
 {
@@ -117,8 +77,6 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	
 	if (!callbck->ErasureStart(method->GetPassCount()))
 		return ERROR_CANCELED;
-	//Sleep(100);
-
 
 	DWORD dwAttr = GetFileAttributes(lpFileName);
 	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
@@ -160,6 +118,7 @@ DWORD CErasure::AnalysisVolume(CVolumeInfo* pvolume)
 		return -1;
 	reader->SetHolder(this);
 	reader->EnumFiles(1);
+	pvolume->GetVolumeMftData();
 	return 0;
 }
 
@@ -169,15 +128,6 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 	UINT64 nFreeSpace;
 	UINT64 nFileSize;
 	UINT64 nFileCount; //被删除的文件数。（估算）
-
-//	Result = m_volInfo->GetTotalSize(&nFreeSpace);
-//	if (Result == 0)
-//		return Result;
-//	Result = m_volInfo->GetClusterSize(&nFileSize);
-//	if (Result == 0)
-//		return Result;
-//
-//	nFileCount = nFreeSpace / MAX_TEMPFILESIZE;
 
 	nFreeSpace = m_volInfo->GetAvailableFreeSpace(&result);
 	if (result != 0)
@@ -500,12 +450,17 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 	return Result;
 }
 
-BOOL CErasure::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param)
+BOOL CErasure::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
 {
-	if(!pFileInfo)
+	if(Param == 1)
 	{
-		if(pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
-			
+		if (!pFileInfo)
+		{
+			if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
+			{
+				m_DeleteFileTraces++;
+			}
+		}
 	}
 	return Param == 0;
 }
