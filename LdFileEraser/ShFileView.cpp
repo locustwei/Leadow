@@ -57,7 +57,7 @@ DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
 	{
 		CSHFolders::EnumFolderColumes(lpFullName, this, 0);
 	}
-
+	
 	CLdArray<TCHAR*> values;
 	CSHFolders::GetFileAttributeValue(lpFullName, &values);
 	AddRecord(&values);

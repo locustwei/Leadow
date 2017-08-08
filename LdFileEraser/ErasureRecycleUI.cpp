@@ -94,6 +94,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		p->ui = AddRecord(pData);
+		p->ui->OnPaint += MakeDelegate(this, &CErasureRecycleUI::OnListItemPaint);
 		file->SetTag((UINT_PTR)p);
 		if (file->GetFileType() == vft_folder)
 		{
@@ -208,6 +209,11 @@ void CErasureRecycleUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 			delete file;
 		}
 	}
+}
+
+bool CErasureRecycleUI::OnListItemPaint(PVOID Param)
+{
+	return true;
 }
 
 bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
