@@ -20,6 +20,7 @@ private:
 		E_FILE_STATE nStatus;             //擦除状态
 		DWORD        nErrorCode;          //错误代码（如果错误）
 		CControlUI* ui;                   //listView 行
+		PVOID pAnalyData;
 	}*PFILE_ERASURE_DATA;
 
 	CButtonUI* btnOk;

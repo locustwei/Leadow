@@ -28,8 +28,11 @@ void CErasureVolumeUI::OnSelectChanged(TNotifyUI & msg)
 		if(pchk_ui->GetCheck())
 		{
 			CVolumeInfo* p_info = (CVolumeInfo*)p_ui->GetTag();
-
-			p_ui->SetFixedHeight(80);
+			PFILE_ERASURE_DATA pEraseData = (PFILE_ERASURE_DATA)p_info->GetTag();
+			if (pEraseData->pAnalyData)
+				p_ui->SetFixedHeight(80);
+			else
+				;// m_EreaserThreads.AnalyVolume(p_info);
 		}
 		else
 			p_ui->SetFixedHeight(40);

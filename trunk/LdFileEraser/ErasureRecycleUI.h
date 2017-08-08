@@ -52,6 +52,7 @@ private:
 	void FreeRecycleFiles(CLdArray<CVirtualFile*>* files);
 	DWORD SetFolderFilesData(CLdArray<CVirtualFile*>* files);
 	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);
+	bool OnListItemPaint(PVOID Param);
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 
