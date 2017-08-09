@@ -186,6 +186,19 @@ namespace LeadowLib {
 		return 0;
 	}
 
+	DWORD ClearFileSecurity(TCHAR* pFileName)
+	{
+		SECURITY_DESCRIPTOR sd;
+		EnableTokenPrivilege(SE_BACKUP_NAME);
+		EnableTokenPrivilege(SE_RESTORE_NAME);
+		InitializeSecurityDescriptor(&sd, SECURITY_DESCRIPTOR_REVISION);
+		SetSecurityDescriptorDacl(&sd, true, nullptr, false);
+		SetFileSecurity(pFileName, DACL_SECURITY_INFORMATION, &sd);
+		//SetEveryoneRWEDAccessToFileOrFolder(FileName);
+		SetFileAttributes(pFileName, FILE_ATTRIBUTE_NORMAL);
+		//return DeleteFile(pFileName);
+		return 0;
+	}
 #pragma region Î´¹«¿ªAPI
 
 	//SYSTEM_INFORMATION_CLASS SystemHandleInformation = (SYSTEM_INFORMATION_CLASS)16;

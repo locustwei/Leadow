@@ -94,7 +94,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 		ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 		p->ui = AddRecord(pData);
-		p->ui->OnPaint += MakeDelegate(this, &CErasureRecycleUI::OnListItemPaint);
+		p->ui->OnAfterPaint += MakeDelegate(this, &CErasureRecycleUI::OnListItemPaint);
 		file->SetTag((UINT_PTR)p);
 		if (file->GetFileType() == vft_folder)
 		{
@@ -213,13 +213,19 @@ void CErasureRecycleUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 
 bool CErasureRecycleUI::OnListItemPaint(PVOID Param)
 {
+	PUI_PAINT_PARAM pPaint = (PUI_PAINT_PARAM)Param;
+	UINT_PTR percent = pPaint->sender->GetTag();
+	if (percent == 0)
+		return true;
+	RECT rect = pPaint->sender->GetPos();
+	rect.right = rect.left + (rect.right - rect.left) / 100 * percent;
+	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x80FFFF00);
 	return true;
 }
 
 bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
-	CProgressUI* pui;
 
 	switch(op)
 	{
@@ -236,15 +242,6 @@ bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTIO
 				pEraserData = new FILE_ERASURE_DATA;
 				ZeroMemory(pEraserData, sizeof(FILE_ERASURE_DATA));
 				p->SetTag((UINT_PTR)pEraserData);
-				continue;
-			}
-			if (pEraserData->ui)
-			{
-				pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
-				if (pui)
-				{
-					pui->SetVisible(true);
-				}
 			}
 		}
 		break;
@@ -269,14 +266,13 @@ bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTIO
 			//更新所属文件夹进度
 			if (pEraserData && pEraserData->ui)
 			{
-				pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
-				if (pui)
-				{
-					if (pEraserData->nCount == 0 || pEraserData->nErasued > pEraserData->nCount)
-						pui->SetValue(pui->GetMaxValue());
-					else
-						pui->SetValue(pEraserData->nErasued * 100 / pEraserData->nCount);
-				}
+				if (pEraserData->nCount == 0 || pEraserData->nErasued > pEraserData->nCount)
+					pEraserData->ui->SetTag(100);
+				//pui->SetValue(pui->GetMaxValue());
+				else
+					pEraserData->ui->SetTag(pEraserData->nErasued * 100 / pEraserData->nCount);
+					//pui->SetValue(pEraserData->nErasued * 100 / pEraserData->nCount);
+				pEraserData->ui->NeedUpdate();
 			}
 		}
 		break;
@@ -284,9 +280,8 @@ bool CErasureRecycleUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTIO
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (pEraserData && pEraserData->ui)
 		{
-			pui = (CProgressUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
-			if (pui)
-				pui->SetValue(dwValue);
+			pEraserData->ui->SetTag(dwValue);
+			pEraserData->ui->NeedUpdate();
 		}
 		break;
 	case eto_finished:

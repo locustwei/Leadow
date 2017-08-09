@@ -164,9 +164,6 @@
     <ClInclude Include="utils\DateTimeUtils.h" />
     <ClInclude Include="utils\DlgGetFileName.h" />
     <ClInclude Include="utils\FormatSettings.h" />
-    <ClInclude Include="utils\HandleUitls.h" />
-    <ClInclude Include="utils\ProcessUtils.h" />
-    <ClInclude Include="utils\RegisterUtils.h" />
     <ClInclude Include="utils\SHFolders.h" />
     <ClInclude Include="volume\Fat.h" />
     <ClInclude Include="volume\FatUtils.h" />
@@ -194,9 +191,6 @@
     <ClCompile Include="utils\DateTimeUtils.cpp" />
     <ClCompile Include="utils\DlgGetFileName.cpp" />
     <ClCompile Include="utils\FormatSettings.cpp" />
-    <ClCompile Include="utils\HandleUitls.cpp" />
-    <ClCompile Include="utils\ProcessUtils.cpp" />
-    <ClCompile Include="utils\RegisterUtils.cpp" />
     <ClCompile Include="utils\SHFolders.cpp" />
     <ClCompile Include="volume\FatUtils.cpp" />
     <ClCompile Include="volume\NtfsUtils.cpp" />
