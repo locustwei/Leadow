@@ -9,15 +9,15 @@ public:
 
 	DUI_DECLARE_MESSAGE_MAP()
 protected:
-	virtual LPCTSTR GetWindowClassName() const override;
-	virtual void Notify(TNotifyUI& msg) override;
-	virtual LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
-	virtual CDuiString GetSkinFile() override;
-	virtual CDuiString GetSkinFolder() override;
+	LPCTSTR GetWindowClassName() const override;
+	void Notify(TNotifyUI& msg) override;
+	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+	CDuiString GetSkinFile() override;
+	CDuiString GetSkinFolder() override;
 
-	virtual void OnClick(TNotifyUI& msg) override;
+	void OnClick(TNotifyUI& msg) override;
 	//virtual CControlUI* CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode = NULL) override;
-
+	bool OnBtnAfterPaint(PVOID param);
 private:
 	TCHAR* m_Skin;
 	IErasureLibrary* m_ErasureLib;
