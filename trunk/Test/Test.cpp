@@ -10,6 +10,7 @@
 #include <io.h>
 #include <fcntl.h>
 #include "../LdFileSearch/SearchLibrary.h"
+#include "../LdFileEraser/Erasure.h"
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -42,7 +43,7 @@ public:
 		nCount = 0;
 	};
 
-	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, PVOID Param) override
+	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override
 	{
 		
 		printf("%lld  %S\n", nCount++);
@@ -61,21 +62,16 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	CVolumeInfo volume;
 	volume.SetFileName(L"i:\\");
+	
+	CErasure erasure;
+	ERASE_VOLUME_ANALY analy = { 0 };
+	erasure.AnalysisVolume(&volume, &analy);
 
-/*
-	HANDLE result = CreateFile(L"\\\\?\\Volume{6a205adf-0000-0000-0000-010000000000}", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
-	if(result == INVALID_HANDLE_VALUE)
-		return 0;
-	DWORD CB;
-	if (!DeviceIoControl(result, FSCTL_LOCK_VOLUME, nullptr, 0, nullptr, 0, &CB, nullptr))
-		return 0;
-	DeviceIoControl(result, FSCTL_UNLOCK_VOLUME, nullptr, 0, nullptr, 0, &CB, nullptr);
-	return 0;
+	printf("unusespace time=%lld  erase mft time=%lld clear time=%lld \n",
+		(analy.freesize / (1024 * 1024 * 1024) * analy.writespeed) / 1000,
+		(analy.trackCount / 100 * analy.cratespeed) / 1000,
+		(analy.trackCount / 100 * analy.deletespeed) / 1000);
 
-*/
-	ISearchLibrary * library = InitLib(L"LdFileSearch_d64.dll", nullptr);
-	CMftReadImpl impl;
-	library->EnumVolumeFiles(&volume, &impl, (PVOID)0xFF1);
 	printf("\npress any key exit");
 	getchar();
 	return 0;

@@ -6,11 +6,14 @@
 //#define ERASE_UNUSED_SPACE 0xF1
 #define ERROR_CANCELED 0xC0000001
 
-typedef struct _ERASE_ANALY
+typedef struct ERASE_VOLUME_ANALY
 {
-	UINT64 n_free_size;
-	UINT   
-};
+	UINT64 freesize;
+	UINT64 trackCount;
+	UINT  writespeed;
+	UINT cratespeed;
+	UINT deletespeed;
+}*PERASE_VOLUME_ANALY;
 
 /*!
 回掉函数，用于中断处理、报告进度
@@ -36,7 +39,7 @@ public:
 	virtual BOOL ErasureProgress(UINT nStep, UINT64 nMaxCount, UINT64 nCurent) = 0;
 };
 
-class CErasure: public IMftReadeHolder
+class LDLIB_API CErasure: public IMftReadeHolder
 {
 public:
 	CErasure();
@@ -56,7 +59,10 @@ public:
 	// Parameter: IErasureCallback * callbck
 	//************************************
 	DWORD FileErasure(TCHAR* lpFileName, CErasureMethod* method, IErasureCallback* callbck);
-	DWORD AnalysisVolume(CVolumeInfo* pvolume);
+	UINT TestWriteSpeed();
+	UINT TestCreateSpeed();
+	UINT TestDeleteSpeed();
+	DWORD AnalysisVolume(CVolumeInfo* pvolume, PERASE_VOLUME_ANALY pAnalyData);
 private:
 	CVolumeInfo* m_volInfo;
 	CLdString m_tmpDir;      //历史文件目录名
@@ -91,6 +97,7 @@ private:
 
 	//删除产生的临时文件
 	DWORD DeleteTempFiles(IErasureCallback* callback);
+	DWORD CreateTempDirectory();
 
 	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override;
 };

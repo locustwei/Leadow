@@ -34,7 +34,6 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMethod* method, 
 		m_method = method;
 		m_volInfo = pvolume;
 
-		m_tmpDir = m_volInfo->GetFullName();
 
 		WORD wCompressStatus;
 		Result = CFileUtils::GetCompressStatus(m_tmpDir, &wCompressStatus);
@@ -43,11 +42,10 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMethod* method, 
 			if (wCompressStatus & COMPRESSION_FORMAT_NONE)
 				CFileUtils::SetCompression(m_volInfo->GetFullName(), FALSE);
 		}
-		m_tmpDir += Erasure_temp_path;
-		Result = CFileUtils::ForceDirectories(m_tmpDir + _T("\\"));
+
+		Result = CreateTempDirectory();
 		if (Result != 0)
 			break;
-		m_tmpDir += _T("\\");
 
 		Result = EraseFreeDataSpace(callback);
 		
@@ -111,17 +109,71 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 	return result;
 }
 
-DWORD CErasure::AnalysisVolume(CVolumeInfo* pvolume)
+UINT CErasure::TestWriteSpeed()
 {
+	CLdString fileName = m_tmpDir + _T("speedtest.data");
+	FILE* f = _wfopen(fileName, _T("w+"));
+	if(f)
+	{
+		//m_Tmpfiles.Add(fileName);
+		PUCHAR Buffer = new UCHAR[1024 * 1024];
+		DWORD dwTick = GetTickCount();
+		for(int i=0; i<1024; i++)
+		{
+			fwrite(Buffer, sizeof(UCHAR), 1024 * 1024, f);
+		}
+		fclose(f);
+		delete Buffer;
+		DeleteFile(fileName);
+		return GetTickCount() - dwTick;
+	}else
+		return 0;
+}
+
+UINT CErasure::TestCreateSpeed()
+{
+	DWORD dwTick = GetTickCount();
+	for(int i=0; i<100; i++)
+	{
+		HANDLE hFile;
+		if (CreateTempFile(0, &hFile) != 0)
+			break;
+		CloseHandle(hFile);
+	}
+	return GetTickCount() - dwTick;
+}
+
+UINT CErasure::TestDeleteSpeed()
+{
+	DWORD dwTick = GetTickCount();
+	DeleteTempFiles(nullptr);
+	return GetTickCount() - dwTick;
+}
+
+DWORD CErasure::AnalysisVolume(CVolumeInfo* pvolume, PERASE_VOLUME_ANALY pAnalyData)
+{
+	m_volInfo = pvolume;
+
+	DWORD result = CreateTempDirectory();
+	if (result != 0)
+		return result;
+
 	CMftReader* reader = CMftReader::CreateReader(pvolume);
 	if (!reader)
 		return -1;
 	reader->SetHolder(this);
 	reader->EnumFiles(1);
-	PVOLUME_BPB_DATA pData = pvolume->GetVolumeMftData();
-	pvolume->GetAvailableFreeSpace();
-	pvolume->GetTotalSize();
-	
+	delete reader;
+
+	pAnalyData->freesize = pvolume->GetAvailableFreeSpace();
+	if(pAnalyData->freesize > 1024*1024*1024)
+		pAnalyData->writespeed = TestWriteSpeed();
+	pAnalyData->cratespeed = TestCreateSpeed();
+	pAnalyData->deletespeed = TestDeleteSpeed();
+	RemoveDirectory(m_tmpDir);
+	pAnalyData->trackCount = m_DeleteFileTraces;
+
+
 	return 0;
 }
 
@@ -453,11 +505,19 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 	return Result;
 }
 
+DWORD CErasure::CreateTempDirectory()
+{
+	m_tmpDir = m_volInfo->GetFullName();
+	m_tmpDir += Erasure_temp_path;
+	m_tmpDir += _T("\\");
+	return CFileUtils::ForceDirectories(m_tmpDir);
+}
+
 BOOL CErasure::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
 {
 	if(Param == 1)
 	{
-		if (!pFileInfo)
+		if (pFileInfo)
 		{
 			if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
 			{
@@ -465,7 +525,7 @@ BOOL CErasure::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo,
 			}
 		}
 	}
-	return Param == 0;
+	return true;
 }
 
 DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
