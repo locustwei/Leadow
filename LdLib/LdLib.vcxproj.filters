@@ -18,15 +18,6 @@
     <ClCompile Include="utils\FormatSettings.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\HandleUitls.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\ProcessUtils.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\RegisterUtils.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="utils\SHFolders.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -78,15 +69,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\FormatSettings.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\HandleUitls.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\ProcessUtils.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\RegisterUtils.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\SHFolders.h">

@@ -14,11 +14,9 @@
 #include "volume/VolumeInfo.h"
 #include "ldapp/Ldbrary.h"
 
-#include "utils/ProcessUtils.h"
 #include "file/FileUtils.h"
 #include "utils/HandleUitls.h"
 #include "volume/VolumeUtils.h"
-#include "utils/RegisterUtils.h"
 #include "volume/NtfsUtils.h"
 #include "utils/DateTimeUtils.h"
 

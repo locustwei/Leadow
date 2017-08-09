@@ -30,7 +30,7 @@ namespace LeadowLib {
 	//ShllExecute 打开文件、网页等
 	BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
 	DWORD GetCurrentUserSID(CLdString& sidStr);
-
+	DWORD ClearFileSecurity(TCHAR* pFileName);
 #pragma region Window 版本
 	WIN_OS_TYPE GetOsType();
 	BOOL RtlGetVersion(PRTL_OSVERSIONINFOW pOsvi);

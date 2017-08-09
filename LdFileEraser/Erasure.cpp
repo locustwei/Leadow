@@ -77,23 +77,35 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 		return ERROR_CANCELED;
 
 	DWORD dwAttr = GetFileAttributes(lpFileName);
+	SetFileAttributes(lpFileName, FILE_ATTRIBUTE_NORMAL);
+
 	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
 	{
 		HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
-			return GetLastError();
+		{
+			result = GetLastError();
+			if (result == ERROR_ACCESS_DENIED)
+				ClearFileSecurity(lpFileName);
+			hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+			if (hFile == INVALID_HANDLE_VALUE)
+				result = GetLastError();
+		}
 
 		LARGE_INTEGER fileSize;
-		if (!GetFileSizeEx(hFile, &fileSize))
-			result = GetLastError();
-
+		if (result == 0)
+		{
+			if (!GetFileSizeEx(hFile, &fileSize))
+				result = GetLastError();
+		}
 
 		if (result == 0 && fileSize.QuadPart > 0)
 			result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
-
-		CloseHandle(hFile);
-
-		m_Tmpfiles.Add(lpFileName);
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			CloseHandle(hFile);
+			m_Tmpfiles.Add(lpFileName);
+		}
 		if (result == 0)
 			result = DeleteTempFiles(callbck);
 	}else
