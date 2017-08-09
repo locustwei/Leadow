@@ -10,6 +10,14 @@ namespace DuiLib {
 
 typedef CControlUI* (CALLBACK* FINDCONTROLPROC)(CControlUI*, LPVOID);
 
+typedef struct UI_PAINT_PARAM
+{
+	CControlUI* sender;
+	HDC hDc;
+	RECT rect;
+
+}*PUI_PAINT_PARAM;
+
 class DUILIB_API CControlUI
 {
 public:
@@ -177,6 +185,7 @@ public:
     CEventSource OnEvent;
     CEventSource OnNotify;
 	CEventSource OnPaint;
+	CEventSource OnAfterPaint;
 	CEventSource OnPostPaint;
 
 protected:

@@ -1084,10 +1084,23 @@ bool CControlUI::Paint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 	if (pStopControl == this) return false;
 	if( !::IntersectRect(&m_rcPaint, &rcPaint, &m_rcItem) ) return true;
 	if( OnPaint ) {
-		if( !OnPaint(this) ) return true;
+		UI_PAINT_PARAM param;
+		param.sender = this;
+		param.hDc = hDC;
+		param.rect = rcPaint;
+		if( !OnPaint(&param) ) return true;
 	}
 	if (!DoPaint(hDC, rcPaint, pStopControl)) return false;
     if( m_pCover != NULL ) return m_pCover->Paint(hDC, rcPaint);
+	
+	if (OnAfterPaint)
+	{
+		UI_PAINT_PARAM param;
+		param.sender = this;
+		param.hDc = hDC;
+		param.rect = rcPaint;
+		OnAfterPaint(&param);
+	}
     return true;
 }
 
@@ -1128,8 +1141,10 @@ void CControlUI::PaintBkColor(HDC hDC)
             else 
                 CRenderEngine::DrawGradient(hDC, m_rcItem, GetAdjustColor(m_dwBackColor), GetAdjustColor(m_dwBackColor2), true, 16);
         }
-        else if( m_dwBackColor >= 0xFF000000 ) CRenderEngine::DrawColor(hDC, m_rcPaint, GetAdjustColor(m_dwBackColor));
-        else CRenderEngine::DrawColor(hDC, m_rcItem, GetAdjustColor(m_dwBackColor));
+        else if( m_dwBackColor >= 0xFF000000 ) 
+			CRenderEngine::DrawColor(hDC, m_rcPaint, GetAdjustColor(m_dwBackColor));
+        else 
+			CRenderEngine::DrawColor(hDC, m_rcItem, GetAdjustColor(m_dwBackColor));
     }
 }
 
@@ -1214,7 +1229,14 @@ void CControlUI::PaintBorder(HDC hDC)
 
 void CControlUI::DoPostPaint(HDC hDC, const RECT& rcPaint)
 {
-	if( OnPostPaint ) OnPostPaint(this);
+	if (OnPostPaint)
+	{
+		UI_PAINT_PARAM param;
+		param.sender = this;
+		param.hDc = hDC;
+		param.rect = rcPaint;
+		OnPostPaint(&param);
+	}
 }
 
 int CControlUI::GetBorderStyle() const

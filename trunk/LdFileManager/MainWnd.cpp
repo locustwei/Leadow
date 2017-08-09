@@ -75,6 +75,15 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 	return __super::OnClick(msg);
 }
 
+bool CMainWnd::OnBtnAfterPaint(PVOID param)
+{
+	PUI_PAINT_PARAM pParam = (PUI_PAINT_PARAM)param;
+	RECT rect = pParam->sender->GetPos();
+	rect.right -= (rect.right - rect.left) / 2;
+	CRenderEngine::DrawColor(pParam->hDc, rect, 0x800000FF);
+	return true;
+}
+
 void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 {
 	if (msg.sType == _T("selectchanged"))
@@ -116,6 +125,7 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 			btn->SetAttributeList(m_PaintManager.GetStyleAttributeList(L"btn_default"));
 			pControl->Add(btn);
 			pControl->SelectItem(btn);
+			btn->OnAfterPaint += MakeDelegate(this, &CMainWnd::OnBtnAfterPaint);
 		}
 	}
 
