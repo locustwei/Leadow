@@ -30,6 +30,7 @@ namespace LeadowLib {
 		bool GetFreeOnTerminate() const;
 		VOID SetFreeOnTerminate(bool value);
 		bool GetTerminated() const;
+
 		VOID SetTerminatee(bool value);
 
 		/*
@@ -39,7 +40,7 @@ namespace LeadowLib {
 		virtual HANDLE Start(UINT_PTR Param);
 		/*
 		结束线程
-		dwWaitTime 等待线程结束时间，
+		dwWaitTime 等待线程结束时间，然后强制结束
 		uExitCode 线程结束返回值
 		*/
 		virtual DWORD Terminate(DWORD dwWaitTime = 0, DWORD uExitCode = 0);
@@ -49,17 +50,22 @@ namespace LeadowLib {
 		*/
 		DWORD Sleep(DWORD dwMilliseconds);
 		VOID Wakeup(HANDLE hEvent) const;
+		void SetTag(UINT_PTR nTag);
+		UINT_PTR GetTag();
 	protected:
 		virtual int	ThreadRun();
 		virtual void ThreadInit();
-		bool m_Terminated;
+
+		bool m_Terminated;  
+		//用于唤醒Sleep的线程Event
 		HANDLE m_hSleep;
 	private:
 		HANDLE m_hThread;
 		DWORD m_ThreadId;
 		IThreadRunable* m_Runer;
 		bool m_FreeOnTerminate;
-		WPARAM m_Param;
+		UINT_PTR m_Param;
+		UINT_PTR m_Tag;
 		VOID ResetHandle();
 		static DWORD WINAPI ThreadProcedure(LPVOID pParam);
 		void DoTerminated();

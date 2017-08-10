@@ -138,6 +138,16 @@ namespace LeadowLib {
 		}
 	}
 
+	void CThread::SetTag(UINT_PTR nTag)
+	{
+		m_Tag = nTag;
+	}
+
+	UINT_PTR CThread::GetTag()
+	{
+		return m_Tag;
+	}
+
 	BOOL CThread::IsAlive() const
 	{
 		return (m_hThread != INVALID_HANDLE_VALUE);
@@ -182,6 +192,7 @@ namespace LeadowLib {
 		m_Runer = NULL;
 		m_Param = 0;
 		m_hSleep = nullptr;
+		m_Tag = 0;
 	}
 
 	void CThread::DoTerminated()

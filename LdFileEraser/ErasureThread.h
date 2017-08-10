@@ -68,9 +68,6 @@ public:
 	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 protected:
-	bool ReEresareFile(CLdArray<CVirtualFile*>* files, int* pThredCount, bool& bWait, HANDLE* threads);
-	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
-	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
 
 	void ThreadRun(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -78,14 +75,17 @@ protected:
 private:
 	HANDLE m_hEvent;  //控制中途中断所有擦除线程
 	boolean m_Abort;  //中断变量
-	int m_nMaxThreadCount;  //最多线程数
+	int m_MaxThreadCount;  //最多线程数
 	CThread* m_ControlThread; //控制线程
 	CErasureMethod* m_Method;          //擦除算法
 
 	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
 	CLdArray<CVirtualFile*>* m_Files;    //待擦除的文件
-	
-	int WaitForThread(HANDLE* threads);
+	LONG volatile m_ThreadCount;
+	int WaitForThread();
+	bool ReEresareFile(CLdArray<CVirtualFile*>* files/*, int* pThredCount, bool& bWait, HANDLE* threads*/);
+	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
+	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
 
 	//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      
