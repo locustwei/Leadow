@@ -1,61 +1,36 @@
 #pragma once
 #include "Erasure.h"
-/*
 
-enum E_FILE_TYPE
-{
-	eft_file,      //0: 文件；  
-	eft_directory, //1：目录；
-	eft_volume     //2：盘符
-};
-*/
-
+//文件擦除状态
 enum E_FILE_STATE
 {
 	efs_ready,      //准备
 	efs_erasuring,  //擦除中
 	efs_erasured,   //已擦除
-	efs_error,      //擦除失败
+	efs_error,      //擦除失败（有错误）
 	efs_abort       //取消操作
 };
-/*
-
-//待擦除文件记录
-typedef struct ERASURE_FILE_DATA
-{
-	E_FILE_TYPE  nFileType;           //文件类型
-	E_FILE_STATE nStatus;             //擦除状态
-	DWORD        nErrorCode;          //错误代码（如果错误）
-	UINT_PTR     Tag;                 //
-}*PERASURE_FILE_DATA;
-*/
-
+//擦除线程动作
 enum E_THREAD_OPTION
 {
 	eto_start,   //控制线程开始   
 	eto_begin,    //开始擦除（单个文件）
 	eto_completed, //擦除完成（单个文件）
 	eto_progress,  //擦除进度（单个文件）
-	eto_finished   //全部擦除完成
+	eto_finished,   //全部擦除完成
+	eto_analy,      //磁盘分析
+	eto_analied     //磁盘分析完成
 };
-/*
 
-//擦除过程中回掉函数参数
-typedef struct ERASE_CALLBACK_PARAM
-{
-	E_THREAD_OPTION op; //当前操作
-	float nPercent;     //进度%
-	CVirtualFile* pFile;  //文件记录
-}*PERASE_CALLBACK_PARAM;
-*/
-
+//擦除线程回掉函数
 class IEraserThreadCallback
 {
 public:
 	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
 };
+
 //文件擦除线程（同时创建多个文件擦除线程）
-//线程池
+
 class CEreaserThrads : 
 	public IThreadRunable
 {
@@ -67,9 +42,10 @@ public:
 	void SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles);  //添加擦除文件
 	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
+	DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
 protected:
 
-	void ThreadRun(CThread* Sender, UINT_PTR Param) override;
+	void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 private:
@@ -84,7 +60,7 @@ private:
 	LONG volatile m_ThreadCount;
 	int WaitForThread();
 	bool ReEresareFile(CLdArray<CVirtualFile*>* files/*, int* pThredCount, bool& bWait, HANDLE* threads*/);
-	void ControlThreadRun();                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
+	void ControlThreadRun(UINT_PTR Param);                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
 	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
 
 	//CEreaser 擦除操作回掉函数

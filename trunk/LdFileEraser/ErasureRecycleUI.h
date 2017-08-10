@@ -6,6 +6,7 @@
 一个记录原文件信息用于在Explorer显示，另一个被重命名的原来文件，
 程序用SHGetFileInfo把两个文件对应起来。
 
+
 */
 
 #pragma once

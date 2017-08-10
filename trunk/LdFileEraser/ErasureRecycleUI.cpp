@@ -214,7 +214,7 @@ void CErasureRecycleUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 bool CErasureRecycleUI::OnListItemPaint(PVOID Param)
 {
 	PUI_PAINT_PARAM pPaint = (PUI_PAINT_PARAM)Param;
-	UINT_PTR percent = pPaint->sender->GetTag();
+	UINT percent = (UINT)pPaint->sender->GetTag();
 	if (percent == 0)
 		return true;
 	RECT rect = pPaint->sender->GetPos();

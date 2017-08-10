@@ -1083,29 +1083,24 @@ bool CControlUI::Paint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 {
 	if (pStopControl == this) return false;
 	if( !::IntersectRect(&m_rcPaint, &rcPaint, &m_rcItem) ) return true;
-	if( OnPaint ) {
-		UI_PAINT_PARAM param;
-		param.sender = this;
-		param.hDc = hDC;
-		param.rect = rcPaint;
-		if( !OnPaint(&param) ) return true;
-	}
+	
 	if (!DoPaint(hDC, rcPaint, pStopControl)) return false;
     if( m_pCover != NULL ) return m_pCover->Paint(hDC, rcPaint);
 	
-	if (OnAfterPaint)
-	{
-		UI_PAINT_PARAM param;
-		param.sender = this;
-		param.hDc = hDC;
-		param.rect = rcPaint;
-		OnAfterPaint(&param);
-	}
     return true;
 }
 
 bool CControlUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
 {
+	UI_PAINT_PARAM param;
+	param.sender = this;
+	param.hDc = hDC;
+	param.rect = rcPaint;
+
+	if (OnPaint) {
+		
+		if (!OnPaint(&param)) return true;
+	}
     // 绘制循序：背景颜色->背景图->状态图->文本->边框
     if( m_cxyBorderRound.cx > 0 || m_cxyBorderRound.cy > 0 ) {
         CRenderClip roundClip;
@@ -1123,6 +1118,15 @@ bool CControlUI::DoPaint(HDC hDC, const RECT& rcPaint, CControlUI* pStopControl)
         PaintText(hDC);
         PaintBorder(hDC);
     }
+
+	if (OnAfterPaint)
+	{
+		UI_PAINT_PARAM param;
+		param.sender = this;
+		param.hDc = hDC;
+		param.rect = rcPaint;
+		OnAfterPaint(&param);
+	}
     return true;
 }
 

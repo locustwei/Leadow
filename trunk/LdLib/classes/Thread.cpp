@@ -178,7 +178,7 @@ namespace LeadowLib {
 	int CThread::ThreadRun()
 	{
 		if (m_Runer)
-			m_Runer->ThreadRun(this, m_Param);
+			m_Runer->ThreadBody(this, m_Param);
 
 		return 0;
 	}
