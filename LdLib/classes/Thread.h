@@ -6,9 +6,11 @@ namespace LeadowLib {
 
 	class IThreadRunable {
 	public:
-		virtual VOID ThreadRun(CThread* Sender, UINT_PTR Param) = 0;
-		//线程还么有启动，在主线程内
+		//线程主体函数
+		virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) = 0;
+		//OnThreadInit，线程还没有启动，在主线程内
 		virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) = 0;
+		//线程即将结束
 		virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) = 0;
 	};
 

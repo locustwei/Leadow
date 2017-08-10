@@ -80,7 +80,7 @@ bool CMainWnd::OnBtnAfterPaint(PVOID param)
 	PUI_PAINT_PARAM pParam = (PUI_PAINT_PARAM)param;
 	RECT rect = pParam->sender->GetPos();
 	rect.right -= (rect.right - rect.left) / 2;
-	CRenderEngine::DrawColor(pParam->hDc, rect, 0x800000FF);
+	CRenderEngine::DrawColor(pParam->hDc, rect, 0x500000FF);
 	return true;
 }
 

@@ -23,7 +23,7 @@ private:
 		PVOID pAnalyData;
 	}*PFILE_ERASURE_DATA;
 
-	CButtonUI* btnOk;
+	CButtonUI* btnOk;  
 	CLdArray<CVirtualFile*> m_Volumes;
 	CEreaserThrads m_EreaserThreads;  //管理擦除线程
 
