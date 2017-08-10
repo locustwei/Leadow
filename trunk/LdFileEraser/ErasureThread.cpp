@@ -6,10 +6,11 @@ CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 	m_callback = callback;
 	m_Abort = false;
 	m_hEvent = nullptr;
-	m_nMaxThreadCount = 1;
+	m_MaxThreadCount = 1;
 	m_ControlThread = nullptr;
 	m_Files = nullptr;
 	m_Method = nullptr;
+	m_ThreadCount = 0;
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -52,14 +53,16 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	
 	m_Abort = false;
 
-	m_nMaxThreadCount = nMaxCount;
+	m_MaxThreadCount = nMaxCount;
 	m_ControlThread = new CThread(this);
 	m_ControlThread->Start(0);
 	return 0;
 }
-
-bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files, int* pThreadCount, bool& bWait, HANDLE* threads)
+//递归文件夹，为每个文件创建擦除线程。
+bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 {
+	LONG volatile* pCount = (LONG volatile*)GlobalAlloc(GPTR, sizeof(LONG));
+
 	for (int i = 0; i < files->GetCount(); i++)
 	{
 		if (m_Abort)
@@ -68,58 +71,40 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files, int* pThreadC
 		if (file->GetFileType()==vft_folder)
 		{
 			//目录，先递归擦除子目录文件
-			if (!ReEresareFile(file->GetFiles(), pThreadCount, bWait, threads))
+			if (!ReEresareFile(file->GetFiles()/*, pThreadCount, bWait, threads*/))
 				return false;
 		}
 
-		if (bWait)  //线程已满等待其中一个结束
-		{
-			int n = WaitForThread(threads);
-			if (n == 0) //停止
-				break;
-			else if (n > m_nMaxThreadCount) //错误
-				return false;
-			else
-				*pThreadCount = n - 1;
-		}
+		int n = WaitForThread();
+		if (n == 0) //停止
+			break;
 
 		if (m_Abort)
 			return false;
 
 		CThread* thread = new CThread(this);
-		threads[++(*pThreadCount)] = thread->Start((UINT_PTR)file);
-		if (!bWait)
-			bWait = (*pThreadCount) >= m_nMaxThreadCount;
+		thread->Start((UINT_PTR)file);
+		thread->SetTag((UINT_PTR)pCount);
 	}
 	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
-	for (int j = 1; j <= m_nMaxThreadCount; j++)
+	while(*pCount>0)
 	{
-		while(WaitForSingleObject(threads[j], 1000) == WAIT_TIMEOUT)
-		{
-			DebugOutput(L"线程卡了\n");  //这里使用“INFINITE”回卡死，
-			if (m_Abort)
-				return false;
-		}
+		Sleep(20);
 	}
+
 	if (m_Abort)
 		return false;
 	return true;
 }
 
-//擦除控制线程
+//擦除控制线程,创建单个文件擦除线程，控制文件擦除线程数。
 void CEreaserThrads::ControlThreadRun()
 {
+	m_ThreadCount = 0;
+
 	m_callback->EraserThreadCallback(nullptr, eto_start, 0);
 
-	//保持当前擦除线程
-	HANDLE* threads = new HANDLE[m_nMaxThreadCount + 1];             
-	ZeroMemory(threads, sizeof(HANDLE)*(m_nMaxThreadCount + 1));
-	threads[0] = m_hEvent;
-	int k = 0;
-	bool bWait = false;
-	ReEresareFile(m_Files, &k, bWait, threads);
-
-	delete [] threads;
+	ReEresareFile(m_Files);
 
 	m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
 }
@@ -161,7 +146,12 @@ void CEreaserThrads::ThreadRun(CThread * Sender, UINT_PTR Param)
 	if (Param == 0)
 		ControlThreadRun();
 	else
+	{
+		InterlockedIncrement(&m_ThreadCount);
+		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
+		InterlockedIncrement(pCount);
 		ErasureThreadRun((CVirtualFile*)Param);
+	}
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
@@ -173,45 +163,26 @@ void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
 {
 	if(Param == 0) //控制线程结束
 		m_ControlThread = nullptr;
+	else
+	{
+		InterlockedDecrement(&m_ThreadCount);
+		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
+		InterlockedDecrement(pCount);
+	}
 }
 
-int CEreaserThrads::WaitForThread(HANDLE* threads)
+int CEreaserThrads::WaitForThread(/*HANDLE* threads*/)
 {
-	int k = m_nMaxThreadCount + 1;
+	int k = 1;
 
-	DWORD obj = WaitForMultipleObjects(m_nMaxThreadCount + 1, threads, FALSE, INFINITE);
-	if (obj == WAIT_FAILED)
+	while(m_ThreadCount >= m_MaxThreadCount)
 	{
-		DWORD dw = GetLastError();
-		switch (dw)
+		if(WaitForSingleObject(m_hEvent, 10)==WAIT_OBJECT_0)
 		{
-		case ERROR_ACCESS_DENIED: //不明原因
-		case ERROR_INVALID_HANDLE: //擦除已经完成，Handle无效了
-			for (int j = 1; j <= m_nMaxThreadCount; j++)
-			{//找到那个无效的Thread
-				obj = WaitForSingleObject(threads[j], 1);
-				if (obj == WAIT_FAILED)
-				{
-					dw = GetLastError();
-					if (dw == ERROR_INVALID_HANDLE || dw == ERROR_ACCESS_DENIED)
-					{
-						k = j;
-						break;
-					}
-				}
-			}
+			k = 0;
 			break;
-		default:
-			DebugOutput(L"错误 %d\n", dw);
-			break;
-		}
+		};
 	}
-	else if (obj == WAIT_OBJECT_0)
-	{   //终止擦除，等待其他线程都结束。
-		k = 0;
-	}
-	else
-		k = obj - WAIT_OBJECT_0; 
 
 	return k;
 }
