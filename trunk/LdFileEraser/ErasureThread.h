@@ -26,7 +26,7 @@ enum E_THREAD_OPTION
 class IEraserThreadCallback
 {
 public:
-	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, UINT dwValue) = 0;
 };
 
 //文件擦除线程（同时创建多个文件擦除线程）
@@ -62,6 +62,7 @@ private:
 	bool ReEresareFile(CLdArray<CVirtualFile*>* files/*, int* pThredCount, bool& bWait, HANDLE* threads*/);
 	void ControlThreadRun(UINT_PTR Param);                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
 	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
+	void AnalyThreadRung(CVolumeInfo* pVolume);    //磁盘分析线程 
 
 	//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      
