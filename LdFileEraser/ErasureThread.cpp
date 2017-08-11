@@ -137,8 +137,9 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 			CVirtualFile* file = m_Files->Get(i);
 			if (file->GetFileType() == vft_volume)
 			{
+				if (WaitForThread() == 0)
+					break;
 				CThread* thread = new CThread(this);
-				thread->SetTag((UINT_PTR)pCount);
 				thread->Start((UINT_PTR)file);
 			}
 		}
@@ -178,6 +179,21 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 	}
 }
 
+void CEreaserThrads::AnalyThreadRung(CVolumeInfo* pVolume)
+{
+	if (m_Abort)
+		return;
+
+	CErasure erasure;
+
+	ERASE_VOLUME_ANALY Data;
+	if(m_callback)
+		m_callback->EraserThreadCallback(pVolume, eto_analy, 0);
+	DWORD error = erasure.AnalysisVolume(pVolume, &Data);
+	if (m_callback)
+		m_callback->EraserThreadCallback(pVolume, eto_analied, error);
+
+}
 
 void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 {
@@ -188,8 +204,14 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 	{
 		InterlockedIncrement(&m_ThreadCount);
 		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
-		InterlockedIncrement(pCount);
-		ErasureThreadRun((CVirtualFile*)Param);
+		if(pCount)  //这是擦除线程
+		{
+			InterlockedIncrement(pCount);
+			ErasureThreadRun((CVirtualFile*)Param);
+		}else
+		{ //这是磁盘分析线程
+			AnalyThreadRung((CVolumeInfo*)Param);
+		}
 	}
 }
 
