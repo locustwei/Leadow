@@ -66,9 +66,9 @@ namespace LeadowLib {
 		HANDLE OpenVolumeHandle(PDWORD pErrorCode = nullptr) const;             //CreateFile，
 		VF_FILE_TYPE GetFileType() override { return vft_volume; }
 
-		VOID RefreshBpbData();;
-
-		PVOLUME_BPB_DATA GetVolumeMftData(PDWORD pErrorCode = nullptr);
+		//分区引导区信息（扇区字节数等）
+		PVOLUME_BPB_DATA GetBpbData(PDWORD pErrorCode = nullptr);
+		PVOLUME_BPB_DATA RefreshBpbData(); //刷新一下引导区数据，特殊时候使用
 	private:
 		PVOLUME_BPB_DATA m_MftData;  //NTFS_VOLUME_DATA_BUFFER;
 		CLdString m_VolumeGuid;           //卷GUID

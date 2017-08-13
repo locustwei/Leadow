@@ -541,7 +541,7 @@ bool CNtfsMtfReader::Init()
 	m_Handle = m_Volume->OpenVolumeHandle();
 	if (m_Handle == INVALID_HANDLE_VALUE)
 		return false;
-	m_BpbData = m_Volume->GetVolumeMftData();
+	m_BpbData = m_Volume->GetBpbData();
 
 	if(!m_Mft)
 		m_Mft = PFILE_RECORD_HEADER(new UCHAR[m_BpbData->BytesPerFileRecordSegment]);

@@ -11,7 +11,7 @@ CSearchLibrary* g_Library = nullptr;
 class CSearchLibrary : public ISearchLibrary
 {
 public:
-	UINT64 EnumVolumeFiles(CVolumeInfo* pVolume, IMftReadeHolder* callback, PVOID Context) override
+	UINT64 EnumVolumeFiles(CVolumeInfo* pVolume, IMftReadeHolder* callback, UINT_PTR Context) override
 	{
 		UINT64 result = 0;
 		CMftReader* reader = CMftReader::CreateReader(pVolume);

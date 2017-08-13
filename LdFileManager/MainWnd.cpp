@@ -121,8 +121,9 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 		}
 		else if (name == _T("cleaner"))
 		{
-			CButtonUI* btn = new CButtonUI();
-			btn->SetAttributeList(m_PaintManager.GetStyleAttributeList(L"btn_default"));
+			CLabelUI* btn = new CLabelUI();
+			btn->SetAttributeList(m_PaintManager.GetStyleAttributeList(L"txt_default"));
+			btn->SetText(L"dfasdjfasdl;kfasoifwoiqweroiwefksvlkmvvs\noweoirqwoeirqwoieroiqweroiwqe");
 			pControl->Add(btn);
 			pControl->SelectItem(btn);
 			btn->OnAfterPaint += MakeDelegate(this, &CMainWnd::OnBtnAfterPaint);

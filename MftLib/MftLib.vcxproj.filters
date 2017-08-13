@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Mft">
+      <UniqueIdentifier>{7b1ae568-d73f-4399-9fc9-2a18035dd2fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Volume">
+      <UniqueIdentifier>{227b671b-f848-43f6-9f8f-574052bb6520}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -25,13 +31,13 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FatMftReader.h">
-      <Filter>头文件</Filter>
+      <Filter>Mft</Filter>
     </ClInclude>
     <ClInclude Include="MftReader.h">
-      <Filter>头文件</Filter>
+      <Filter>Mft</Filter>
     </ClInclude>
     <ClInclude Include="NtfsMtfReader.h">
-      <Filter>头文件</Filter>
+      <Filter>Mft</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -39,13 +45,13 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FatMftReader.cpp">
-      <Filter>源文件</Filter>
+      <Filter>Mft</Filter>
     </ClCompile>
     <ClCompile Include="MftReader.cpp">
-      <Filter>源文件</Filter>
+      <Filter>Mft</Filter>
     </ClCompile>
     <ClCompile Include="NtfsMtfReader.cpp">
-      <Filter>源文件</Filter>
+      <Filter>Mft</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

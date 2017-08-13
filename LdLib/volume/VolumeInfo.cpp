@@ -114,14 +114,18 @@ namespace LeadowLib {
 		return 0;
 	}
 
-	void CVolumeInfo::RefreshBpbData()
+	PVOLUME_BPB_DATA CVolumeInfo::RefreshBpbData()
 	{
 		if (m_MftData)
+		{
 			delete m_MftData;
-		GetVolumeMftData(nullptr);
+			m_MftData = nullptr;
+		}
+		GetBpbData(nullptr);
+		return m_MftData;
 	}
 
-	PVOLUME_BPB_DATA CVolumeInfo::GetVolumeMftData(PDWORD pErrorCode)
+	PVOLUME_BPB_DATA CVolumeInfo::GetBpbData(PDWORD pErrorCode)
 	{
 		DWORD result = 0;
 		if (!m_MftData)

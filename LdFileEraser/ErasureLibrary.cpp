@@ -1,6 +1,5 @@
 #include "stdafx.h"
-#include "FileEraser.h"
-#include "ErasureMainWnd.h"
+#include "ui/ErasureMainWnd.h"
 #include "ErasureLibrary.h"
 
 class CErasureLibrary;

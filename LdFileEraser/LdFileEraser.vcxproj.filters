@@ -24,29 +24,32 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureMainWnd.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="Erasure.cpp">
-      <Filter>Erasure</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureMethod.cpp">
-      <Filter>Erasure</Filter>
-    </ClCompile>
     <ClCompile Include="ErasureLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ShFileView.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureRecycleUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureThread.cpp">
+    <ClCompile Include="eraser\Erasure.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureVolumeUI.cpp">
+    <ClCompile Include="eraser\ErasureMethod.cpp">
+      <Filter>Erasure</Filter>
+    </ClCompile>
+    <ClCompile Include="eraser\ErasureThread.cpp">
+      <Filter>Erasure</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ErasureMainWnd.cpp">
       <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ErasureRecycleUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ErasureVolumeUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ShFileView.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="eraser\VolumeEx.cpp">
+      <Filter>Erasure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,32 +59,32 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileEraser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureMainWnd.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="Erasure.h">
-      <Filter>Erasure</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureMethod.h">
-      <Filter>Erasure</Filter>
-    </ClInclude>
     <ClInclude Include="ErasureLibrary.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ShFileView.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureRecycleUI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureThread.h">
+    <ClInclude Include="eraser\ErasureThread.h">
       <Filter>Erasure</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureVolumeUI.h">
+    <ClInclude Include="eraser\Erasure.h">
+      <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="eraser\ErasureMethod.h">
+      <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ShFileView.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ErasureMainWnd.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ErasureRecycleUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ErasureVolumeUI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="eraser\VolumeEx.h">
+      <Filter>Erasure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

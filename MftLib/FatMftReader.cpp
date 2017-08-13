@@ -17,7 +17,7 @@ CFatMftReader::~CFatMftReader(void)
 bool CFatMftReader::Init()
 {
 	m_Handle = m_Volume->OpenVolumeHandle();
-	m_BpbData = m_Volume->GetVolumeMftData();
+	m_BpbData = m_Volume->GetBpbData();
 
 	switch(m_Volume->GetFileSystem())
 	{
@@ -366,10 +366,10 @@ BOOL CFatMftReader::WriteSector(UINT64 sector, DWORD count, PVOID buffer)
 	ULARGE_INTEGER offset;
 	OVERLAPPED overlap = { 0 };
 	DWORD n;
-	offset.QuadPart = sector * m_Volume->GetVolumeMftData()->BytesPerSector;
+	offset.QuadPart = sector * m_Volume->GetBpbData()->BytesPerSector;
 	overlap.Offset = offset.LowPart;
 	overlap.OffsetHigh = offset.HighPart;
-	return ::WriteFile(m_Handle, buffer, count * m_Volume->GetVolumeMftData()->BytesPerSector, &n, &overlap);
+	return ::WriteFile(m_Handle, buffer, count * m_Volume->GetBpbData()->BytesPerSector, &n, &overlap);
 }
 
 /***
