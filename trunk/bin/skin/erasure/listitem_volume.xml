@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
   <ListContainerElement height="40" >
-  	<HorizontalLayout>
+  	<HorizontalLayout name="colume1">
   		<CheckBox name="ckselect" style="ckbox_default" width="20"/>
-  		<VerticalLayout inset="4,0,4,0">
-					<Label name="caption" text="" inset="0,0,5,0"/>
-					<Progress name="progress" visible="false" min="0" max="100" value="0" />
-			</VerticalLayout>
+			<Label name="caption" text="" inset="0,0,5,0"/>
 		</HorizontalLayout>
-		<VerticalLayout inset="4,0,4,0">
+		<VerticalLayout name="colume2" inset="4,0,4,0">
 				<Label name="caption" text="" inset="0,0,5,0"/>
-				<Label name="desc" text="asdfasdfasd" inset="0,0,5,0"/>
+				<HorizontalLayout>
+					<GifAnim name="progress1" bkimage="erasure/progress.gif" autoplay="true" autosize="true" width="24" height="24"/>
+					<Text name="freespace" showhtml="true" text="正在收集磁盘信息。。。" inset="0,0,5,0"/>
+				</HorizontalLayout>
 		</VerticalLayout>
-		<VerticalLayout inset="4,0,4,0">
+		<VerticalLayout name="colume3" inset="4,0,4,0">
 				<Label name="caption" text="" inset="0,0,5,0"/>
-				<Label name="desc" text="sdfasdfasdfass" inset="0,0,5,0"/>
+				<HorizontalLayout>
+					<GifAnim name="progress2" bkimage="erasure/progress.gif" autoplay="true" autosize="true" width="24" height="24"/>
+					<Text name="track" showhtml="true" text="正在收集磁盘信息。。。" inset="0,0,5,0"/>
+				</HorizontalLayout>
 		</VerticalLayout>
-		<VerticalLayout inset="4,0,4,0">
+		<HorizontalLayout inset="4,0,4,0">
 				<Label name="caption" text="" inset="0,0,5,0"/>
-				<Label name="desc" text="asdfasdfasdf" inset="0,0,5,0"/>
-		</VerticalLayout>
+		</HorizontalLayout>
   </ListContainerElement>
 </Window>

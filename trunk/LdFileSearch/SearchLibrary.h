@@ -12,6 +12,6 @@ public:
 	读取磁盘文件分配表中的文件记录。
 	PVOID Context （有一个特殊值Fat时传0xFF1调用擦除删除文件记录）
 	*/
-	virtual UINT64 EnumVolumeFiles(CVolumeInfo* pVolume, IMftReadeHolder* callback, PVOID Context) = 0;
+	virtual UINT64 EnumVolumeFiles(CVolumeInfo* pVolume, IMftReadeHolder* callback, UINT_PTR Context) = 0;
 private:
 };

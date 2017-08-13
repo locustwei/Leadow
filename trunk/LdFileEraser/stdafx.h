@@ -15,7 +15,7 @@
 #include <tchar.h>
 
 #include "targetver.h"
-#include "LdLib.h"
+#include "../LdLib/LdLib.h"
 #include "../DuiLib/Uilib.h"
 
 
