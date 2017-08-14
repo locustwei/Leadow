@@ -1,10 +1,10 @@
 #pragma once
 #include "../eraser/ErasureThread.h"
+#include "ShFileView.h"
 
 class CErasureFileUI : 
-	public CFramNotifyPump,
-	IThreadRunable,                      //文件擦除线程执行代码
-	IGernalCallback<LPVOID>              //擦除完成删除ListUI行（Send2MainThread）
+	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	public CShFileViewUI
 {
 public:
 	CErasureFileUI();
@@ -17,20 +17,14 @@ private:
 	CButtonUI* btnOk;
 	CListUI* lstFile;
 	CEreaserThrads m_EreaserThreads;
-	CLdHashMap<PERASURE_FILE_DATA> m_ErasureFiles;
+	CLdArray<CVirtualFile*> m_ErasureFiles;
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
-	void AddErasureFile(CLdString& filename);
-
-	void ErasureAllFiles(CThread* Sender);
-	void ErasureSingleFile(CThread* Sender, TCHAR* Key);
 protected:
-	BOOL GernalCallback_Callback(LPVOID pData, UINT_PTR Param) override;
-	virtual VOID ThreadRun(CThread* Sender, WPARAM Param) override;
-	virtual VOID OnThreadInit(CThread* Sender, WPARAM Param) override;
-	virtual VOID OnThreadTerminated(CThread* Sender, WPARAM Param) override;
+	void AttanchControl(CControlUI* pCtrl) override;
+	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 
 };
 
