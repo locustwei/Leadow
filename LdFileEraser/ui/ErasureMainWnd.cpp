@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "ErasureMainWnd.h"
-//#include "ErasureFileUI.h"
+#include "ErasureFileUI.h"
 #include "ErasureRecycleUI.h"
 #include "ErasureVolumeUI.h"
 
@@ -31,9 +31,10 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	{
 		if (m_ErasureFile == nullptr)
 		{
-//			m_ErasureFile = new CErasureFileUI();
-//			AddVirtualWnd(m_ErasureFile->GetUI()->GetVirtualWnd(), m_ErasureFile);
-//			m_TabUI->Add(m_ErasureFile->GetUI());
+			m_ErasureFile = new CErasureFileUI();
+			CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureFile"), 0);
+			m_ErasureFile->AttanchControl(pCtrl);
+			AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
 		}
 		m_TabUI->SelectItem(0);
 	}

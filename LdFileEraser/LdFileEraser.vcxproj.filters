@@ -51,6 +51,9 @@
     <ClCompile Include="eraser\VolumeEx.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ErasureFileUI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="eraser\VolumeEx.h">
       <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ErasureFileUI.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

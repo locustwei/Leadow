@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <Window>
-		<Default name="Progress" value="float=&quot;false&quot; foreimage=&quot;file='erasure/progress_fore.png'&quot; maxheight=&quot;7&quot;"/>
     <VerticalLayout name="ErasureRecycle" bordersize="1" inset="1,1,1,1">
         <HorizontalLayout height="1"  />
         <HorizontalLayout inset="3,0,3,3">
