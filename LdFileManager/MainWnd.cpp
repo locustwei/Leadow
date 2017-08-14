@@ -13,7 +13,6 @@ CMainWnd::CMainWnd(TCHAR* xmlSkin)
 {
 	m_Skin = xmlSkin;
 	m_ErasureLib = NULL;
-	m_ProtectLib = NULL;
 }
 
 CMainWnd::~CMainWnd()
@@ -23,18 +22,8 @@ CMainWnd::~CMainWnd()
 		delete m_ErasureLib;
 		m_ErasureLib = nullptr;
 	}
-	if (m_ProtectLib)
-	{
-		delete m_ProtectLib;
-		m_ProtectLib = nullptr;
-	}
-}
 
-//
-//DuiLib::CControlUI* CMainWnd::CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode /*= NULL*/)
-//{
-//	return NULL;
-//}
+}
 
 void CMainWnd::Notify(TNotifyUI& msg)
 {
@@ -75,60 +64,24 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 	return __super::OnClick(msg);
 }
 
-bool CMainWnd::OnBtnAfterPaint(PVOID param)
+void CMainWnd::InitWindow()
 {
-	PUI_PAINT_PARAM pParam = (PUI_PAINT_PARAM)param;
-	RECT rect = pParam->sender->GetPos();
-	rect.right -= (rect.right - rect.left) / 2;
-	CRenderEngine::DrawColor(pParam->hDc, rect, 0x500000FF);
-	return true;
+	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
+	m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager);
+	if (m_ErasureLib)
+	{
+		CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
+		if (frame)
+		{
+			AddVirtualWnd(frame->GetName(), frame);
+		}
+	}
+	pControl->Add(m_ErasureLib->GetUI());
+	pControl->SelectItem(m_ErasureLib->GetUI());
 }
 
 void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 {
-	if (msg.sType == _T("selectchanged"))
-	{
-		CDuiString name = msg.pSender->GetName();
-		CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
-		if (name == _T("search"))
-			pControl->SelectItem(0);
-		else if (name == _T("erasure"))
-		{
-			if (!m_ErasureLib)
-			{
-				m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager);
-				if(m_ErasureLib)
-				{
-					CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
-					if (frame)
-					{
-						AddVirtualWnd(frame->GetName(), frame);
-					}
-				}
-			}
-			_ASSERTE(m_ErasureLib);
-			pControl->Add(m_ErasureLib->GetUI());
-			pControl->SelectItem(m_ErasureLib->GetUI());
-		}
-		else if (name == _T("protecte"))
-		{
-			
-		}
-		else if (name == _T("recove"))
-		{
-			CDlgGetFileName dlg;
-			dlg.OpenFile(m_hWnd);
-		}
-		else if (name == _T("cleaner"))
-		{
-			CLabelUI* btn = new CLabelUI();
-			btn->SetAttributeList(m_PaintManager.GetStyleAttributeList(L"txt_default"));
-			btn->SetText(L"dfasdjfasdl;kfasoifwoiqweroiwefksvlkmvvs\noweoirqwoeirqwoieroiqweroiwqe");
-			pControl->Add(btn);
-			pControl->SelectItem(btn);
-			btn->OnAfterPaint += MakeDelegate(this, &CMainWnd::OnBtnAfterPaint);
-		}
-	}
 
 }
 

@@ -144,6 +144,8 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 				thread->Start((UINT_PTR)file);
 			}
 		}
+		while (m_ThreadCount == 0)
+			Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
 		while (m_ThreadCount>0)
 		{
 			Sleep(20);

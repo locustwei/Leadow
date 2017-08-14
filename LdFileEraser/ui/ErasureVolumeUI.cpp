@@ -19,67 +19,62 @@ CErasureVolumeUI::~CErasureVolumeUI()
 
 void CErasureVolumeUI::OnSelectChanged(TNotifyUI & msg)
 {
-/*	CCheckBoxUI* pchk_ui = (CCheckBoxUI*)msg.pSender->GetInterface(DUI_CTR_CHECKBOX);
-	if (pchk_ui)
-	{
-		CListContainerElementUI* p_ui = (CListContainerElementUI*)pchk_ui->FindParentControl(CDuiUtils::FindControlByClassProc, DUI_CTR_LISTCONTAINERELEMENT, 0);
-		if (!p_ui)
-			return;
-		if(pchk_ui->GetCheck())
-		{
-			CVolumeEx* p_info = (CVolumeEx*)p_ui->GetTag();
-			PFILE_ERASURE_DATA pEraseData = (PFILE_ERASURE_DATA)p_info->GetTag();
-
-		}
-		else
-			p_ui->SetFixedHeight(40);
-	}*/
 }
 
 void CErasureVolumeUI::OnItemClick(TNotifyUI & msg)
 {
 }
 
-void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui)
+void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)
 {
-
+	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
+	CDuiString str;
+	DWORD t = (GetTickCount() - time) / 1000;
+	str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
+	ChildUI->SetText(str);
+	ui->SetTag(Percent);
+	ui->NeedUpdate();
 }
 
 void CErasureVolumeUI::ShowAnalysisResult(CVolumeEx* pVolume, CControlUI* ui)
 {
-	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("freespace"), 0);
+	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
+	CControlUI* Desc;
+	CGifAnimUI* Gif;
 	if(ChildUI)
 	{
+		Desc = ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		CDuiString str;
 		str.Format(_T("磁盘读写速度%dms/M。擦除磁盘空闲空间预计需要%d秒"),
 			pVolume->GetWriteSpeed(),
 			pVolume->GetAvailableFreeSpace() / 0xA00000 * pVolume->GetWriteSpeed() / 1000);
-		ChildUI->SetText(str);
+		Desc->SetText(str);
+		Gif = (CGifAnimUI*)ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+		if (Gif)
+		{
+			Gif->StopGif();
+			Gif->SetVisible(false);
+		}
 	}
 
-	ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("track"), 0);
+	ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
 	if(ChildUI)
 	{
+		Desc = ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		CDuiString str;
 		str.Format(_T("被删除的文件数%lld，其中可被恢复数%lld。擦除文件删除痕迹预计需要%d秒"),
 			pVolume->GetTrackCount(),
 			pVolume->GetRemoveableCount(),
 			pVolume->GetTrackCount() / 100 * (pVolume->GetCrateSpeed() + pVolume->GetDelSpeed()) / 1000);
-		ChildUI->SetText(str);
+		Desc->SetText(str);
+		Gif = (CGifAnimUI*)ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+		if (Gif)
+		{
+			Gif->StopGif();
+			Gif->SetVisible(false);
+		}
 	}
 
-	CGifAnimUI* Gif = (CGifAnimUI*)ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress1"), 0);
-	if (Gif)
-	{
-		Gif->StopGif();
-		Gif->SetVisible(false);
-	}
-	Gif = (CGifAnimUI*)ui->FindControl(CDuiUtils::FindControlByNameProc, _T("progress2"), 0);
-	if (Gif)
-	{
-		Gif->StopGif();
-		Gif->SetVisible(false);
-	}
 	ui->SetFixedHeight(80);
 }
 
@@ -90,8 +85,9 @@ bool CErasureVolumeUI::OnAfterColumePaint(PVOID Param)
 	if (percent == 0)
 		return true;
 	RECT rect = pPaint->sender->GetPos();
-	rect.right = rect.left + (rect.right - rect.left) * (percent / 100);
-	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x80FFFF00);
+	//rect.bottom = rect.top + 20;
+	rect.right = rect.left + (rect.right - rect.left) / 100 * percent;
+	CRenderEngine::DrawColor(pPaint->hDc, rect, 0xFFFFFF00);
 	return true;
 }
 
@@ -179,26 +175,22 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 		break;
 	case eto_freespace: 
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (pEraserData && pEraserData->ui)
+		if (dwValue == 0)
+			pEraserData->FreespaceTime = GetTickCount();
+		else
 		{
 			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
-			if (col)
-			{
-				col->SetTag(dwValue);
-				col->NeedUpdate();
-			}
+			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->FreespaceTime);
 		}
 		break;
 	case eto_track: 
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (pEraserData && pEraserData->ui)
+		if (dwValue == 0)
+			pEraserData->TrackTime = GetTickCount();
+		else
 		{
 			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
-			if (col)
-			{
-				col->SetTag(dwValue);
-				col->NeedUpdate();
-			}
+			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->TrackTime);
 		}
 		break;
 	default: 

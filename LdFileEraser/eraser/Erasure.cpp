@@ -47,7 +47,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IE
 		if (result != 0)
 			break;
 
-		//result = EraseFreeDataSpace(callback);
+		result = EraseFreeDataSpace(callback);
 				
 
 		if (result == 0)
@@ -154,7 +154,9 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 		if (callback && !callback->ErasureProgress(ERASER_DATA_FREE, nFileCount, nCount++))
 			return ERROR_CANCELED;
 	}
-	
+	if (result == ERROR_DISK_FULL)
+		result = 0;
+
 	if (result == 0)
 		result = EraseFreeMftSpace(callback);
 
@@ -307,7 +309,7 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 	} while (false);
 
 	if (callback && !callback->ErasureProgress(ERASER_MFT_FREE, nMaxFileCount, nMaxFileCount))
-
+		return ERROR_CANCELED;
 	if (result == ERROR_DISK_FULL)
 		result = 0;
 	return result;
@@ -387,7 +389,7 @@ DWORD CErasure::CrateTempFileAndErase(UINT64 nFileSize, IErasureCallback* callba
 	result = CreateTempFile(nFileSize, &hFile);
 	if (result != 0 && hFile == INVALID_HANDLE_VALUE)
 		return result;  
-	result = EraseFile(hFile, 0, nFileSize, callback);
+	//result = EraseFile(hFile, 0, nFileSize, callback);
 
 	CloseHandle(hFile);
 	return result;
@@ -435,7 +437,7 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 {
 	DWORD result;
 	UINT64 nMftSize;
-	int totalFiles = (int)max(1L, m_Volume->GetTrackCount());
+	UINT64 totalFiles = 2 * (UINT64)max(1L, m_Volume->GetTrackCount());
 
 	PVOLUME_BPB_DATA pBpb = m_Volume->GetBpbData(&result);
 	do
@@ -474,8 +476,11 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 		}
 	} while (false);
 
+	DeleteTempFiles(callback);
+
 	if (callback)
 		callback->ErasureProgress(ERASER_DEL_TRACK, totalFiles, totalFiles);
+
 	return result;
 
 }
