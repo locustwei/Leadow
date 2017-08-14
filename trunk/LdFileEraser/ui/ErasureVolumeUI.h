@@ -33,7 +33,7 @@ private:
 	void OnClick(TNotifyUI& msg);
 	void OnSelectChanged(TNotifyUI &msg) override;
 	void OnItemClick(TNotifyUI &msg) override;
-	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui);  //
+	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time);  //
 	void ShowAnalysisResult(CVolumeEx* pVolume, CControlUI* ui); //分析数据在列表中显示
 	bool OnAfterColumePaint(PVOID Param);
 protected:

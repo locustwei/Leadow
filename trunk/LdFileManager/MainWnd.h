@@ -16,12 +16,10 @@ protected:
 	CDuiString GetSkinFolder() override;
 
 	void OnClick(TNotifyUI& msg) override;
-	//virtual CControlUI* CreateControl(LPCTSTR pstrClass, CMarkupNode* pNode = NULL) override;
-	bool OnBtnAfterPaint(PVOID param);
+	void InitWindow() override;
 private:
 	TCHAR* m_Skin;
 	IErasureLibrary* m_ErasureLib;
-	IProtectLibrary* m_ProtectLib;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
