@@ -86,7 +86,7 @@ bool CErasureVolumeUI::OnAfterColumePaint(PVOID Param)
 		return true;
 	RECT rect = pPaint->sender->GetPos();
 	//rect.bottom = rect.top + 20;
-	rect.right = rect.left + (rect.right - rect.left) / 100 * percent;
+	rect.right = rect.left + ((rect.right - rect.left) * percent) / 100 ;
 	CRenderEngine::DrawColor(pPaint->hDc, rect, 0xFFFFFF00);
 	return true;
 }
