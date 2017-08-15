@@ -123,14 +123,13 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 {
 	m_ThreadCount = 0;
+	m_callback->EraserThreadCallback(nullptr, eto_start, 0);
 	if (Param == 0)
 	{
-		m_callback->EraserThreadCallback(nullptr, eto_start, 0);
 		ReEresareFile(m_Files);
-		m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
+		Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
 	}else
 	{
-		m_callback->EraserThreadCallback(nullptr, eto_start, 0);
 		for (int i = 0; i < m_Files->GetCount(); i++)
 		{
 			if (m_Abort)
@@ -146,12 +145,12 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 		}
 		while (m_ThreadCount == 0)
 			Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
-		while (m_ThreadCount>0)
-		{
-			Sleep(20);
-		}
-		m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
 	}
+	while (m_ThreadCount>0)
+	{
+		Sleep(20);
+	}
+	m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
 }
 //单个文件擦除
 void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)

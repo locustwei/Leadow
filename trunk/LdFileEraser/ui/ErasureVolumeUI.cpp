@@ -30,7 +30,10 @@ void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControl
 	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 	CDuiString str;
 	DWORD t = (GetTickCount() - time) / 1000;
-	str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
+	if(Percent < 100)
+		str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
+	else
+		str.Format(_T("已完成 耗时%d秒"), t);
 	ChildUI->SetText(str);
 	ui->SetTag(Percent);
 	ui->NeedUpdate();
@@ -85,9 +88,9 @@ bool CErasureVolumeUI::OnAfterColumePaint(PVOID Param)
 	if (percent == 0)
 		return true;
 	RECT rect = pPaint->sender->GetPos();
-	//rect.bottom = rect.top + 20;
+	rect.bottom = rect.top + 20;
 	rect.right = rect.left + ((rect.right - rect.left) * percent) / 100 ;
-	CRenderEngine::DrawColor(pPaint->hDc, rect, 0xFFFFFF00);
+	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x80FFFF00);
 	return true;
 }
 
@@ -163,7 +166,7 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 			if (col)
 			{
-				col->SetTag(dwValue);
+				col->SetTag(dwValue % 100);
 				col->NeedUpdate();
 			}
 		}

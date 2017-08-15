@@ -242,15 +242,15 @@ namespace LeadowLib {
 			result.Format(_T("%.2fTB"), Size / __TB);
 	}
 
-	void CFileUtils::GenerateRandomFileName(int length, CLdString& Out)
+	void CFileUtils::GenerateRandomFileName(int length, CLdString* Out)
 	{
 		TCHAR validFileNameChars[] = _T("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ _+=-()[]{}',`~!");
-		Out.SetLength(length + 1);
+		Out->SetLength(length + 1);
 		//	TCHAR* result = new TCHAR[length + 1];
 		//	ZeroMemory(result, (length + 1) * sizeof(TCHAR));
 		for (int j = 0; j < length; j++)
 		{
-			Out.GetData()[j] = validFileNameChars[rand() % 78];
+			Out->GetData()[j] = validFileNameChars[rand() % 78];
 		}
 	}
 }

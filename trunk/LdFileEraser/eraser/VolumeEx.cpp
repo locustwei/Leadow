@@ -72,7 +72,7 @@ DWORD CVolumeEx::CreateTempFile(CLdString& FileName)
 {
 	CLdString tmpName;
 
-	CFileUtils::GenerateRandomFileName(10, tmpName);
+	CFileUtils::GenerateRandomFileName(10, &tmpName);
 
 	tmpName.Insert(0, m_TempPath);
 	HANDLE hFile = CreateFile(tmpName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
