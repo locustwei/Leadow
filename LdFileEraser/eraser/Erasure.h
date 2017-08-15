@@ -58,7 +58,7 @@ private:
 	CLdString m_tmpDir;      //历史文件目录名
 	//IErasureCallback* m_callback;
 	CErasureMethod* m_method;      //擦除方法
-	CLdArray<CLdString> m_Tmpfiles;     //保持生成的临时文件名
+	CLdArray<CLdString*> m_Tmpfiles;     //保持生成的临时文件名
 	UINT64 m_DeleteFileTraces;    //被删除的文件个数
 	//擦除文件
 	DWORD EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);

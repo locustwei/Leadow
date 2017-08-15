@@ -100,7 +100,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
 			CloseHandle(hFile);
-			m_Tmpfiles.Add(lpFileName);
+			m_Tmpfiles.Add(new CLdString(lpFileName));
 		}
 		if (result == 0)
 			result = DeleteTempFiles(callbck);
@@ -287,8 +287,8 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 	UINT64 nMaxFileCount;
 	do 
 	{
-		nMaxFileCount = m_Volume->GetRemoveableCount();
-
+		nMaxFileCount = max(1, m_Volume->GetRemoveableCount());
+		
 		if (callback && !callback->ErasureProgress(ERASER_MFT_FREE, nMaxFileCount, 0))
 			return ERROR_CANCELED;
 
@@ -323,11 +323,11 @@ DWORD CErasure::EraseFatFreeSpace(IErasureCallback* callback)
 DWORD CErasure::CreateTempFile(UINT64 nFileSize, HANDLE* pOut, int nFileNameLength)
 {
 	DWORD result = 0;
-	CLdString tmpName;
+	CLdString* tmpName = new CLdString();
 	CFileUtils::GenerateRandomFileName(nFileNameLength, tmpName);
 
-	tmpName = m_tmpDir + tmpName;
-	HANDLE hFile = CreateFile(tmpName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	*tmpName = m_tmpDir + *tmpName;
+	HANDLE hFile = CreateFile(*tmpName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return GetLastError();
 	if(pOut)
@@ -389,7 +389,7 @@ DWORD CErasure::CrateTempFileAndErase(UINT64 nFileSize, IErasureCallback* callba
 	result = CreateTempFile(nFileSize, &hFile);
 	if (result != 0 && hFile == INVALID_HANDLE_VALUE)
 		return result;  
-	//result = EraseFile(hFile, 0, nFileSize, callback);
+	result = EraseFile(hFile, 0, nFileSize, callback);
 
 	CloseHandle(hFile);
 	return result;
@@ -397,12 +397,13 @@ DWORD CErasure::CrateTempFileAndErase(UINT64 nFileSize, IErasureCallback* callba
 
 DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 {
-	DWORD result = 0;
+	DWORD result = 0, nCount = m_Tmpfiles.GetCount();
 	if (callback)
-		callback->ErasureProgress(ERASER_DEL_TEMPFILE, m_Tmpfiles.GetCount(), 0);
+		callback->ErasureProgress(ERASER_DEL_TEMPFILE, nCount, 0);
+
 	for (int i = 0; i < m_Tmpfiles.GetCount(); i++)
 	{
-		HANDLE hFile = CreateFile(m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		HANDLE hFile = CreateFile(*m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if(hFile != INVALID_HANDLE_VALUE)
 		{
 			SetEndOfFile(hFile);
@@ -413,15 +414,18 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 			result = GetLastError();
 		}
 		
-		if (!DeleteFile(m_Tmpfiles[i]))
+		if (!DeleteFile(*m_Tmpfiles[i]))
 			result = GetLastError();
+		delete m_Tmpfiles[i];
 //		result = CFileUtils::ShDeleteFile(m_Tmpfiles[i]);
 		
 		if(callback)
-			callback->ErasureProgress(ERASER_DEL_TEMPFILE, m_Tmpfiles.GetCount(), i);
+			callback->ErasureProgress(ERASER_DEL_TEMPFILE, nCount, i);
 	}
+	m_Tmpfiles.Clear();
+
 	if (callback)
-		callback->ErasureProgress(ERASER_DEL_TEMPFILE, m_Tmpfiles.GetCount(), m_Tmpfiles.GetCount());
+		callback->ErasureProgress(ERASER_DEL_TEMPFILE, nCount, nCount);
 	return result;
 }
 
@@ -436,7 +440,7 @@ DWORD CErasure::CreateTempDirectory()
 DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 {
 	DWORD result;
-	UINT64 nMftSize;
+	UINT64 nMftSize, nCount=0;
 	UINT64 totalFiles = 2 * (UINT64)max(1L, m_Volume->GetTrackCount());
 
 	PVOLUME_BPB_DATA pBpb = m_Volume->GetBpbData(&result);
@@ -452,7 +456,7 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 		if (callback && !callback->ErasureProgress(ERASER_DEL_TRACK, totalFiles, 0))
 			return ERROR_CANCELED;
 
-		int nCount = 0, ntry = 3;
+		int ntry = 3;
 		while (true)
 		{
 			result = CreateTempFile(0, NULL, 220);
@@ -476,7 +480,32 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 		}
 	} while (false);
 
-	DeleteTempFiles(callback);
+	class CErasureCallbackImpl: public IErasureCallback
+	{
+	public:
+		IErasureCallback* callback;
+		UINT64 totalFiles, nCount;
+
+		BOOL ErasureStart() override
+		{
+			return true;
+		};
+		BOOL ErasureCompleted(DWORD dwErroCode) override
+		{
+			return true;
+		};
+		BOOL ErasureProgress(ERASE_STEP nStep, UINT64 nMaxCount, UINT64 nCurent) override
+		{
+			return callback->ErasureProgress(ERASER_DEL_TRACK, totalFiles, this->nCount + nCurent);
+			
+		};
+	};
+
+	CErasureCallbackImpl impl;
+	impl.callback = callback;
+	impl.totalFiles = totalFiles;
+	impl.nCount = nCount;
+	DeleteTempFiles(&impl);
 
 	if (callback)
 		callback->ErasureProgress(ERASER_DEL_TRACK, totalFiles, totalFiles);
