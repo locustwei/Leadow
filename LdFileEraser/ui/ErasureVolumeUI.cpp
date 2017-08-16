@@ -162,8 +162,6 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 		btnOk->SetText(L"Cancel");
 		break;
 	case eto_analy:
-		//if (_tccmp(pFile->GetFullName(), _T("C:\\"))!=0)
-			//return false;
 		break;
 	case eto_analied:
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
@@ -274,7 +272,7 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 			col->SetTag(0);
 			col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
 		}
-		col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
+		col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
 		if (col)
 		{
 			col->SetTag(0);

@@ -53,19 +53,21 @@ UINT CVolumeEx::GetDelSpeed()
 
 DWORD CVolumeEx::StatisticsFileStatus()
 {
-	DWORD t_dword = GetTickCount();
-	CountFiles();
-	DebugOutput(L"ºÄÊ± %d Ãë", (GetTickCount() - t_dword) / 1000);
-
-	m_TempPath = GetFullName();
-	m_TempPath += TEST_temp_path;
-	CFileUtils::ForceDirectories(m_TempPath);
-
-	m_Writespeed = TestWriteSpeed();
-	TestCreateAndDelSpeed();
-
+	DWORD result;
+	result = CountFiles();
+	if (result == 0)
+	{
+		m_TempPath = GetFullName();
+		m_TempPath += TEST_temp_path;
+		result = CFileUtils::ForceDirectories(m_TempPath);
+	}
+	if (result == 0)
+	{
+		m_Writespeed = TestWriteSpeed();
+		TestCreateAndDelSpeed();
+	}
 	RemoveDirectory(m_TempPath);
-	return 0;
+	return result;
 }
 
 UINT64 CVolumeEx::GetDirectoryCount()
@@ -142,13 +144,15 @@ UINT CVolumeEx::TestCreateAndDelSpeed()
 
 DWORD CVolumeEx::CountFiles()
 {
+	DWORD result = 0;
 	CMftReader* reader = CMftReader::CreateReader(this);
 	if (!reader)
-		return -1;
+		return GetLastError();
 	reader->SetHolder(this);
-	reader->EnumFiles(0);
+	if (reader->EnumFiles(0) == 0)
+		result = GetLastError();
 	delete reader;
-	return 0;
+	return result;
 }
 
 BOOL CVolumeEx::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)

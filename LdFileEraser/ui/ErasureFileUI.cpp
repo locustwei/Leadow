@@ -47,5 +47,15 @@ DUI_END_MESSAGE_MAP()
 
 void CErasureFileUI::OnClick(TNotifyUI& msg)
 {
-	
+	if(msg.pSender == btnOpenFile)
+	{
+		CDlgGetFileName dlg;
+		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow()))
+		{
+			for(int i=0; i<dlg.GetFileCount();i++)
+			{
+				AddFile(dlg.GetFileName(i));
+			}
+		};
+	}
 }

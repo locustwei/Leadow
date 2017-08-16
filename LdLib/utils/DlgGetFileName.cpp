@@ -226,12 +226,13 @@ namespace LeadowLib {
 		BOOL Result = FALSE;
 
 
-		//	Result = GetOpenFileName(PrepareParam(hOwner));
-		//
-		//	if (Result)
-		//	{
-		//		ProcessResult();
-		//	}
+		Result = GetOpenFileName(PrepareParam(hOwner));
+		
+		if (Result)
+		{
+			ProcessResult();
+		}
+
 		return Result;
 
 	}
