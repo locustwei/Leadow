@@ -190,13 +190,12 @@ void CEreaserThrads::AnalyThreadRung(CVolumeEx* pVolume)
 	if (m_Abort)
 		return;
 
-	CErasure erasure;
-
-	if(m_callback)
-		m_callback->EraserThreadCallback(pVolume, eto_analy, 0);
-	DWORD error = pVolume->StatisticsFileStatus();
-	if (m_callback)
-		m_callback->EraserThreadCallback(pVolume, eto_analied, error);
+	DWORD error;
+	if (!m_callback->EraserThreadCallback(pVolume, eto_analy, 0))
+		error = ERROR_CANCELED;
+	else
+		error = pVolume->StatisticsFileStatus();
+	m_callback->EraserThreadCallback(pVolume, eto_analied, error);
 
 }
 
