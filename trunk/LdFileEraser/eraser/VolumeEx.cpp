@@ -53,7 +53,9 @@ UINT CVolumeEx::GetDelSpeed()
 
 DWORD CVolumeEx::StatisticsFileStatus()
 {
+	DWORD t_dword = GetTickCount();
 	CountFiles();
+	DebugOutput(L"ºÄÊ± %d Ãë", (GetTickCount() - t_dword) / 1000);
 
 	m_TempPath = GetFullName();
 	m_TempPath += TEST_temp_path;

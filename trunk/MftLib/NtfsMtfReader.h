@@ -58,7 +58,7 @@ private:
 
 	PFILE_RECORD_HEADER m_File;
 	UINT64 m_FileCount;
-
+	PATTRIBUTE m_MftDataAttribute;
 	VOID FixupUpdateSequenceArray(PFILE_RECORD_HEADER file);
 	PATTRIBUTE FindAttribute(PFILE_RECORD_HEADER file,ATTRIBUTE_TYPE type, PWSTR name, int n_attr_count = 0);
 	UINT64 AttributeLengthAllocated(PATTRIBUTE attr);
@@ -74,7 +74,7 @@ private:
 	DWORD RunLength(PUCHAR run);
 	UINT64 AttributeLength(PATTRIBUTE attr);
 	BOOL bitset(PUCHAR bitmap, UINT64 i);
-	BOOL ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER file);
+	BOOL ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER& file);
 	BOOL ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer);
 	//UINT64 GetFileCount();
 	PFILENAME_ATTRIBUTE ReadFileNameInfoEx(UINT64 ReferenceNumber);
