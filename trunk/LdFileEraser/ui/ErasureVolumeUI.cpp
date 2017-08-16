@@ -162,8 +162,8 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 		btnOk->SetText(L"Cancel");
 		break;
 	case eto_analy:
-		if (_tccmp(pFile->GetFullName(), _T("C:\\"))!=0)
-			return false;
+		//if (_tccmp(pFile->GetFullName(), _T("C:\\"))!=0)
+			//return false;
 		break;
 	case eto_analied:
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
