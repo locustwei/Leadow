@@ -22,20 +22,6 @@ CNtfsMtfReader::~CNtfsMtfReader(void)
 	if(m_MftBitmap)
 		delete m_MftBitmap;
 	m_MftBitmap = NULL;
-
-	if(!m_File)
-		delete m_File;
-	m_File = NULL;
-
-	if (m_cache_info.g_pb){
-		delete [] m_cache_info.g_pb;
-		m_cache_info.g_pb = NULL;
-		m_cache_info.cache_lcn_begin = 0;
-		m_cache_info.cache_lcn_count = 0;
-		m_cache_info.cache_lcn_orl_begin = 0;
-		m_cache_info.cache_lcn_total = 0;
-	}
-
 }
 
 /*
@@ -72,25 +58,47 @@ UINT64 CNtfsMtfReader::EnumFiles(UINT_PTR Param)
 	if (!Init())
 		return 0;
 
-	m_MftDataAttribute = FindAttribute(m_Mft, AttributeData, nullptr, 0);
+	PATTRIBUTE m_MftDataAttribute = FindAttribute(m_Mft, AttributeData, nullptr, 0);
+	if (m_BpbData->ClustersPerFileRecord == 0)
+		m_BpbData->ClustersPerFileRecord = 1;
+	int nCluster = m_BpbData->ClustersPerFileRecord;
+	if (nCluster > 0x80)
+		nCluster = 1;
+	nCluster = nCluster * 1024;
+	PUCHAR Buffer = new UCHAR[m_BpbData->BytesPerClusters * nCluster];
+	UINT64 BeginVcn = 0;
+
+	PFILE_RECORD_HEADER file;
 
 	for(UINT64 i = 0; i < m_FileCount; i++){
 //		if (!bitset(m_MftBitmap, i)) //跳过被删除的文件
 //			continue;
+		UINT64 vcn = UINT64(i) * m_BpbData->BytesPerFileRecordSegment / m_BpbData->SectorsPerCluster / m_BpbData->BytesPerSector;
+		if (vcn >= BeginVcn)
+		{//一次读取1024个cluster缓存
+			if (!ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE(m_MftDataAttribute), vcn, nCluster, Buffer))
+				break;
+			BeginVcn = vcn + nCluster;
+		}
 
-		PFILENAME_ATTRIBUTE name = ReadFileNameInfoEx(i);
+		LONG m = (m_BpbData->BytesPerClusters / m_BpbData->BytesPerFileRecordSegment) - 1;
+		DWORD n = m > 0 ? (i & m) : 0;
+		file = (PFILE_RECORD_HEADER)(Buffer + (vcn % nCluster) * m_BpbData->BytesPerClusters + n * m_BpbData->BytesPerFileRecordSegment);
+		FixupUpdateSequenceArray(file);
+
+		PFILENAME_ATTRIBUTE name = ReadFileNameInfoEx(file);
 
 		if(name){
 			result++;
 
-//			if(!Callback(i, FileAttribute2Info(name), Param))
-//			{
-//				
-//				break;
-//			}
+			if(!Callback(i, FileAttribute2Info(name), Param))
+			{
+				
+				break;
+			}
 		}
 	}
-	
+	delete[] Buffer;
 	return result;
 }
 
@@ -215,10 +223,6 @@ BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,UINT64 vc
 		if(!FindRun(attr, vcn, &lcn, &runcount))
 			break;
 
-		if (NeedCache(lcn) && b_allow_cache)
-		{
-			NewCache(lcn, runcount);
-		}
 		readcount = DWORD(min(runcount, left));
 		DWORD n = readcount * m_BpbData->BytesPerClusters;
 
@@ -226,19 +230,10 @@ BOOL CNtfsMtfReader::ReadExternalAttribute(PNONRESIDENT_ATTRIBUTE attr,UINT64 vc
 			memset(bytes, 0, n);
 		else
 		{
-			if (CanReadFromCache(lcn))
-			{
-				memcpy(bytes, m_cache_info.g_pb + ((lcn - m_cache_info.cache_lcn_begin) * m_BpbData->BytesPerClusters), 
-					readcount * m_BpbData->BytesPerClusters);
-				result = readcount * m_BpbData->BytesPerClusters;
-			}
-			else
-			{
 				result = ReadLCN(lcn, readcount, bytes);
 				if(!result){
 					break;
 				}
-			}
 		}          
 		vcn += readcount;
 		bytes += n;
@@ -300,68 +295,6 @@ BOOL CNtfsMtfReader::FindRun(PNONRESIDENT_ATTRIBUTE attr, UINT64 vcn, PULONGLONG
 	return FALSE;
 }
 
-BOOL CNtfsMtfReader::NeedCache(UINT64 lcn)
-{
-	if (!m_cache_info.g_pb)
-	{
-		return true;
-	}
-	if (lcn >= m_cache_info.cache_lcn_begin && lcn < m_cache_info.cache_lcn_begin + m_cache_info.cache_lcn_count)
-	{
-		return false;
-	}
-	return true;
-
-}
-
-void CNtfsMtfReader::NewCache(UINT64 lcn, UINT64 lcn_count)
-{
-	if (lcn < m_cache_info.cache_lcn_begin)
-	{
-		return;
-	}
-	if (m_cache_info.g_pb)
-	{
-		delete [] m_cache_info.g_pb;
-		m_cache_info.g_pb = NULL;
-	}
-	UINT64 new_len;
-	if (!m_cache_info.cache_lcn_orl_begin)
-	{
-		new_len = MAX_CACHE_SECTORS >= lcn_count ? lcn_count : MAX_CACHE_SECTORS;
-		m_cache_info.cache_lcn_orl_begin = lcn;
-		m_cache_info.cache_lcn_total = lcn_count;
-	}
-	else if (m_cache_info.cache_lcn_orl_begin && lcn > m_cache_info.cache_lcn_orl_begin + m_cache_info.cache_lcn_total)
-	{
-		new_len = MAX_CACHE_SECTORS >= lcn_count ? lcn_count : MAX_CACHE_SECTORS;
-		m_cache_info.cache_lcn_orl_begin = lcn;
-		m_cache_info.cache_lcn_total = lcn_count;
-	}
-	else
-	{
-		new_len = MAX_CACHE_SECTORS >= m_cache_info.cache_lcn_orl_begin + m_cache_info.cache_lcn_total - lcn ? m_cache_info.cache_lcn_orl_begin + m_cache_info.cache_lcn_total - lcn : MAX_CACHE_SECTORS;
-	}
-	BYTE* p_tmp = new BYTE[(DWORD)(new_len * m_BpbData->BytesPerClusters)];
-	if (p_tmp)
-	{
-		m_cache_info.g_pb = p_tmp;
-		m_cache_info.cache_lcn_begin = lcn;
-		m_cache_info.cache_lcn_count = new_len;
-		ReadLCN(lcn, (DWORD)new_len, m_cache_info.g_pb);
-	}
-}
-
-BOOL CNtfsMtfReader::CanReadFromCache(UINT64 lcn)
-{
-	if (m_cache_info.g_pb && lcn >= m_cache_info.cache_lcn_begin && lcn < m_cache_info.cache_lcn_begin + m_cache_info.cache_lcn_count)
-	{
-		return TRUE;
-	}
-	return FALSE;
-
-}
-
 BOOL CNtfsMtfReader::ReadLCN(UINT64 lcn, DWORD count, PVOID buffer)
 {
 	return ReadSector(lcn * m_BpbData->SectorsPerCluster,count * m_BpbData->SectorsPerCluster, buffer);
@@ -419,6 +352,7 @@ BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, UINT64 i)
 {
 	return (bitmap[i >> 3] & (1 << (i & 7))) != 0;
 }
+/*
 
 BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER& file)
 {
@@ -457,32 +391,21 @@ BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE
 	//delete [] p;
 	return TRUE;
 }
+*/
 
-BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer)
+/*BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer)
 {
-	PNONRESIDENT_ATTRIBUTE attr = (PNONRESIDENT_ATTRIBUTE)m_MftDataAttribute;//PNONRESIDENT_ATTRIBUTE(FindAttribute(file, type, 0));
+	PNONRESIDENT_ATTRIBUTE attr = PNONRESIDENT_ATTRIBUTE(FindAttribute(file, type, 0));
 
 	if (attr == 0 || (vcn < attr->LowVcn || vcn > attr->HighVcn))
 	{
 		return FALSE;
 	}
 	return ReadExternalAttribute(attr, vcn, count, buffer, true);
-}
+}*/
 
-const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(UINT64 ReferenceNumber)
+PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(PFILE_RECORD_HEADER file)
 {
-	return ReadFileNameInfoEx(ReferenceNumber);
-}
-
-PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
-{
-	//ZeroMemory(m_File, m_BpbData->BytesPerFileRecordSegment);
-	PFILE_RECORD_HEADER file;
-	if(!ReadFileRecord(m_Mft, ReferenceNumber, file)){
-		return NULL;
-	}
-	return nullptr;
-
 	if (file->Ntfs.Type == 'ELIF'){
 
 		PVOID nameAttr = FindAttribute(file, AttributeFileName, 0);
@@ -493,7 +416,7 @@ PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 
 		PFILENAME_ATTRIBUTE name = PFILENAME_ATTRIBUTE(Padd(nameAttr,PRESIDENT_ATTRIBUTE(nameAttr)->ValueOffset));
 
-		/*int n_ctrl = 1;
+		int n_ctrl = 1;
 		PFILENAME_ATTRIBUTE name_lenname = NULL;
 		PATTRIBUTE attr_lenname;
 		BYTE file_type = name->NameType;
@@ -519,7 +442,7 @@ PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 			PATTRIBUTE dataAttr = FindAttribute(file, AttributeData, NULL);
 			if(dataAttr)
 				name->DataSize = AttributeLength(dataAttr);
-		}*/
+		}
 		return name;
 	}else
 	{
@@ -534,11 +457,8 @@ void CNtfsMtfReader::ZeroMember()
 	m_Mft = NULL;
 	m_MftBitmap = NULL;
 	m_MftData = NULL;
-	m_File = NULL;
 	m_FileCount = 0;
 	m_BpbData = nullptr;
-	m_MftDataAttribute = nullptr;
-	ZeroMemory(&m_cache_info, sizeof(m_cache_info));	
 }
 
 bool CNtfsMtfReader::Init()
@@ -567,22 +487,7 @@ bool CNtfsMtfReader::Init()
 		}
 	}
 
-	if (!m_File)
-	{
-		ULONG Clustes = m_BpbData->ClustersPerFileRecord;
-		if (Clustes == 0 || Clustes > 0x80)
-			Clustes = 1;
-		m_File = PFILE_RECORD_HEADER(new UCHAR[Clustes * m_BpbData->BytesPerClusters]);
-	}
 	m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/ m_BpbData->BytesPerFileRecordSegment; //MTF的总项数
-	if (m_cache_info.g_pb){
-		delete [] m_cache_info.g_pb;
-		m_cache_info.g_pb = NULL;
-		m_cache_info.cache_lcn_begin = 0;
-		m_cache_info.cache_lcn_count = 0;
-		m_cache_info.cache_lcn_orl_begin = 0;
-		m_cache_info.cache_lcn_total = 0;
-	}
 
 	return true;
 }
@@ -594,16 +499,16 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 
 	static PFILE_INFO aFileInfo = (PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR)];
 	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR));
-	//aFileInfo->AllocatedSize = name->AllocatedSize;
-	//aFileInfo->ChangeTime = name->ChangeTime;
-	//aFileInfo->CreationTime = name->CreationTime;
+	aFileInfo->AllocatedSize = name->AllocatedSize;
+	aFileInfo->ChangeTime = name->ChangeTime;
+	aFileInfo->CreationTime = name->CreationTime;
 	aFileInfo->DataSize = name->DataSize;
-	//aFileInfo->DirectoryFileReferenceNumber = name->DirectoryFileReferenceNumber;
+	aFileInfo->DirectoryFileReferenceNumber = name->DirectoryFileReferenceNumber;
 	aFileInfo->FileAttributes = name->FileAttributes;
-	//aFileInfo->LastAccessTime = name->LastAccessTime;
-	//aFileInfo->LastWriteTime = name->LastWriteTime;
-	//aFileInfo->NameLength = name->NameLength;
-	//memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(TCHAR));
+	aFileInfo->LastAccessTime = name->LastAccessTime;
+	aFileInfo->LastWriteTime = name->LastWriteTime;
+	aFileInfo->NameLength = name->NameLength;
+	memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(TCHAR));
 	return aFileInfo;
 }
 /*
