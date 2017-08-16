@@ -1,6 +1,21 @@
 #pragma once
 #include "../../MftLib/MftReader.h"
 
+/*!
+回掉函数，用于中断处理、报告进度
+*/
+class IStatisticsCallback
+{
+public:
+	virtual BOOL ErasureStart() = 0;    //开始擦除
+	virtual BOOL ErasureCompleted(DWORD dwErroCode) = 0;  //擦除完。
+	//************************************
+	// Qualifier: 进度
+	// Parameter: UINT64 nMaxCount  最大数量
+	// Parameter: UINT64 nCurent  完成数量
+	//************************************
+	virtual BOOL ErasureProgress(UINT64 nMaxCount, UINT64 nCurent) = 0;
+};
 
 class CVolumeEx : public CVolumeInfo, public IMftReadeHolder
 {

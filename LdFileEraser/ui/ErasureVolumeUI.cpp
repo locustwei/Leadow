@@ -29,11 +29,22 @@ void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControl
 {
 	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 	CDuiString str;
-	DWORD t = (GetTickCount() - time) / 1000;
-	if(Percent < 100)
-		str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
+	if(pData->nStatus == efs_error)
+	{
+		str.Format(_T("发生错误， 错误代码%x"), pData->nErrorCode);
+		ChildUI->SetBkColor(0xFFFF0000);
+	}
 	else
-		str.Format(_T("已完成 耗时%d秒"), t);
+	{
+		DWORD t = (GetTickCount() - time) / 1000;
+		if (Percent < 100)
+			str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
+		else
+		{
+			str.Format(_T("已完成 耗时%d秒"), t);
+			ChildUI->SetBkColor(0xFF00FFFF);
+		}
+	}
 	ChildUI->SetText(str);
 	ui->SetTag(Percent);
 	ui->NeedUpdate();
@@ -44,13 +55,23 @@ void CErasureVolumeUI::ShowAnalysisResult(CVolumeEx* pVolume, CControlUI* ui)
 	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
 	CControlUI* Desc;
 	CGifAnimUI* Gif;
+	PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)pVolume->GetTag();
+
+	CDuiString str;
+	if (pData->nStatus == efs_error)
+	{
+		str.Format(_T("发生错误， 错误代码%x"), pData->nErrorCode);
+	}
+
 	if(ChildUI)
 	{
 		Desc = ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
-		CDuiString str;
-		str.Format(_T("磁盘读写速度%dms/M。擦除磁盘空闲空间预计需要%d秒"),
-			pVolume->GetWriteSpeed(),
-			pVolume->GetAvailableFreeSpace() / 0xA00000 * pVolume->GetWriteSpeed() / 1000);
+		if (pData->nStatus != efs_error)
+		{
+			str.Format(_T("磁盘文件数%lld, 目录数%lld。"),
+				pVolume->GetFileCount(),
+				pVolume->GetDirectoryCount());
+		}
 		Desc->SetText(str);
 		Gif = (CGifAnimUI*)ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 		if (Gif)
@@ -64,11 +85,32 @@ void CErasureVolumeUI::ShowAnalysisResult(CVolumeEx* pVolume, CControlUI* ui)
 	if(ChildUI)
 	{
 		Desc = ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
-		CDuiString str;
-		str.Format(_T("被删除的文件数%lld，其中可被恢复数%lld。擦除文件删除痕迹预计需要%d秒"),
-			pVolume->GetTrackCount(),
-			pVolume->GetRemoveableCount(),
-			pVolume->GetTrackCount() / 100 * (pVolume->GetCrateSpeed() + pVolume->GetDelSpeed()) / 1000);
+		if (pData->nStatus != efs_error)
+		{
+			str.Format(_T("被删除的文件数%lld，其中可被恢复数%lld。擦除文件删除痕迹预计需要%d秒"),
+				pVolume->GetTrackCount(),
+				pVolume->GetRemoveableCount(),
+				pVolume->GetTrackCount() / 100 * (pVolume->GetCrateSpeed() + pVolume->GetDelSpeed()) / 1000);
+		}
+		Desc->SetText(str);
+		Gif = (CGifAnimUI*)ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
+		if (Gif)
+		{
+			Gif->StopGif();
+			Gif->SetVisible(false);
+		}
+	}
+
+	ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
+	if (ChildUI)
+	{
+		Desc = ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
+		if (pData->nStatus != efs_error)
+		{
+			str.Format(_T("磁盘读写速度%dms/M, 擦除磁盘空闲空间预计需要%d秒"),
+				pVolume->GetWriteSpeed() / 10,
+				pVolume->GetAvailableFreeSpace() / 0xA00000 * pVolume->GetWriteSpeed() / 1000);
+		}
 		Desc->SetText(str);
 		Gif = (CGifAnimUI*)ChildUI->FindControl(CDuiUtils::FindControlByNameProc, _T("progress"), 0);
 		if (Gif)
@@ -120,22 +162,19 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 		btnOk->SetText(L"Cancel");
 		break;
 	case eto_analy:
+		if (_tccmp(pFile->GetFullName(), _T("C:\\"))!=0)
+			return false;
 		break;
 	case eto_analied:
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue == 0)
-		{
-			//磁盘分析结束，分析数据在列表中显示
-			ShowAnalysisResult((CVolumeEx*)pFile, pEraserData->ui);
-
-			if(pEraserData->ui)
-				pEraserData->ui->SetFixedHeight(80);
-		}
-		else
+		if (dwValue != 0)
 		{
 			pEraserData->nStatus = efs_error;
 			pEraserData->nErrorCode = dwValue;
 		}
+		
+		ShowAnalysisResult((CVolumeEx*)pFile, pEraserData->ui);
+
 		break;
 	case eto_begin:  //单个文件开始
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
@@ -182,7 +221,7 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 			pEraserData->FreespaceTime = GetTickCount();
 		else
 		{
-			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
+			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
 			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->FreespaceTime);
 		}
 		break;

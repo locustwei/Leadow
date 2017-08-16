@@ -53,12 +53,15 @@ UINT CVolumeEx::GetDelSpeed()
 
 DWORD CVolumeEx::StatisticsFileStatus()
 {
+	CountFiles();
+
 	m_TempPath = GetFullName();
 	m_TempPath += TEST_temp_path;
 	CFileUtils::ForceDirectories(m_TempPath);
-	CountFiles();
+
 	m_Writespeed = TestWriteSpeed();
 	TestCreateAndDelSpeed();
+
 	RemoveDirectory(m_TempPath);
 	return 0;
 }
