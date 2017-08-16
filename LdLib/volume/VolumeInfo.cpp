@@ -62,15 +62,16 @@ namespace LeadowLib {
 	HANDLE CVolumeInfo::OpenVolumeHandle(PDWORD pErrorCode) const
 	{
 		CLdString path;
-		if (!m_VolumeGuid.IsEmpty())
-			path = m_VolumeGuid;
-		else if (!m_FileName.IsEmpty())
+		
+		if (!m_FileName.IsEmpty())
 		{
 			path = _T("\\\\.\\");
 			path += m_FileName;
 			if (path[path.GetLength() - 1] == '\\')
 				path.SetAt(path.GetLength() - 1, '\0');
 		}
+		else if(!m_VolumeGuid.IsEmpty())
+			path = m_VolumeGuid;
 		HANDLE result = CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, 0);
 		if (pErrorCode)
 		{

@@ -72,19 +72,22 @@ UINT64 CNtfsMtfReader::EnumFiles(UINT_PTR Param)
 	if (!Init())
 		return 0;
 
+	m_MftDataAttribute = FindAttribute(m_Mft, AttributeData, nullptr, 0);
+
 	for(UINT64 i = 0; i < m_FileCount; i++){
 //		if (!bitset(m_MftBitmap, i)) //跳过被删除的文件
 //			continue;
+
 		PFILENAME_ATTRIBUTE name = ReadFileNameInfoEx(i);
 
 		if(name){
 			result++;
 
-			if(!Callback(i, FileAttribute2Info(name), Param))
-			{
-				
-				break;
-			}
+//			if(!Callback(i, FileAttribute2Info(name), Param))
+//			{
+//				
+//				break;
+//			}
 		}
 	}
 	
@@ -417,53 +420,53 @@ BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, UINT64 i)
 	return (bitmap[i >> 3] & (1 << (i & 7))) != 0;
 }
 
-BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER file)
+BOOL CNtfsMtfReader::ReadFileRecord(PFILE_RECORD_HEADER Mft, UINT64 index, PFILE_RECORD_HEADER& file)
 {
 	DWORD clusters = m_BpbData->ClustersPerFileRecord;
 
 	if (clusters > 0x80 || clusters == 0)
 		clusters = 1;
 
-	PUCHAR p = new UCHAR[m_BpbData->BytesPerClusters * clusters];
+	//PUCHAR p = new UCHAR[m_BpbData->BytesPerClusters * clusters];
 	UINT64 vcn = UINT64(index) * m_BpbData->BytesPerFileRecordSegment/m_BpbData->SectorsPerCluster/ m_BpbData->BytesPerSector;
-	if(ReadVCN(Mft, AttributeData, vcn, clusters, p))
+	if(ReadVCN(Mft, AttributeData, vcn, clusters, m_File))
 	{
 		LONG m = (m_BpbData->BytesPerClusters/ m_BpbData->BytesPerFileRecordSegment) - 1;
 		DWORD n = m > 0 ? (index & m) : 0;
-		memcpy(file, p + n * m_BpbData->BytesPerFileRecordSegment, m_BpbData->BytesPerFileRecordSegment);
+		file = (PFILE_RECORD_HEADER)(PUCHAR(m_File) + n * m_BpbData->BytesPerFileRecordSegment);
 		FixupUpdateSequenceArray(file);
 	}else
 	{
 		NTFS_FILE_RECORD_INPUT_BUFFER mftRecordInput = {0};
 		DWORD dwCB;
 		mftRecordInput.FileReferenceNumber.QuadPart = index;
-		if (DeviceIoControl(m_Handle, FSCTL_GET_NTFS_FILE_RECORD, &mftRecordInput, sizeof(mftRecordInput), p, 
+		if (DeviceIoControl(m_Handle, FSCTL_GET_NTFS_FILE_RECORD, &mftRecordInput, sizeof(mftRecordInput), m_File, 
 			sizeof(NTFS_FILE_RECORD_OUTPUT_BUFFER) + m_BpbData->BytesPerFileRecordSegment, &dwCB, NULL)
-			&& PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileReferenceNumber.QuadPart == index)
+			&& PNTFS_FILE_RECORD_OUTPUT_BUFFER(m_File)->FileReferenceNumber.QuadPart == index)
 		{
-			memcpy(file, PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileRecordBuffer, m_BpbData->BytesPerFileRecordSegment);
+			file = (PFILE_RECORD_HEADER)PNTFS_FILE_RECORD_OUTPUT_BUFFER(m_File)->FileRecordBuffer;
 		}
 		else
 		{
-			delete [] p;
+			//delete [] p;
 			return FALSE;
 		}
 
 	}
 
-	delete [] p;
+	//delete [] p;
 	return TRUE;
 }
 
 BOOL CNtfsMtfReader::ReadVCN(PFILE_RECORD_HEADER file, ATTRIBUTE_TYPE type,UINT64 vcn, DWORD count, PVOID buffer)
 {
-	PNONRESIDENT_ATTRIBUTE attr = PNONRESIDENT_ATTRIBUTE(FindAttribute(file, type, 0));
+	PNONRESIDENT_ATTRIBUTE attr = (PNONRESIDENT_ATTRIBUTE)m_MftDataAttribute;//PNONRESIDENT_ATTRIBUTE(FindAttribute(file, type, 0));
 
 	if (attr == 0 || (vcn < attr->LowVcn || vcn > attr->HighVcn))
 	{
 		return FALSE;
 	}
-	return ReadExternalAttribute(attr, vcn, count, buffer, TRUE);
+	return ReadExternalAttribute(attr, vcn, count, buffer, true);
 }
 
 const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(UINT64 ReferenceNumber)
@@ -473,15 +476,16 @@ const PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadMtfFileNameAttribute(UINT64 Refere
 
 PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 {
-	ZeroMemory(m_File, m_BpbData->BytesPerFileRecordSegment);
-
-	if(!ReadFileRecord(m_Mft, ReferenceNumber, m_File)){
+	//ZeroMemory(m_File, m_BpbData->BytesPerFileRecordSegment);
+	PFILE_RECORD_HEADER file;
+	if(!ReadFileRecord(m_Mft, ReferenceNumber, file)){
 		return NULL;
 	}
-	
-	if (m_File->Ntfs.Type == 'ELIF'){
+	return nullptr;
 
-		PVOID nameAttr = FindAttribute(m_File, AttributeFileName, 0);
+	if (file->Ntfs.Type == 'ELIF'){
+
+		PVOID nameAttr = FindAttribute(file, AttributeFileName, 0);
 		if(!nameAttr)
 		{
 			return NULL;
@@ -489,13 +493,13 @@ PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 
 		PFILENAME_ATTRIBUTE name = PFILENAME_ATTRIBUTE(Padd(nameAttr,PRESIDENT_ATTRIBUTE(nameAttr)->ValueOffset));
 
-		int n_ctrl = 1;
+		/*int n_ctrl = 1;
 		PFILENAME_ATTRIBUTE name_lenname = NULL;
 		PATTRIBUTE attr_lenname;
 		BYTE file_type = name->NameType;
 
 		while (file_type == 2){ //只取长文件名
-			attr_lenname = FindAttribute(m_File, AttributeFileName, 0, n_ctrl);
+			attr_lenname = FindAttribute(file, AttributeFileName, 0, n_ctrl);
 			n_ctrl++;
 			if (attr_lenname == 0)
 				break;
@@ -505,17 +509,17 @@ PFILENAME_ATTRIBUTE CNtfsMtfReader::ReadFileNameInfoEx(UINT64 ReferenceNumber)
 		if (name_lenname != NULL){ //如果没有长文件名，就取短文件名
 			name = name_lenname;
 		}
-		if ((m_File->Flags & 1) == 0)
+		if ((file->Flags & 1) == 0)
 		{
 			name->FileAttributes |= FILE_ATTRIBUTE_DELETED;
 		}
-		if(m_File->Flags & 2)
+		if(file->Flags & 2)
 			name->FileAttributes |= FILE_ATTRIBUTE_DIRECTORY;
 		else{
-			PATTRIBUTE dataAttr = FindAttribute(m_File, AttributeData, NULL);
+			PATTRIBUTE dataAttr = FindAttribute(file, AttributeData, NULL);
 			if(dataAttr)
 				name->DataSize = AttributeLength(dataAttr);
-		}
+		}*/
 		return name;
 	}else
 	{
@@ -533,6 +537,7 @@ void CNtfsMtfReader::ZeroMember()
 	m_File = NULL;
 	m_FileCount = 0;
 	m_BpbData = nullptr;
+	m_MftDataAttribute = nullptr;
 	ZeroMemory(&m_cache_info, sizeof(m_cache_info));	
 }
 
@@ -562,9 +567,13 @@ bool CNtfsMtfReader::Init()
 		}
 	}
 
-	if(!m_File)
-		m_File = PFILE_RECORD_HEADER(new UCHAR[m_BpbData->BytesPerFileRecordSegment]);
-
+	if (!m_File)
+	{
+		ULONG Clustes = m_BpbData->ClustersPerFileRecord;
+		if (Clustes == 0 || Clustes > 0x80)
+			Clustes = 1;
+		m_File = PFILE_RECORD_HEADER(new UCHAR[Clustes * m_BpbData->BytesPerClusters]);
+	}
 	m_FileCount = AttributeLength(FindAttribute(m_Mft, AttributeData, 0))/ m_BpbData->BytesPerFileRecordSegment; //MTF的总项数
 	if (m_cache_info.g_pb){
 		delete [] m_cache_info.g_pb;
@@ -585,16 +594,16 @@ PFILE_INFO CNtfsMtfReader::FileAttribute2Info(PFILENAME_ATTRIBUTE name)
 
 	static PFILE_INFO aFileInfo = (PFILE_INFO) new UCHAR[sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR)];
 	ZeroMemory(aFileInfo, sizeof(FILE_INFO) + MAX_PATH * sizeof(TCHAR));
-	aFileInfo->AllocatedSize = name->AllocatedSize;
-	aFileInfo->ChangeTime = name->ChangeTime;
-	aFileInfo->CreationTime = name->CreationTime;
+	//aFileInfo->AllocatedSize = name->AllocatedSize;
+	//aFileInfo->ChangeTime = name->ChangeTime;
+	//aFileInfo->CreationTime = name->CreationTime;
 	aFileInfo->DataSize = name->DataSize;
-	aFileInfo->DirectoryFileReferenceNumber = name->DirectoryFileReferenceNumber;
+	//aFileInfo->DirectoryFileReferenceNumber = name->DirectoryFileReferenceNumber;
 	aFileInfo->FileAttributes = name->FileAttributes;
-	aFileInfo->LastAccessTime = name->LastAccessTime;
-	aFileInfo->LastWriteTime = name->LastWriteTime;
-	aFileInfo->NameLength = name->NameLength;
-	memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(TCHAR));
+	//aFileInfo->LastAccessTime = name->LastAccessTime;
+	//aFileInfo->LastWriteTime = name->LastWriteTime;
+	//aFileInfo->NameLength = name->NameLength;
+	//memcpy(aFileInfo->Name, name->Name, name->NameLength * sizeof(TCHAR));
 	return aFileInfo;
 }
 /*
