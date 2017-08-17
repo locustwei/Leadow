@@ -3,7 +3,7 @@
     <VerticalLayout name="ErasureFile" bordersize="1" inset="1,1,1,1">
         <HorizontalLayout height="1"  />
         <HorizontalLayout inset="3,0,3,3">
-            <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true">
+            <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true" hscrollbar="true">
 									  
             </List>
         </HorizontalLayout>
