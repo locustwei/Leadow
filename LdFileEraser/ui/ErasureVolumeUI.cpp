@@ -216,7 +216,7 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 	case eto_freespace: 
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
-			pEraserData->FreespaceTime = GetTickCount();
+			pEraserData->FreespaceTime = GetTickCount(); //开始擦除时间
 		else
 		{
 			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
@@ -226,11 +226,11 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 	case eto_track: 
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
-			pEraserData->TrackTime = GetTickCount();
+			pEraserData->TrackTime = GetTickCount();  //开始擦除时间
 		else
 		{
 			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
-			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->TrackTime);
+			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->TrackTime);  
 		}
 		break;
 	default: 

@@ -59,9 +59,11 @@ DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
 	}
 	
 	CLdArray<TCHAR*> values;
+	values.Add(nullptr);
+
 	CSHFolders::GetFileAttributeValue(lpFullName, &values);
 	AddRecord(&values);
-	for (int i = 0; i < values.GetCount(); i++)
+	for (int i = 1; i < values.GetCount(); i++)
 		delete values[i];
 
 	return 0;

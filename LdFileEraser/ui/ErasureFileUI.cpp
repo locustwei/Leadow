@@ -32,6 +32,7 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	__super::AttanchControl(pCtrl);
 	btnOpenFile = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("openfile"), 0));
 	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
+	CSHFolders::EnumFolderColumes(L"C:\\", this, 0);
 }
 
 bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
@@ -50,6 +51,8 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 	if(msg.pSender == btnOpenFile)
 	{
 		CDlgGetFileName dlg;
+		dlg.SetOption(CDlgGetFileName::OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
+
 		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow()))
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)

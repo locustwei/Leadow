@@ -38,11 +38,18 @@ namespace LeadowLib {
 		}
 		if (SUCCEEDED(hr))
 		{
+			//values->Add((TCHAR*)pidl);
 			int iSubItem = 0;
 			SHELLDETAILS sd = { 0 };
 			while (SUCCEEDED(pFolder->GetDetailsOf(pidl2, iSubItem, &sd)))
 			{
+				SHCOLSTATEF cstat;
+				pFolder->GetDefaultColumnState(iSubItem, &cstat);
+
 				iSubItem++;
+				if ((cstat & SHCOLSTATE_SECONDARYUI) != 0)
+					break;
+
 				TCHAR* szTemp = nullptr;
 				StrRetToStr(&sd.str, pidl2, &szTemp);
 				TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];
