@@ -39,15 +39,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	CImpl impl;
-	CLdArray<CLdString> columes;
+	CDlgGetFileName dlg;
+	dlg.SetOption(CDlgGetFileName::OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
+//	dlg.AddFilter(L"ddd", L"*.h;*.cpp");
+//	dlg.AddFilter(L"bbbb", L"*.exe");
+	dlg.SetInitDir(L"C:\\");
+	dlg.OpenFile(nullptr, dft_folder);
 
-	CSHFolders::EnumFolderColumes(L"C:\\", &impl, (UINT_PTR)&columes);
-	CLdArray<TCHAR*> values;
-	CSHFolders::GetFileAttributeValue(L"F:\\VHDtest.vhd", &values);
-
-	for (int i = 0; i < values.GetCount(); i++)
-		printf("%S === %S\n", columes[i].GetData(), values[i]);
+	for (int i = 0; i < dlg.GetFileCount(); i++)
+		printf("%S\n", dlg.GetFileName(i));
 
 	printf("\npress any key exit");
 	getchar();
