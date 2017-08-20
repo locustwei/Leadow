@@ -9,7 +9,7 @@ CErasureFileUI::CErasureFileUI() :
 	btnOk = nullptr;
 	lstFile = nullptr;
 	m_Name = _T("ErasureFileUI");
-	m_ItemSkin = _T("erasure\\listitem.xml");
+	m_ItemSkin = _T("erasure\\listitem_file.xml");
 }
 
 CErasureFileUI::~CErasureFileUI()
@@ -24,6 +24,22 @@ void CErasureFileUI::OnSelectChanged(TNotifyUI & msg)
 void CErasureFileUI::OnItemClick(TNotifyUI & msg)
 {
 	
+}
+
+CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
+{
+	CFileInfo* info;
+	if (CFileUtils::IsDirectoryExists(file_name))
+		info = new CFolderInfo();
+	else
+		info = new CFileInfo();
+	info->SetFileName(file_name);
+
+	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
+	info->SetTag((UINT_PTR)p);
+
+	m_ErasureFiles.Add(info);
 }
 
 void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
@@ -56,6 +72,10 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
+				
+
+				CVirtualFile* pFile = AddEraseFile(fileName);
+
 				AddFile(dlg.GetFileName(i));
 			}
 		};
