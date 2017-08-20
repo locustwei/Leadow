@@ -99,7 +99,6 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		if (file->GetFileType() == vft_folder)
 		{
 			p->nCount = SetFolderFilesData(file->GetFiles());
-			DebugOutput(L"file count %d\n", p->nCount);
 		}
 	}
 

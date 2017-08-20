@@ -3,27 +3,27 @@
   <ListContainerElement height="40" >
   	<HorizontalLayout name="colume1">
   		<CheckBox name="ckselect" style="ckbox_default" width="20"/>
-			<Label name="caption" text="" inset="0,0,5,0"/>
+			<Label name="caption" text="" inset="0,0,5,0" font="3"/>
 		</HorizontalLayout>
 		<VerticalLayout name="colume2" inset="4,0,4,0">
-				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
 				<HorizontalLayout>
 					<GifAnim name="progress" bkimage="erasure/progress.gif" autoplay="true" autosize="true" width="24" height="24"/>
-					<Text name="desc" showhtml="true" text="正在收集磁盘信息。。。" inset="0,0,5,0"/>
+					<Text name="desc" showhtml="true" text="正在收集信息。。。" inset="0,0,5,0"/>
 				</HorizontalLayout>
 		</VerticalLayout>
 		<VerticalLayout name="colume3" inset="4,0,4,0">
-				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
 				<HorizontalLayout>
 					<GifAnim name="progress" bkimage="erasure/progress.gif" autoplay="true" autosize="true" width="24" height="24"/>
-					<Text name="desc" showhtml="true" text="正在收集磁盘信息。。。" inset="0,0,5,0"/>
+					<Text name="desc" showhtml="true" text="正在收集信息。。。" inset="0,0,5,0"/>
 				</HorizontalLayout>
 		</VerticalLayout>
 		<VerticalLayout name="colume4" inset="4,0,4,0">
-				<Label name="caption" text="" inset="0,0,5,0"/>
+				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
 				<HorizontalLayout>
 					<GifAnim name="progress" bkimage="erasure/progress.gif" autoplay="true" autosize="true" width="24" height="24"/>
-					<Text name="desc" showhtml="true" text="正在收集磁盘信息。。。" inset="0,0,5,0"/>
+					<Text name="desc" showhtml="true" text="正在收集信息。。。" inset="0,0,5,0"/>
 				</HorizontalLayout>
 		</VerticalLayout>
   </ListContainerElement>
