@@ -3,14 +3,18 @@
 #include "../classes/LdMap.h"
 #include "DlgGetFileName.h"
 #include <shlobj.h>
-#include <shlwapi.h>
+#include "../LdLib.h"
 
 #pragma comment (lib, "Shlwapi.lib")
 
-namespace LeadowLib {
-	DWORD CDlgGetFileName::OPEN_FILE_OPTION = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
-	DWORD CDlgGetFileName::SAVE_FILE_OPTION = OFN_EXPLORER | OFN_PATHMUSTEXIST;
+#define OFN_FOLDER_FILES 0x20000000 | OFN_ENABLEHOOK      //同时选择文件和文件夹
+#define RESULT_BUFFER_LEN 1024 * 1024
 
+namespace LeadowLib {
+	DWORD CDlgGetFileName::OPEN_FILE_OPTION = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_ENABLESIZING;
+	DWORD CDlgGetFileName::SAVE_FILE_OPTION = OFN_PATHMUSTEXIST | OFN_ENABLESIZING;
+
+/*
 	class CFileDialogEventHandler :
 		public IFileDialogEvents,
 		public IFileDialogControlEvents
@@ -64,8 +68,11 @@ namespace LeadowLib {
 
 		IFACEMETHODIMP OnFileOk(IFileDialog* pfd)
 		{
-			OutputDebugString(L"OnFileOk");
+			DebugOutput(L"OnFileOk\n");
 			IFileOpenDialog* dlg;
+			IShellItem* item;
+			pfd->GetCurrentSelection(&item);
+			
 			pfd->QueryInterface(IID_IFileOpenDialog, (void**)&dlg);
 			IShellItemArray* items;
 			dlg->GetSelectedItems(&items);
@@ -84,30 +91,44 @@ namespace LeadowLib {
 		}
 		IFACEMETHODIMP OnFolderChange(IFileDialog*)
 		{
+			DebugOutput(L"OnFolderChange\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnFolderChanging(IFileDialog*, IShellItem*)
 		{
+			DebugOutput(L"OnFolderChanging\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnHelp(IFileDialog*)
 		{
+			DebugOutput(L"OnHelp\n");
 			return E_NOTIMPL;
 		}
-		IFACEMETHODIMP OnSelectionChange(IFileDialog*)
+		IFACEMETHODIMP OnSelectionChange(IFileDialog* pfd)
 		{
+			IShellItem* item;
+			
+			if (pfd->GetResult(&item) == S_OK && item)
+			{
+				TCHAR* s;
+				item->GetDisplayName(SIGDN_FILESYSPATH, &s);
+				DebugOutput(L"OnSelectionChange %s\n", s);
+			}
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnTypeChange(IFileDialog*)
 		{
+			DebugOutput(L"OnTypeChange\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnShareViolation(IFileDialog*, IShellItem*, FDE_SHAREVIOLATION_RESPONSE*)
 		{
+			DebugOutput(L"OnShareViolation\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnOverwrite(IFileDialog*, IShellItem*, FDE_OVERWRITE_RESPONSE*)
 		{
+			DebugOutput(L"OnOverwrite\n");
 			return E_NOTIMPL;
 		}
 
@@ -117,19 +138,23 @@ namespace LeadowLib {
 
 		IFACEMETHODIMP OnItemSelected(IFileDialogCustomize*pfdc, DWORD dwIDCtl, DWORD dwIDItem)
 		{
+			DebugOutput(L"OnItemSelected %d %d\n", dwIDCtl, dwIDItem);
 			return E_NOTIMPL;
 		}
 
 		IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize*, DWORD dwID)
 		{
+			DebugOutput(L"OnButtonClicked\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnControlActivating(IFileDialogCustomize*, DWORD dwID)
 		{
+			DebugOutput(L"OnControlActivating\n");
 			return E_NOTIMPL;
 		}
 		IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize*, DWORD dwID, BOOL)
 		{
+			DebugOutput(L"OnCheckButtonToggled\n");
 			return E_NOTIMPL;
 		}
 
@@ -141,14 +166,73 @@ namespace LeadowLib {
 		long m_cRef;
 	};
 
-	UINT_PTR CALLBACK OFNHookProc(
+*/
+
+UINT _afxMsgLBSELCHANGE = 0;
+UINT _afxMsgSHAREVI = 0;
+UINT _afxMsgFILEOK = 0;
+UINT _afxMsgCOLOROK = 0;
+UINT _afxMsgHELP = 0;
+UINT _afxMsgSETRGB = 0;
+
+	UINT_PTR CALLBACK OpenDialogHookProc(
 		_In_ HWND hdlg,
 		_In_ UINT uiMsg,
 		_In_ WPARAM wParam,
 		_In_ LPARAM lParam
 	)
 	{
-		return 0;
+		if(uiMsg==WM_INITDIALOG)
+		{
+			SetProp(hdlg, _T("obj"), (HANDLE)lParam);
+			_afxMsgLBSELCHANGE = ::RegisterWindowMessage(LBSELCHSTRING);
+			_afxMsgFILEOK = ::RegisterWindowMessage(FILEOKSTRING);
+
+			return true;
+		}
+		else if(uiMsg==WM_COMMAND)
+		{ 
+			if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDOK)
+				Beep(1000,10);
+		}
+		else if(uiMsg==_afxMsgFILEOK)
+		{
+			CDlgGetFileName* This = (CDlgGetFileName*)GetProp(hdlg, _T("obj"));
+			if (!This)
+				return 0;
+
+			HWND hParent = GetParent(hdlg);
+			if (!hParent)
+				return 0;
+			HWND hList = ::GetDlgItem(hParent, lst2);
+			if (!hList)
+				return 0;
+			hList = GetDlgItem(hList, 1);
+			if (!hList)
+				return 0;
+
+			int i = -1, count = ListView_GetSelectedCount(hList);
+			if (count <= 0)
+				return 0;
+
+			TCHAR path[MAX_PATH] = { 0 };
+			if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) < 0)
+				return 0;
+			path[_tcslen(path)] = '\\';
+			TCHAR fileName[MAX_PATH] = { 0 };
+			while(count-- >0)
+			{
+				i = ListView_GetNextItem(hList, i, LVNI_SELECTED);
+				if (i < 0)
+					break;
+				ListView_GetItemText(hList, i, 0, fileName, MAX_PATH);
+				CLdString* s = new CLdString(path);
+				s->Append(fileName);
+				This->m_Files.Add(s);
+			}	
+		}
+		return(0);
+
 	}
 
 	CDlgGetFileName::CDlgGetFileName() :
@@ -156,90 +240,146 @@ namespace LeadowLib {
 		m_Filters(),
 		m_InitDir(),
 		m_ofn(),
-		m_ResultFiles((UINT)MAX_PATH),
+		m_ResultFiles((UINT)RESULT_BUFFER_LEN),
 		m_FilterTmp((UINT)MAX_PATH),
-		m_DefaultName()
+		m_DefaultName(),
+		m_Option(OPEN_FILE_OPTION)
 	{
-		m_Option = 0;
 	}
 
 
 	CDlgGetFileName::~CDlgGetFileName()
 	{
+		for (int i = 0; i < m_Files.GetCount(); i++)
+			m_Files.Delete(i);
+		for(int i=0; i<m_Filters.GetCount(); i++)
+		{
+			CLdString** value;
+			CLdString** key = m_Filters.GetAt(i, &value);
+			delete *value;
+			delete *key;
+		}
 	}
 
-	BOOL CDlgGetFileName::VistaOpenDialog(HWND hOwner)
+	BOOL CDlgGetFileName::VistaOpenFolder(HWND hOwner)
 	{
-		HRESULT hr = S_OK;
+		HRESULT hr;
 
-		IFileDialog *pfd = NULL;
+		IFileOpenDialog *pfd = NULL;
+		COMDLG_FILTERSPEC* filters = nullptr;
+
 		hr = CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pfd));
 		if (SUCCEEDED(hr))
 		{
-			pfd->SetOptions(m_Option);
+			pfd->SetOptions( (m_Option | FOS_PICKFOLDERS) & (~OFN_EXPLORER) & (~OFN_ENABLESIZING)); 
 			if (m_Filters.GetCount() > 0)
 			{
-				COMDLG_FILTERSPEC* filters = new COMDLG_FILTERSPEC[m_Filters.GetCount()];
+				filters = new COMDLG_FILTERSPEC[m_Filters.GetCount()];
 				for (int i = 0; i < m_Filters.GetCount(); i++)
 				{
-					CLdString* pName, *pSpec;
+					CLdString** pName, **pSpec;
 					pName = m_Filters.GetAt(i, &pSpec);
-					filters[i].pszName = pName->GetData();
-					filters[i].pszSpec = pSpec->GetData();
+					filters[i].pszName = (*pName)->GetData();
+					filters[i].pszSpec = (*pSpec)->GetData();
 				}
 				pfd->SetFileTypes(m_Filters.GetCount(), filters);
 			}
-			// Create an event handling object, and hook it up to the dialog.
-			IFileDialogEvents *pfde = NULL;
-			hr = CFileDialogEventHandler::CreateInstance(IID_PPV_ARGS(&pfde));
+			hr = pfd->Show(hOwner);
 			if (SUCCEEDED(hr))
 			{
-				// Hook up the event handler.
-				DWORD dwCookie = 0;
-				hr = pfd->Advise(pfde, &dwCookie);
+				IShellItemArray* items;
+				hr = pfd->GetResults(&items);
 				if (SUCCEEDED(hr))
 				{
-					// Show the open file dialog.
-					if (SUCCEEDED(hr))
+					DWORD nCount;
+					hr = items->GetCount(&nCount);
+					for (DWORD i = 0; i < nCount; i++)
 					{
-						hr = pfd->Show(hOwner);
+						IShellItem* item;
+						items->GetItemAt(i, &item);
+						TCHAR* s;
+						hr = item->GetDisplayName(SIGDN_FILESYSPATH, &s);
 						if (SUCCEEDED(hr))
 						{
-							// You can add your own code here to handle the results...
+							m_Files.Add(new CLdString(s));
+							CoTaskMemFree(s);
 						}
 					}
-
-					// Unhook the event handler
-					pfd->Unadvise(dwCookie);
 				}
-				pfde->Release();
 			}
 			pfd->Release();
 		}
+		if (filters)
+			delete filters;
 
 		return SUCCEEDED(hr);
 	}
 
-
-	BOOL CDlgGetFileName::OpenFile(HWND hOwner)
+	BOOL CDlgGetFileName::XpOpenFolder(HWND hOwner)
 	{
-		BOOL Result = FALSE;
-
-
-		Result = GetOpenFileName(PrepareParam(hOwner));
-		
-		if (Result)
+		BOOL result = false;
+		LPITEMIDLIST pidl = nullptr;
+		BROWSEINFO info = { 0 };
+		info.hwndOwner = hOwner;
+		info.ulFlags = BIF_RETURNONLYFSDIRS | BIF_EDITBOX | BIF_VALIDATE;
+		if (!m_InitDir.IsEmpty())
 		{
-			ProcessResult();
+			if (SHParseDisplayName(m_InitDir.GetData(), nullptr, &pidl, 0, nullptr) == S_OK)
+				info.pidlRoot = pidl;
 		}
+		PIDLIST_ABSOLUTE pret = SHBrowseForFolder(&info);
+		if (pret)
+		{
+			CLdString* s = new CLdString((UINT)MAX_PATH);
+			if (SUCCEEDED(SHGetPathFromIDList(pret, s->GetData())))
+			{
+				m_Files.Add(s);
+				result = true;
+			}
+			else
+				delete s;
+			CoTaskMemFree(pret);
+		}
+		return result;
+	}
 
+	BOOL CDlgGetFileName::OpenFile(HWND hOwner, DIALOG_FILE_TYPE type)
+	{
+		BOOL Result;
+
+		if(type == dft_folder)
+		{
+			if (GetOsType() < Windows_Vista)
+			{
+				Result = XpOpenFolder(hOwner);
+				
+			}else
+			{
+				m_Option |= FOS_PICKFOLDERS;
+				Result = VistaOpenFolder(hOwner);
+			}
+		}
+		else
+		{
+			if (type == (dft_file_folder))
+				m_Option |= OFN_FOLDER_FILES;
+			m_Option |= OFN_EXPLORER;
+			PrepareParam(hOwner);
+			Result = GetOpenFileName(&m_ofn);
+			if (Result)
+			{
+				ProcessResult();
+			}
+		}
 		return Result;
-
 	}
 
 	BOOL CDlgGetFileName::SaveFile(HWND hOwner)
 	{
-		BOOL result = GetSaveFileName(PrepareParam(hOwner));
+		PrepareParam(hOwner);
+
+		BOOL result = GetSaveFileName(&m_ofn);
+
 		if (result)
 			ProcessResult();
 		return result;
@@ -257,7 +397,7 @@ namespace LeadowLib {
 
 	VOID CDlgGetFileName::AddFilter(TCHAR* pszName, TCHAR* pszSpec)
 	{
-		m_Filters.Put(pszName, pszSpec);
+		m_Filters.Put(new CLdString(pszName), new CLdString(pszSpec));
 	}
 
 	VOID CDlgGetFileName::SetOption(DWORD dwOption)
@@ -272,50 +412,31 @@ namespace LeadowLib {
 
 	int CDlgGetFileName::GetFileCount()
 	{
-		if (m_Files.GetCount() > 1)
-			return m_Files.GetCount() - 1;  //第0个是路径
-		else
-			return m_Files.GetCount();
+		return m_Files.GetCount();
 	}
 
-	CLdString CDlgGetFileName::GetFileName(int index, BOOL bWithPath)
+	TCHAR* CDlgGetFileName::GetFileName(int index)
 	{
 		if (index > GetFileCount() - 1)
-			return _T("");
-		if (GetFileCount() > 1)
-		{ //多选
-			if (!bWithPath)
-				return m_Files[index];
-			else
-				return m_Files[0] + _T("\\") + m_Files[index + 1];
-		}
-		else
-			return m_Files[0];
+			return nullptr;
+		 return m_Files[index]->GetData();
 	}
 
 	TCHAR* CDlgGetFileName::GetFilterStr()
 	{
-		//	memset(m_FilterTmp.GetData(), 0, MAX_PATH * sizeof(TCHAR));
-		//	int k = 0;
-		//	TCHAR* p = m_FilterTmp;
-		//
-		//	for (int i = 0; i < m_Filters.GetCount(); i++)
-		//	{
-		//		CLdString s = m_Filters[i];
-		//		if(s.GetLength() == 0)
-		//			continue;
-		//		s.CopyTo(p);
-		//		p += s.GetLength() + 1;
-		//		k += s.GetLength() + 1;
-		//	}
-		//
-		//	for (int i = 0; i < k; i++)
-		//	{
-		//		if (m_FilterTmp[i] == '|')
-		//			m_FilterTmp.SetAt(i, '\0');
-		//	}
-		//	return m_FilterTmp.GetData();
-		return nullptr;
+		m_FilterTmp.SetLength(1024);
+		TCHAR* p = m_FilterTmp.GetData();
+
+		for (int i = 0; i<m_Filters.GetCount(); i++)
+		{
+			CLdString** value;
+			CLdString** key = m_Filters.GetAt(i, &value);
+			(*key)->CopyTo(p);
+			p += (*key)->GetLength() + 1;
+			(*value)->CopyTo(p);
+			p += (*value)->GetLength() + 1;
+		}
+		return m_FilterTmp.GetData();
 	}
 
 	OPENFILENAME * CDlgGetFileName::PrepareParam(HWND hOwner)
@@ -332,135 +453,37 @@ namespace LeadowLib {
 		m_ofn.nFilterIndex = 1;
 		m_ofn.lpstrFileTitle = NULL;
 		m_ofn.nMaxFileTitle = 0;
-		m_ofn.nMaxFile = MAX_PATH;
+		m_ofn.nMaxFile = RESULT_BUFFER_LEN;
 		m_ofn.lpstrInitialDir = m_InitDir;
+
 		m_ofn.Flags = m_Option;
 		m_ofn.lpstrDefExt = m_DefaultExt;
+		m_ofn.lpfnHook = OpenDialogHookProc;
 		m_ofn.lCustData = (LPARAM)this; //system sends the WM_INITDIALOG message to the hook procedure
 		return &m_ofn;
 	}
 
 	VOID CDlgGetFileName::ProcessResult()
 	{
+		if ((m_Option & OFN_FOLDER_FILES) == (OFN_FOLDER_FILES))
+			return; //done OpenDialogHookProc
+
 		TCHAR* p = m_ResultFiles;
+
 		size_t k = 0;
-		while (p[0] != '\0' && k < MAX_PATH)
+		while (p[0] != '\0' && k < RESULT_BUFFER_LEN)
 		{
-			m_Files.Add(p);
 			k += _tcslen(p) + 1;
 			p = m_ResultFiles.GetData() + k;
+			if (p[0] != '\0')
+			{
+				CLdString* s = new CLdString(m_ResultFiles.GetData());
+				s->Append(_T("\\"));
+				s->Append(p);
+				m_Files.Add(s);
+			}
+			else if (m_Files.GetCount() == 0)  //只选了一个文件
+				m_Files.Add(new CLdString(m_ResultFiles));  
 		}
 	}
-
-
-
-
-
-	// UINT_PTR __stdcall OFNHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
-	// BOOL get_file_name(char* title, char* filter, char* buffer)
-	// {
-	// 	OPENFILENAME ofn = { 0 };
-	// 	*buffer = 0;
-	// 	ofn.lStructSize = sizeof(ofn);
-	// 	ofn.hInstance = GetModuleHandle(NULL);
-	// 	//允许 缩放窗口+资源管理器风格+文件必须存在+隐藏只读文件+使能钩子+使能模板
-	// 	ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLEHOOK | OFN_ENABLETEMPLATE;
-	// 	ofn.lpstrFilter = filter;
-	// 	ofn.lpstrFile = &buffer[0];
-	// 	ofn.nMaxFile = MAX_PATH;
-	// 	ofn.lpstrTitle = title;
-	// 	ofn.lpfnHook = OFNHookProc;
-	// 	ofn.lpTemplateName = MAKEINTRESOURCE(IDD_DLG_TEMPLATE);
-	// 	return (BOOL)GetOpenFileName(&ofn);
-	// }
-
-	/************************************************************************
-	函数:OFNHookProc@16
-	功能:GetOpenFileName/GetSaveFileName的子类/钩子处理过程
-	参数:   hdlg - 该对话框模板句柄, 注意:不是"打开/保存"对话框的句柄
-	uiMsg,wParam,lParam - 同常规Windows消息参数
-	返回:   由于是对话框消息,所以返回值应使用SetWindowLong(...,DWL_MSGRESULT,...)来返回
-	分以下3种情况返回:
-	1.钩子函数返回0:默认对话框函数继续处理该消息
-	2.钩子函数返回非0:默认对话框函数忽略该消息不再处理
-	3.(例外)对于CDN_SHAREVIOLATION 和 CDN_FILEOK(点击"打开/保存"时触发) 通知消
-	息时,钩子过程应该明确返回一个非0值以指示钩子过程已经使用SetWindowLong(...,DWL_MSGRESULT,...);
-	设置了一个非零的该消息的返回值, 默认对话框函数不再继续处理
-	*************************************************************************/
-	// UINT_PTR CALLBACK OFNHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
-	// {
-	// 	static HWND hParent;    //对话框模板的父窗口句柄
-	// 	static HWND hCombo;     //我增加的ComboBox的句柄
-	// 	static HWND hStatic;    //我增加的Static控件的句柄
-	// 	if (uiMsg == WM_NOTIFY) {
-	// 		LPOFNOTIFY pofn = (LPOFNOTIFY)lParam;
-	// 		if (pofn->hdr.code == CDN_FILEOK) {
-	// 			//返回0-关闭对话框并返回
-	// 			//返回!0-禁止关闭对话框
-	// 			int iSel = ComboBox_GetCurSel(hCombo);
-	// 			if (iSel != 1) {//未选择"测试字符串二"时
-	// 				MessageBox(hParent, "你必须选择\"测试字符串二\"才能离开!", NULL, MB_ICONEXCLAMATION);
-	// 				SetWindowLong(hdlg, DWL_MSGRESULT, 1);
-	// 				//或使用:SetDlgMsgResult(hdlg,1);
-	// 				return 1;
-	// 			}
-	// 			return 0;
-	// 		}
-	// 	}
-	// 	else if (uiMsg == WM_SIZE) {
-	// 
-	// 		HWND hCboCurFlt = GetDlgItem(hParent, cmb1);    //过虑列表ComboBox
-	// 		HWND hStaticFlt = GetDlgItem(hParent, stc2);     //过虑列表左侧的Static
-	// 		HWND hCboFile = GetDlgItem(hParent, cmb13);      //当前选择的文件ComboBox
-	// 		RECT rcCboFlt, rcStaFlt, rcDlg, rcFile;
-	// 		int left, top, width, height;
-	// 		//这个矩形是"过虑ComboBox"和"过虑提示Static控件",我们根据它们来对齐控件
-	// 		GetWindowRect(hCboCurFlt, &rcCboFlt);
-	// 		GetWindowRect(hStaticFlt, &rcStaFlt);
-	// 		//这个是"文件名(Edit)"-当前选择的, 用来计算它和过虑的间距,以调整我的控件和过虑Combo的间距
-	// 		GetWindowRect(hCboFile, &rcFile);
-	// 		//说实话,我并不清楚对话框模板的位置是怎样的,反正左边距不是0,不清楚
-	// 		//所以,调整窗口的时候要相对移动坐标
-	// 		GetWindowRect(hdlg, &rcDlg);
-	// 
-	// 		//设定坐标, 注意, 这里的坐标不是相对于我们的对话框模板的,而是"打开/关闭",好好理解下
-	// 		//什么时候能画个图示意下就好了
-	// 		left = rcCboFlt.left - rcDlg.left;
-	// 		top = rcCboFlt.top - rcDlg.top + (rcCboFlt.top - rcFile.top);
-	// 		width = rcCboFlt.right - rcCboFlt.left;
-	// 		height = rcCboFlt.bottom - rcCboFlt.top;
-	// 		SetWindowPos(hCombo, 0, left, top, width, height, SWP_NOZORDER);
-	// 
-	// 		left = rcStaFlt.left - rcDlg.left;
-	// 		top = rcStaFlt.top - rcDlg.top + (rcCboFlt.top - rcFile.top);
-	// 		width = rcStaFlt.right - rcStaFlt.left;
-	// 		height = rcStaFlt.bottom - rcStaFlt.top;
-	// 		SetWindowPos(hStatic, 0, left, top, width, height, SWP_NOZORDER);
-	// 		return 0;
-	// 	}
-	// 	else if (uiMsg == WM_INITDIALOG) {
-	// 		HFONT hFontDialog = NULL;
-	// 
-	// 		hParent = GetParent(hdlg);
-	// 		//初始化我们自己的句柄,方便下次使用
-	// 		hCombo = GetDlgItem(hdlg, IDC_COMBO_TEST);
-	// 		hStatic = GetDlgItem(hdlg, IDC_STATIC_TEST);
-	// 		//初始化我们的控件的数据
-	// 		ComboBox_AddString(hCombo, "测试字符串一");
-	// 		ComboBox_AddString(hCombo, "测试字符串二");
-	// 		ComboBox_AddString(hCombo, "女孩不哭,哈哈!");
-	// 		ComboBox_SetCurSel(hCombo, 0);
-	// 		//一般为了表现效果一致,需要设置一下字体,比如说VC6的默认字体
-	// 		//System就相当的丑陋,如果不修改的话,受不了...
-	// 		//当然,最好是采用"打开"对话框的统一字体
-	// 		//如果你当前也使用VC6,可以注释掉看看,呃.........
-	// 		hFontDialog = (HFONT)SendMessage(hParent, WM_GETFONT, 0, 0);
-	// 		SendMessage(hCombo, WM_SETFONT, (WPARAM)hFontDialog, MAKELPARAM(TRUE, 0));
-	// 		SendMessage(hStatic, WM_SETFONT, (WPARAM)hFontDialog, MAKELPARAM(TRUE, 0));
-	// 		return 0;
-	// 	}
-	// 	UNREFERENCED_PARAMETER(wParam);
-	// 	return 0;
-	// }
-
 }

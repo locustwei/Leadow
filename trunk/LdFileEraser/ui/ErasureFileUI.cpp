@@ -12,7 +12,6 @@ CErasureFileUI::CErasureFileUI() :
 	m_ItemSkin = _T("erasure\\listitem.xml");
 }
 
-
 CErasureFileUI::~CErasureFileUI()
 {
 	
@@ -53,7 +52,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		CDlgGetFileName dlg;
 		dlg.SetOption(CDlgGetFileName::OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
 
-		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow()))
+		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow(), dft_file_folder))
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
