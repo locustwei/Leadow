@@ -51,7 +51,7 @@ CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 	return pItem;
 }
 
-DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
+CControlUI* CShFileViewUI::AddFile(TCHAR* lpFullName)
 {
 	if (m_Columes.GetCount() == 0)
 	{
@@ -62,11 +62,11 @@ DWORD CShFileViewUI::AddFile(TCHAR* lpFullName)
 	values.Add(nullptr);
 
 	CSHFolders::GetFileAttributeValue(lpFullName, &values);
-	AddRecord(&values);
+	CControlUI* ui = AddRecord(&values);
 	for (int i = 1; i < values.GetCount(); i++)
 		delete values[i];
 
-	return 0;
+	return ui;
 }
 
 DWORD CShFileViewUI::AddFolder(TCHAR* lpFullName)

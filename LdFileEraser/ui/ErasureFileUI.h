@@ -25,16 +25,20 @@ private:
 	CButtonUI* btnOpenFile;
 	CButtonUI* btnOk;
 	CEreaserThrads m_EreaserThreads;
-	CLdArray<CVirtualFile*> m_ErasureFiles;
+	CFolderInfo m_ErasureFile;
 
+	void addFileUI(CVirtualFile* pFile);
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
+	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 	DWORD SetFolderFilesData(CVirtualFile* pFile);
+	bool OnAfterColumePaint(PVOID Param);
 protected:
 	CVirtualFile* AddEraseFile(TCHAR* file_name);
 	void AttanchControl(CControlUI* pCtrl) override;
+	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);
 	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
-
+	void StatErase();
 };
 

@@ -13,7 +13,7 @@ public:
 	//加一行
 	CControlUI* AddRecord(CLdArray<TCHAR*>* values);
 	//加一个文件（CSHFolders::GetFileAttributeValue）
-	DWORD AddFile(TCHAR* lpFullName);
+	CControlUI* AddFile(TCHAR* lpFullName);
 	//添加目录（CSHFolders::EnumFolderObjects）
 	DWORD AddFolder(TCHAR* lpFullName);
 	//添加特殊目录

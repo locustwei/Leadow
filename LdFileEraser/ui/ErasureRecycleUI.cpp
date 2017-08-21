@@ -120,7 +120,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 	CLdString sid;
 	CLdString recyclePath;
 
-	SetThreadErrorMode(SEM_FAILCRITICALERRORS, &oldMode);
+	SetThreadErrorMode(SEM_FAILCRITICALERRORS, &oldMode);  //防止弹出文件错误对话框
 	WIN_OS_TYPE os = GetOsType();
 	if (GetCurrentUserSID(sid) != 0)
 		return;
