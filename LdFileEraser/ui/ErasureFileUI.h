@@ -30,6 +30,7 @@ private:
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
+	DWORD SetFolderFilesData(CVirtualFile* pFile);
 protected:
 	CVirtualFile* AddEraseFile(TCHAR* file_name);
 	void AttanchControl(CControlUI* pCtrl) override;
