@@ -24,9 +24,11 @@ namespace LeadowLib {
 			int k = pFolder->AddFile(pData);
 			if (bTree && (pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				CFileInfo* pFile = (CFileInfo*)pFolder->m_Files[k];
-				((CFolderInfo*)pFile)->FindFiles(bTree);
+				CFolderInfo* pFile = (CFolderInfo*)pFolder->m_Files[k];
+				pFile->FindFiles(bTree);
+				pFolder->m_AttributeData.nFileSize += pFile->GetDataSize();
 			}
+
 			return true;
 		};
 		int ArrayFindCompare(PVOID key, CVirtualFile** it) override
@@ -164,7 +166,7 @@ namespace LeadowLib {
 		{
 			if (GetFileAttributesEx(m_FileName, GetFileExInfoStandard, &m_AttributeData))
 			{
-				if (m_AttributeData.nFileSize == -1)
+				if (m_AttributeData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					m_AttributeData.nFileSize = 0;
 			}
 			else
