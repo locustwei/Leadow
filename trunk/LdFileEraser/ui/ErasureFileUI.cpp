@@ -26,18 +26,42 @@ void CErasureFileUI::OnItemClick(TNotifyUI & msg)
 	
 }
 
+//设置文件的目录指向，擦除时更新隶属文件夹的进度
+DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile)
+{
+	DWORD nCount;
+
+	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
+	pFile->SetTag((UINT_PTR)p);
+
+	if (pFile->GetFileType() == vft_folder)
+	{
+		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
+		{
+			CVirtualFile* file = pFile->GetFiles()->Get(i);
+			nCount += SetFolderFilesData(file);
+		}
+	}
+
+	p->nCount = nCount;
+
+	return nCount;
+}
+
 CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 {
 	CFileInfo* info;
 	if (CFileUtils::IsDirectoryExists(file_name))
+	{
 		info = new CFolderInfo();
+		((CFolderInfo*)info)->FindFiles(true);
+	}
 	else
 		info = new CFileInfo();
 	info->SetFileName(file_name);
 
-	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
-	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
-	info->SetTag((UINT_PTR)p);
+	SetFolderFilesData(info);
 
 	m_ErasureFiles.Add(info);
 }
@@ -72,11 +96,9 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
-				
+				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
 
-				CVirtualFile* pFile = AddEraseFile(fileName);
-
-				AddFile(dlg.GetFileName(i));
+				//AddFile();
 			}
 		};
 	}
