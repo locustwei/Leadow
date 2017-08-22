@@ -33,7 +33,7 @@ namespace LeadowLib {
 		};
 		int ArrayFindCompare(PVOID key, CVirtualFile** it) override
 		{
-			return _tcsicmp((TCHAR*)key, (*it)->GetFileName());
+			return _tcsicmp((TCHAR*)key, (*it)->GetFullName());
 		};
 	};
 

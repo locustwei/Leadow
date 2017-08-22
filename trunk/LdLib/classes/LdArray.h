@@ -188,10 +188,23 @@ namespace LeadowLib {
 		T* Find(PVOID pKey, IFindCompare<T>* compare)
 		{
 			UINT count = GetCount();
+			if (count == 0)
+				return nullptr;
+
 			if (m_Sorted)
 				return (T*)bsearch_s(pKey, FList, count, sizeof(T*), array_find_compare, (void*)compare);
 			else
-				return (T*)_lsearch_s(pKey, FList, &count, sizeof(T*), array_find_compare, (void*)compare);
+			{
+				for(UINT i=0; i<count; i++)
+				{
+					if(compare->ArrayFindCompare(pKey, &FList[i]) == 0)
+					{
+						return &FList[i];
+					}
+				}
+				return nullptr;
+			}
+				//return (T*)_lsearch_s(pKey, FList, &count, sizeof(T*), array_find_compare, (void*)compare);
 		}
 
 		T Put(int index, T Item)

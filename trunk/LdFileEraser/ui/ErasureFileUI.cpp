@@ -48,7 +48,7 @@ void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
 DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile)
 {
-	DWORD nCount = 0;
+	DWORD nCount = 1;
 
 	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
@@ -131,6 +131,40 @@ void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 	}
 }
 
+void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent)
+{
+	CDuiString str;
+
+	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
+	if (col)
+	{
+				
+		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
+		if (desc)
+		{
+			if (pData->nStatus == efs_error)
+			{
+				str.Format(_T("发生错误， 错误代码%x"), pData->nErrorCode);
+				desc->SetBkColor(0xFFFF0000);
+			}
+			else
+			{
+				if (Percent < 100)
+					str.Format(_T("已擦除%d个文件"), pData->nErasued);
+				else
+				{
+					str = _T("已完成");
+					desc->SetBkColor(0xFF00FFFF);
+				}
+			}
+			desc->SetText(str);
+		}
+
+		col->SetTag(Percent);
+		col->NeedUpdate();
+	}
+}
+
 bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
@@ -142,16 +176,16 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 		btnOk->SetText(L"Cancel");
 		break;
 	case eto_begin:  //单个文件开始
-		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
-		{//找到所属文件夹对应listview行，显示进度条
-			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
-			if (!pEraserData)
-			{//删除记录文件，补上Data；
-				pEraserData = new FILE_ERASURE_DATA;
-				ZeroMemory(pEraserData, sizeof(FILE_ERASURE_DATA));
-				p->SetTag((UINT_PTR)pEraserData);
-			}
-		}
+//		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
+//		{//找到所属文件夹对应listview行，显示进度条
+//			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
+//			if (!pEraserData)
+//			{//删除记录文件，补上Data；
+//				pEraserData = new FILE_ERASURE_DATA;
+//				ZeroMemory(pEraserData, sizeof(FILE_ERASURE_DATA));
+//				p->SetTag((UINT_PTR)pEraserData);
+//			}
+//		}
 		break;
 	case eto_completed: //单个文件擦除完成
 						//设置擦除状态
@@ -174,13 +208,14 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 			//更新所属文件夹进度
 			if (pEraserData && pEraserData->ui)
 			{
+				int percent;
+
 				if (pEraserData->nCount == 0 || pEraserData->nErasued > pEraserData->nCount)
-					pEraserData->ui->SetTag(100);
-				//pui->SetValue(pui->GetMaxValue());
+					percent = 100;
 				else
-					pEraserData->ui->SetTag(pEraserData->nErasued * 100 / pEraserData->nCount);
-				//pui->SetValue(pEraserData->nErasued * 100 / pEraserData->nCount);
-				pEraserData->ui->NeedUpdate();
+					percent = pEraserData->nErasued * 100 / pEraserData->nCount;
+			
+				UpdateEraseProgressMsg(pEraserData, pEraserData->ui, percent);
 			}
 		}
 		break;
@@ -197,6 +232,8 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
 		btnOk->SetText(L"OK");
+		break;
+	default:
 		break;
 	}
 	return true;
@@ -268,9 +305,12 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
+				if (m_ErasureFile.Find(dlg.GetFileName(i), true) != nullptr)
+					continue;
 				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
 				addFileUI(pFile);
 			}
+			m_ErasureFile.Sort();
 		};
 	}
 	else if (msg.pSender == btnOk)

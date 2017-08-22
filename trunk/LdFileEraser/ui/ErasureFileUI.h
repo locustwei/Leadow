@@ -38,6 +38,7 @@ protected:
 	CVirtualFile* AddEraseFile(TCHAR* file_name);
 	void AttanchControl(CControlUI* pCtrl) override;
 	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);
+	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent);
 	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 	void StatErase();
 };
