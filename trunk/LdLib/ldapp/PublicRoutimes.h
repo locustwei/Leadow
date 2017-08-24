@@ -88,6 +88,14 @@ namespace LeadowLib {
 		WCHAR FileName[1];
 	} FILE_NAME_INFORMATION, *PFILE_NAME_INFORMATION;
 
+	typedef struct _FILE_STREAM_INFORMATION {
+		ULONG NextEntryOffset;
+		ULONG StreamNameLength;
+		LARGE_INTEGER StreamSize;
+		LARGE_INTEGER StreamAllocationSize;
+		WCHAR StreamName[1];
+	} FILE_STREAM_INFORMATION, *PFILE_STREAM_INFORMATION;
+
 #define FileFullDirectoryInformation (FILE_INFORMATION_CLASS)2
 #define FileBothDirectoryInformation (FILE_INFORMATION_CLASS)3
 #define FileBasicInformation (FILE_INFORMATION_CLASS)4
@@ -98,6 +106,8 @@ namespace LeadowLib {
 #define	FileNameInformation (FILE_INFORMATION_CLASS)9
 #define	FileRenameInformation (FILE_INFORMATION_CLASS)10
 #define	FileLinkInformation (FILE_INFORMATION_CLASS)11
+#define FileStreamInformation (FILE_INFORMATION_CLASS)22
+
 	/*
 	#define	FileNamesInformation,
 	#define	FileDispositionInformation,

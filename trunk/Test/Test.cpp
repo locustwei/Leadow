@@ -39,15 +39,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	CDlgGetFileName dlg;
-	dlg.SetOption(CDlgGetFileName::OPEN_FILE_OPTION | OFN_ALLOWMULTISELECT);
-//	dlg.AddFilter(L"ddd", L"*.h;*.cpp");
-//	dlg.AddFilter(L"bbbb", L"*.exe");
-	dlg.SetInitDir(L"C:\\");
-	dlg.OpenFile(nullptr, dft_folder);
+	CLdArray<TCHAR*> name_array;
+	CFileUtils::GetFileADSNames(L"D:\\Ñ¸À×ÏÂÔØ\\Downloads\\UleadGIFAnimator.zip", &name_array);
 
-	for (int i = 0; i < dlg.GetFileCount(); i++)
-		printf("%S\n", dlg.GetFileName(i));
+	for (int i = 0; i < name_array.GetCount(); i++)
+	{
+		printf("%S\n", name_array[i]);
+
+		//TCHAR* p1 = _tcsrchr(name_array[i], ':');
+		//TCHAR* p2 = _tcsrchr(p1+1, ':');
+		//TCHAR* p3 = _tcsrchr(p2 + 1, ':');
+		//if (p2 - p1)
+			//printf("%S,  %d \n", p1,0 );
+		delete name_array[i];
+	}
 
 	printf("\npress any key exit");
 	getchar();

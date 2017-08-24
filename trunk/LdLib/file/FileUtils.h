@@ -1,6 +1,7 @@
 #pragma once
 #include "../ldapp/LdStructs.h"
 #include "../classes/LdString.h"
+#include "../classes/LdArray.h"
 
 namespace LeadowLib {
 
@@ -40,10 +41,12 @@ namespace LeadowLib {
 		*/
 		static int ShDeleteFile(TCHAR* lpFileName, DWORD dwFlag = FOF_NO_UI);
 		static DWORD DeleteFile(TCHAR* lpFileName);
-
+		//文件大小输出字符串
 		static void FormatFileSize(INT64 nSize, CLdString& result);
+		//随机文件名
 		static void GenerateRandomFileName(int length, CLdString* Out);
-
+		//获取文件备用数据流名称（Alternate Data Streams ）
+		static DWORD GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result);
 	};
 
 };

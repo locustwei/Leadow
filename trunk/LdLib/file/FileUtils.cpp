@@ -253,4 +253,46 @@ namespace LeadowLib {
 			Out->GetData()[j] = validFileNameChars[rand() % 78];
 		}
 	}
+
+	DWORD CFileUtils::GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result)
+	{
+		HANDLE hFile = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+			return GetLastError();
+		
+		PUCHAR p = new UCHAR[1024*10]; //GetFileInformationByHandleEx 支持Vista
+		NTSTATUS status = NtQueryInformationFile(hFile, p, 10240, FileStreamInformation);
+		if(NT_SUCCESS(status))
+		{
+			PFILE_STREAM_INFO information = (PFILE_STREAM_INFO)p;
+			while (information)
+			{
+				TCHAR* name = (TCHAR*)new UCHAR[information->StreamNameLength + sizeof(TCHAR)];
+				ZeroMemory(name, information->StreamNameLength + sizeof(TCHAR));
+				CopyMemory(name, information->StreamName, information->StreamNameLength);
+				
+				TCHAR* pType = _tcsrchr(name, ':');
+				if(!pType || _tcscmp(pType, _T(":$DATA")) != 0) //非交换数据流
+				{
+					delete name;
+				}else
+				{
+					pType[0] = '\0';
+					if (_tcslen(name) == 1) //::$DATA 这是默认的数据流，不要
+						delete name;
+					else
+						result->Add(name);
+				}
+
+				if (information->NextEntryOffset == 0)
+					information = nullptr;
+				else
+					information = (PFILE_STREAM_INFO)((PUCHAR)information + information->NextEntryOffset);
+			}
+		}
+
+		delete p;
+
+		return (DWORD)status;
+	}
 }
