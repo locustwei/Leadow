@@ -5,6 +5,7 @@
 
 namespace LeadowLib {
 	// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
+	//回掉函数实现
 	class CFindFileCallbackImpl :
 		public IGernalCallback<LPWIN32_FIND_DATA>,
 		public ISortCompare<CVirtualFile*>,
@@ -12,12 +13,12 @@ namespace LeadowLib {
 	{
 	public:
 		bool bTree;
-
+		//排序
 		int ArraySortCompare(CVirtualFile** it1, CVirtualFile** it2) override
 		{
 			return _tcsicmp((*it1)->GetFileName(), (*it2)->GetFileName());
 		};
-
+		//findfirst 枚举文件夹中文件
 		BOOL GernalCallback_Callback(_WIN32_FIND_DATAW* pData, UINT_PTR Param) override
 		{
 			CFolderInfo* pFolder = (CFolderInfo*)Param;
@@ -31,9 +32,10 @@ namespace LeadowLib {
 
 			return true;
 		};
+		//搜索
 		int ArrayFindCompare(PVOID key, CVirtualFile** it) override
 		{
-			return _tcsicmp((TCHAR*)key, (*it)->GetFullName());
+			return _tcsicmp((TCHAR*)key, (*it)->GetFileName());  //文件查找时只比较文件名，不比较路径。
 		};
 	};
 
@@ -154,7 +156,6 @@ namespace LeadowLib {
 
 	void CFileInfo::ClearValue()
 	{
-		m_Folder;
 		ZeroMemory(&m_AttributeData, sizeof(WIN32_FILE_ATTRIBUTE_DATA));
 		m_AttributeData.nFileSize = -1;  //标志没数据
 		m_FileName.Empty();
