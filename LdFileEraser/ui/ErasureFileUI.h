@@ -13,6 +13,17 @@ public:
 	DUI_DECLARE_MESSAGE_MAP()
 
 private:
+
+	CButtonUI* btnOpenFile;
+	CButtonUI* btnOk;
+	CEreaserThrads m_EreaserThreads;
+
+	virtual void OnClick(DuiLib::TNotifyUI& msg);
+	virtual void OnSelectChanged(TNotifyUI &msg);
+	virtual void OnItemClick(TNotifyUI &msg);
+	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
+	DWORD SetFolderFilesData(CVirtualFile* pFile);
+protected:
 	typedef struct FILE_ERASURE_DATA
 	{
 		E_FILE_STATE nStatus;             //擦除状态
@@ -22,20 +33,12 @@ private:
 		DWORD nErasued;                   //已经被擦除的文件数
 	}*PFILE_ERASURE_DATA;
 
-	CButtonUI* btnOpenFile;
-	CButtonUI* btnOk;
-	CEreaserThrads m_EreaserThreads;
 	CFolderInfo m_ErasureFile;
 
-	void addFileUI(CVirtualFile* pFile);
-	virtual void OnClick(DuiLib::TNotifyUI& msg);
-	virtual void OnSelectChanged(TNotifyUI &msg);
-	virtual void OnItemClick(TNotifyUI &msg);
-	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
-	DWORD SetFolderFilesData(CVirtualFile* pFile);
-	bool OnAfterColumePaint(PVOID Param);
-protected:
 	CVirtualFile* AddEraseFile(TCHAR* file_name);
+	void AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData = nullptr);
+
+	bool OnAfterColumePaint(PVOID Param);
 	void AttanchControl(CControlUI* pCtrl) override;
 	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);
 	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent);

@@ -107,7 +107,7 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	__super::AttanchControl(pCtrl);
 	btnOpenFile = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("openfile"), 0));
 	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
-	CSHFolders::EnumFolderColumes(L"C:\\", this, 0);
+	//CSHFolders::EnumFolderColumes(L"C:\\", this, 0);
 }
 
 void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
@@ -252,10 +252,21 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
-void CErasureFileUI::addFileUI(CVirtualFile* pFile)
+void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData)
 {
+	if(pColumeData == nullptr)
+	{
+		CLdArray<TCHAR*> values;
+		values.Add(nullptr);
+
+		CSHFolders::GetFileAttributeValue(pFile->GetFullName(), &values);
+		pColumeData = &values;
+	}
+
 	PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
-	p->ui = (CControlUI*)AddFile(pFile->GetFullName());
+	
+	p->ui = (CControlUI*)AddRecord(pColumeData);//AddFile(pFile->GetFullName());
+
 	CControlUI* col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
 	{
@@ -308,7 +319,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 				if (m_ErasureFile.Find(dlg.GetFileName(i), true) != nullptr)
 					continue;
 				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
-				addFileUI(pFile);
+				AddFileUI(pFile);
 			}
 			m_ErasureFile.Sort();
 		};
