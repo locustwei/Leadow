@@ -218,7 +218,8 @@ UINT _afxMsgSETRGB = 0;
 			TCHAR path[MAX_PATH] = { 0 };
 			if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) < 0)
 				return 0;
-			path[_tcslen(path)] = '\\';
+			if (path[_tcslen(path) - 1] != '\\')
+				path[_tcslen(path)] = '\\';
 			TCHAR fileName[MAX_PATH] = { 0 };
 			while(count-- >0)
 			{

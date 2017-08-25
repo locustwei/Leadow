@@ -39,21 +39,25 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	BOOL b = true;
-	WIN32_FIND_STREAM_DATA stream_data = {0};
-	HANDLE hFind = FindFirstStreamW(TEXT("G:\\TestFile"), FindStreamInfoStandard, &stream_data, 0);
-	if(hFind != INVALID_HANDLE_VALUE)
+	CLdArray<TCHAR*> names;
+	CFileUtils::GetFileADSNames(TEXT("G:\\TestFile"), &names);
+
+	for(int i=0; i<names.GetCount(); i++)
 	{
-		while (b)
-		{
-			printf("stream size=%lld %S\n", stream_data.StreamSize.QuadPart, stream_data.cStreamName);
-			b = FindNextStreamW(hFind, &stream_data);
-		}
-		FindClose(hFind);
-	}else
-	{
-		printf("error = %d", GetLastError());
+		HANDLE hFile = CreateFile(TEXT("G:\\TestFile:Stream"), // Filename
+			GENERIC_WRITE,    // Desired access
+			FILE_SHARE_WRITE, // Share flags
+			NULL,             // Security Attributes
+			OPEN_ALWAYS,      // Creation Disposition
+			0,                // Flags and Attributes
+			NULL);           // OVERLAPPED pointer
+		DWORD nSize;
+		nSize = GetFileSize(hFile, nullptr);
+		CloseHandle(hFile);
+		printf("%S %d\n", names[i], nSize);
+		delete names[i];
 	}
+
 	/*
 	HANDLE hFile, hStream;
 	DWORD dwRet;

@@ -1,4 +1,5 @@
 #pragma once
+#include <shellapi.h>
 #include "../ldapp/LdStructs.h"
 #include "../classes/LdString.h"
 #include "../classes/LdArray.h"
@@ -47,6 +48,7 @@ namespace LeadowLib {
 		static void GenerateRandomFileName(int length, CLdString* Out);
 		//获取文件备用数据流名称（Alternate Data Streams ）
 		static DWORD GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result);
+		static DWORD RenameFile(TCHAR* lpFrom, TCHAR* lpTo);
 	};
 
 };

@@ -22,7 +22,7 @@ namespace LeadowLib {
 	UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, TCHAR* lpFilePath)
 	{
 		if (!lpFullName)
-			return FALSE;
+			return 0;
 
 		TCHAR* s = _tcsrchr(lpFullName, '\\');
 		if (s == NULL)
@@ -256,7 +256,7 @@ namespace LeadowLib {
 
 	DWORD CFileUtils::GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result)
 	{
-		HANDLE hFile = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+		HANDLE hFile = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
 			return GetLastError();
 		
@@ -291,8 +291,30 @@ namespace LeadowLib {
 			}
 		}
 
+		CloseHandle(hFile);
+
 		delete p;
 
 		return (DWORD)status;
+	}
+
+	DWORD CFileUtils::RenameFile(TCHAR* lpFrom, TCHAR* lpTo)
+	{
+		CLdString s = lpTo;
+		TCHAR* p = _tcsrchr(lpTo, '\\');
+		if(p == nullptr)  //没有包含路径
+		{
+			p = _tcsrchr(lpFrom, '\\');
+			if (!p)
+				return (DWORD)-1;
+			p[1] = '\0';
+			s = lpFrom;
+			s += lpTo;
+		}
+
+		if (::MoveFile(lpFrom, s))
+			return 0;
+		else
+			return GetLastError();
 	}
 }
