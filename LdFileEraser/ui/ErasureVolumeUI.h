@@ -42,5 +42,6 @@ protected:
 	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override;
 	//擦除线程回掉，同步擦除状态
 	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
+	bool GetViewHeader() override;
 };
 

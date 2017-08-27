@@ -59,7 +59,7 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	m_ControlThread->Start(0);
 	return 0;
 }
-
+//磁盘状态分析
 DWORD CEreaserThrads::StartAnalysis(UINT nMaxCount)
 {
 	if (m_ControlThread)  //上一次擦除还没有结束
@@ -96,6 +96,8 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 			if (!ReEresareFile(file->GetFiles()/*, pThreadCount, bWait, threads*/))
 				return false;
 		}
+		
+		//DebugOutput(L"main thread %d start %s\n", m_ThreadCount, file->GetFullName());
 
 		int n = WaitForThread();
 		if (n == 0) //停止
@@ -104,9 +106,12 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 		if (m_Abort)
 			return false;
 
+		//LONG nTemp = *pCount;
 		CThread* thread = new CThread(this);
 		thread->SetTag((UINT_PTR)pCount);
 		thread->Start((UINT_PTR)file);
+		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
+			//Sleep(10);
 	}
 	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
 	while(*pCount>0)
@@ -157,7 +162,7 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 {
 	if (m_Abort)
 		return;
-	
+
 	CErasure erasure;
 
 	CErasureCallbackImpl impl(pFile);
@@ -206,11 +211,10 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 		ControlThreadRun(Param);
 	else
 	{
-		InterlockedIncrement(&m_ThreadCount);
 		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
 		if(pCount)  //这是擦除线程
 		{
-			InterlockedIncrement(pCount);
+			//DebugOutput(L"start ------ %d %s\n", m_ThreadCount, ((CVirtualFile*)Param)->GetFullName());
 			ErasureThreadRun((CVirtualFile*)Param);
 		}else
 		{ //这是磁盘分析线程
@@ -221,7 +225,16 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
 {
-	
+	if (Param != 0 && //文件擦除线程
+		Param != 1)
+	{
+		InterlockedIncrement(&m_ThreadCount);
+		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
+		if (pCount)  //这是擦除线程
+		{
+			InterlockedIncrement(pCount);
+		}
+	}
 }
 
 void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
@@ -231,10 +244,13 @@ void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
 		m_ControlThread = nullptr;
 	else
 	{
-		InterlockedDecrement(&m_ThreadCount);
 		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
-		if(pCount)
+		if (pCount)
+		{
 			InterlockedDecrement(pCount);
+			//DebugOutput(L"end ------ %d %d %s\n", m_ThreadCount, *pCount, ((CVirtualFile*)Param)->GetFullName());
+		}
+		InterlockedDecrement(&m_ThreadCount);
 	}
 }
 

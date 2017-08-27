@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
   <ListContainerElement height="60" >
-  	<VerticalLayout name="colume1">
+  	<HorizontalLayout name="colume1">
 				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
-				<Text name="desc" showhtml="true" text="" inset="0,0,5,0"/>
-		</VerticalLayout>
+		</HorizontalLayout>
 		<VerticalLayout name="colume2" inset="4,0,4,0">
 				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
 				<Text name="desc" showhtml="true" text="" inset="0,0,5,0"/>

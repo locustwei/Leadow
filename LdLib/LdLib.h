@@ -26,7 +26,7 @@
 
 #define LDLIB_API __declspec(dllexport)
 
-#define MAKEINT64(low, hi)      ((UINT64)low & 0xffff) | (((UINT64)hi & 0xffff) << 32)
+#define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
 
 namespace LeadowLib {
 

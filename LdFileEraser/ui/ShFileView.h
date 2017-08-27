@@ -35,6 +35,7 @@ protected:
 
 	void AttanchControl(CControlUI* pCtrl);
 
+	virtual bool GetViewHeader() = 0;
 	void AddLstViewHeader(int ncount);
 	//ShGetFileInfo 回收站显示文件
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;

@@ -6,6 +6,7 @@ namespace LeadowLib {
 	enum VF_FILE_TYPE
 	{
 		vft_error,
+		vft_adstream,
 		vft_file,
 		vft_folder,
 		vft_volume
@@ -14,18 +15,43 @@ namespace LeadowLib {
 	class CVirtualFile
 	{
 	public:
-		CVirtualFile() { m_Tag = 0; };
-		virtual TCHAR* GetFullName() = 0;
-		virtual TCHAR* GetFileName() = 0;
+		CVirtualFile():m_FileName()
+		{
+			m_Tag = 0;
+			m_Folder = nullptr;
+		};
+
+		virtual TCHAR* GetFullName();;
+
+		virtual TCHAR* GetFileName();;
 		virtual INT64 GetDataSize() = 0;
 		virtual DWORD GetAttributes() = 0;
 		virtual VF_FILE_TYPE GetFileType() = 0;
 		virtual CLdArray<CVirtualFile*>* GetFiles() = 0;
-		virtual CVirtualFile* GetFolder() = 0;
+		virtual CVirtualFile* GetFolder() { return m_Folder; };
 		UINT_PTR GetTag() { return m_Tag; };
 		void SetTag(UINT_PTR Tag) { m_Tag = Tag; };
 	protected:
 		UINT_PTR m_Tag;
+		CLdString m_FileName;
+		CVirtualFile* m_Folder;
+	};
+
+	class CADStream: public CVirtualFile
+	{
+		friend class CFileInfo;
+	public:
+		CADStream() :m_File(nullptr) { m_DataSize = 0; };
+		INT64 GetDataSize() override { return m_DataSize; };
+		DWORD GetAttributes() override { return 0; };
+		VF_FILE_TYPE GetFileType() override { return vft_adstream; };
+		CLdArray<CVirtualFile*>* GetFiles() override { return nullptr; };
+		CVirtualFile* GetFolder() override { return m_File; };
+
+		TCHAR* GetFileName() override;;
+	private:
+		CVirtualFile* m_File;
+		INT64 m_DataSize;
 	};
 
 	class CFileInfo : public CVirtualFile
@@ -39,13 +65,10 @@ namespace LeadowLib {
 		//更改对象指向文件文件
 		virtual bool SetFileName(TCHAR* pFileName);
 		bool SetFindData(const TCHAR* pPath, PWIN32_FIND_DATA pData);
-		//父目录
-		CVirtualFile* GetFolder() override;
 		//目录下的文件
-		CLdArray<CVirtualFile*>* GetFiles() override { return nullptr; };
+		CLdArray<CVirtualFile*>* GetFiles() override ;
+
 		//文件属性-----------------------------------------------------------------------------
-		TCHAR* GetFullName() override;
-		TCHAR* GetFileName() override;
 		FILETIME GetCreateTime();
 		FILETIME GetLastWriteTime();
 		FILETIME GetLastAccessTime();
@@ -62,11 +85,12 @@ namespace LeadowLib {
 		} *PFILE_ATTRIBUTE_DATA;
 
 		FILE_ATTRIBUTE_DATA m_AttributeData;
-		CLdString m_FileName;
-		CFileInfo* m_Folder;
 
 		void ClearValue();
 		bool GetFileBasicInfo();
+	private:
+
+		CLdArray<CVirtualFile*>* m_Streams;
 	};
 
 	class CFolderInfo : public CFileInfo
@@ -82,8 +106,8 @@ namespace LeadowLib {
 		int AddFile(CFileInfo* pFile);
 		//子文件数
 		UINT GetFilesCount() const;
-		//
-		CFileInfo* Find(TCHAR* pName, bool bSub = false);
+		//查找文件，bSub:在子文件中查找，bPath：比较路径
+		CFileInfo* Find(TCHAR* pName, bool bSub = false, bool bPath = false);
 		void Sort();
 
 		VF_FILE_TYPE GetFileType() override { return vft_folder; };

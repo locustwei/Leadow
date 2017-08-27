@@ -7,8 +7,8 @@
 
 #pragma comment (lib, "Shlwapi.lib")
 
-#define OFN_FOLDER_FILES 0x20000000 | OFN_ENABLEHOOK      //同时选择文件和文件夹
-#define RESULT_BUFFER_LEN 1024 * 1024
+#define OFN_FOLDER_FILES (0x20000000 | OFN_ENABLEHOOK)      //同时选择文件和文件夹
+#define RESULT_BUFFER_LEN (1024 * 1024)
 
 namespace LeadowLib {
 	DWORD CDlgGetFileName::OPEN_FILE_OPTION = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_ENABLESIZING;
@@ -168,12 +168,12 @@ namespace LeadowLib {
 
 */
 
-UINT _afxMsgLBSELCHANGE = 0;
-UINT _afxMsgSHAREVI = 0;
-UINT _afxMsgFILEOK = 0;
-UINT _afxMsgCOLOROK = 0;
-UINT _afxMsgHELP = 0;
-UINT _afxMsgSETRGB = 0;
+//UINT _afxMsgLBSELCHANGE = 0;
+//UINT _afxMsgSHAREVI = 0;
+//UINT _afxMsgFILEOK = 0;
+//UINT _afxMsgCOLOROK = 0;
+//UINT _afxMsgHELP = 0;
+//UINT _afxMsgSETRGB = 0;
 
 	UINT_PTR CALLBACK OpenDialogHookProc(
 		_In_ HWND hdlg,
@@ -182,58 +182,77 @@ UINT _afxMsgSETRGB = 0;
 		_In_ LPARAM lParam
 	)
 	{
-		if(uiMsg==WM_INITDIALOG)
+		HWND hPerant;
+		WNDPROC proc;
+
+		switch (uiMsg)
 		{
+		case WM_INITDIALOG:
 			SetProp(hdlg, _T("obj"), (HANDLE)lParam);
-			_afxMsgLBSELCHANGE = ::RegisterWindowMessage(LBSELCHSTRING);
-			_afxMsgFILEOK = ::RegisterWindowMessage(FILEOKSTRING);
-
-			return true;
-		}
-		else if(uiMsg==WM_COMMAND)
-		{ 
-			if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDOK)
-				Beep(1000,10);
-		}
-		else if(uiMsg==_afxMsgFILEOK)
-		{
-			CDlgGetFileName* This = (CDlgGetFileName*)GetProp(hdlg, _T("obj"));
-			if (!This)
-				return 0;
-
-			HWND hParent = GetParent(hdlg);
-			if (!hParent)
-				return 0;
-			HWND hList = ::GetDlgItem(hParent, lst2);
-			if (!hList)
-				return 0;
-			hList = GetDlgItem(hList, 1);
-			if (!hList)
-				return 0;
-
-			int i = -1, count = ListView_GetSelectedCount(hList);
-			if (count <= 0)
-				return 0;
-
-			TCHAR path[MAX_PATH] = { 0 };
-			if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) < 0)
-				return 0;
-			if (path[_tcslen(path) - 1] != '\\')
-				path[_tcslen(path)] = '\\';
-			TCHAR fileName[MAX_PATH] = { 0 };
-			while(count-- >0)
+			//_afxMsgLBSELCHANGE = ::RegisterWindowMessage(LBSELCHSTRING);
+			//_afxMsgFILEOK = ::RegisterWindowMessage(FILEOKSTRING);
+			hPerant = GetParent(hdlg);
+			if (hPerant) //上层窗口才是真正的Dialog
 			{
-				i = ListView_GetNextItem(hList, i, LVNI_SELECTED);
-				if (i < 0)
-					break;
-				ListView_GetItemText(hList, i, 0, fileName, MAX_PATH);
-				CLdString* s = new CLdString(path);
-				s->Append(fileName);
-				This->m_Files.Add(s);
-			}	
-		}
-		return(0);
+				LONG_PTR old = SetWindowLongPtr(hPerant, GWLP_WNDPROC, (LONG_PTR)OpenDialogHookProc);
+				if (old)
+				{
+					SetProp(hPerant, _T("obj"), (HANDLE)lParam);
+					SetProp(hPerant, _T("old"), (HANDLE)old);
+				}
+			}
+			return true;
+		case WM_COMMAND:
+			if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDOK)
+			{
+				CDlgGetFileName* This = (CDlgGetFileName*)GetProp(hdlg, _T("obj"));
+				if (!This)
+					return 0;
 
+				HWND hParent = hdlg;// GetParent(hdlg);
+				if (!hParent)
+					return 0;
+				HWND hList = ::GetDlgItem(hParent, lst2);
+				if (!hList)
+					return 0;
+				hList = GetDlgItem(hList, 1);
+				if (!hList)
+					return 0;
+
+				int i = -1, count = ListView_GetSelectedCount(hList);
+				if (count <= 0)
+					return 0;
+
+				TCHAR path[MAX_PATH] = { 0 };
+				if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) < 0)
+					return 0;
+
+				This->ClearFiles();
+				if (path[_tcslen(path) - 1] != '\\')
+					path[_tcslen(path)] = '\\';
+				TCHAR fileName[MAX_PATH] = { 0 };
+				while (count-- > 0)
+				{
+					i = ListView_GetNextItem(hList, i, LVNI_SELECTED);
+					if (i < 0)
+						break;
+					ListView_GetItemText(hList, i, 0, fileName, MAX_PATH);
+					CLdString* s = new CLdString(path);
+					s->Append(fileName);
+					This->m_Files.Add(s);
+				}
+				EndDialog(hdlg, IDOK);
+				return 1;
+			}
+		case WM_DESTROY:
+			break;
+		}
+
+		proc = (WNDPROC)GetProp(hdlg, _T("old"));
+		if (!proc)
+			return(0);
+		else
+			return CallWindowProc(proc, hdlg, uiMsg, wParam, lParam);
 	}
 
 	CDlgGetFileName::CDlgGetFileName() :
@@ -248,11 +267,17 @@ UINT _afxMsgSETRGB = 0;
 	{
 	}
 
-
-	CDlgGetFileName::~CDlgGetFileName()
+	void CDlgGetFileName::ClearFiles()
 	{
 		for (int i = 0; i < m_Files.GetCount(); i++)
 			m_Files.Delete(i);
+		m_Files.Clear();
+	}
+
+
+	CDlgGetFileName::~CDlgGetFileName()
+	{
+		ClearFiles();
 		for(int i=0; i<m_Filters.GetCount(); i++)
 		{
 			CLdString** value;
@@ -349,9 +374,9 @@ UINT _afxMsgSETRGB = 0;
 		BOOL Result;
 
 		if(type == dft_folder)
-		{
+		{//选择文件夹
 			if (GetOsType() < Windows_Vista)
-			{
+			{//XP系统下用SHBrowseForFolder
 				Result = XpOpenFolder(hOwner);
 				
 			}else
@@ -362,7 +387,7 @@ UINT _afxMsgSETRGB = 0;
 		}
 		else
 		{
-			if (type == (dft_file_folder))
+			if (type == (dft_file_folder)) //文件和文件夹混合选择
 				m_Option |= OFN_FOLDER_FILES;
 			m_Option |= OFN_EXPLORER;
 			PrepareParam(hOwner);
@@ -466,7 +491,7 @@ UINT _afxMsgSETRGB = 0;
 
 	VOID CDlgGetFileName::ProcessResult()
 	{
-		if ((m_Option & OFN_FOLDER_FILES) == (OFN_FOLDER_FILES))
+		if ((m_Option & OFN_FOLDER_FILES) == (OFN_FOLDER_FILES) && m_Files.GetCount() != 0)
 			return; //done OpenDialogHookProc
 
 		TCHAR* p = m_ResultFiles;

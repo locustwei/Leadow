@@ -59,6 +59,7 @@ protected:
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//FindFirstVolume Ã¶¾Ù´ÅÅÌ£¨°´¾íÂ·¾¶£©
 	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override;
+	bool GetViewHeader() override;
 
 };
 
