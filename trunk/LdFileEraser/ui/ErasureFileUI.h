@@ -25,7 +25,7 @@ private:
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);      //退出时清除文件对象。
-	DWORD SetFolderFilesData(CVirtualFile* pFile);            //给文件附加数据，记录文件擦除状态等信息
+	DWORD SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui);            //给文件附加数据，记录文件擦除状态等信息
 protected:
 
 	typedef struct FILE_ERASURE_DATA
