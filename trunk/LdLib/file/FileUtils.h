@@ -6,6 +6,12 @@
 
 namespace LeadowLib {
 
+	typedef struct _FILE_ADS_INFO {
+		LARGE_INTEGER StreamSize;
+		LARGE_INTEGER StreamAllocationSize;
+		WCHAR StreamName[1];
+	} FILE_ADS_INFO, *PFILE_ADS_INFO;
+
 	class CFileUtils
 	{
 	public:
@@ -47,7 +53,7 @@ namespace LeadowLib {
 		//随机文件名
 		static void GenerateRandomFileName(int length, CLdString* Out);
 		//获取文件备用数据流名称（Alternate Data Streams ）
-		static DWORD GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result);
+		static DWORD GetFileADSNames(TCHAR* lpFileName, CLdArray<PFILE_ADS_INFO>* result);
 		static DWORD RenameFile(TCHAR* lpFrom, TCHAR* lpTo);
 	};
 

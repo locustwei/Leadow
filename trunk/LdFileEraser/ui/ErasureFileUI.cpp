@@ -18,15 +18,6 @@ CErasureFileUI::~CErasureFileUI()
 	FreeEraseFiles(m_ErasureFile.GetFiles());
 }
 
-void CErasureFileUI::OnSelectChanged(TNotifyUI & msg)
-{
-}
-
-void CErasureFileUI::OnItemClick(TNotifyUI & msg)
-{
-	
-}
-
 void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 {
 	for (int i = 0; i<files->GetCount(); i++)
@@ -56,7 +47,7 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile)
 
 	if (pFile->GetFileType() == vft_folder)
 	{
-		nCount = pFile->GetFiles()->GetCount();
+		//nCount = pFile->GetFiles()->GetCount();
 		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
 		{
 			CVirtualFile* file = pFile->GetFiles()->Get(i);
@@ -107,7 +98,6 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	__super::AttanchControl(pCtrl);
 	btnOpenFile = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("openfile"), 0));
 	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
-	//CSHFolders::EnumFolderColumes(L"C:\\", this, 0);
 }
 
 void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
@@ -199,6 +189,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 			pEraserData->nStatus = efs_error;
 			pEraserData->nErrorCode = dwValue;
+			DebugOutput(L"finished error = %d %s\n", dwValue, pFile->GetFullName());
 		}
 		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
 		{
@@ -248,24 +239,16 @@ void CErasureFileUI::StatErase()
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
 void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData)
 {
-	if(pColumeData == nullptr)
-	{
-		CLdArray<TCHAR*> values;
-		values.Add(nullptr);
-
-		CSHFolders::GetFileAttributeValue(pFile->GetFullName(), &values);
-		pColumeData = &values;
-	}
-
 	PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
 	
-	p->ui = (CControlUI*)AddRecord(pColumeData);//AddFile(pFile->GetFullName());
+	if(pColumeData)
+		p->ui = (CControlUI*)AddRecord(pColumeData);
+	else
+		p->ui = AddFile(pFile->GetFullName());
 
 	CControlUI* col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
@@ -285,15 +268,30 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeDat
 	{
 		col->SetTag(0);
 		col->OnAfterPaint += MakeDelegate(this, &CErasureFileUI::OnAfterColumePaint);
-		if(pFile->GetFileType()==vft_folder)
+		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
+		if (desc)
 		{
-			CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
-			if (desc)
+			CLdString s, strSize;
+			if (pFile->GetFileType() == vft_folder)
 			{
-				CLdString s, strSize;
 				CFileUtils::FormatFileSize(pFile->GetDataSize(), strSize);
 				s.Format(_T("包含数%d个文件（文件夹），合计%s"), p->nCount, strSize);
 				desc->SetText(s);
+			}
+			else
+			{
+				CLdArray<CVirtualFile*>* streams = pFile->GetFiles();
+				if (streams && streams->GetCount()>0)
+				{
+					INT64 nSize = 0;
+					for(int i=0; i<streams->GetCount();i++)
+					{
+						nSize += streams->Get(i)->GetDataSize();
+					}
+					CFileUtils::FormatFileSize(nSize, strSize);
+					s.Format(_T("文件有%d个交换数据流，合计%s"), streams->GetCount(), strSize);
+					desc->SetText(s);
+				};
 			}
 		}
 	}
@@ -303,6 +301,13 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeDat
 		col->SetTag(0);
 		col->OnAfterPaint += MakeDelegate(this, &CErasureFileUI::OnAfterColumePaint);
 	}
+}
+
+bool CErasureFileUI::GetViewHeader()
+{
+	TCHAR Path[MAX_PATH] = { 0 };
+	GetSystemDirectory(Path, MAX_PATH);
+	return CSHFolders::EnumFolderColumes(Path, this, 0) == 0;
 }
 
 void CErasureFileUI::OnClick(TNotifyUI& msg)
@@ -316,7 +321,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		{
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
-				if (m_ErasureFile.Find(dlg.GetFileName(i), true) != nullptr)
+				if (m_ErasureFile.Find(dlg.GetFileName(i), true, true) != nullptr)
 					continue;
 				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
 				AddFileUI(pFile);

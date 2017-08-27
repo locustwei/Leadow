@@ -19,8 +19,6 @@ private:
 	CEreaserThrads m_EreaserThreads;
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
-	virtual void OnSelectChanged(TNotifyUI &msg);
-	virtual void OnItemClick(TNotifyUI &msg);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 	DWORD SetFolderFilesData(CVirtualFile* pFile);
 protected:
@@ -37,6 +35,7 @@ protected:
 
 	CVirtualFile* AddEraseFile(TCHAR* file_name);
 	void AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData = nullptr);
+	bool GetViewHeader() override;
 
 	bool OnAfterColumePaint(PVOID Param);
 	void AttanchControl(CControlUI* pCtrl) override;

@@ -56,6 +56,7 @@ namespace LeadowLib {
 		VOID ProcessResult();
 		BOOL VistaOpenFolder(HWND hOwner);
 		BOOL XpOpenFolder(HWND hOwner);
+		void ClearFiles();
 	};
 
 };

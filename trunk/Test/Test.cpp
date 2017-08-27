@@ -21,9 +21,26 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 }
 
 
-class CImpl: public IGernalCallback<PSH_HEAD_INFO>
+class CImpl: 
+	public IGernalCallback<PSH_HEAD_INFO>
+	,public ISortCompare<CLdString*>
 {
 public:
+	CImpl()
+	{
+		Count = 0;
+	};
+
+	int Count;
+
+	int ArraySortCompare(CLdString** it1, CLdString** it2) override
+	{
+		int k = _tcsicmp((*it1)->GetData(), (*it2)->GetData());
+		if (k == 0)
+			printf("%d\n", Count++);
+		return k;
+	};
+
 	BOOL GernalCallback_Callback(_SH_HEAD_INFO* pData, UINT_PTR Param) override
 	{
 		CLdArray<CLdString>* columes = (CLdArray<CLdString>*)Param;
@@ -39,73 +56,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	CLdArray<TCHAR*> names;
-	CFileUtils::GetFileADSNames(TEXT("G:\\TestFile"), &names);
-
-	for(int i=0; i<names.GetCount(); i++)
+	CLdArray<CLdString*> names;
+	for (int i = 0; i < 100000; i++)
 	{
-		HANDLE hFile = CreateFile(TEXT("G:\\TestFile:Stream"), // Filename
-			GENERIC_WRITE,    // Desired access
-			FILE_SHARE_WRITE, // Share flags
-			NULL,             // Security Attributes
-			OPEN_ALWAYS,      // Creation Disposition
-			0,                // Flags and Attributes
-			NULL);           // OVERLAPPED pointer
-		DWORD nSize;
-		nSize = GetFileSize(hFile, nullptr);
-		CloseHandle(hFile);
-		printf("%S %d\n", names[i], nSize);
-		delete names[i];
+		CLdString* str = new CLdString();
+		CFileUtils::GenerateRandomFileName(20, str);
+		names.Add(str);
 	}
 
-	/*
-	HANDLE hFile, hStream;
-	DWORD dwRet;
-	for (int i = 0; i < name_array.GetCount(); i++)
-	{
-		printf("%S\n", name_array[i]);
-	hFile = CreateFile(TEXT("G:\\TestFile"), // Filename
-		GENERIC_WRITE,    // Desired access
-		FILE_SHARE_WRITE, // Share flags
-		NULL,             // Security Attributes
-		OPEN_ALWAYS,      // Creation Disposition
-		0,                // Flags and Attributes
-		NULL);           // OVERLAPPED pointer
-	if (hFile == INVALID_HANDLE_VALUE)
-	{
-		printf("Cannot open TestFile\n");
-	}
-	else
-	{
-		WriteFile(hFile,              // Handle
-			"This is TestFile", // Data to be written
-			16,                 // Size of data, in bytes
-			&dwRet,             // Number of bytes written
-			NULL);             // OVERLAPPED pointer
-		CloseHandle(hFile);
-		hFile = INVALID_HANDLE_VALUE;
-	}
-
-	hStream = CreateFile(TEXT("G:\\TestFile:Stream"), // Filename
-		GENERIC_WRITE,           // Desired access
-		FILE_SHARE_WRITE,        // Share flags
-		NULL,                    // Security Attributes
-		OPEN_ALWAYS,             // Creation Disposition
-		0,                       // Flags and Attributes
-		NULL);                  // OVERLAPPED pointer
-	if (hStream == INVALID_HANDLE_VALUE)
-		printf("Cannot open TestFile:Stream\n");
-	else
-	{
-		WriteFile(hStream,                   // Handle
-			"This is TestFile:Stream", // Data to be written
-			23,                        // Size of data
-			&dwRet,                    // Number of bytes written
-			NULL);                     // OVERLAPPED pointer
-		CloseHandle(hStream);
-		hStream = INVALID_HANDLE_VALUE;
-	}
-*/
+	CImpl impl;
+	names.Sort(&impl);
 
 	printf("\npress any key exit");
 	getchar();

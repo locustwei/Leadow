@@ -123,7 +123,7 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, UINT_PTR Param)
 	else
 		BufferLength = m_BpbData->BytesPerClusters;
 
-	PWCHAR FileName = new TCHAR[MAX_PATH]; //长文件名暂存
+	TCHAR* FileName = new TCHAR[MAX_PATH]; //长文件名暂存
 	PUCHAR Buffer = new UCHAR[BufferLength];
 	ZeroMemory(FileName, MAX_PATH * sizeof(TCHAR));
 
@@ -264,11 +264,14 @@ DWORD CFatMftReader::GetNextClusterNumber(DWORD ClusterNumber)
 {
 	DWORD Result = 0;
 	UINT64 bitOffset = ClusterNumber * m_EntrySize;
-	UINT64 byteOffset = bitOffset / 8; 
+	UINT64 byteOffset = bitOffset / m_BpbData->SectorsPerCluster; 
 
 	DWORD sectorOffset = (DWORD)(byteOffset / m_BpbData->BytesPerSector);
-
+	
 	PUCHAR pFAT = ReadFat(sectorOffset, 1, TRUE);
+	if (!pFAT)
+		return 0;
+
 	switch(m_EntrySize){
 	case 32:
 		Result = *(DWORD*)(pFAT+byteOffset %  m_BpbData->BytesPerSector);
@@ -316,7 +319,9 @@ PUCHAR CFatMftReader::ReadFat(DWORD sector, DWORD count, BOOL cache)
 	}
 
 	PBYTE Buffer = new BYTE[m_BpbData->BytesPerSector * count];
-	if(!ReadSector(m_BpbData->FirstFatSector + sector, count, Buffer)){
+	if(!ReadSector(m_BpbData->FirstFatSector + sector, count, Buffer))
+	{
+		count = GetLastError();
 		delete Buffer;
 		return NULL;
 	}
@@ -342,7 +347,7 @@ BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pP
 	aFileInfo->FileAttributes = pFatFile->Attr;
 	aFileInfo->DataSize = pFatFile->FileSize;
 	if(pFatFile->Attr & FFT_DIRECTORY)
-		aFileInfo->AllocatedSize = MAKELONG(pFatFile->ClusterNumberLow, pFatFile->ClusterNumberHigh);
+		aFileInfo->AllocatedSize = MAKELONG(pFatFile->ClusterNumberLow, pFatFile->ClusterNumberHigh) * m_BpbData->BytesPerClusters;
 	else{
 		ULARGE_INTEGER l = {(DWORD)(pParentDir->ReferenceNumber - pFatFile->ReferenceNumber), (DWORD)MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh)};
 		aFileInfo->AllocatedSize = l.QuadPart;

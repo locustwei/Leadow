@@ -231,7 +231,7 @@ namespace LeadowLib {
 		double Size = (double)nSize;
 
 		if (Size < __KB)
-			result.Format(_T("%.2fBytes"), Size);
+			result.Format(_T("%dBytes"), nSize);
 		else if (Size < __MB)
 			result.Format(_T("%.2fKB"), Size / __KB);
 		else if (Size < __GB)
@@ -248,40 +248,44 @@ namespace LeadowLib {
 		Out->SetLength(length + 1);
 		//	TCHAR* result = new TCHAR[length + 1];
 		//	ZeroMemory(result, (length + 1) * sizeof(TCHAR));
+		srand((unsigned int)Out);
 		for (int j = 0; j < length; j++)
 		{
 			Out->GetData()[j] = validFileNameChars[rand() % 78];
 		}
 	}
 
-	DWORD CFileUtils::GetFileADSNames(TCHAR* lpFileName, CLdArray<TCHAR*>* result)
+	DWORD CFileUtils::GetFileADSNames(TCHAR* lpFileName, CLdArray<PFILE_ADS_INFO>* result)
 	{
 		HANDLE hFile = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
 			return GetLastError();
 		
 		PUCHAR p = new UCHAR[1024*10]; //GetFileInformationByHandleEx 支持Vista
-		NTSTATUS status = NtQueryInformationFile(hFile, p, 10240, FileStreamInformation);
+		NTSTATUS status = NtQueryInformationFile(hFile, p, 1024 * 10, FileStreamInformation);
 		if(NT_SUCCESS(status))
 		{
 			PFILE_STREAM_INFO information = (PFILE_STREAM_INFO)p;
 			while (information)
 			{
-				TCHAR* name = (TCHAR*)new UCHAR[information->StreamNameLength + sizeof(TCHAR)];
-				ZeroMemory(name, information->StreamNameLength + sizeof(TCHAR));
-				CopyMemory(name, information->StreamName, information->StreamNameLength);
+				PFILE_ADS_INFO adsInfo = (PFILE_ADS_INFO)new UCHAR[sizeof(FILE_ADS_INFO) + information->StreamNameLength + sizeof(TCHAR)];
+				ZeroMemory(adsInfo, sizeof(FILE_ADS_INFO) + information->StreamNameLength + sizeof(TCHAR));
+				adsInfo->StreamSize = information->StreamSize;
+				adsInfo->StreamAllocationSize = information->StreamAllocationSize;
+
+				CopyMemory(adsInfo->StreamName, information->StreamName, information->StreamNameLength);
 				
-				TCHAR* pType = _tcsrchr(name, ':');
+				TCHAR* pType = _tcsrchr(adsInfo->StreamName, ':');
 				if(!pType || _tcscmp(pType, _T(":$DATA")) != 0) //非交换数据流
 				{
-					delete name;
+					delete adsInfo;
 				}else
 				{
-					pType[0] = '\0';
-					if (_tcslen(name) == 1) //::$DATA 这是默认的数据流，不要
-						delete name;
+					pType[0] = '\0'; //把:$DATA去掉
+					if (_tcslen(adsInfo->StreamName) == 1) //::$DATA 这是默认的数据流，不要
+						delete adsInfo;
 					else
-						result->Add(name);
+						result->Add(adsInfo);
 				}
 
 				if (information->NextEntryOffset == 0)
@@ -300,21 +304,24 @@ namespace LeadowLib {
 
 	DWORD CFileUtils::RenameFile(TCHAR* lpFrom, TCHAR* lpTo)
 	{
-		CLdString s = lpTo;
 		TCHAR* p = _tcsrchr(lpTo, '\\');
 		if(p == nullptr)  //没有包含路径
 		{
 			p = _tcsrchr(lpFrom, '\\');
 			if (!p)
 				return (DWORD)-1;
-			p[1] = '\0';
-			s = lpFrom;
+			CLdString s((UINT)(p - lpFrom)+2);
+			CFileUtils::ExtractFilePath(lpFrom, s.GetData());
+			s.GetData()[s.GetLength()] = '\\';
 			s += lpTo;
+			if (!::MoveFile(lpFrom, s))
+				return GetLastError();
 		}
-
-		if (::MoveFile(lpFrom, s))
-			return 0;
 		else
-			return GetLastError();
+		{
+			if (!::MoveFile(lpFrom, lpTo))
+				return GetLastError();
+		}
+		return 0;
 	}
 }

@@ -35,24 +35,60 @@ namespace LeadowLib {
 		//搜索
 		int ArrayFindCompare(PVOID key, CVirtualFile** it) override
 		{
-			return _tcsicmp((TCHAR*)key, (*it)->GetFileName());  //文件查找时只比较文件名，不比较路径。
+			if(bTree)
+				return _tcsicmp((TCHAR*)key, (*it)->GetFullName());
+			else
+				return _tcsicmp((TCHAR*)key, (*it)->GetFileName());  //文件查找时只比较文件名，不比较路径。
 		};
 	};
 
 #pragma region CFile
 
-	CFileInfo::CFileInfo() :
-		m_FileName(),
-		m_Folder(nullptr)
+	TCHAR* CVirtualFile::GetFullName()
+	{
+		if (m_FileName.IsEmpty())
+			return nullptr;
+
+		return m_FileName;
+	}
+
+	TCHAR* CVirtualFile::GetFileName()
+	{
+		const TCHAR* p = GetFullName();
+		if (!p)
+			return nullptr;
+		TCHAR* s = _tcsrchr((TCHAR*)p, '\\');
+		if (!s)
+			return nullptr;
+		return ++s;
+	}
+
+	TCHAR* CADStream::GetFileName()
+	{
+		const TCHAR* p = GetFullName();
+		if (!p)
+			return nullptr;
+		TCHAR* s = _tcsrchr((TCHAR*)p, ':');
+		if (!s)
+			return nullptr;
+		return ++s;
+	}
+
+	CFileInfo::CFileInfo():m_Streams(nullptr)
 	{
 		ClearValue();
-		m_Tag = 0;
 	}
 
 	CFileInfo::~CFileInfo()
 	{
 		if (m_Folder)
 			m_Folder->GetFiles()->Remove(this);
+		if(m_Streams)
+		{
+			for (int i = 0; i < m_Streams->GetCount(); i++)
+				delete m_Streams->Get(i);
+			delete m_Streams;
+		}
 	}
 
 	FILETIME CFileInfo::GetCreateTime()
@@ -100,26 +136,6 @@ namespace LeadowLib {
 	}
 	*/
 
-
-	TCHAR* CFileInfo::GetFullName()
-	{
-		if (m_FileName.IsEmpty())
-			return nullptr;
-
-		return m_FileName;
-	}
-
-	TCHAR* CFileInfo::GetFileName()
-	{
-		const TCHAR* p = GetFullName();
-		if (!p)
-			return nullptr;
-		TCHAR* s = _tcsrchr((TCHAR*)p, '\\');
-		if (!s)
-			return nullptr;
-		return ++s;
-	}
-
 	bool CFileInfo::SetFileName(TCHAR * pFileName)
 	{
 		if (pFileName == nullptr)
@@ -149,9 +165,30 @@ namespace LeadowLib {
 		return true;
 	}
 
-	CVirtualFile* CFileInfo::GetFolder()
+	CLdArray<CVirtualFile*>* CFileInfo::GetFiles()
 	{
-		return m_Folder;
+		if (m_FileName.IsEmpty())
+			return nullptr;
+
+		if(!m_Streams)
+		{
+			CLdArray<PFILE_ADS_INFO> stream_array;
+			if(CFileUtils::GetFileADSNames(GetFullName(), &stream_array) == 0)
+			{
+				m_Streams = new CLdArray<CVirtualFile*>();
+				for (int i = 0; i < stream_array.GetCount(); i++)
+				{
+					CADStream* stream = new CADStream();
+					stream->m_FileName = GetFullName();
+					stream->m_FileName += stream_array[i]->StreamName;
+					stream->m_DataSize = stream_array[i]->StreamSize.QuadPart;
+					stream->m_Folder = this;
+					m_Streams->Add(stream);
+					delete stream_array[i];
+				}
+			}
+		}
+		return m_Streams;
 	}
 
 	void CFileInfo::ClearValue()
@@ -192,9 +229,10 @@ namespace LeadowLib {
 		return AddFile(file);
 	}
 
-	CFileInfo* CFolderInfo::Find(TCHAR* pName, bool bSub)
+	CFileInfo* CFolderInfo::Find(TCHAR* pName, bool bSub, bool bPath)
 	{
 		CFindFileCallbackImpl impl;
+		impl.bTree = bPath;
 		CVirtualFile** file = m_Files.Find(pName, &impl);
 		if (file)
 			return (CFileInfo*)(*file);
@@ -204,7 +242,7 @@ namespace LeadowLib {
 			{
 				if (m_Files[i]->GetFileType() == vft_folder)
 				{
-					CFileInfo* f = ((CFolderInfo*)m_Files[i])->Find(pName, bSub);
+					CFileInfo* f = ((CFolderInfo*)m_Files[i])->Find(pName, bSub, bPath);
 					if (f)
 						return f;
 				}

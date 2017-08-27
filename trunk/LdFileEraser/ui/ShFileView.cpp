@@ -52,12 +52,7 @@ CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 }
 
 CControlUI* CShFileViewUI::AddFile(TCHAR* lpFullName)
-{
-	if (m_Columes.GetCount() == 0)
-	{
-		CSHFolders::EnumFolderColumes(lpFullName, this, 0);
-	}
-	
+{	
 	CLdArray<TCHAR*> values;
 	values.Add(nullptr);
 
@@ -71,20 +66,12 @@ CControlUI* CShFileViewUI::AddFile(TCHAR* lpFullName)
 
 DWORD CShFileViewUI::AddFolder(TCHAR* lpFullName)
 {
-	if (m_Columes.GetCount() == 0)
-	{
-		CSHFolders::EnumFolderColumes(lpFullName, this, 0);
-	}
 	CSHFolders::EnumFolderObjects(lpFullName, this, 0);
 	return 0;
 }
 
 DWORD CShFileViewUI::AddFolder(int nFolderCSIDL)
 {
-	if (m_Columes.GetCount() == 0)
-	{
-		CSHFolders::EnumFolderColumes(nFolderCSIDL, this, 0);
-	}
 	CSHFolders::EnumFolderObjects(nFolderCSIDL, this, 0);
 	return 0;
 }
@@ -108,6 +95,14 @@ void CShFileViewUI::AddLstViewHeader(int ncount)
 {
 	if (m_HeaderAdded)
 		return;
+
+	if (m_Columes.GetCount() == 0)
+	{
+		if (!GetViewHeader())
+			return;
+
+	}
+
 	lstFile->GetHeader()->SetAttribute(_T("style"), _T("lstHeader_file"));
 	for(int i=0; i<ncount; i++)
 	{

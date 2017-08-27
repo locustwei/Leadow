@@ -237,6 +237,11 @@ bool CErasureVolumeUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION
 		break;
 	}
 	return true;
+}
+
+bool CErasureVolumeUI::GetViewHeader()
+{
+	return CSHFolders::EnumFolderColumes(CSIDL_DRIVES, this, 0) == 0;
 };
 
 void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
@@ -246,7 +251,7 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 	CVolumeUtils::MountedVolumes(this, 0);
 	CLdArray<TCHAR*> atts;
 
-	CSHFolders::EnumFolderColumes(CSIDL_DRIVES, this, 0);
+	
 	for (int i = m_Volumes.GetCount() - 1; i>=0; i--)
 	{
 		CVolumeEx* volume = (CVolumeEx*)m_Volumes.Get(i);

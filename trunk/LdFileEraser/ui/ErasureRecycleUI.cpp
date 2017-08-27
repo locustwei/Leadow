@@ -11,7 +11,7 @@ CErasureRecycleUI::CErasureRecycleUI():
 {
 	//btnOk = nullptr;
 	m_Name = _T("ErasureRecycleUI");
-	m_ItemSkin = _T("erasure\\listitem.xml");            //
+	m_ItemSkin = _T("erasure\\listitem_recycle.xml");            //
 }
 
 CErasureRecycleUI::~CErasureRecycleUI()
@@ -80,15 +80,15 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 
 	CVirtualFile* file = m_ErasureFile.Find(fi.szDisplayName);
-	
-	AddFileUI(file, pData);
 
 	if (file)
 	{
-		PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)file->GetTag();
+		AddFileUI(file, pData);
+	
+		//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)file->GetTag();
 
-		p->ui = AddRecord(pData);
-		p->ui->OnAfterPaint += MakeDelegate(this, &CErasureRecycleUI::OnAfterColumePaint);
+		//p->ui = AddRecord(pData);
+		//p->ui->OnAfterPaint += MakeDelegate(this, &CErasureRecycleUI::OnAfterColumePaint);
 	}
 
 	return true;
@@ -100,6 +100,11 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
 	CLdArray<CLdString*>* pVolumes = (CLdArray<CLdString*>*)Param;
 	pVolumes->Add(new CLdString(pData));
 	return TRUE;
+}
+
+bool CErasureRecycleUI::GetViewHeader()
+{
+	return CSHFolders::EnumFolderColumes(CSIDL_BITBUCKET, this, 0) == 0;
 }
 
 void CErasureRecycleUI::EnumRecyleFiels()
