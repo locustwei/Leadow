@@ -148,8 +148,6 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 				thread->Start((UINT_PTR)file);
 			}
 		}
-		while (m_ThreadCount == 0)
-			Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
 	}
 	while (m_ThreadCount>0)
 	{
@@ -167,26 +165,18 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 
 	CErasureCallbackImpl impl(pFile);
 	impl.m_Control = this;
-	try
+
+	switch (pFile->GetFileType())
 	{
-		switch (pFile->GetFileType())
-		{
-		case vft_file:
-		case vft_folder:
-			erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
-			break;
-		case vft_volume:
-			erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_Method, &impl);
-			break;
-		default:
-			break;
-		}
-		
-		
-	}
-	catch(...)
-	{
-		DebugOutput(L"异常！\n");
+	case vft_file:
+	case vft_folder:
+		erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
+		break;
+	case vft_volume:
+		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_Method, &impl);
+		break;
+	default:
+		break;
 	}
 }
 
@@ -253,7 +243,7 @@ void CEreaserThrads::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
 		InterlockedDecrement(&m_ThreadCount);
 	}
 }
-
+//等待其中一个线程结束，或者取消操作
 int CEreaserThrads::WaitForThread(/*HANDLE* threads*/)
 {
 	int k = 1;
@@ -313,7 +303,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 
 	switch(nStep)
 	{
-	case ERASER_MFT_FREE:
+	//case ERASER_MFT_FREE:  //归集到ERASER_DATA_FREE的一部分
 	case ERASER_DATA_FREE:
 		option = eto_freespace;
 		break;

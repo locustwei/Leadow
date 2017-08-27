@@ -165,7 +165,6 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasur
 
 	}
 
-
 	callbck->ErasureCompleted(result);
 
 	//DebugOutput(L"%d %s\n", result, lpFileName);
@@ -446,7 +445,6 @@ DWORD CErasure::CrateTempFileAndErase(UINT64 nFileSize, IErasureCallback* callba
 	if (result != 0 && hFile == INVALID_HANDLE_VALUE)
 		return result;  
 	result = EraseFile(hFile, 0, nFileSize, callback);
-
 	CloseHandle(hFile);
 	return result;
 }

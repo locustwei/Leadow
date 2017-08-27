@@ -27,7 +27,7 @@
             <Control width="5" />
         </HorizontalLayout>
         <HorizontalLayout height="24">
-            <Text text="{c #386382}主程序版本：7.3.0.2001{/c}" float="true" pos="0,5,0,0" width="200" height="17" textpadding="2,0,2,0" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" showhtml="true" align="left" valign="top" />
+            <Text text="&lt;a target=&apos_blank&apos href=&apos//shang.qq.com/wpa/qunwpa?idkey=29660571e2a60a4d07c3e76a9d59e9ebd7c663c7087c703d0c376fca03233b5d&apos&gt;&lt;img border=&apos0&apos src=&apos//pub.idqqimg.com/wpa/images/group.png&apos alt=&apos乐豆交流群&apos title=&apos乐豆交流群&apos&gt;&lt;/a&gt;" float="true" pos="0,5,0,0" width="200" height="17" textpadding="2,0,2,0" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" showhtml="true" align="left" valign="top" />
             <Button text="检查更新" float="true" pos="725,6,0,0" width="55" height="13" textcolor="#FF337833" disabledtextcolor="#FFA7A6AA" align="center" valign="center" normalimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,0,96,24&apos;" hotimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,24,96,48&apos;" pushedimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,48,96,72&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
         </HorizontalLayout>
     </VerticalLayout>
