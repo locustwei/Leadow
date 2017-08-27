@@ -1,3 +1,9 @@
+/**************************************************
+文件、磁盘擦除线程管理调度。
+这个单元负责多线程同步问题处理，以及擦除对象与界面的
+联系。
+***************************************************/
+
 #pragma once
 #include "Erasure.h"
 
@@ -34,7 +40,6 @@ public:
 };
 
 //文件擦除线程（同时创建多个文件擦除线程）
-
 class CEreaserThrads : 
 	public IThreadRunable
 {
@@ -53,18 +58,19 @@ protected:
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 private:
-	HANDLE m_hEvent;  //控制中途中断所有擦除线程
-	boolean m_Abort;  //中断变量
-	int m_MaxThreadCount;  //最多线程数
-	CThread* m_ControlThread; //控制线程
+	HANDLE m_hEvent;                   //控制中途中断所有擦除线程
+	boolean m_Abort;                   //中断变量
+	int m_MaxThreadCount;              //最多线程数
+	CThread* m_ControlThread;          //控制线程
 	CErasureMethod* m_Method;          //擦除算法
 
 	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
-	CLdArray<CVirtualFile*>* m_Files;    //待擦除的文件
-	LONG volatile m_ThreadCount;
+	CLdArray<CVirtualFile*>* m_Files;   //待擦除的文件
+	LONG volatile m_ThreadCount;        //当前正在运行的线程数量
+
 	int WaitForThread();
-	bool ReEresareFile(CLdArray<CVirtualFile*>* files/*, int* pThredCount, bool& bWait, HANDLE* threads*/);
-	void ControlThreadRun(UINT_PTR Param);                          //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
+	bool ReEresareFile(CLdArray<CVirtualFile*>* files);
+	void ControlThreadRun(UINT_PTR Param);       //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
 	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
 	void AnalyThreadRung(CVolumeEx* pVolume);    //磁盘分析线程 
 

@@ -127,8 +127,7 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
 	if (col)
-	{
-				
+	{				
 		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		if (desc)
 		{
@@ -149,7 +148,6 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 			}
 			desc->SetText(str);
 		}
-
 		col->SetTag(Percent);
 		col->NeedUpdate();
 	}
@@ -163,19 +161,9 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 	{
 	case eto_start:  //总进度开始
 		btnOk->SetTag(1);
-		btnOk->SetText(L"Cancel");
+		btnOk->SetText(L"取消");
 		break;
-	case eto_begin:  //单个文件开始
-//		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
-//		{//找到所属文件夹对应listview行，显示进度条
-//			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
-//			if (!pEraserData)
-//			{//删除记录文件，补上Data；
-//				pEraserData = new FILE_ERASURE_DATA;
-//				ZeroMemory(pEraserData, sizeof(FILE_ERASURE_DATA));
-//				p->SetTag((UINT_PTR)pEraserData);
-//			}
-//		}
+	case eto_begin:  
 		break;
 	case eto_completed: //单个文件擦除完成
 						//设置擦除状态
@@ -189,7 +177,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 			pEraserData->nStatus = efs_error;
 			pEraserData->nErrorCode = dwValue;
-			DebugOutput(L"finished error = %d %s\n", dwValue, pFile->GetFullName());
+			//DebugOutput(L"finished error = %d %s\n", dwValue, pFile->GetFullName());
 		}
 		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
 		{
@@ -214,15 +202,21 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (pEraserData && pEraserData->ui)
 		{
-			pEraserData->ui->SetTag(dwValue);
-			pEraserData->ui->NeedUpdate();
+			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+			if(col)
+			{
+				if (dwValue >= 100)
+					dwValue = 0;
+				col->SetTag(dwValue);
+				col->NeedUpdate();
+			}
 		}
 		break;
 	case eto_finished:
 		DeleteErasuredFile(m_ErasureFile.GetFiles());
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
-		btnOk->SetText(L"OK");
+		btnOk->SetText(L"执行");
 		break;
 	default:
 		break;
@@ -295,16 +289,10 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeDat
 			}
 		}
 	}
-	col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
-	if (col)
-	{
-		col->SetTag(0);
-		col->OnAfterPaint += MakeDelegate(this, &CErasureFileUI::OnAfterColumePaint);
-	}
 }
 
 bool CErasureFileUI::GetViewHeader()
-{
+{//随便找个路径为模板，取得资源管理器的列信息
 	TCHAR Path[MAX_PATH] = { 0 };
 	GetSystemDirectory(Path, MAX_PATH);
 	return CSHFolders::EnumFolderColumes(Path, this, 0) == 0;

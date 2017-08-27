@@ -9,6 +9,7 @@
 #include <shellapi.h>
 #include <io.h>
 #include <fcntl.h>
+#include "../Jsonlib/JsonBox.h"
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -20,7 +21,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	return (int) 0;
 }
 
-
+/*
 class CImpl: 
 	public IGernalCallback<PSH_HEAD_INFO>
 	,public ISortCompare<CLdString*>
@@ -49,23 +50,27 @@ public:
 
 		return true;
 	};
-};
+};*/
 
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	CLdArray<CLdString*> names;
-	for (int i = 0; i < 100000; i++)
-	{
-		CLdString* str = new CLdString();
-		CFileUtils::GenerateRandomFileName(20, str);
-		names.Add(str);
-	}
+	JsonBox::Object o;
+	o["myName"] = JsonBox::Value(123);
+	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
+	o["hahaha"] = JsonBox::Value(true);
+	o["adamo"] = JsonBox::Value(129.09);
+	o["child"] = JsonBox::Value(o);
+	JsonBox::Array a;
+	a.push_back(JsonBox::Value("I'm a string..."));
+	a.push_back(JsonBox::Value(123));
+	o["array"] = JsonBox::Value(a);
 
-	CImpl impl;
-	names.Sort(&impl);
+	std::cout << o << std::endl;
+	JsonBox::Value v(o);
+	v.writeToFile("file.json");
 
 	printf("\npress any key exit");
 	getchar();

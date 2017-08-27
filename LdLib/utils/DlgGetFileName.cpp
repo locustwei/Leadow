@@ -218,31 +218,31 @@ namespace LeadowLib {
 				hList = GetDlgItem(hList, 1);
 				if (!hList)
 					return 0;
-
+				
 				int i = -1, count = ListView_GetSelectedCount(hList);
 				if (count <= 0)
 					return 0;
 
 				TCHAR path[MAX_PATH] = { 0 };
-				if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) < 0)
-					return 0;
-
-				This->ClearFiles();
-				if (path[_tcslen(path) - 1] != '\\')
-					path[_tcslen(path)] = '\\';
-				TCHAR fileName[MAX_PATH] = { 0 };
-				while (count-- > 0)
+				if (SendMessage(hParent, CDM_GETFOLDERPATH, (WPARAM)MAX_PATH, (LPARAM)path) > 0)
 				{
-					i = ListView_GetNextItem(hList, i, LVNI_SELECTED);
-					if (i < 0)
-						break;
-					ListView_GetItemText(hList, i, 0, fileName, MAX_PATH);
-					CLdString* s = new CLdString(path);
-					s->Append(fileName);
-					This->m_Files.Add(s);
+					This->ClearFiles();
+					if (path[_tcslen(path) - 1] != '\\')
+						path[_tcslen(path)] = '\\';
+					TCHAR fileName[MAX_PATH] = { 0 };
+					while (count-- > 0)
+					{
+						i = ListView_GetNextItem(hList, i, LVNI_SELECTED);
+						if (i < 0)
+							break;
+						ListView_GetItemText(hList, i, 0, fileName, MAX_PATH);
+						CLdString* s = new CLdString(path);
+						s->Append(fileName);
+						This->m_Files.Add(s);
+					}
+					EndDialog(hdlg, IDOK);
+					return 1;
 				}
-				EndDialog(hdlg, IDOK);
-				return 1;
 			}
 		case WM_DESTROY:
 			break;
