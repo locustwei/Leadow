@@ -37,21 +37,21 @@ void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 	}
 }
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
-DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile)
+DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 {
 	DWORD nCount = 1;
 
 	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 	pFile->SetTag((UINT_PTR)p);
-
+	p->ui = ui;
 	if (pFile->GetFileType() == vft_folder)
 	{
 		//nCount = pFile->GetFiles()->GetCount();
 		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
 		{
 			CVirtualFile* file = pFile->GetFiles()->Get(i);
-			nCount += SetFolderFilesData(file);
+			nCount += SetFolderFilesData(file, ui);
 		}
 	}
 
@@ -87,7 +87,7 @@ CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 		info = new CFileInfo();
 		info->SetFileName(file_name);
 	}
-	SetFolderFilesData(info);
+	SetFolderFilesData(info, nullptr);
 
 	m_ErasureFile.AddFile(info);
 	return info;
