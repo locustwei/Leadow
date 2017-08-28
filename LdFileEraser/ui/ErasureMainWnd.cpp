@@ -12,7 +12,7 @@ CErasureMainWnd::CErasureMainWnd():
 	m_ErasureFile = nullptr;
 	m_ErasureRecycle = nullptr;
 	m_ErasureVolume = nullptr;
-	m_Name = _T("ErasureMainWnd");
+	m_Name = _T("erasure/ErasureMainWnd");
 }
 
 
@@ -36,7 +36,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			m_ErasureFile->AttanchControl(pCtrl);
 			AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
 		}
-		m_TabUI->SelectItem(0);
+		m_TabUI->SelectItem(1);
 	}
 	else if (name == _T("recycle"))
 	{
@@ -47,7 +47,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			m_ErasureRecycle->AttanchControl(pCtrl);
 			AddVirtualWnd(m_ErasureRecycle->GetName(), m_ErasureRecycle);
 		}
-		m_TabUI->SelectItem(1);
+		m_TabUI->SelectItem(2);
 	}
 	else if (name == _T("unusedspace"))
 	{
@@ -58,11 +58,11 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 			m_ErasureVolume->AttanchControl(pCtrl);
 			AddVirtualWnd(m_ErasureVolume->GetName(), m_ErasureVolume);
 		}
-		m_TabUI->SelectItem(2);
+		m_TabUI->SelectItem(3);
 	}
 	else if (name == _T("truemove"))
 	{
-
+		m_TabUI->SelectItem(0);
 	}
 }
 
@@ -75,13 +75,13 @@ void CErasureMainWnd::AttanchControl(CControlUI * pCtrl)
 	__super::AttanchControl(pCtrl);
 	m_TabUI = (CTabLayoutUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("pagelist"), 0);
 
-	if (m_ErasureFile == nullptr)
-	{
-		m_ErasureFile = new CErasureFileUI();
-		CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureFile"), 0);
-		m_ErasureFile->AttanchControl(pCtrl);
-		AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
-	}
+//	if (m_ErasureFile == nullptr)
+//	{
+//		m_ErasureFile = new CErasureFileUI();
+//		CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureFile"), 0);
+//		m_ErasureFile->AttanchControl(pCtrl);
+//		AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
+//	}
 
 	m_TabUI->SelectItem(0);
 }

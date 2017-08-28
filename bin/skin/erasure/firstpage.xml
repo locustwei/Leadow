@@ -1,8 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Window size="1812,580">
 	<VerticalLayout >
-		<Text text="由系统的原因，删除文件即使是彻底删除文件，系统也不会把文件内容从物理上去除。系统所做的仅仅是已删除标志。使用数据恢复软件能轻易恢复您删除的文件内容" textcolor="#F4F7F4F4" disabledtextcolor="#FFA7A6AA"/>
-		<Text text="本软件的功能即为帮助你把删除的文件内容真正从物理上擦除，保护您的隐私安全。" textcolor="#FFFFFFFF" disabledtextcolor="#FFA7A6AA"/>
+		<Text text="由系统的原因，删除文件即使是彻底删除文件，系统也不会把文件内容从物理上去除，系统所做的仅仅是打上已删除标志。大众的数据（文件）恢复软件都能轻易恢复删除的文件内容。" />
+		<Text text="使用本软件帮助您删除文件并把文件内容擦除干净以保护您的数据安全，也可以清除您已经删除了文件，但还留存在磁盘上的文件内容。" />
+		<Text text="1、《》清除除文件（或整个文件夹）。" />
+		<Text text="2、《》清除资源管理器“回收站”中的所有文件。" />
 	</VerticalLayout >
 </Window>
 
