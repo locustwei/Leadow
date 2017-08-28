@@ -248,7 +248,7 @@ namespace LeadowLib {
 		Out->SetLength(length + 1);
 		//	TCHAR* result = new TCHAR[length + 1];
 		//	ZeroMemory(result, (length + 1) * sizeof(TCHAR));
-		srand((unsigned int)Out);
+		srand((UINT)(UINT_PTR)Out);
 		for (int j = 0; j < length; j++)
 		{
 			Out->GetData()[j] = validFileNameChars[rand() % 78];
