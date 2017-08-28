@@ -319,7 +319,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 		break;
 	}
 
-	if (!m_Control->m_callback->EraserThreadCallback(m_File, option, (DWORD)(nCurent * 100 / nMaxCount)))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File, option, (DWORD)ceil(nCurent * 100 / nMaxCount )))
 		return false;
 	return true;
 }

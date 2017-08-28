@@ -156,6 +156,7 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
+	CVirtualFile* p;
 
 	switch (op)
 	{
@@ -167,6 +168,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 		break;
 	case eto_completed: //单个文件擦除完成
 						//设置擦除状态
+
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
 		{
@@ -179,7 +181,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 			pEraserData->nErrorCode = dwValue;
 			//DebugOutput(L"finished error = %d %s\n", dwValue, pFile->GetFullName());
 		}
-		for (CVirtualFile* p = pFile; p != nullptr; p = p->GetFolder())
+		for (p = pFile; p != nullptr; p = p->GetFolder())
 		{
 			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
 			if (pEraserData)
@@ -195,20 +197,26 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 					percent = pEraserData->nErasued * 100 / pEraserData->nCount;
 			
 				UpdateEraseProgressMsg(pEraserData, pEraserData->ui, percent);
+				break;
 			}
 		}
 		break;
 	case eto_progress: //单个文件进度
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (pEraserData && pEraserData->ui)
+		for (p = pFile; p != nullptr; p = p->GetFolder())
 		{
-			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-			if(col)
+			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
+			if (pEraserData && pEraserData->ui)
 			{
-				if (dwValue >= 100)
-					dwValue = 0;
-				col->SetTag(dwValue);
-				col->NeedUpdate();
+				CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+				if (col)
+				{
+					if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
+						col->SetTag(dwValue);
+					if (col->GetTag() >= 100)
+						col->SetTag(0);
+					col->NeedUpdate();
+				}
+				break;
 			}
 		}
 		break;
