@@ -12,6 +12,8 @@
 #include "../Jsonlib/JsonBox.h"
 #include <sqlext.h>
 
+#import "C:\\Program Files (x86)\\Common Files\\System\\ado\\msado15.dll" no_namespace rename("EOF", "ADOEOF")
+
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
                      LPTSTR    lpCmdLine,
@@ -52,57 +54,94 @@ public:
 	};
 };*/
 
+// Function declarations  
+inline void TESTHR(HRESULT x) { if FAILED(x) _com_issue_error(x); };
+void ConnectionStringX();
+_bstr_t GetState(int intState);
+void PrintProviderError(_ConnectionPtr pConnection);
+void PrintComError(_com_error &e);
+
+
+void ConnectionStringX() {
+	// Define Connection object pointers.  Initialize pointers on define.  These are in the ADODB::  namespace  
+	_ConnectionPtr pConnection1 = NULL;
+
+	// Define Other Variables  
+	HRESULT hr = S_OK;
+
+	try {
+		// Open a connection using OLE DB syntax.  
+		TESTHR(pConnection1.CreateInstance(__uuidof(Connection)));
+		pConnection1->ConnectionString = "Provider='sqloledb';Data Source='bds230025471.my3w.com';"
+			"Initial Catalog='bds230025471_db';UID=bds230025471;PWD=hicow3601;";
+		pConnection1->ConnectionTimeout = 30;
+		pConnection1->Open("", "", "", adConnectUnspecified);
+		printf("cnn1 state: %S\n", (LPCTSTR)GetState(pConnection1->State));
+	}
+	catch (_com_error &e) {
+		// Notify user of any errors.  Pass a connection pointer accessed from the Connection.  
+		PrintProviderError(pConnection1);
+		PrintComError(e);
+	}
+
+	// Cleanup objects before exit.  
+	if (pConnection1)
+		if (pConnection1->State == adStateOpen)
+			pConnection1->Close();
+
+}
+
+_bstr_t GetState(int intState) {
+	_bstr_t strState;
+	switch (intState) {
+	case adStateClosed:
+		strState = "adStateClosed";
+		break;
+	case adStateOpen:
+		strState = "adStateOpen";
+		break;
+	default:
+		;
+	}
+	return strState;
+}
+
+void PrintProviderError(_ConnectionPtr pConnection) {
+	// Print Provider Errors from Connection object.  
+	// pErr is a record object in the Connection's Error collection.  
+	ErrorPtr  pErr = NULL;
+
+	if ((pConnection->Errors->Count) > 0) {
+		long nCount = pConnection->Errors->Count;
+
+		// Collection ranges from 0 to nCount -1.  
+		for (long i = 0; i < nCount; i++) {
+			pErr = pConnection->Errors->GetItem(i);
+			printf("Error number: %x\t%s\n", pErr->Number, (LPCSTR)pErr->Description);
+		}
+	}
+}
+
+void PrintComError(_com_error &e) {
+	_bstr_t bstrSource(e.Source());
+	_bstr_t bstrDescription(e.Description());
+
+	// Print Com errors.    
+	printf("Error\n");
+	printf("\tCode = %08lx\n", e.Error());
+	printf("\tCode meaning = %S\n", e.ErrorMessage());
+	printf("\tSource = %s\n", (LPCSTR)bstrSource);
+	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	SQLHENV henv;
-	SQLHDBC hdbc;
-	SQLHSTMT hstmt;
-	SQLRETURN retcode;
+	ConnectionStringX();
 
-	SQLCHAR * OutConnStr = (SQLCHAR *)malloc(255);
-	SQLSMALLINT * OutConnStrLen = (SQLSMALLINT *)malloc(255);
-
-	// Allocate environment handle  
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
-	// Set the ODBC version environment attribute  
-	if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-		retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
-
-		// Allocate connection handle  
-		if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-			retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-
-			// Set login timeout to 5 seconds  
-			if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-				SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)5, 0);
-
-				// Connect to data source  
-				retcode = SQLConnect(hdbc, L"NorthWind", SQL_NTS, NULL, 0, NULL, 0);
-
-				// Allocate statement handle  
-				if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-					retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-
-					// Process data  
-					if (retcode == SQL_SUCCESS || retcode == SQL_SUCCESS_WITH_INFO) {
-						SQLFreeHandle(SQL_HANDLE_STMT, hstmt);
-					}
-
-					SQLDisconnect(hdbc);
-				}
-
-				SQLFreeHandle(SQL_HANDLE_DBC, hdbc);
-			}
-		}
-		SQLFreeHandle(SQL_HANDLE_ENV, henv);
-	}
-
-
-	JsonBox::Object o;
+	/*JsonBox::Object o;
 	o["myName"] = JsonBox::Value(123);
 	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
 	o["hahaha"] = JsonBox::Value(true);
@@ -116,8 +155,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << o << std::endl;
 	JsonBox::Value v(o);
 	v.writeToFile("file.json");
-
+*/
 	printf("\npress any key exit");
 	getchar();
+
+	::CoUninitialize();
+
 	return 0;
 }
