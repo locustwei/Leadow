@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<Window size="400,320" sizebox="4,4,6,6" caption="0,0,0,24" roundcorner="5,5">
+<HorizontalLayout>
 		<Default name="Progress" value="float=&quot;false&quot; foreimage=&quot;file='erasure/progress_fore.png'&quot; maxheight=&quot;7&quot;"/>
     <VerticalLayout name="ErasureVolume" bordersize="1" inset="1,1,1,1">
         <HorizontalLayout height="1"  />
@@ -13,4 +13,4 @@
             <Button name="btnOk" text="执行" width="100" style="btn_default" />
         </HorizontalLayout>
     </VerticalLayout>
-</Window>
+</HorizontalLayout>
