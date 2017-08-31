@@ -67,6 +67,9 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 void CMainWnd::InitWindow()
 {
 	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
+	if (!pControl)
+		return;
+
 	m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager);
 	if (m_ErasureLib)
 	{
@@ -76,6 +79,8 @@ void CMainWnd::InitWindow()
 			AddVirtualWnd(frame->GetName(), frame);
 		}
 	}
+	else
+		return;
 	pControl->Add(m_ErasureLib->GetUI());
 	pControl->SelectItem(m_ErasureLib->GetUI());
 }
