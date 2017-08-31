@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
-  <ListContainerElement height="60" >
-  	<HorizontalLayout name="colume1">
-				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
+  <ListContainerElement height="60" childpadding="50">
+  	<HorizontalLayout name="colume1" padding="5,0,5,0">
+				<Label name="caption" text="" font="3"/>
 		</HorizontalLayout>
-		<VerticalLayout name="colume2" inset="4,0,4,0">
-				<Label name="caption" text="" inset="0,0,5,0" font="3"/>
-				<Text name="desc" showhtml="true" text="" inset="0,0,5,0"/>
+		<VerticalLayout name="colume2" padding="4,0,4,0">
+				<Control />
+				<Label name="caption" text="" font="3"/>
+				<Text name="desc" showhtml="true" text=""/>
+				<Control />
 		</VerticalLayout>
   </ListContainerElement>
 </Window>

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <Window>
-    <VerticalLayout name="ErasureRecycle" bordersize="1" inset="1,1,1,1">
+    <VerticalLayout name="ErasureRecycle" bordersize="1" inset="2,2,2,2" bordercolor="#FF383838" childpadding="2">
         <HorizontalLayout height="1"  />
-        <HorizontalLayout inset="3,0,3,3">
+        <HorizontalLayout style="hor_default">
             <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true" hscrollbar="true">
                									  
             </List>
         </HorizontalLayout>
-        <HorizontalLayout height="40" padding="0,5,10,10" inset="0,1,0,0" childpadding="5">
+        <HorizontalLayout height="40" bordercolor="#FFFF0000" bordersize="1" style="hor_default">
             <Control />
             <Button name="btnOk" text="执行" width="100" style="btn_default" />
         </HorizontalLayout>
