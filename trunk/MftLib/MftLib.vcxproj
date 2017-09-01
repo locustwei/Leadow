@@ -73,6 +73,10 @@
     <OutDir>$(SolutionDir)lib</OutDir>
     <TargetName>$(ProjectName)_d64</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>../lib</OutDir>
+    <TargetName>$(ProjectName)_d32</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>

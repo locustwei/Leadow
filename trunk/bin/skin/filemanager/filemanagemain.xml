@@ -1,31 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<Window size="800,572" sizebox="1,1,1,1" caption="0,0,0,80" mininfo="800,570">
-    <VerticalLayout style="hor_default" bkcolor="#FF97C0DA" >
-        <HorizontalLayout height="24">
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<Window size="800,572" sizebox="1,1,1,1" caption="0,0,0,80" mininfo="800,570" showdirty="true">
+    <VerticalLayout style="hor_default">
+        <HorizontalLayout height="50"  bkcolor="#FF97C0DA">
             <HorizontalLayout>
                 <Container width="22" height="22" bkimage="file=&apos;filemanager/icon.png&apos; source=&apos;0,0,16,16&apos; dest=&apos;5,4,21,20&apos; " />
                 <Text text="Leadow File Manager" float="true" pos="22,5,0,0" width="178" height="19" textpadding="2,0,2,0" textcolor="#FF447AA1" disabledtextcolor="#FFA7A6AA" font="0" align="left" valign="top" />
             </HorizontalLayout>
-            <HorizontalLayout width="123" inset="0,1,0,0">
-                <Button name="menubtn" maxheight="17" maxwidth="26" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" valign="center" normalimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;52,0,78,17&apos;" hotimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;26,0,52,17&apos;" pushedimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;0,0,26,17&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
-                <Button name="minbtn" maxheight="17" maxwidth="26" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" valign="center" normalimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;52,0,78,17&apos;" hotimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;26,0,52,17&apos;" pushedimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;0,0,26,17&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
-                <Button name="maxbtn" maxheight="17" maxwidth="26" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" valign="center" normalimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;52,0,78,17&apos;" hotimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;26,0,52,18&apos;" pushedimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;0,0,26,17&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
-                <Button name="restorebtn" visible="false" maxheight="17" maxwidth="26" align="center" valign="center" normalimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;52,0,78,17&apos;" hotimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;26,0,52,17&apos;" pushedimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;0,0,26,17&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
-                <Button name="closebtn" maxheight="17" maxwidth="45" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" align="center" valign="center" normalimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;90,0,135,17&apos;" hotimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;45,0,90,17&apos;" pushedimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;0,0,45,17&apos;" disabledimage="file=&apos;filemanager/btn.png&apos; corner=&apos;5,11,5,11&apos; source=&apos;0,72,96,96&apos;" pushedtextcolor="#0077A8DE" hottextcolor="#00FFFFFF" />
+            <HorizontalLayout width="180" inset="0,1,0,0">
+                <Button name="menubtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;90,0,135,29&apos;" />
+                <Button name="minbtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;90,0,135,29&apos;" />
+                <Button name="maxbtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;90,0,135,29&apos;" />
+                <Button name="restorebtn" visible="false" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;90,0,135,29&apos;" />
+                <Button name="closebtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;90,0,135,29&apos;" />
             </HorizontalLayout>
         </HorizontalLayout>
         
-        <HorizontalLayout height="10">
-        </HorizontalLayout>
-        <HorizontalLayout height="5">
-            <HorizontalLayout bkcolor="#FF97C0DA" bkcolor2="#FFB8DFF2" />
-        </HorizontalLayout>
-        <HorizontalLayout>
-            <Control width="5" />
-            <HorizontalLayout bordersize="1" bkcolor="#FFFFFFFF" bordercolor="#FF768D9B">
-                <TabLayout name="switch" selectedid="-1" />
-            </HorizontalLayout>
-            <Control width="5" />
+        <Control height="5" bkcolor="#FF97C0DA" bkcolor2="#FFB8DFF2" />
+        <HorizontalLayout bordersize="1" bkcolor="#FFFFFFFF" bordercolor="#FF768D9B">
+            <TabLayout name="switch" selectedid="-1" />
         </HorizontalLayout>
         <HorizontalLayout height="24">
             <Text text="" float="true" pos="0,5,0,0" width="200" height="17" textpadding="2,0,2,0" textcolor="#FF000000" disabledtextcolor="#FFA7A6AA" showhtml="true" align="left" valign="top" />

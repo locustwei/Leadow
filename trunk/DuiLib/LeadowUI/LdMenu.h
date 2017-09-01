@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Component.h"
 
 namespace DuiLib
 {
@@ -22,23 +21,5 @@ namespace DuiLib
 		virtual void OnPopup(CLdMenu* pMenu) = 0;
 		virtual void OnMenuItemClick(CLdMenu* pMenu, int id/*CMenuItem* pMenuItem*/) = 0;
 	};
-
-	class DUILIB_API CLdMenu : public CComponent
-	{
-	public:
-		CLdMenu();
-		~CLdMenu();
-
-		HMENU Create(CMarkupNode* pNode);
-		LPCTSTR GetName();
-		UINT Popup(INotifyMenu* pNotify, int x = -1, int y = -1);
-		UINT Popup(HWND hWnd, int x = -1, int y = -1);
-	protected:
-		HMENU m_hMenu;
-		INotifyMenu* m_Notify;
-	private:
-		TCHAR m_Name[100];
-	};
-
 
 }
