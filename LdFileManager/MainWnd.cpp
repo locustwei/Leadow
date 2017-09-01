@@ -9,7 +9,9 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
-CMainWnd::CMainWnd(TCHAR* xmlSkin)
+CMainWnd::CMainWnd(TCHAR* xmlSkin):
+	WindowImplBase()
+	, m_WndShadow()
 {
 	m_Skin = xmlSkin;
 	m_ErasureLib = NULL;
@@ -66,6 +68,10 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 
 void CMainWnd::InitWindow()
 {
+	m_WndShadow.Create(m_hWnd);
+	m_WndShadow.SetSize(15);
+	m_WndShadow.SetPosition(0, 0);
+
 	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
 	if (!pControl)
 		return;
