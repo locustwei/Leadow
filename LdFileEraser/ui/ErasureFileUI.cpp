@@ -98,6 +98,13 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	__super::AttanchControl(pCtrl);
 	btnOpenFile = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("openfile"), 0));
 	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
+
+	//用系统目录为模板,添加默认列.
+	TCHAR Path[MAX_PATH] = { 0 };
+	GetSystemDirectory(Path, MAX_PATH);
+	CSHFolders::EnumFolderColumes(Path, this, 0);
+
+	AddLstViewHeader(8);
 }
 
 void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)

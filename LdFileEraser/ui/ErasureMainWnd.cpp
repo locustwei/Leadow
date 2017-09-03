@@ -83,7 +83,7 @@ void CErasureMainWnd::AttanchControl(CControlUI * pCtrl)
 //		AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
 //	}
 
-	m_TabUI->SelectItem(0);
+	//m_TabUI->SelectItem(0);
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureMainWnd, CFramNotifyPump)

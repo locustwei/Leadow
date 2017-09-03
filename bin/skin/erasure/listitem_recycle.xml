@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Window >
-  <ListContainerElement height="60" childpadding="50">
-  	<HorizontalLayout name="colume1" padding="5,0,5,0">
+  <ListContainerElement height="60">
+  	<HorizontalLayout name="colume1" inset="5,0,5,0">
 				<Label name="caption" text="" font="3"/>
 		</HorizontalLayout>
-		<VerticalLayout name="colume2" padding="4,0,4,0">
+		<VerticalLayout name="colume2" inset="5,0,5,0">
 				<Control />
 				<Label name="caption" text="" font="3"/>
 				<Text name="desc" showhtml="true" text=""/>

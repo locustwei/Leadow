@@ -11,7 +11,7 @@ DUI_END_MESSAGE_MAP()
 
 CMainWnd::CMainWnd(TCHAR* xmlSkin):
 	WindowImplBase()
-	, m_WndShadow()
+	//, m_WndShadow()
 {
 	m_Skin = xmlSkin;
 	m_ErasureLib = NULL;
@@ -39,7 +39,6 @@ LPCTSTR CMainWnd::GetWindowClassName() const
 
 LRESULT CMainWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	LRESULT Result = __super::HandleMessage(uMsg, wParam, lParam);
 	switch (uMsg)
 	{
 	case WM_CLOSE:
@@ -48,7 +47,7 @@ LRESULT CMainWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	default:
 		break;
 	}
-	return Result;
+	return __super::HandleMessage(uMsg, wParam, lParam);
 }
 
 DuiLib::CDuiString CMainWnd::GetSkinFile()
@@ -68,9 +67,9 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 
 void CMainWnd::InitWindow()
 {
-	m_WndShadow.Create(m_hWnd);
-	m_WndShadow.SetSize(15);
-	m_WndShadow.SetPosition(0, 0);
+//	m_WndShadow.Create(m_hWnd);
+//	m_WndShadow.SetSize(15);
+//	m_WndShadow.SetPosition(0, 0);
 
 	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
 	if (!pControl)

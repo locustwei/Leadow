@@ -1,7 +1,12 @@
 #include "stdafx.h"
+//#include <Uxtheme.h>
+//#include <vsstyle.h>
+//#include <vssym32.h>
 
 namespace DuiLib
 {
+
+#define WND_NC_WIDTH 1
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -96,37 +101,156 @@ LRESULT WindowImplBase::OnNcActivate(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lPar
 LRESULT WindowImplBase::OnNcCalcSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	LPRECT pRect=NULL;
+	
+	int borderwidth = WND_NC_WIDTH;
 
 	if ( wParam == TRUE)
 	{
 		LPNCCALCSIZE_PARAMS pParam = (LPNCCALCSIZE_PARAMS)lParam;
-		pRect=&pParam->rgrc[0];
+		if (IsZoomed(m_hWnd))
+		{
+//			borderwidth = GetSystemMetrics(SM_CXSIZEFRAME);
+//			pParam->rgrc[0].top = pParam->rgrc[0].top + borderwidth;
+//			pParam->rgrc[0].left = pParam->rgrc[0].left + borderwidth;
+//			pParam->rgrc[0].right = pParam->rgrc[0].right - borderwidth;
+//			pParam->rgrc[0].bottom = pParam->rgrc[0].bottom - borderwidth; 
+		}else
+			pParam->rgrc[0].bottom = pParam->rgrc[0].bottom - borderwidth;  //加一像素，利用Window系统窗口阴影
+
 	}
 	else
 	{
-		pRect=(LPRECT)lParam;
+		//bHandled = false;
 	}
-
-	if ( ::IsZoomed(m_hWnd))
-	{	// 最大化时，计算当前显示器最适合宽高度
-		MONITORINFO oMonitor = {};
-		oMonitor.cbSize = sizeof(oMonitor);
-		::GetMonitorInfo(::MonitorFromWindow(*this, MONITOR_DEFAULTTONEAREST), &oMonitor);
-		CDuiRect rcWork = oMonitor.rcWork;
-		CDuiRect rcMonitor = oMonitor.rcMonitor;
-		rcWork.Offset(-oMonitor.rcMonitor.left, -oMonitor.rcMonitor.top);
-
-		pRect->right = pRect->left + rcWork.GetWidth();
-		pRect->bottom = pRect->top + rcWork.GetHeight();
-		return WVR_REDRAW;
-	}
-
 	return 0;
+
 }
 
-LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+/*
+void DrawThemedFrame(HWND hWnd, HRGN hrgnUpdate, HTHEME hTheme)
 {
+	int idPart = EP_EDITBORDER_HVSCROLL;
+	int idState = EPSHV_NORMAL;
+	int cxEdge = GetSystemMetrics(SM_CXEDGE);
+	int cyEdge = GetSystemMetrics(SM_CYEDGE);
+
+	if (GetFocus() == hWnd)
+	{
+		idState = EPSHV_FOCUSED;
+	}
+
+	if (!IsWindowEnabled(hWnd))
+	{
+		idState = EPSHV_DISABLED;
+	}
+
+	HDC hDC = GetWindowDC(hWnd);
+	if (hDC)
+	{
+		//
+		// Get the border size from the theme
+		int cxBorder, cyBorder;
+		GetThemeInt(hTheme, idPart, idState, TMT_BORDERSIZE, &cxBorder);
+		cyBorder = cxBorder;
+
+		//
+		// Get the window coordinates
+		RECT rcWindow;
+		GetWindowRect(hWnd, &rcWindow);
+
+		//
+		// Create an update region without the client edge to pass to 
+		// DefWindowProc
+		InflateRect(&rcWindow, -cxEdge, -cyEdge);
+		HRGN hrgn = CreateRectRgnIndirect(&rcWindow);
+		if (hrgnUpdate)
+		{
+			CombineRgn(hrgn, hrgnUpdate, hrgn, RGN_AND);
+		}
+
+		//
+		// Zero origin the rect
+		OffsetRect(&rcWindow, -rcWindow.left, -rcWindow.top);
+
+		//
+		// Clip our drawing to the non-client edge
+		OffsetRect(&rcWindow, cxEdge, cyEdge);
+		ExcludeClipRect(hDC,
+			rcWindow.left,
+			rcWindow.top,
+			rcWindow.right,
+			rcWindow.bottom);
+		InflateRect(&rcWindow, cxEdge, cyEdge);
+		DrawThemeBackground(hTheme, hDC, idPart, idState, &rcWindow, 0);
+
+		//
+		// Fill with the control's brush since the theme border may not be as 
+		// thick as the client edge
+		if (cxBorder < cxEdge && cyBorder < cyEdge)
+		{
+			InflateRect(&rcWindow, cxBorder - cxEdge, cyBorder - cyEdge);
+			FillRect(hDC, &rcWindow, GetSysColorBrush(COLOR_WINDOW));
+		}
+		//
+		// Let DefWindowProc to the rest, excluding the border we just painted
+		DefWindowProc(hWnd, WM_NCPAINT, (WPARAM)hrgn, 0);
+
+		DeleteObject(hrgn);
+		ReleaseDC(hWnd, hDC);
+	}
+}
+*/
+
+LRESULT WindowImplBase::OnNcPaint(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	//todo  不能画到SizeBox，所有底边有一像素处理不到的东西
 	return 0;
+
+/*
+	HDC hDC;
+	if (wParam == 1)
+		hDC = GetWindowDC(m_hWnd);
+	else
+		hDC = GetDCEx(m_hWnd, (HRGN)wParam, DCX_WINDOW | DCX_INTERSECTRGN | DCX_CACHE | DCX_CLIPSIBLINGS);
+	if (hDC == 0)
+		return 0;
+	// Paint into this DC 
+	RECT rc;
+	GetWindowRect(m_hWnd, &rc);
+	OffsetRect(&rc, -rc.left, -rc.top);
+	LOGBRUSH logBrush;
+	logBrush.lbStyle = BS_SOLID;
+	logBrush.lbColor = 0xFFFFFFFF;// RGB(0xFF, 0, 0);
+	logBrush.lbHatch = HS_HORIZONTAL;
+	HBRUSH hbrush = CreateBrushIndirect(&logBrush);
+	if (wParam == 1)
+	{
+		RECT r = rc;
+		r.bottom = r.top + WND_NC_WIDTH;
+		CRenderEngine::DrawColor(hDC, r, 0xFEFF0000);
+		//FillRect(hDC, &r, hbrush);
+		r = rc;
+		r.top = r.bottom - WND_NC_WIDTH;
+		CRenderEngine::DrawColor(hDC, r, 0xFEFF0000);
+		//FillRect(hDC, &r, hbrush);
+		r = rc;
+		r.right = r.left + WND_NC_WIDTH;
+		//FillRect(hDC, &r, hbrush);
+		CRenderEngine::DrawColor(hDC, r, 0xFEFF0000);
+		r = rc;
+		r.left = r.right - WND_NC_WIDTH;
+		//FillRect(hDC, &r, hbrush);
+		CRenderEngine::DrawColor(hDC, r, 0xFEFF0000);
+	}
+	else
+		FillRgn(hDC, (HRGN)wParam, hbrush);
+
+	DeleteObject(hbrush);
+
+
+	ReleaseDC(m_hWnd, hDC);
+	return 0;
+*/
 }
 
 LRESULT WindowImplBase::OnNcHitTest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -388,7 +512,7 @@ LRESULT WindowImplBase::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #if defined(WIN32) && !defined(UNDER_CE)
 	case WM_NCACTIVATE:		lRes = OnNcActivate(uMsg, wParam, lParam, bHandled); break;
 	case WM_NCCALCSIZE:		lRes = OnNcCalcSize(uMsg, wParam, lParam, bHandled); break;
-	case WM_NCPAINT:		lRes = OnNcPaint(uMsg, wParam, lParam, bHandled); break;
+	//case WM_NCPAINT:		lRes = OnNcPaint(uMsg, wParam, lParam, bHandled); break; //让系统处理,才会有窗口阴影
 	case WM_NCHITTEST:		lRes = OnNcHitTest(uMsg, wParam, lParam, bHandled); break;
 	case WM_GETMINMAXINFO:	lRes = OnGetMinMaxInfo(uMsg, wParam, lParam, bHandled); break;
 	case WM_MOUSEWHEEL:		lRes = OnMouseWheel(uMsg, wParam, lParam, bHandled); break;
@@ -412,7 +536,9 @@ LRESULT WindowImplBase::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if (m_PaintManager.MessageHandler(uMsg, wParam, lParam, lRes))
 		return lRes;
-	return CWindowWnd::HandleMessage(uMsg, wParam, lParam);
+	lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
+
+	return lRes;
 }
 
 LRESULT WindowImplBase::HandleCustomMessage(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)

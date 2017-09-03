@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout >
-    <VerticalLayout name="ErasureFile" bordersize="1" inset="1,1,1,1">
-        <HorizontalLayout height="1"  />
-        <HorizontalLayout style="hor_default">
-            <List name="listview" bkcolor="#FFFFFFFF" menu="true" itemtextcolor="#FF000000" itembkcolor="#FFE2DDDF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemalign="center" headerbkimage="file=&apos;listimg/list_header_bg.png&apos;" itemshowhtml="true" vscrollbar="true" hscrollbar="true">
+    <VerticalLayout name="ErasureFile" style="hor_word">
+         <HorizontalLayout style="hor_work">
+            <List name="listview" vscrollbar="true" hscrollbar="true">
 									  
             </List>
         </HorizontalLayout>
-        <HorizontalLayout height="40" style="hor_default">
+        <HorizontalLayout height="40" style="hor_work">
             <Control />
-                <Button name="openfile" text="添加文件" width="100" style="btn_default"/>
-                <Button name="btnOk" text="执行" width="100" style="btn_default"/>
+            <Button name="openfile" text="添加文件" width="100" style="btn_default"/>
+            <Button name="btnOk" text="执行" width="100" style="btn_default"/>
         </HorizontalLayout>
     </VerticalLayout>
 </HorizontalLayout>
