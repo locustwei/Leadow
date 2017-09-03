@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout>
-    <VerticalLayout style="ver_blue">
-        <HorizontalLayout height="26" style="hor_blue">
-            <Option name="Shredder" text="文件粉碎" style="op_defualt" float="true" pos="6,0,0,0" height="26" group="contenttab" />
-            <Option name="recycle" text="清理回收站" style="op_defualt" float="true" pos="86,0,0,0" height="26" group="contenttab" />
-            <Option name="unusedspace" text="磁盘擦除" style="op_defualt" float="true" pos="166,0,0,0" height="26" group="contenttab" />
-            <Option name="truemove" text="移动文件" style="op_defualt" float="true" pos="246,0,0,0" height="26" group="contenttab" />
+    <VerticalLayout style="hor_work" border="0">
+        <HorizontalLayout height="31" padding="0,5,0,0" childpadding="4">
+            <Option name="Shredder" text="文件擦除" style="op_defualt" width="126" group="contenttab" />
+            <Option name="recycle" text="清理回收站" style="op_defualt" width="126" group="contenttab" />
+            <Option name="unusedspace" text="磁盘擦除" style="op_defualt" width="126" group="contenttab" />
+            <Option name="truemove" text="移动文件" style="op_defualt" width="126" group="contenttab" />
         </HorizontalLayout>
         <TabLayout name="pagelist" selectedid="0">
 					<Include source="erasure/firstpage.xml"/>

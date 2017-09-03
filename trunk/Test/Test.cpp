@@ -141,6 +141,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	ConnectionStringX();
 
+	//https://docs.microsoft.com/en-us/sql/ado/reference/ado-api/connectionstring-connectiontimeout-and-state-properties-example-vc
 	/*JsonBox::Object o;
 	o["myName"] = JsonBox::Value(123);
 	o["myOtherMember"] = JsonBox::Value("asld\\kfn");

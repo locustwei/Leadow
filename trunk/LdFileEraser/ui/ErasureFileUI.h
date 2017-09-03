@@ -20,7 +20,6 @@ public:
 private:
 
 	CButtonUI* btnOpenFile;
-	CButtonUI* btnOk;
 	CEreaserThrads m_EreaserThreads;        //擦除调度线程
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
@@ -37,6 +36,7 @@ protected:
 		DWORD nErasued;                   //已经被擦除的文件数
 	}*PFILE_ERASURE_DATA;
 
+	CButtonUI* btnOk;
 	CFolderInfo m_ErasureFile;                     //要擦除的文件放在这里
 	CVirtualFile* AddEraseFile(TCHAR* file_name);  //添加待擦除的文件
 	void AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData = nullptr);  //在文件信息显示在ListUI中

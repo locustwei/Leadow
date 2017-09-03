@@ -312,7 +312,7 @@ void CWindowWnd::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= false*/)
 UINT CWindowWnd::ShowModal()
 {
     ASSERT(::IsWindow(m_hWnd));
-    UINT nRet = 0;
+    UINT_PTR nRet = 0;
     HWND hWndParent = GetWindowOwner(m_hWnd);
     ::ShowWindow(m_hWnd, SW_SHOWNORMAL);
     ::EnableWindow(hWndParent, FALSE);
@@ -331,8 +331,8 @@ UINT CWindowWnd::ShowModal()
     }
     ::EnableWindow(hWndParent, TRUE);
     ::SetFocus(hWndParent);
-    if( msg.message == WM_QUIT ) ::PostQuitMessage(msg.wParam);
-    return nRet;
+    if( msg.message == WM_QUIT ) ::PostQuitMessage((int)msg.wParam);
+    return (UINT)nRet;
 }
 
 void CWindowWnd::Close(UINT nRet)

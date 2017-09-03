@@ -42,6 +42,7 @@ CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 			else
 			{
 				CLabelUI* cap = new CLabelUI();
+				cap->SetAttributeList(m_Ctrl->GetManager()->GetStyleAttributeList(_T("txt_listitem")));
 				cap->SetText(values->Get(i));
 				pItem->Add(cap);
 			}

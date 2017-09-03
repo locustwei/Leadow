@@ -110,7 +110,9 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 void CErasureRecycleUI::AttanchControl(CControlUI* pCtrl)
 {
-	__super::AttanchControl(pCtrl);
+	CShFileViewUI::AttanchControl(pCtrl); //不用__super::因为CErasureFileUI也添加默认列
+	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
+
 	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
 	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）
