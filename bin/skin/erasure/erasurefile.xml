@@ -6,7 +6,7 @@
 									  
             </List>
         </HorizontalLayout>
-        <HorizontalLayout height="40" style="hor_work">
+        <HorizontalLayout height="40" style="hor_work" childpadding="10" inset="10,5,10,5">
             <Control />
             <Button name="openfile" text="添加文件" width="100" style="btn_default"/>
             <Button name="btnOk" text="执行" width="100" style="btn_default"/>
