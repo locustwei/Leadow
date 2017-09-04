@@ -88,6 +88,8 @@ void CMainWnd::InitWindow()
 		return;
 	pControl->Add(m_ErasureLib->GetUI());
 	pControl->SelectItem(m_ErasureLib->GetUI());
+
+	m_btnLogo = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("logo")));
 }
 
 void CMainWnd::OnSelectChanged(TNotifyUI & msg)
@@ -97,4 +99,8 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 
 void CMainWnd::OnItemClick(TNotifyUI & msg)
 {
+	if(msg.pSender == m_btnLogo)
+	{
+		
+	}
 }

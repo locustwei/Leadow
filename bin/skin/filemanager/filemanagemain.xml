@@ -3,15 +3,15 @@
     <VerticalLayout style="hor_default">
         <HorizontalLayout height="60" >
             <HorizontalLayout>
-                <Button float="true" pos="10,8,0,0" width="48" height="48" bkimage="file=&apos;filemanager/dydot48.png&apos;" />
+                <Button name="logo" float="true" pos="10,8,0,0" width="48" height="48" bkimage="file=&apos;default/dydot48.png&apos;" />
                 <Label text="雨点 文件擦除" float="true" pos="62,5,0,0" width="278" height="29" textpadding="2,0,2,0" textcolor="#FF447AA1" font="0" align="left" valign="top" />
             </HorizontalLayout>
-            <HorizontalLayout width="180" inset="0,1,0,0">
-                <Button name="menubtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_menu.png&apos; source=&apos;90,0,135,29&apos;" />
-                <Button name="minbtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_min.png&apos; source=&apos;90,0,135,29&apos;" />
-                <Button name="maxbtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_max.png&apos; source=&apos;90,0,135,29&apos;" />
-                <Button name="restorebtn" visible="false" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_restore.png&apos; source=&apos;90,0,135,29&apos;" />
-                <Button name="closebtn" maxheight="29" maxwidth="45" normalimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;0,0,45,29&apos;" hotimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;45,0,90,29&apos;" pushedimage="file=&apos;filemanager/sys_dlg_close.png&apos; source=&apos;90,0,135,29&apos;" />
+            <HorizontalLayout width="180">
+                <Button style="btn_sysmenu" />
+                <Button style="btn_minbox" />
+                <Button style="btn_maxbox"/>
+                <Button style="btn_restorebox" />
+                <Button style="btn_closebox" />
             </HorizontalLayout>
         </HorizontalLayout>
         

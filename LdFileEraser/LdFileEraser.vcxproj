@@ -72,6 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\</OutDir>
+    <TargetName>$(ProjectName)_d32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -86,8 +87,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_X86;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -98,7 +98,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
       <ModuleDefinitionFile>LdFileEraser.def</ModuleDefinitionFile>
-      <AdditionalDependencies />
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -169,6 +168,7 @@
     <ClCompile Include="ErasureLibrary.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ui\ErasureFileUI.cpp" />
     <ClCompile Include="ui\ErasureMainWnd.cpp" />
