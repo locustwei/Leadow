@@ -19,7 +19,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	CPaintManagerUI paint;
 
 	builder.Create(_T("default\\defualt.xml"), NULL, NULL, &paint, NULL);
-	CMainWnd MainWnd(_T("filemanager\\filemanagemain.xml"));
+	CMainWnd MainWnd(_T("filemanager\\about.xml"));
 	MainWnd.Create(NULL, APP_TITLE, UI_WNDSTYLE_FRAME, 0);
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);

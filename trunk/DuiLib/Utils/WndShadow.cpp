@@ -473,8 +473,6 @@ void CWndShadow::Update(HWND hParent)
 		hOriBmp = (HBITMAP)SelectObject(hMemDC, hbitmap);
 	}
 
-	SaveBmp(hbitmap, L"e:\\test.bmp");
-
 	POINT ptDst = {WndRect.left + m_nxOffset - m_nSize, WndRect.top + m_nyOffset - m_nSize};
 	if (m_pImageInfo) {
 		ptDst.x = WndRect.left - m_rcCorner.left;

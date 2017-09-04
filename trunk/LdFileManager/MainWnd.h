@@ -20,6 +20,7 @@ protected:
 private:
 	TCHAR* m_Skin;
 	IErasureLibrary* m_ErasureLib;
+	CButtonUI* m_btnLogo;
 	//CWndShadow m_WndShadow;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
