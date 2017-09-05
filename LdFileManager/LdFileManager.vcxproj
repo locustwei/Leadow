@@ -154,6 +154,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="About.cpp" />
     <ClCompile Include="LdFileManager.cpp" />
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="MainWnd.cpp" />
@@ -162,6 +163,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="About.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="MainWnd.h" />
     <ClInclude Include="StdAfx.h" />

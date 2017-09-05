@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Library.h"
 #include "MainWnd.h"
+#include "About.h"
 
 
 DUI_BEGIN_MESSAGE_MAP(CMainWnd, WindowImplBase)
@@ -62,6 +63,14 @@ CDuiString CMainWnd::GetSkinFolder()
 
 void CMainWnd::OnClick(TNotifyUI& msg)
 {
+	if (msg.pSender == m_btnLogo)
+	{
+		CAbout About(_T("filemanager\\about.xml"));
+		About.Create(m_hWnd, _T("About"), UI_WNDSTYLE_FRAME, NULL);
+		About.CenterWindow();
+		About.ShowModal();
+		return;
+	}
 	return __super::OnClick(msg);
 }
 
@@ -99,8 +108,4 @@ void CMainWnd::OnSelectChanged(TNotifyUI & msg)
 
 void CMainWnd::OnItemClick(TNotifyUI & msg)
 {
-	if(msg.pSender == m_btnLogo)
-	{
-		
-	}
 }
