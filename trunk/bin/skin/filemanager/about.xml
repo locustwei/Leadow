@@ -25,7 +25,7 @@
 								<Text text="微信" width="35" font="4" textpadding="2,20,2,0"/>
 								<Control bkimage="default/微信.png"/>
 								<Text text="支付宝" width="35" font="4" textpadding="2,20,2,0"/>
-								<Control bkimage="default/支付宝.jpg"/>
+								<Control bkimage="default/支付宝.png"/>
 						</HorizontalLayout >
 				</VerticalLayout>
 				<Label text="Copyright© 2006-2017 DYDOT. All rights reserved." font="2"/>
