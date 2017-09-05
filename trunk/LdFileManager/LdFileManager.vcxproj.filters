@@ -30,6 +30,9 @@
     <ClCompile Include="Library.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="About.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="Library.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="About.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -22,7 +22,9 @@
 				<VerticalLayout>
 						<Label text="赞助作者" textpadding="2,0,2,0" textcolor="#FF447AA1" font="3" align="center"/>
 						<HorizontalLayout >
+								<Text text="微信" width="35" font="4" textpadding="2,20,2,0"/>
 								<Control bkimage="default/微信.png"/>
+								<Text text="支付宝" width="35" font="4" textpadding="2,20,2,0"/>
 								<Control bkimage="default/支付宝.jpg"/>
 						</HorizontalLayout >
 				</VerticalLayout>
