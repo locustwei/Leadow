@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<Window size="400,300" caption="0,0,0,30">
+<Window size="485,300" caption="0,0,0,30">
 	<VerticalLayout style="hor_default">
 				<HorizontalLayout height="30" >
             <HorizontalLayout>
@@ -20,15 +20,14 @@
 						</VerticalLayout>
 				</HorizontalLayout>
 				<VerticalLayout>
-						<Label text="赞助作者" textpadding="2,0,2,0" textcolor="#FF447AA1" font="3" align="center"/>
-						<HorizontalLayout >
-								<Text text="微信" width="35" font="4" textpadding="2,20,2,0"/>
-								<Control bkimage="default/微信.png"/>
-								<Text text="支付宝" width="35" font="4" textpadding="2,20,2,0"/>
-								<Control bkimage="default/支付宝.png"/>
+						<Label text="作者辛苦，请小酌一杯。。。" textpadding="2,0,2,0" textcolor="#FF447AA1" font="3" align="center"/>
+						<HorizontalLayout inset="20,0,20,2">
+								<Control bkimage="default/wechat.png" width="125"/>
+								<Text text="" font="4" textpadding="2,20,2,0"/>
+								<Control bkimage="default/zhifubao.png" width="125"/>
 						</HorizontalLayout >
 				</VerticalLayout>
-				<Label text="Copyright© 2006-2017 DYDOT. All rights reserved." font="2"/>
+				<Label text="Copyright© 2006-2017 DYDOT. All rights reserved." font="2" textpadding="12,0,2,5" />
 	</VerticalLayout>
 </Window>
 

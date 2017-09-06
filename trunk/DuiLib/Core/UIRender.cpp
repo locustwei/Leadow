@@ -1,5 +1,7 @@
 #include "StdAfx.h"
+#include "../Utils/unzip.h"
 
+/*
 ///////////////////////////////////////////////////////////////////////////////////////
 DECLARE_HANDLE(HZIP);	// An HZIP identifies a zip file that has been opened
 typedef DWORD ZRESULT;
@@ -39,6 +41,7 @@ extern ZRESULT FindZipItemA(HZIP hz, const TCHAR *name, bool ic, int *index, ZIP
 extern ZRESULT FindZipItemW(HZIP hz, const TCHAR *name, bool ic, int *index, ZIPENTRYW *ze);
 extern ZRESULT UnzipItem(HZIP hz, int index, void *dst, unsigned int len, DWORD flags);
 ///////////////////////////////////////////////////////////////////////////////////////
+*/
 
 #define RES_TYPE_COLOR _T("*COLOR*")
 
@@ -364,7 +367,7 @@ TImageInfo* CRenderEngine::LoadImage(STRINGorID bitmap, LPCTSTR type, DWORD mask
 				sFile += CPaintManagerUI::GetResourceZip();
 				HZIP hz = NULL;
 				if( CPaintManagerUI::IsCachedResourceZip() ) hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
-				else hz = OpenZip((void*)sFile.GetData(), 0, 2);
+				else hz = OpenZip((void*)sFile.GetData(), 0);
 				if( hz == NULL ) break;
 				ZIPENTRY ze; 
 				int i; 
@@ -372,7 +375,7 @@ TImageInfo* CRenderEngine::LoadImage(STRINGorID bitmap, LPCTSTR type, DWORD mask
 				dwSize = ze.unc_size;
 				if( dwSize == 0 ) break;
 				pData = new BYTE[ dwSize ];
-				int res = UnzipItem(hz, i, pData, dwSize, 3);
+				int res = UnzipItem(hz, i, pData, dwSize);
 				if( res != 0x00000000 && res != 0x00000600) {
 					delete[] pData;
 					pData = NULL;

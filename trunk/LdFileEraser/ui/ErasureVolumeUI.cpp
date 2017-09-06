@@ -8,7 +8,7 @@ CErasureVolumeUI::CErasureVolumeUI():
 {
 	btnOk = nullptr;
 	m_Name = _T("ErasureVolumeUI");
-	m_ItemSkin = _T("erasure\\listitem_volume.xml");            //
+	m_ItemSkin = _T("erasure/listitem_volume.xml");            //
 }
 
 
