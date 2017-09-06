@@ -5,7 +5,7 @@ CErasureRecycleUI::CErasureRecycleUI():
 	CErasureFileUI()
 {
 	m_Name = _T("ErasureRecycleUI");
-	m_ItemSkin = _T("erasure\\listitem_recycle.xml");            //
+	m_ItemSkin = _T("erasure/listitem_recycle.xml");            //
 }
 
 CErasureRecycleUI::~CErasureRecycleUI()

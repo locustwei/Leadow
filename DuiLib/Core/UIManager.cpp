@@ -1,13 +1,14 @@
 #include "StdAfx.h"
 #include <zmouse.h>
 #include <stdlib.h>
+#include "../Utils/unzip.h"
 
-DECLARE_HANDLE(HZIP);	// An HZIP identifies a zip file that has been opened
+/*DECLARE_HANDLE(HZIP);	// An HZIP identifies a zip file that has been opened
 typedef DWORD ZRESULT;
 #define OpenZip OpenZipU
 #define CloseZip(hz) CloseZipU(hz)
 extern HZIP OpenZipU(void *z,unsigned int len,DWORD flags);
-extern ZRESULT CloseZipU(HZIP hz);
+extern ZRESULT CloseZipU(HZIP hz);*/
 
 namespace DuiLib {
 
@@ -309,10 +310,10 @@ void CPaintManagerUI::SetResourceZip(LPVOID pVoid, unsigned int len)
     }
     m_pStrResourceZip = _T("membuffer");
     if( m_bCachedResourceZip ) 
-        m_hResourceZip = (HANDLE)OpenZip(pVoid, len, 3);
+        m_hResourceZip = (HANDLE)OpenZip(pVoid, len);
 }
 
-void CPaintManagerUI::SetResourceZip(LPCTSTR pStrPath, bool bCachedResourceZip)
+void CPaintManagerUI::SetResourceZip(LPCTSTR pStrPath, bool bCachedResourceZip, char* psw)
 {
     if( m_pStrResourceZip == pStrPath && m_bCachedResourceZip == bCachedResourceZip ) return;
     if( m_bCachedResourceZip && m_hResourceZip != NULL ) {
@@ -324,7 +325,7 @@ void CPaintManagerUI::SetResourceZip(LPCTSTR pStrPath, bool bCachedResourceZip)
     if( m_bCachedResourceZip ) {
         CDuiString sFile = CPaintManagerUI::GetResourcePath();
         sFile += CPaintManagerUI::GetResourceZip();
-        m_hResourceZip = (HANDLE)OpenZip((void*)sFile.GetData(), 0, 2);
+        m_hResourceZip = (HANDLE)OpenZip(sFile.GetData(), psw);
     }
 }
 

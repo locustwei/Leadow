@@ -1,9 +1,11 @@
 #include "StdAfx.h"
+#include "../Utils/unzip.h"
 
 #ifndef TRACE
 #define TRACE
 #endif
 
+/*
 ///////////////////////////////////////////////////////////////////////////////////////
 DECLARE_HANDLE(HZIP);	// An HZIP identifies a zip file that has been opened
 typedef DWORD ZRESULT;
@@ -25,10 +27,12 @@ typedef struct
     long comp_size;            // sizes of item, compressed and uncompressed. These
     long unc_size;             // may be -1 if not yet known (e.g. being streamed in)
 } ZIPENTRYW;
+
 #define OpenZip OpenZipU
 #define CloseZip(hz) CloseZipU(hz)
 extern HZIP OpenZipU(void *z,unsigned int len,DWORD flags);
 extern ZRESULT CloseZipU(HZIP hz);
+
 #ifdef _UNICODE
 #define ZIPENTRY ZIPENTRYW
 #define GetZipItem GetZipItemW
@@ -43,6 +47,7 @@ extern ZRESULT FindZipItemA(HZIP hz, const TCHAR *name, bool ic, int *index, ZIP
 extern ZRESULT FindZipItemW(HZIP hz, const TCHAR *name, bool ic, int *index, ZIPENTRYW *ze);
 extern ZRESULT UnzipItem(HZIP hz, int index, void *dst, unsigned int len, DWORD flags);
 ///////////////////////////////////////////////////////////////////////////////////////
+*/
 
 namespace DuiLib {
 
@@ -405,7 +410,7 @@ bool CMarkup::LoadFromFile(LPCTSTR pstrFilename, int encoding)
         sFile += CPaintManagerUI::GetResourceZip();
         HZIP hz = NULL;
         if( CPaintManagerUI::IsCachedResourceZip() ) hz = (HZIP)CPaintManagerUI::GetResourceZipHandle();
-        else hz = OpenZip((void*)sFile.GetData(), 0, 2);
+        else hz = OpenZip((void*)sFile.GetData(), 0);
         if( hz == NULL ) return _Failed(_T("Error opening zip file"));
         ZIPENTRY ze; 
         int i; 
@@ -414,7 +419,7 @@ bool CMarkup::LoadFromFile(LPCTSTR pstrFilename, int encoding)
         if( dwSize == 0 ) return _Failed(_T("File is empty"));
         if ( dwSize > 4096*1024 ) return _Failed(_T("File too large"));
         BYTE* pByte = new BYTE[ dwSize ];
-        int res = UnzipItem(hz, i, pByte, dwSize, 3);
+        int res = UnzipItem(hz, i, pByte, dwSize);
         if( res != 0x00000000 && res != 0x00000600) {
             delete[] pByte;
             if( !CPaintManagerUI::IsCachedResourceZip() ) CloseZip(hz);

@@ -65,7 +65,7 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 {
 	if (msg.pSender == m_btnLogo)
 	{
-		CAbout About(_T("filemanager\\about.xml"));
+		CAbout About(_T("filemanager/about.xml"));
 		About.Create(m_hWnd, _T("About"), UI_WNDSTYLE_FRAME, NULL);
 		About.CenterWindow();
 		About.ShowModal();

@@ -10,16 +10,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 		return 0;
 	
 	CPaintManagerUI::SetInstance(hInstance);
+#ifdef _DEBUG
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
-	CWndShadow::Initialize(hInstance);
+#else
+	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
+	CPaintManagerUI::SetResourceZip(_T("UIResource.zip"), true, "dydot1234");
+#endif
 
 	HRESULT Hr = ::CoInitialize(NULL);
 	if( FAILED(Hr) ) return 0;
 	CDialogBuilder builder;
 	CPaintManagerUI paint;
 
-	builder.Create(_T("default\\defualt.xml"), NULL, NULL, &paint, NULL);
-	CMainWnd MainWnd(_T("filemanager\\filemanagemain.xml"));
+	builder.Create(_T("default/defualt.xml"), NULL, NULL, &paint, NULL);
+	CMainWnd MainWnd(_T("filemanager/filemanagemain.xml"));
 	MainWnd.Create(NULL, APP_TITLE, UI_WNDSTYLE_FRAME, 0);
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);

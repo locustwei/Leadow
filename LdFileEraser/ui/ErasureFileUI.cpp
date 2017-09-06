@@ -9,7 +9,7 @@ CErasureFileUI::CErasureFileUI() :
 	btnOk = nullptr;
 	lstFile = nullptr;
 	m_Name = _T("ErasureFileUI");
-	m_ItemSkin = _T("erasure\\listitem_file.xml");
+	m_ItemSkin = _T("erasure/listitem_file.xml");
 }
 
 CErasureFileUI::~CErasureFileUI()
