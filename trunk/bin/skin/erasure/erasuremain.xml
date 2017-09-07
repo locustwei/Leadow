@@ -5,13 +5,14 @@
             <Option name="Shredder" text="文件擦除" style="op_defualt" width="126" group="contenttab" />
             <Option name="recycle" text="清理回收站" style="op_defualt" width="126" group="contenttab" />
             <Option name="unusedspace" text="磁盘擦除" style="op_defualt" width="126" group="contenttab" />
-            <Option name="truemove" text="移动文件" style="op_defualt" width="126" group="contenttab" />
+            <Option name="truemove" text="选项" style="op_defualt" width="126" group="contenttab" />
         </HorizontalLayout>
         <TabLayout name="pagelist" selectedid="0">
 					<Include source="erasure/firstpage.xml"/>
         	<Include source="erasure/erasurefile.xml"/>
        		<Include source="erasure/erasurerecycle.xml"/>
        		<Include source="erasure/erasurevolume.xml"/>
+       		<Include source="erasure/options.xml"/>
         </TabLayout>
     </VerticalLayout>
 </HorizontalLayout>

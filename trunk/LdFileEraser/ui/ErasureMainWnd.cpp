@@ -62,7 +62,7 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 	}
 	else if (name == _T("truemove"))
 	{
-		m_TabUI->SelectItem(0);
+		m_TabUI->SelectItem(4);
 	}
 }
 
