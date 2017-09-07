@@ -1,28 +1,24 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout >
-    <VerticalLayout name="ErasureFile" style="hor_word">
+    <VerticalLayout name="options" style="hor_word">
          <VerticalLayout inset="10,10,10,10">
          			<Label text="选择数据擦除方法" style="txt_default" />
-         			<HorizontalLayout bordercolor="#FFFF0000" bordersize="1" name="testsssss" childalign="center">
-         					<Option name="methed1" style="ckbox_default" />
-         					<Label text="随机数擦除一遍（默认）" style="txt_default" />
-         			</HorizontalLayout >
-         			<HorizontalLayout bordercolor="#FFFF0000" bordersize="1">
-         					<Option name="methed1" style="ckbox_default" />
-         					<Label text="随机数擦除一遍（默认）" style="txt_default" />
-         			</HorizontalLayout>
-         			<HorizontalLayout bordercolor="#FFFF0000" bordersize="1">
-         					<Option name="methed1" style="ckbox_default" />
-         					<Label text="随机数擦除一遍（默认）" style="txt_default" />
-         			</HorizontalLayout>
-         			<HorizontalLayout bordercolor="#FFFF0000" bordersize="1">
-         					<Option name="methed1" style="ckbox_default" />
-         					<Label text="随机数擦除一遍（默认）" style="txt_default" />
-         			</HorizontalLayout >
-         			<HorizontalLayout bordercolor="#FFFF0000" bordersize="1">
-         					<Option name="methed1" style="ckbox_default" />
-         					<Label text="随机数擦除一遍（默认）" style="txt_default" />
-         			</HorizontalLayout >
+         			<Combo style="Combo_default" name="cbmothed" >
+         					<ListLabelElement text="伪随机数据（1次处理）" selected="true"/>
+         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
+									<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
+									<ListLabelElement text="美国空军5020（3次处理）" />
+									<ListLabelElement text="美国陆军ar380-19（3次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" />
+									<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
+									<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
+									<ListLabelElement text="施奈尔7（7次处理）" />
+									<ListLabelElement text="德国vsitr（7次处理）" />
+									<ListLabelElement text="古特曼（35)" />
+         			</Combo>
+
+         			
          </VerticalLayout>
     </VerticalLayout>
 </HorizontalLayout>

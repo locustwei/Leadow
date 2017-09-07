@@ -3,8 +3,8 @@
 	<VerticalLayout style="hor_default">
 				<HorizontalLayout height="30" >
             <HorizontalLayout>
-                <Control float="true" pos="4,1,0,0" width="16" height="16" bkimage="file=&apos;default/dydot16.png&apos;" />
-                <Label text="关于雨点" float="true" pos="25,3,0,0" width="278" height="29" textpadding="2,0,2,0" textcolor="#FF447AA1" font="0" align="left" valign="top" />
+                <Control float="true" pos="4,2,0,0" width="16" height="16" bkimage="file=&apos;default/dydot16.png&apos;" />
+                <Label text="关于雨点" float="true" pos="25,4,0,0" width="278" height="29" textpadding="2,0,2,0" textcolor="#FF447AA1" font="0" align="left" valign="top" />
             </HorizontalLayout>
             <HorizontalLayout width="45">
             		<Button style="btn_closebox" />
@@ -20,11 +20,10 @@
 						</VerticalLayout>
 				</HorizontalLayout>
 				<VerticalLayout>
-						<Label text="作者辛苦，请小酌一杯。。。" textpadding="2,0,2,0" textcolor="#FF447AA1" font="3" align="center"/>
-						<HorizontalLayout inset="20,0,20,2">
-								<Control bkimage="default/wechat.png" width="125"/>
-								<Text text="" font="4" textpadding="2,20,2,0"/>
-								<Control bkimage="default/zhifubao.png" width="125"/>
+						<HorizontalLayout inset="20,10,20,2">
+								<Control bkimage="default/wechat.png" width="138"/>
+								<Text text="作者辛苦，请小酌一杯。。。" font="4" textpadding="2,20,2,0"/>
+								<Control bkimage="default/zhifubao.png" width="138"/>
 						</HorizontalLayout >
 				</VerticalLayout>
 				<Label text="Copyright© 2006-2017 DYDOT. All rights reserved." font="2" textpadding="12,0,2,5" />
