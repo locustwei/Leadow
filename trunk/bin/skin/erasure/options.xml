@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout >
-    <VerticalLayout name="options" style="hor_word">
+    <HorizontalLayout name="options" style="hor_word">
          <VerticalLayout inset="10,10,10,10">
-         			<Label text="选择数据擦除方法" style="txt_default" />
-         			<Combo style="Combo_default" name="cbmothed" >
+         			<Label text="文件擦除默认方法" style="txt_default" />
+         			<Combo style="Combo_default" name="cbmothed1" >
          					<ListLabelElement text="伪随机数据（1次处理）" selected="true"/>
          					<ListLabelElement text="英国政府5（基线）（1次处理）" />
 									<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
@@ -15,10 +15,36 @@
 									<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
 									<ListLabelElement text="施奈尔7（7次处理）" />
 									<ListLabelElement text="德国vsitr（7次处理）" />
-									<ListLabelElement text="古特曼（35)" />
+									<ListLabelElement text="古特曼（35次处理)" />
          			</Combo>
-
-         			
+         			<Label text="磁盘擦除默认方法" style="txt_default" />
+         			<Combo style="Combo_default" name="cbmothed2" >
+         					<ListLabelElement text="伪随机数据（1次处理）" selected="true"/>
+         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
+									<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
+									<ListLabelElement text="美国空军5020（3次处理）" />
+									<ListLabelElement text="美国陆军ar380-19（3次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" />
+									<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
+									<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
+									<ListLabelElement text="施奈尔7（7次处理）" />
+									<ListLabelElement text="德国vsitr（7次处理）" />
+									<ListLabelElement text="古特曼（35次处理)" />
+         			</Combo>         			
          </VerticalLayout>
-    </VerticalLayout>
+         <VerticalLayout inset="10,10,10,10">
+         			<Label text="创建快捷方式（保存到桌面或文件夹中，双击运行）" style="txt_default" />
+         			<Label text="擦除类型" style="txt_default" />
+         			<Combo style="Combo_default" name="cberasure" >
+									<ListLabelElement text="擦除文件/目录" />
+									<ListLabelElement text="擦除回收站" />
+									<ListLabelElement text="擦除磁盘" />
+         			</Combo>         			
+         			<HorizontalLayout name="pnlfile" vsiable="false" height="32">
+         					<Edit name="filename" readonly="true"/>
+         					<Button name="chosefile" style="btn_default" text="选择文件" width="100"/>
+         			</HorizontalLayout>
+         </VerticalLayout>
+    </HorizontalLayout>
 </HorizontalLayout>
