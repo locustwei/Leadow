@@ -60,11 +60,11 @@ private:
 };
 
 
-IErasureLibrary LDLIB_API * API_Init(PAuthorization)
+IErasureLibrary LDLIB_API * API_Init(CLdApp* pThisApp)
 {
+	ThisApp = pThisApp;
 	if (!g_Library)
 	{
-		CLdApp::Initialize(nullptr);
 		g_Library = new CErasureLibrary();
 	}
 	return g_Library;

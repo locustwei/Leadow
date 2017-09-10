@@ -1,7 +1,5 @@
 #pragma once
 
-#define PAuthorization PVOID    //为授权留用
-
 namespace LeadowLib {
 	//功能函数ID
 	//

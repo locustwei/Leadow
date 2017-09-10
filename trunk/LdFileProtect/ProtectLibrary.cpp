@@ -95,7 +95,7 @@ private:
 
 CProtectLibrary* g_Library = NULL;
 
-IProtectLibrary LDLIB_API * API_Init(PAuthorization)
+IProtectLibrary LDLIB_API * API_Init(CLdApp* ThisApp)
 {
 	if (g_Library == NULL)
 		g_Library = new CProtectLibrary();

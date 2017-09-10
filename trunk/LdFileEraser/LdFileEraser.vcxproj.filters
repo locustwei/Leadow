@@ -54,6 +54,9 @@
     <ClCompile Include="ui\ErasureFileUI.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="eraser\ErasureConfig.cpp">
+      <Filter>Erasure</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -95,15 +98,18 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="LdFileEraser.def">
-      <Filter>源文件</Filter>
-    </None>
+    <ClInclude Include="eraser\ErasureConfig.h">
+      <Filter>Erasure</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LdFileEraser.rc">
       <Filter>资源文件</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Erasure.def">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
 </Project>

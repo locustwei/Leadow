@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="LdLib.cpp" />
     <ClCompile Include="file\FileInfo.cpp">
       <Filter>files</Filter>
     </ClCompile>
@@ -49,6 +48,9 @@
       <Filter>volume</Filter>
     </ClCompile>
     <ClCompile Include="ldapp\Ldbrary.cpp">
+      <Filter>ldapp</Filter>
+    </ClCompile>
+    <ClCompile Include="ldapp\LdApp.cpp">
       <Filter>ldapp</Filter>
     </ClCompile>
   </ItemGroup>
@@ -123,6 +125,9 @@
       <Filter>volume</Filter>
     </ClInclude>
     <ClInclude Include="ldapp\Ldbrary.h">
+      <Filter>ldapp</Filter>
+    </ClInclude>
+    <ClInclude Include="ldapp\LdApp.h">
       <Filter>ldapp</Filter>
     </ClInclude>
   </ItemGroup>

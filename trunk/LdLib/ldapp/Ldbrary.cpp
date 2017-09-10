@@ -4,10 +4,10 @@
 
 namespace LeadowLib {
 
-	typedef PVOID(*Library_Init)(PAuthorization);
+	typedef PVOID(*Library_Init)(CLdApp*);
 	typedef VOID(*Library_UnInit)();
 
-	PVOID CLdDynamicLibrary::InitLib(TCHAR * pLibFile, PAuthorization pAut)
+	PVOID CLdDynamicLibrary::InitLib(TCHAR * pLibFile, CLdApp* ThisApp)
 	{
 		HMODULE hModule = LoadLibrary(pLibFile);
 		if (hModule == NULL)
@@ -15,7 +15,7 @@ namespace LeadowLib {
 		Library_Init fnInit = (Library_Init)GetProcAddress(hModule, "API_Init");
 		if (fnInit == NULL)
 			return NULL;
-		return fnInit(pAut);
+		return fnInit(ThisApp);
 	}
 
 }

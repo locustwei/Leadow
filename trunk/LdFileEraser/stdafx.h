@@ -17,20 +17,24 @@
 #include "targetver.h"
 #include "../LdLib/LdLib.h"
 #include "../DuiLib/Uilib.h"
+#include "../Jsonlib/JsonBox.h"
 
 
 using namespace DuiLib;
 using namespace LeadowLib;
+using namespace JsonBox;
 
 #ifdef _DEBUG
 #ifdef _X64
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
 #pragma comment(lib,"MftLib_d64.lib")
+#pragma comment(lib,"JsonLib_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")
 #pragma comment(lib,"MftLib_d32.lib")
+#pragma comment(lib,"JsonLib_d32.lib")
 #endif
 #else
 #ifdef _X64

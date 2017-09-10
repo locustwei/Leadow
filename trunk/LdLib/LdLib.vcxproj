@@ -154,6 +154,7 @@
     <ClInclude Include="classes\Thread.h" />
     <ClInclude Include="file\FileInfo.h" />
     <ClInclude Include="file\FileUtils.h" />
+    <ClInclude Include="ldapp\LdApp.h" />
     <ClInclude Include="ldapp\LdNamedPipe.h" />
     <ClInclude Include="ldapp\LdStructs.h" />
     <ClInclude Include="ldapp\Ldbrary.h" />
@@ -178,10 +179,10 @@
     <ClCompile Include="classes\Thread.cpp" />
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />
+    <ClCompile Include="ldapp\LdApp.cpp" />
     <ClCompile Include="ldapp\LdNamedPipe.cpp" />
     <ClCompile Include="ldapp\Ldbrary.cpp" />
     <ClCompile Include="ldapp\PulicRoutimes.cpp" />
-    <ClCompile Include="LdLib.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

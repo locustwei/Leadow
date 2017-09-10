@@ -139,11 +139,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 
-	ConnectionStringX();
+	//ConnectionStringX();
 
 	//https://docs.microsoft.com/en-us/sql/ado/reference/ado-api/connectionstring-connectiontimeout-and-state-properties-example-vc
-	/*JsonBox::Object o;
-	o["myName"] = JsonBox::Value(123);
+	TCHAR lpcwszStr[] = L"力量大啊实打实的发";
+	char lpMultiByteStr[100] = {0};
+
+	WideCharToMultiByte(CP_ACP, NULL, lpcwszStr, -1, lpMultiByteStr, 100, NULL, FALSE);
+	printf(lpMultiByteStr);
+
+	JsonBox::Object o;
+	o["myName"] = JsonBox::Value(lpMultiByteStr);
 	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
 	o["hahaha"] = JsonBox::Value(true);
 	o["adamo"] = JsonBox::Value(129.09);
@@ -156,7 +162,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << o << std::endl;
 	JsonBox::Value v(o);
 	v.writeToFile("file.json");
-*/
+
 	printf("\npress any key exit");
 	getchar();
 
