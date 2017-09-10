@@ -84,7 +84,7 @@ void CMainWnd::InitWindow()
 	if (!pControl)
 		return;
 
-	m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager);
+	m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager, CLdApp::ThisApp);
 	if (m_ErasureLib)
 	{
 		CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();

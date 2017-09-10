@@ -97,7 +97,7 @@ namespace JsonBox {
 		 * Constructs the value from a string.
 		 * @param newString String used as the value.
 		 */
-		Value(const std::string &newString);
+		Value(char *newString);
 
 		/**
 		 * Constructs the value from a C-style string.
@@ -523,7 +523,7 @@ namespace JsonBox {
 		 * @param filePath Path to the JSON file to load.
 		 * @see JsonBox::Value::loadFromStream
 		 */
-		void loadFromFile(const std::string &filePath);
+		void loadFromFile(const char* filePath);
 
 		/**
 		 * Writes the value to an output stream in valid JSON. Uses the
@@ -549,7 +549,7 @@ namespace JsonBox {
 		 * should be escaped or not.
 		 * @see JsonBox::Value::writeToStream
 		 */
-		void writeToFile(const std::string &filePath, bool indent = true,
+		void writeToFile(const char* filePath, bool indent = true,
 		                 bool escapeAll = false) const;
 	private:
 		/**
@@ -572,7 +572,7 @@ namespace JsonBox {
 			 * Parameterized constructor.
 			 * @param newStringValue Pointer to set to the string pointer.
 			 */
-			ValueDataPointer(std::string *newStringValue);
+			ValueDataPointer(char *newStringValue);
 
 			/**
 			 * Parameterized constructor.

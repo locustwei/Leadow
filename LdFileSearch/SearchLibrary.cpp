@@ -37,7 +37,7 @@ private:
 };
 
 
-ISearchLibrary LDLIB_API * API_Init(PAuthorization)
+ISearchLibrary LDLIB_API * API_Init(CLdApp* ThisApp)
 {
 	if (!g_Library)
 	{

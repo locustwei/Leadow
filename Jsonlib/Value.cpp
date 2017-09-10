@@ -158,12 +158,12 @@ namespace JsonBox {
 		loadFromStream(input);
 	}
 
-	Value::Value(const std::string &newString) : type(STRING),
-		data(new std::string(newString)) {
+	Value::Value(char* newString) : type(STRING),
+		data(newString) {
 	}
 
 	Value::Value(const char *newCString) : type(STRING),
-		data(new std::string(newCString)) {
+		data((char*)newCString) {
 	}
 
 	Value::Value(int newInt) : type(INTEGER), data(new int(newInt)) {
@@ -772,9 +772,9 @@ namespace JsonBox {
 		}
 	}
 
-	void Value::loadFromFile(const std::string &filePath) {
+	void Value::loadFromFile(const char* filePath) {
 		std::ifstream file;
-		file.open(filePath.c_str(), std::ios::binary | std::ios::in);
+		file.open(filePath, std::ios::binary | std::ios::in);
 
 		if (file.is_open()) {
 			loadFromStream(file);
@@ -790,10 +790,10 @@ namespace JsonBox {
 		this->output(output, indent, escapeAll);
 	}
 
-	void Value::writeToFile(const std::string &filePath, bool indent,
+	void Value::writeToFile(const char* filePath, bool indent,
 	                        bool escapeAll) const {
 		std::ofstream file;
-		file.open(filePath.c_str());
+		file.open(filePath);
 
 		if (file.is_open()) {
 			writeToStream(file, indent, escapeAll);
@@ -807,8 +807,9 @@ namespace JsonBox {
 	Value::ValueDataPointer::ValueDataPointer(): stringValue(NULL) {
 	}
 
-	Value::ValueDataPointer::ValueDataPointer(std::string *newStringValue) :
-		stringValue(newStringValue) {
+	Value::ValueDataPointer::ValueDataPointer(char *newStringValue) 
+	{
+		stringValue = new std::string(newStringValue);
 	}
 
 	Value::ValueDataPointer::ValueDataPointer(int *newIntValue) :

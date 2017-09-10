@@ -3,10 +3,10 @@
 
 #ifdef _DEBUG
 #ifdef _X64
-#define FILE_ERASE_DLL _T("LdFileEraser_d64.dll")
+#define FILE_ERASE_DLL _T("RdErasure_d64.dll")
 #define FILE_PROTECT_DLL _T("LdFileProtect_d64.dll")
 #else
-#define FILE_ERASE_DLL _T("LdFileEraser_d32.dll")
+#define FILE_ERASE_DLL _T("RdErasure_d32.dll")
 #define FILE_PROTECT_DLL _T("LdFileProtect_d32.dll")
 #endif
 #else
@@ -22,9 +22,9 @@
 #endif
 
 
-IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, PAuthorization pAut)
+IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, CLdApp* ThisApp)
 {
-	IErasureLibrary * result = (IErasureLibrary*)CLdDynamicLibrary::InitLib(FILE_ERASE_DLL);
+	IErasureLibrary * result = (IErasureLibrary*)CLdDynamicLibrary::InitLib(FILE_ERASE_DLL, ThisApp);
 
 	if(result)
 	{
@@ -38,9 +38,9 @@ IErasureLibrary * CLdLibray::LoadEraserLarary(CPaintManagerUI* pm, PAuthorizatio
 	return result;
 }
 
-IErasureLibrary * CLdLibray::LoadProtectLarary(PAuthorization pAut)
+IErasureLibrary * CLdLibray::LoadProtectLarary(CLdApp* ThisApp)
 {
-	return (IErasureLibrary*)CLdDynamicLibrary::InitLib(FILE_PROTECT_DLL);
+	return (IErasureLibrary*)CLdDynamicLibrary::InitLib(FILE_PROTECT_DLL, ThisApp);
 }
 
 CControlUI * CLdLibray::BuildXml(TCHAR * skinXml, CPaintManagerUI * pm)
