@@ -3,24 +3,24 @@
 
 #define MM_CALLBACKMSG WM_USER + 0xFAB
 
-void DebugOutput(LPCTSTR pstrFormat, ...)
-{
-#ifdef _DEBUG
-	LPTSTR szSprintf = NULL;
-	va_list argList;
-	int nLen;
-	va_start(argList, pstrFormat);
-	nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
-	szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
-	ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
-	int iRet = _vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
-	va_end(argList);
-	::OutputDebugString(szSprintf);
-	free(szSprintf);
-#endif
-}
-
 namespace LeadowLib {
+
+	void DebugOutput(LPCTSTR pstrFormat, ...)
+	{
+#ifdef _DEBUG
+		LPTSTR szSprintf = NULL;
+		va_list argList;
+		int nLen;
+		va_start(argList, pstrFormat);
+		nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
+		szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
+		ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
+		int iRet = _vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		va_end(argList);
+		::OutputDebugString(szSprintf);
+		free(szSprintf);
+#endif
+	}
 
 
 	CLdApp* CLdApp::ThisApp = nullptr;
@@ -42,7 +42,7 @@ namespace LeadowLib {
 		return m_AppDataPath;
 	}
 
-	boolean CLdApp::Initialize(HINSTANCE hInstance)
+	BOOL CLdApp::Initialize(HINSTANCE hInstance)
 	{
 		CoInitialize(nullptr);
 		ThisApp = new CLdApp();

@@ -62,7 +62,7 @@ private:
 
 IErasureLibrary LDLIB_API * API_Init(CLdApp* pThisApp)
 {
-	ThisApp = pThisApp;
+	CLdApp::ThisApp = pThisApp;
 	if (!g_Library)
 	{
 		g_Library = new CErasureLibrary();

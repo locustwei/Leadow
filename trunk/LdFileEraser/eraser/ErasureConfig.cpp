@@ -7,7 +7,7 @@ using namespace std;
 
 CErasureConfig::CErasureConfig()
 {
-	CLdString& appPath = ThisApp->GetAppDataPath();
+	CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
 	CLdString cf = appPath;
 	cf += _T("rderasure.cng");
 
