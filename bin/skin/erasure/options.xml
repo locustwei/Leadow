@@ -1,68 +1,81 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout >
-    <HorizontalLayout name="options" style="hor_word">
-         <VerticalLayout inset="10,10,10,10" childpadding="10">
-         			<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
-		         			<Label text="文件擦除方法" style="txt_default" width="100"/>
-		         			<Combo style="Combo_default" name="cbmothed1" >
-		         					<ListLabelElement text="伪随机数据（1次处理）" />
-		         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
-											<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
-											<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" selected="true"/>
-											<ListLabelElement text="美国空军5020（3次处理）"/>
-											<ListLabelElement text="美国陆军ar380-19（3次处理）" />
-											<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
-											<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
-											<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
-											<ListLabelElement text="施奈尔7（7次处理）" />
-											<ListLabelElement text="德国vsitr（7次处理）" />
-											<ListLabelElement text="古特曼（35次处理)" />
-		         			</Combo>
-		         	</HorizontalLayout>
-		         	<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
-		         			<Label text="磁盘擦除方法" style="txt_default" width="100"/>
-		         			<Combo style="Combo_default" name="cbmothed2" >
-		         					<ListLabelElement text="伪随机数据（1次处理）"  selected="true"/>
-		         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
-											<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
-											<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
-											<ListLabelElement text="美国空军5020（3次处理）" />
-											<ListLabelElement text="美国陆军ar380-19（3次处理）"/>
-											<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" />
-											<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
-											<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
-											<ListLabelElement text="施奈尔7（7次处理）" />
-											<ListLabelElement text="德国vsitr（7次处理）" />
-											<ListLabelElement text="古特曼（35次处理)" />
-		         			</Combo>
-		         	</HorizontalLayout>
-		         	<HorizontalLayout childvalign="vcenter" childpadding="8" height="32">
+     <VerticalLayout style="hor_word" inset="10,10,10,10" childpadding="10" vscrollbar="true">
+     			<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
+         			<Label text="文件擦除方法" style="txt_default" width="100"/>
+         			<Combo style="Combo_default" name="cbmothed1" >
+         					<ListLabelElement text="伪随机数据（1次处理）" />
+         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
+									<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" selected="true"/>
+									<ListLabelElement text="美国空军5020（3次处理）"/>
+									<ListLabelElement text="美国陆军ar380-19（3次处理）" />
+									<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
+									<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
+									<ListLabelElement text="施奈尔7（7次处理）" />
+									<ListLabelElement text="德国vsitr（7次处理）" />
+									<ListLabelElement text="古特曼（35次处理)" />
+         			</Combo>
+         	</HorizontalLayout>
+         	<HorizontalLayout height="32">
+		         	<HorizontalLayout childvalign="vcenter" childpadding="8"  width="200">
+         					<Option name="skipfreespace" style="ckbox_default"/>
+         					<Label text="文件擦除：不删除空文件夹" style="txt_default" />
+         			</HorizontalLayout>
+         	</HorizontalLayout>
+         	<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
+         			<Label text="磁盘擦除方法" style="txt_default" width="100"/>
+         			<Combo style="Combo_default" name="cbmothed2" >
+         					<ListLabelElement text="伪随机数据（1次处理）"  selected="true"/>
+         					<ListLabelElement text="英国政府5（基线）（1次处理）" />
+									<ListLabelElement text="俄罗斯 p50739-95（2次处理）" />
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(7次处理)" />
+									<ListLabelElement text="美国空军5020（3次处理）" />
+									<ListLabelElement text="美国陆军ar380-19（3次处理）"/>
+									<ListLabelElement text="美国国防部5220.22-m(8-306./E,C&E)(3次处理)" />
+									<ListLabelElement text="英国邮政IS5(增强)（3次处理）" />
+									<ListLabelElement text="加拿大皇家骑警tssit ops-ii（7次处理）" />
+									<ListLabelElement text="施奈尔7（7次处理）" />
+									<ListLabelElement text="德国vsitr（7次处理）" />
+									<ListLabelElement text="古特曼（35次处理)" />
+         			</Combo>
+         	</HorizontalLayout>
+         	<HorizontalLayout height="32">
+		         	<HorizontalLayout childvalign="vcenter" childpadding="8"  width="200">
+         					<Option name="skipfreespace" style="ckbox_default"/>
+         					<Label text="磁盘擦除：跳过空闲空间" style="txt_default" />
+         			</HorizontalLayout>
+         			<HorizontalLayout childvalign="vcenter" childpadding="8" width="200">
+         					<Option name="skiptrack" style="ckbox_default"/>
+         					<Label text="磁盘擦除：跳过删除痕迹" style="txt_default" />
+         			</HorizontalLayout>
+		         	<HorizontalLayout childvalign="vcenter" childpadding="8" >
          					<Option name="fileunuse" style="ckbox_default"/>
-         					<Label text="擦除磁盘空闲空间时擦除已分配给文件但文件并未使用的空间" style="txt_default" />
+         					<Label text="磁盘擦除：擦除已分配给文件但文件并未使用的空间" style="txt_default" />
          			</HorizontalLayout>
-         			<HorizontalLayout childvalign="vcenter" childpadding="8" height="32">
-         					<Option name="shutdow" style="ckbox_default"/>
-         					<Label text="完成后关闭计算" style="txt_default" />
-         					<Control />
-         					<Button text="保存为默认设置" width="150" style="btn_default"/>
-         			</HorizontalLayout>
-         			<Control height="1" bordersize="1" bordercolor="#FF60c8fd" padding="0,30,0,0"/>
-							<VerticalLayout inset="10,10,10,10" childpadding="10">
-									<Label text="当前设置的命令行（可用于创建快捷方式保存到桌面或文件夹中双击运行,也可用于创建Window计划任务定时执行等）" style="txt_default" />
-									<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
-											<Label text="擦除文件/目录" width="80"/>							
-											<Edit style="edit_default"/>
-									</HorizontalLayout>
-									<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
-											<Label text="擦除回收站" width="80"/>
-											<Edit style="edit_default"/>
-									</HorizontalLayout>
-									<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
-											<Label text="擦除磁盘" width="80"/>
-											<Edit style="edit_default"/>
-							   	</HorizontalLayout>			
-							</VerticalLayout>         			
-         </VerticalLayout>
-
-    </HorizontalLayout>
+         	</HorizontalLayout>
+     			<HorizontalLayout childvalign="vcenter" childpadding="8" height="32">
+     					<Option name="shutdow" style="ckbox_default"/>
+     					<Label text="完成后关闭计算" style="txt_default" />
+     					<Control />
+     					<Button text="保存为默认设置" width="150" style="btn_default"/>
+     			</HorizontalLayout>
+     			<Control height="1" bordersize="1" bordercolor="#FF60c8fd" padding="0,30,0,0"/>
+					<VerticalLayout inset="10,10,10,10" childpadding="10">
+							<Label text="当前设置的命令行（可用于创建快捷方式保存到桌面或文件夹中双击运行,也可用于创建Window计划任务定时执行等）" style="txt_default" />
+							<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
+									<Label text="擦除文件/目录" width="80"/>							
+									<Edit style="edit_default"/>
+							</HorizontalLayout>
+							<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
+									<Label text="擦除回收站" width="80"/>
+									<Edit style="edit_default"/>
+							</HorizontalLayout>
+							<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
+									<Label text="擦除磁盘" width="80"/>
+									<Edit style="edit_default"/>
+					   	</HorizontalLayout>			
+					</VerticalLayout>         			
+     </VerticalLayout>
 </HorizontalLayout>
