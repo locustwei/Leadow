@@ -24,3 +24,7 @@ CErasureConfig::CErasureConfig()
 CErasureConfig::~CErasureConfig()
 {
 }
+
+BOOL CErasureConfig::LoadConfig()
+{
+}

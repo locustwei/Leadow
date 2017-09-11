@@ -142,27 +142,29 @@ int _tmain(int argc, _TCHAR* argv[])
 	//ConnectionStringX();
 
 	//https://docs.microsoft.com/en-us/sql/ado/reference/ado-api/connectionstring-connectiontimeout-and-state-properties-example-vc
-	TCHAR lpcwszStr[] = L"力量大啊实打实的发";
-	char lpMultiByteStr[100] = {0};
+//	TCHAR lpcwszStr[] = L"力量大啊实打实的发";
+//	char lpMultiByteStr[100] = {0};
+//
+//	WideCharToMultiByte(CP_ACP, NULL, lpcwszStr, -1, lpMultiByteStr, 100, NULL, FALSE);
+//	printf(lpMultiByteStr);
+//
+//	JsonBox::Object o;
+//	o["myName"] = JsonBox::Value(lpMultiByteStr);
+//	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
+//	o["hahaha"] = JsonBox::Value(true);
+//	o["adamo"] = JsonBox::Value(129.09);
+//	o["child"] = JsonBox::Value(o);
+//	JsonBox::Array a;
+//	a.push_back(JsonBox::Value("I'm a string..."));
+//	a.push_back(JsonBox::Value(123));
+//	o["array"] = JsonBox::Value(a);
+//	
+//	std::cout << o << std::endl;
+	JsonBox::Value v;
+	v.loadFromFile("file.json");
 
-	WideCharToMultiByte(CP_ACP, NULL, lpcwszStr, -1, lpMultiByteStr, 100, NULL, FALSE);
-	printf(lpMultiByteStr);
-
-	JsonBox::Object o;
-	o["myName"] = JsonBox::Value(lpMultiByteStr);
-	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
-	o["hahaha"] = JsonBox::Value(true);
-	o["adamo"] = JsonBox::Value(129.09);
-	o["child"] = JsonBox::Value(o);
-	JsonBox::Array a;
-	a.push_back(JsonBox::Value("I'm a string..."));
-	a.push_back(JsonBox::Value(123));
-	o["array"] = JsonBox::Value(a);
-
-	std::cout << o << std::endl;
-	JsonBox::Value v(o);
-	v.writeToFile("file.json");
-
+	//std::cout << v << std::endl;
+	printf(v.getString().c_str());
 	printf("\npress any key exit");
 	getchar();
 
