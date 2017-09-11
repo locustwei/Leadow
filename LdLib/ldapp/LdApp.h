@@ -14,7 +14,7 @@ namespace LeadowLib {
 
 		static CLdApp* ThisApp;
 
-		static boolean Initialize(HINSTANCE hInstance);
+		static BOOL Initialize(HINSTANCE hInstance);
 		static void MainThreadMessage(MSG& msg);
 		static BOOL Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param);
 	private:
