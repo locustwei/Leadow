@@ -21,16 +21,16 @@ namespace LeadowLib {
 
 	DWORD CVolumeInfo::OpenVolume(TCHAR* pGuid)
 	{
-		WCHAR Names[MAX_PATH + 1] = { 0 };
+		TCHAR Names[MAX_PATH + 1] = { 0 };
 		ULONG cb = sizeof(Names);
 		if (GetVolumePathNamesForVolumeName(pGuid, Names, cb, &cb))
 		{
-			if (wcslen(Names) > 0)
-				Names[wcslen(Names) - 1] = '\0';
+			if (_tcslen(Names) > 0)
+				Names[_tcslen(Names) - 1] = '\0';
 			m_FileName = Names;
 		}
 
-		pGuid[wcslen(pGuid) - 1] = '\0';
+		pGuid[_tcslen(pGuid) - 1] = '\0';
 
 		m_VolumeGuid = pGuid;
 
@@ -40,17 +40,17 @@ namespace LeadowLib {
 	bool CVolumeInfo::SetFileName(TCHAR* pPath)
 	{
 		CLdString path = (TCHAR*)pPath;
-		if (pPath[wcslen(pPath) - 1] != '\\')
+		if (pPath[_tcslen(pPath) - 1] != '\\')
 			path += '\\';
 
 		CFileInfo::SetFileName(path);
 
-		WCHAR guid[MAX_PATH + 1] = { 0 };
+		TCHAR guid[MAX_PATH + 1] = { 0 };
 		ULONG cb = sizeof(guid);
 		if (GetVolumeNameForVolumeMountPoint(path, guid, cb))
 		{
-			if (wcslen(guid) > 0)
-				guid[wcslen(guid) - 1] = '\0';
+			if (_tcslen(guid) > 0)
+				guid[_tcslen(guid) - 1] = '\0';
 			m_VolumeGuid = guid;
 		}
 

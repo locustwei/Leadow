@@ -6,6 +6,7 @@
 using namespace std;
 
 CErasureConfig::CErasureConfig()
+	:m_Confing()
 {
 	CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
 	CLdString cf = appPath;

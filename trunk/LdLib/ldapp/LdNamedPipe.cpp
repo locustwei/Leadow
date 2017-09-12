@@ -33,7 +33,7 @@ namespace LeadowLib {
 	{
 		TCHAR* pTmpName = NULL;
 		if (lpPipeName) {
-			pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
+			pTmpName = new TCHAR[11 + _tcslen(lpPipeName)];
 			swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
 			m_PipeName = lpPipeName;
 		}
@@ -127,7 +127,7 @@ namespace LeadowLib {
 
 	BOOL CLdNamedPipe::Open(LPCTSTR lpPipeName)
 	{
-		TCHAR* pTmpName = new TCHAR[11 + wcslen(lpPipeName)];
+		TCHAR* pTmpName = new TCHAR[11 + _tcslen(lpPipeName)];
 		swprintf(pTmpName, L"%s%s", PIPENAME_PREFIX, lpPipeName);
 
 		if (!WaitNamedPipe(pTmpName, LDPIPE_WAIT_TIMEOUT))

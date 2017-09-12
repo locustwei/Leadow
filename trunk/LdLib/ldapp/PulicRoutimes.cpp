@@ -109,7 +109,7 @@ namespace LeadowLib {
 
 	WIN_OS_TYPE GetOsType()
 	{
-		OSVERSIONINFO osvi;
+		OSVERSIONINFOW osvi;
 		RtlGetVersion(&osvi);
 		switch (osvi.dwMajorVersion)
 		{
@@ -146,7 +146,7 @@ namespace LeadowLib {
 	BOOL IsVista64()
 	{
 		if (IsWindow64()) {
-			OSVERSIONINFO osvi;
+			OSVERSIONINFOW osvi;
 			RtlGetVersion(&osvi);
 			return ((osvi.dwMajorVersion = 6) && (osvi.dwMinorVersion = 0)) ||
 				((osvi.dwMajorVersion = 5) && (osvi.dwMinorVersion = 02)); //XP 64

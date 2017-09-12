@@ -23,4 +23,6 @@ public:
 	float GetFloat(TCHAR* Path);
 	int GetInteger(TCHAR* Path);
 	CLdString GetString(TCHAR* Path);
+private:
+	JsonBox::Value m_Confing;
 };

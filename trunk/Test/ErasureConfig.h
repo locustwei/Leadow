@@ -30,5 +30,7 @@ public:
 	VOID SetInteger(TCHAR* Path, int Value);
 	VOID SetString(TCHAR* Path, TCHAR* Value);
 protected:
-	CLdString m_ConfigFileName;
+	CLdStringA m_ConfigFileName;
+private:
+	JsonBox::Value m_Config;
 };
