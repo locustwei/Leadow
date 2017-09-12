@@ -2,88 +2,91 @@
 #include "LdString.h"
 #include <algorithm>
 
-#define reallocstr(pStr, ccSize) (TCHAR*)realloc(pStr, ccSize * sizeof(TCHAR))
+#define reallocstrW(pStr, ccSize) (WCHAR*)realloc(pStr, ccSize * sizeof(WCHAR))
+#define reallocstrA(pStr, ccSize) (char*)realloc(pStr, ccSize * sizeof(char))
 
 namespace LeadowLib {
 
-	CLdString::CLdString()
+#pragma region  StringW
+
+	CLdStringW::CLdStringW()
 	{
 		m_pstr = NULL;
 	}
 
 
-	CLdString::~CLdString()
+	CLdStringW::~CLdStringW()
 	{
 		if (m_pstr)
 			free(m_pstr);
 		m_pstr = NULL;
 	}
 
-	CLdString::CLdString(const TCHAR ch)
+	CLdStringW::CLdStringW(const WCHAR ch)
 	{
-		m_pstr = reallocstr(NULL, 2);
+		m_pstr = reallocstrW(NULL, 2);
 		m_pstr[0] = ch;
 		m_pstr[1] = 0;
 	}
 
-	CLdString::CLdString(TCHAR* lpsz)
+	CLdStringW::CLdStringW(WCHAR* lpsz)
 	{
 		m_pstr = NULL;
 		Assign(lpsz);
 	}
 
-	void CLdString::SetLength(UINT cSize)
+	void CLdStringW::SetLength(UINT cSize)
 	{
-		m_pstr = reallocstr(m_pstr, cSize);
-		ZeroMemory(m_pstr, cSize * sizeof(TCHAR));
+		m_pstr = reallocstrW(m_pstr, cSize);
+		ZeroMemory(m_pstr, cSize * sizeof(WCHAR));
 	}
 
-	CLdString::CLdString(UINT ccSize)
+	CLdStringW::CLdStringW(UINT ccSize)
 	{
 		m_pstr = NULL;
 		SetLength(ccSize);
 	}
 
-	CLdString::CLdString(const CLdString& src)
+	CLdStringW::CLdStringW(const CLdStringW& src)
 	{
 		m_pstr = NULL;
 		Assign(src.m_pstr);
 	}
 
-	CLdString CLdString::ToString()
+	CLdStringW CLdStringW::ToString()
 	{
 		return m_pstr;
 	}
 
-	int CLdString::GetLength() const
+	int CLdStringW::GetLength() const
 	{
 		if (!m_pstr)
 			return 0;
 		else
-			return (int)_tcslen(m_pstr);
+			return (int)wcslen(m_pstr);
 	}
 
-	CLdString::operator TCHAR*() const
+	CLdStringW::operator WCHAR*() const
 	{
 		return m_pstr;
 	}
 
-	//CLdString::operator LPTSTR() const
+	//CLdStringW::operator LPTSTR() const
 	//{
 	//	return m_pstr;
 	//}
 
-	void CLdString::Append(TCHAR* pstr)
+	void CLdStringW::Append(WCHAR* pstr)
 	{
 		if (pstr == nullptr)
 			return;
 		int oLength = GetLength();
-		int nNewLength = oLength + (int)_tcslen(pstr);
-		m_pstr = reallocstr(m_pstr, (nNewLength + 1));
-		_tcscpy(m_pstr + oLength, pstr);
+		int nNewLength = oLength + (int)wcslen(pstr);
+		m_pstr = reallocstrW(m_pstr, (nNewLength + 1));
+		wcscpy(m_pstr + oLength, pstr);
 	}
 
-	void CLdString::Assign(TCHAR* pstr, int cchMax)
+	void CLdStringW::Assign(WCHAR* pstr, int cchMax)
 	{
 		if (pstr == NULL)
 		{
@@ -91,39 +94,39 @@ namespace LeadowLib {
 			m_pstr = NULL;
 			return;
 		}
-		cchMax = (cchMax < 0 ? (int)_tcslen(pstr) : cchMax);
+		cchMax = (cchMax < 0 ? (int)wcslen(pstr) : cchMax);
 		if (cchMax == 0)
 			return;
 		if (cchMax > GetLength()) {
-			m_pstr = reallocstr(m_pstr, (cchMax + 1));
+			m_pstr = reallocstrW(m_pstr, (cchMax + 1));
 		}
-		_tcsncpy(m_pstr, pstr, cchMax);
+		wcsncpy(m_pstr, pstr, cchMax);
 		m_pstr[cchMax] = _T('\0');
 	}
 
-	bool CLdString::IsEmpty() const
+	bool CLdStringW::IsEmpty() const
 	{
 		return m_pstr == NULL || m_pstr[0] == _T('\0');
 	}
 
-	void CLdString::Empty()
+	void CLdStringW::Empty()
 	{
 		if (m_pstr)
 			m_pstr[0] = 0;
 	}
 
-	TCHAR* CLdString::GetData() const
+	WCHAR* CLdStringW::GetData() const
 	{
 		return m_pstr;
 	}
 
-	VOID CLdString::CopyTo(TCHAR * pStr)
+	VOID CLdStringW::CopyTo(WCHAR * pStr)
 	{
 		if (GetLength() > 0)
-			_tcscpy(pStr, m_pstr);
+			wcscpy(pStr, m_pstr);
 	}
 
-	void CLdString::Trim()
+	void CLdStringW::Trim()
 	{
 		if (!m_pstr)
 			return;
@@ -145,27 +148,27 @@ namespace LeadowLib {
 		}
 	}
 
-	TCHAR CLdString::GetAt(int nIndex) const
+	WCHAR CLdStringW::GetAt(int nIndex) const
 	{
 		if (!m_pstr)
 			return '\0';
 		return m_pstr[nIndex];
 	}
 
-	TCHAR CLdString::operator[] (int nIndex) const
+	WCHAR CLdStringW::operator[] (int nIndex) const
 	{
 		if (!m_pstr)
 			return '\0';
 		return m_pstr[nIndex];
 	}
 
-	const CLdString& CLdString::operator=(const CLdString& src)
+	const CLdStringW& CLdStringW::operator=(const CLdStringW& src)
 	{
 		Assign(src);
 		return *this;
 	}
 
-	const CLdString& CLdString::operator=(TCHAR* lpStr)
+	const CLdStringW& CLdStringW::operator=(WCHAR* lpStr)
 	{
 
 		if (lpStr)
@@ -179,29 +182,42 @@ namespace LeadowLib {
 		return *this;
 	}
 
-	const CLdString& CLdString::operator=(const TCHAR* lpStr)
+	const CLdStringW& CLdStringW::operator=(const WCHAR* lpStr)
 	{
-		return operator=((TCHAR*)lpStr);
+		return operator=((WCHAR*)lpStr);
 	}
-	const CLdString& CLdString::operator=(const TCHAR ch)
+
+	const CLdStringW& CLdStringW::operator=(char* lpStr)
 	{
-		Empty();
-		Assign((TCHAR*)&ch, 1);
+		SetLength((UINT)strlen(lpStr) + 1);
+		MultiByteToWideChar(CP_ACP, NULL, lpStr, -1, m_pstr, (int)strlen(lpStr));
 		return *this;
 	}
 
-	CLdString CLdString::operator+(const CLdString& src) const
+	const CLdStringW& CLdStringW::operator=(const char* lpStr)
 	{
-		CLdString sTemp = *this;
+		return operator=((char*)lpStr);
+	}
+
+	const CLdStringW& CLdStringW::operator=(const WCHAR ch)
+	{
+		Empty();
+		Assign((WCHAR*)&ch, 1);
+		return *this;
+	}
+
+	CLdStringW CLdStringW::operator+(const CLdStringW& src) const
+	{
+		CLdStringW sTemp = *this;
 		sTemp.Append(src);
 		return sTemp;
 	}
 
-	CLdString CLdString::operator+(TCHAR* lpStr) const
+	CLdStringW CLdStringW::operator+(WCHAR* lpStr) const
 	{
 		if (lpStr)
 		{
-			CLdString sTemp = *this;
+			CLdStringW sTemp = *this;
 			sTemp.Append(lpStr);
 			return sTemp;
 		}
@@ -209,13 +225,13 @@ namespace LeadowLib {
 		return *this;
 	}
 
-	const CLdString& CLdString::operator+=(const CLdString& src)
+	const CLdStringW& CLdStringW::operator+=(const CLdStringW& src)
 	{
 		Append(src);
 		return *this;
 	}
 
-	const CLdString& CLdString::operator+=(TCHAR* lpStr)
+	const CLdStringW& CLdStringW::operator+=(WCHAR* lpStr)
 	{
 		if (lpStr)
 		{
@@ -225,27 +241,27 @@ namespace LeadowLib {
 		return *this;
 	}
 
-	const CLdString& CLdString::operator+=(const TCHAR ch)
+	const CLdStringW& CLdStringW::operator+=(const WCHAR ch)
 	{
-		TCHAR str[] = { ch, _T('\0') };
+		WCHAR str[] = { ch, _T('\0') };
 		Append(str);
 		return *this;
 	}
 
-	bool CLdString::operator == (TCHAR* str) const { return (Compare(str) == 0); };
-	bool CLdString::operator != (TCHAR* str) const { return (Compare(str) != 0); };
-	bool CLdString::operator <= (TCHAR* str) const { return (Compare(str) <= 0); };
-	bool CLdString::operator <  (TCHAR* str) const { return (Compare(str) < 0); };
-	bool CLdString::operator >= (TCHAR* str) const { return (Compare(str) >= 0); };
-	bool CLdString::operator >  (TCHAR* str) const { return (Compare(str) > 0); };
+	bool CLdStringW::operator == (WCHAR* str) const { return (Compare(str) == 0); };
+	bool CLdStringW::operator != (WCHAR* str) const { return (Compare(str) != 0); };
+	bool CLdStringW::operator <= (WCHAR* str) const { return (Compare(str) <= 0); };
+	bool CLdStringW::operator <  (WCHAR* str) const { return (Compare(str) < 0); };
+	bool CLdStringW::operator >= (WCHAR* str) const { return (Compare(str) >= 0); };
+	bool CLdStringW::operator >  (WCHAR* str) const { return (Compare(str) > 0); };
 
-	void CLdString::SetAt(int nIndex, TCHAR ch)
+	void CLdStringW::SetAt(int nIndex, WCHAR ch)
 	{
 		if (m_pstr)
 			m_pstr[nIndex] = ch;
 	}
 
-	int CLdString::Compare(TCHAR* lpsz) const
+	int CLdStringW::Compare(WCHAR* lpsz) const
 	{
 		if (m_pstr == lpsz)
 			return 0;
@@ -253,106 +269,106 @@ namespace LeadowLib {
 			return -1;
 		else if (!lpsz)
 			return 1;
-		return _tcscmp(m_pstr, lpsz);
+		return wcscmp(m_pstr, lpsz);
 	}
 
-	int CLdString::CompareNoCase(TCHAR* lpsz) const
+	int CLdStringW::CompareNoCase(WCHAR* lpsz) const
 	{
 		if (!m_pstr)
 			return -1;
-		return _tcsicmp(m_pstr, lpsz);
+		return wcsicmp(m_pstr, lpsz);
 	}
 
-	void CLdString::MakeUpper()
+	void CLdStringW::MakeUpper()
 	{
 		if (!m_pstr)
 			return;
-		_tcsupr(m_pstr);
+		wcsupr(m_pstr);
 	}
 
-	void CLdString::MakeLower()
+	void CLdStringW::MakeLower()
 	{
 		if (!m_pstr)
 			return;
-		_tcslwr(m_pstr);
+		wcslwr(m_pstr);
 	}
 
-	CLdString CLdString::Left(int iLength) const
+	CLdStringW CLdStringW::Left(int iLength) const
 	{
 		if (iLength < 0) iLength = 0;
 		if (iLength > GetLength()) iLength = GetLength();
-		CLdString result;
+		CLdStringW result;
 		result.Assign(m_pstr, iLength);
 		return result;
 	}
 
-	CLdString CLdString::Mid(int iPos, int iLength) const
+	CLdStringW CLdStringW::Mid(int iPos, int iLength) const
 	{
 		if (iLength < 0) iLength = GetLength() - iPos;
 		if (iPos + iLength > GetLength()) iLength = GetLength() - iPos;
-		if (iLength <= 0) return CLdString();
-		CLdString result;
+		if (iLength <= 0) return CLdStringW();
+		CLdStringW result;
 		result.Assign(m_pstr + iPos, iLength);
 		return result;
 	}
 
-	CLdString CLdString::Right(int iLength) const
+	CLdStringW CLdStringW::Right(int iLength) const
 	{
 		int iPos = GetLength() - iLength;
 		if (iPos < 0) {
 			iPos = 0;
 			iLength = GetLength();
 		}
-		CLdString result;
+		CLdStringW result;
 		result.Assign(m_pstr + iPos, iLength);
 		return result;
 	}
 
-	int CLdString::Find(TCHAR ch, int iPos /*= 0*/) const
+	int CLdStringW::Find(WCHAR ch, int iPos /*= 0*/) const
 	{
 		if (!m_pstr)
 			return -1;
 
 		if (iPos != 0 && (iPos < 0 || iPos >= GetLength())) return -1;
-		TCHAR* p = _tcschr(m_pstr + iPos, ch);
+		WCHAR* p = wcschr(m_pstr + iPos, ch);
 		if (p == NULL) return -1;
 		return (int)(p - m_pstr);
 	}
 
-	int CLdString::Find(TCHAR* pstrSub, int iPos /*= 0*/) const
+	int CLdStringW::Find(WCHAR* pstrSub, int iPos /*= 0*/) const
 	{
 		if (!m_pstr)
 			return -1;
 
 		if (iPos != 0 && (iPos < 0 || iPos > GetLength())) return -1;
-		TCHAR* p = _tcsstr(m_pstr + iPos, pstrSub);
+		WCHAR* p = wcsstr(m_pstr + iPos, pstrSub);
 		if (p == NULL) return -1;
 		return (int)(p - m_pstr);
 	}
 
-	int CLdString::ReverseFind(TCHAR ch) const
+	int CLdStringW::ReverseFind(WCHAR ch) const
 	{
 		if (!m_pstr)
 			return -1;
 
-		TCHAR* p = _tcsrchr(m_pstr, ch);
+		WCHAR* p = wcsrchr(m_pstr, ch);
 		if (p == NULL) return -1;
 		return (int)(p - m_pstr);
 	}
 
-	int CLdString::Replace(TCHAR* pstrFrom, TCHAR* pstrTo)
+	int CLdStringW::Replace(WCHAR* pstrFrom, WCHAR* pstrTo)
 	{
 		if (!m_pstr || !pstrFrom || pstrFrom[0] == '\0')
 			return -1;
 
-		CLdString sTemp;
+		CLdStringW sTemp;
 		int nCount = 0;
 		int iPos = Find(pstrFrom);
 		if (iPos < 0) return 0;
-		int cchFrom = (int)_tcslen(pstrFrom);
+		int cchFrom = (int)wcslen(pstrFrom);
 		int cchTo = 0;
 		if (pstrTo)
-			cchTo = (int)_tcslen(pstrTo);
+			cchTo = (int)wcslen(pstrTo);
 		while (iPos >= 0) {
 			sTemp = Left(iPos);
 			sTemp += pstrTo;
@@ -364,56 +380,56 @@ namespace LeadowLib {
 		return nCount;
 	}
 
-	void CLdString::Delete(int nStart, int nLength)
+	void CLdStringW::Delete(int nStart, int nLength)
 	{
-		if (!m_pstr || nStart < 0 || nLength <= 0 || _tcslen(m_pstr) <= nStart)
+		if (!m_pstr || nStart < 0 || nLength <= 0 || wcslen(m_pstr) <= nStart)
 			return;
-		if (nStart + nLength >= _tcslen(m_pstr))
+		if (nStart + nLength >= wcslen(m_pstr))
 		{
 			m_pstr[nStart] = '\0';
 			return;
 		}
-		TCHAR* p = m_pstr + nStart;
-		TCHAR* p1 = p + nLength;
-		_tcscpy(p, p1);
+		WCHAR* p = m_pstr + nStart;
+		WCHAR* p1 = p + nLength;
+		wcscpy(p, p1);
 	}
 
-	void CLdString::Insert(int nStart, TCHAR* lpStr)
+	void CLdStringW::Insert(int nStart, WCHAR* lpStr)
 	{
 		if (!m_pstr || nStart < 0 || !lpStr)
 			return;
-		if (nStart >= _tcslen(m_pstr))
+		if (nStart >= wcslen(m_pstr))
 			*this += lpStr;
-		CLdString s(lpStr);
+		CLdStringW s(lpStr);
 		s += m_pstr + nStart;
 		m_pstr[nStart] = '\0';
 		*this += s;
 	}
 
-	int CLdString::Format(TCHAR* pstrFormat, ...)
+	int CLdStringW::Format(WCHAR* pstrFormat, ...)
 	{
-		LPTSTR szSprintf = NULL;
+		WCHAR* szSprintf;
 		va_list argList;
 		int nLen;
 		va_start(argList, pstrFormat);
-		nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
-		szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
-		ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
-		int iRet = _vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		nLen = _vsnwprintf(NULL, 0, pstrFormat, argList);
+		szSprintf = (WCHAR*)malloc((nLen + 1) * sizeof(WCHAR));
+		ZeroMemory(szSprintf, (nLen + 1) * sizeof(WCHAR));
+		int iRet = _vsnwprintf(szSprintf, nLen + 1, pstrFormat, argList);
 		va_end(argList);
 		Assign(szSprintf);
 		free(szSprintf);
 		return iRet;
 	}
 
-	int CLdString::Try2Int(int Default)
+	int CLdStringW::Try2Int(int Default)
 	{
 		if (IsEmpty())
 			return Default;
 		else
 			try
 		{
-			return _tstoi(m_pstr);
+			return _wtoi(m_pstr);
 		}
 		catch (...)
 		{
@@ -421,4 +437,441 @@ namespace LeadowLib {
 		}
 
 	}
+#pragma endregion  
+
+#pragma region StringA  
+
+
+	CLdStringA::CLdStringA()
+	{
+		m_pstr = NULL;
+	}
+
+
+	CLdStringA::~CLdStringA()
+	{
+		if (m_pstr)
+			free(m_pstr);
+		m_pstr = NULL;
+	}
+
+	CLdStringA::CLdStringA(const char ch)
+	{
+		m_pstr = reallocstrA(NULL, 2);
+		m_pstr[0] = ch;
+		m_pstr[1] = 0;
+	}
+
+	CLdStringA::CLdStringA(char* lpsz)
+	{
+		m_pstr = NULL;
+		Assign(lpsz);
+	}
+
+	void CLdStringA::SetLength(UINT cSize)
+	{
+		m_pstr = reallocstrA(m_pstr, cSize);
+		ZeroMemory(m_pstr, cSize * sizeof(char));
+	}
+
+	CLdStringA::CLdStringA(UINT ccSize)
+	{
+		m_pstr = NULL;
+		SetLength(ccSize);
+	}
+
+	CLdStringA::CLdStringA(const CLdStringA& src)
+	{
+		m_pstr = NULL;
+		Assign(src.m_pstr);
+	}
+
+	CLdStringA CLdStringA::ToString()
+	{
+		return m_pstr;
+	}
+
+	int CLdStringA::GetLength() const
+	{
+		if (!m_pstr)
+			return 0;
+		else
+			return (int)strlen(m_pstr);
+	}
+
+	CLdStringA::operator char*() const
+	{
+		return m_pstr;
+	}
+
+	//CLdStringA::operator LPTSTR() const
+	//{
+	//	return m_pstr;
+	//}
+
+	void CLdStringA::Append(char* pstr)
+	{
+		if (pstr == nullptr)
+			return;
+		int oLength = GetLength();
+		int nNewLength = oLength + (int)strlen(pstr);
+		m_pstr = reallocstrA(m_pstr, (nNewLength + 1));
+		strcpy(m_pstr + oLength, pstr);
+	}
+
+	void CLdStringA::Assign(char* pstr, int cchMax)
+	{
+		if (pstr == NULL)
+		{
+			free(m_pstr);
+			m_pstr = NULL;
+			return;
+		}
+		cchMax = (cchMax < 0 ? (int)strlen(pstr) : cchMax);
+		if (cchMax == 0)
+			return;
+		if (cchMax > GetLength()) {
+			m_pstr = reallocstrA(m_pstr, (cchMax + 1));
+		}
+		strncpy(m_pstr, pstr, cchMax);
+		m_pstr[cchMax] = _T('\0');
+	}
+
+	bool CLdStringA::IsEmpty() const
+	{
+		return m_pstr == NULL || m_pstr[0] == _T('\0');
+	}
+
+	void CLdStringA::Empty()
+	{
+		if (m_pstr)
+			m_pstr[0] = 0;
+	}
+
+	char* CLdStringA::GetData() const
+	{
+		return m_pstr;
+	}
+
+	VOID CLdStringA::CopyTo(char * pStr)
+	{
+		if (GetLength() > 0)
+			strcpy(pStr, m_pstr);
+	}
+
+	void CLdStringA::Trim()
+	{
+		if (!m_pstr)
+			return;
+		for (int i = GetLength() - 1; i > 0; i--)
+		{
+			if (m_pstr[i] == ' ')
+			{
+				m_pstr[i + 1] = '\0';
+				break;
+			}
+		}
+		for (int i = 0; i < GetLength(); i++)
+		{
+			if (m_pstr[i] != ' ')
+			{
+				Delete(0, i);
+				break;
+			}
+		}
+	}
+
+	char CLdStringA::GetAt(int nIndex) const
+	{
+		if (!m_pstr)
+			return '\0';
+		return m_pstr[nIndex];
+	}
+
+	char CLdStringA::operator[] (int nIndex) const
+	{
+		if (!m_pstr)
+			return '\0';
+		return m_pstr[nIndex];
+	}
+
+	const CLdStringA& CLdStringA::operator=(const CLdStringA& src)
+	{
+		Assign(src);
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator=(char* lpStr)
+	{
+
+		if (lpStr)
+		{
+			Assign(lpStr);
+		}
+		else
+		{
+			Empty();
+		}
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator=(const char* lpStr)
+	{
+		return operator=((char*)lpStr);
+	}
+
+	const CLdStringA& CLdStringA::operator=(wchar_t* lpStr)
+	{
+		SetLength((UINT)wcslen(lpStr) + 1);
+		WideCharToMultiByte(CP_ACP, NULL, lpStr, -1, m_pstr, (int)wcslen(lpStr) * sizeof(TCHAR), NULL, FALSE);
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator=(const wchar_t* lpStr)
+	{
+		return operator=((wchar_t*)lpStr);
+	}
+
+	const CLdStringA& CLdStringA::operator=(const char ch)
+	{
+		Empty();
+		Assign((char*)&ch, 1);
+		return *this;
+	}
+
+	CLdStringA CLdStringA::operator+(const CLdStringA& src) const
+	{
+		CLdStringA sTemp = *this;
+		sTemp.Append(src);
+		return sTemp;
+	}
+
+	CLdStringA CLdStringA::operator+(char* lpStr) const
+	{
+		if (lpStr)
+		{
+			CLdStringA sTemp = *this;
+			sTemp.Append(lpStr);
+			return sTemp;
+		}
+
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator+=(const CLdStringA& src)
+	{
+		Append(src);
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator+=(char* lpStr)
+	{
+		if (lpStr)
+		{
+			Append(lpStr);
+		}
+
+		return *this;
+	}
+
+	const CLdStringA& CLdStringA::operator+=(const char ch)
+	{
+		char str[] = { ch, _T('\0') };
+		Append(str);
+		return *this;
+	}
+
+	bool CLdStringA::operator == (char* str) const { return (Compare(str) == 0); };
+	bool CLdStringA::operator != (char* str) const { return (Compare(str) != 0); };
+	bool CLdStringA::operator <= (char* str) const { return (Compare(str) <= 0); };
+	bool CLdStringA::operator <  (char* str) const { return (Compare(str) < 0); };
+	bool CLdStringA::operator >= (char* str) const { return (Compare(str) >= 0); };
+	bool CLdStringA::operator >  (char* str) const { return (Compare(str) > 0); };
+
+	void CLdStringA::SetAt(int nIndex, char ch)
+	{
+		if (m_pstr)
+			m_pstr[nIndex] = ch;
+	}
+
+	int CLdStringA::Compare(char* lpsz) const
+	{
+		if (m_pstr == lpsz)
+			return 0;
+		if (!m_pstr)
+			return -1;
+		else if (!lpsz)
+			return 1;
+		return strcmp(m_pstr, lpsz);
+	}
+
+	int CLdStringA::CompareNoCase(char* lpsz) const
+	{
+		if (!m_pstr)
+			return -1;
+		return stricmp(m_pstr, lpsz);
+	}
+
+	void CLdStringA::MakeUpper()
+	{
+		if (!m_pstr)
+			return;
+		strupr(m_pstr);
+	}
+
+	void CLdStringA::MakeLower()
+	{
+		if (!m_pstr)
+			return;
+		strlwr(m_pstr);
+	}
+
+	CLdStringA CLdStringA::Left(int iLength) const
+	{
+		if (iLength < 0) iLength = 0;
+		if (iLength > GetLength()) iLength = GetLength();
+		CLdStringA result;
+		result.Assign(m_pstr, iLength);
+		return result;
+	}
+
+	CLdStringA CLdStringA::Mid(int iPos, int iLength) const
+	{
+		if (iLength < 0) iLength = GetLength() - iPos;
+		if (iPos + iLength > GetLength()) iLength = GetLength() - iPos;
+		if (iLength <= 0) return CLdStringA();
+		CLdStringA result;
+		result.Assign(m_pstr + iPos, iLength);
+		return result;
+	}
+
+	CLdStringA CLdStringA::Right(int iLength) const
+	{
+		int iPos = GetLength() - iLength;
+		if (iPos < 0) {
+			iPos = 0;
+			iLength = GetLength();
+		}
+		CLdStringA result;
+		result.Assign(m_pstr + iPos, iLength);
+		return result;
+	}
+
+	int CLdStringA::Find(char ch, int iPos /*= 0*/) const
+	{
+		if (!m_pstr)
+			return -1;
+
+		if (iPos != 0 && (iPos < 0 || iPos >= GetLength())) return -1;
+		char* p = strchr(m_pstr + iPos, ch);
+		if (p == NULL) return -1;
+		return (int)(p - m_pstr);
+	}
+
+	int CLdStringA::Find(char* pstrSub, int iPos /*= 0*/) const
+	{
+		if (!m_pstr)
+			return -1;
+
+		if (iPos != 0 && (iPos < 0 || iPos > GetLength())) return -1;
+		char* p = strstr(m_pstr + iPos, pstrSub);
+		if (p == NULL) return -1;
+		return (int)(p - m_pstr);
+	}
+
+	int CLdStringA::ReverseFind(char ch) const
+	{
+		if (!m_pstr)
+			return -1;
+
+		char* p = strrchr(m_pstr, ch);
+		if (p == NULL) return -1;
+		return (int)(p - m_pstr);
+	}
+
+	int CLdStringA::Replace(char* pstrFrom, char* pstrTo)
+	{
+		if (!m_pstr || !pstrFrom || pstrFrom[0] == '\0')
+			return -1;
+
+		CLdStringA sTemp;
+		int nCount = 0;
+		int iPos = Find(pstrFrom);
+		if (iPos < 0) return 0;
+		int cchFrom = (int)strlen(pstrFrom);
+		int cchTo = 0;
+		if (pstrTo)
+			cchTo = (int)strlen(pstrTo);
+		while (iPos >= 0) {
+			sTemp = Left(iPos);
+			sTemp += pstrTo;
+			sTemp += Mid(iPos + cchFrom);
+			Assign(sTemp);
+			iPos = Find(pstrFrom, iPos + cchTo);
+			nCount++;
+		}
+		return nCount;
+	}
+
+	void CLdStringA::Delete(int nStart, int nLength)
+	{
+		if (!m_pstr || nStart < 0 || nLength <= 0 || strlen(m_pstr) <= nStart)
+			return;
+		if (nStart + nLength >= strlen(m_pstr))
+		{
+			m_pstr[nStart] = '\0';
+			return;
+		}
+		char* p = m_pstr + nStart;
+		char* p1 = p + nLength;
+		strcpy(p, p1);
+	}
+
+	void CLdStringA::Insert(int nStart, char* lpStr)
+	{
+		if (!m_pstr || nStart < 0 || !lpStr)
+			return;
+		if (nStart >= strlen(m_pstr))
+			*this += lpStr;
+		CLdStringA s(lpStr);
+		s += m_pstr + nStart;
+		m_pstr[nStart] = '\0';
+		*this += s;
+	}
+
+	int CLdStringA::Format(char* pstrFormat, ...)
+	{
+		char* szSprintf;
+		va_list argList;
+		int nLen;
+		va_start(argList, pstrFormat);
+		nLen = vsnprintf(NULL, 0, pstrFormat, argList);
+		szSprintf = (char*)malloc((nLen + 1) * sizeof(char));
+		ZeroMemory(szSprintf, (nLen + 1) * sizeof(char));
+		int iRet = vsnprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		va_end(argList);
+		Assign(szSprintf);
+		free(szSprintf);
+		return iRet;
+	}
+
+	int CLdStringA::Try2Int(int Default)
+	{
+		if (IsEmpty())
+			return Default;
+		else
+			try
+		{
+			return atoi(m_pstr);
+		}
+		catch (...)
+		{
+			return Default;
+		}
+
+	}
+
+#pragma endregion   
+
+
 }

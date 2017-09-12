@@ -11,13 +11,13 @@
 namespace LeadowLib {
 	CLdString CSHFolders::GetKnownFolderPath(const REFKNOWNFOLDERID rfid, DWORD dwFlag, HANDLE hToken)
 	{
-		TCHAR* result = nullptr;
+		wchar_t* result = nullptr;
 
 		if (SHGetKnownFolderPath(rfid, dwFlag, hToken, &result) != S_OK)
 			return _T("");
 		else
 		{
-			CLdString r = result;
+			CLdString r = (wchar_t*)result;
 			CoTaskMemFree(result);
 			return r;
 		}

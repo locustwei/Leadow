@@ -1,78 +1,164 @@
 #pragma once
 
 namespace LeadowLib {
-	class CLdString
+	class CLdStringA
 	{
 	public:
 
-		CLdString();
-		CLdString(const TCHAR ch);
-		CLdString(const CLdString& src);
-		CLdString(TCHAR* lpsz);
-		CLdString(UINT ccSize);
+		CLdStringA();
+		CLdStringA(const char ch);
+		CLdStringA(const CLdStringA& src);
+		CLdStringA(char* lpsz);
+		CLdStringA(UINT ccSize);
 
-		~CLdString();
-		CLdString ToString();
+		~CLdStringA();
+		CLdStringA ToString();
 
 		void Empty();
 		int GetLength() const;
 		void SetLength(UINT cSize);
 		bool IsEmpty() const;
-		TCHAR GetAt(int nIndex) const;
-		void Append(TCHAR* pstr);
-		void Assign(TCHAR* pstr, int nLength = -1);
-		TCHAR* GetData() const;
-		VOID CopyTo(TCHAR* pStr);
+		char GetAt(int nIndex) const;
+		void Append(char* pstr);
+		void Assign(char* pstr, int nLength = -1);
+		char* GetData() const;
+		VOID CopyTo(char* pStr);
 		void Trim();
 
-		void SetAt(int nIndex, TCHAR ch);
-		operator TCHAR*() const;
-		//	operator TCHAR*() const;
+		void SetAt(int nIndex, char ch);
+		operator char*() const;
+		//	operator char*() const;
 
-		TCHAR operator[] (int nIndex) const;
-		const CLdString& operator=(const CLdString& src);
-		const CLdString& operator=(const TCHAR ch);
-		const CLdString& operator=(TCHAR* lpStr);
-		const CLdString& operator=(const TCHAR* lpStr);
-		CLdString operator+(const CLdString& src) const;
-		CLdString operator+(TCHAR* pstr) const;
-		const CLdString& operator+=(const CLdString& src);
-		const CLdString& operator+=(TCHAR* pstr);
-		const CLdString& operator+=(const TCHAR ch);
+		char operator[] (int nIndex) const;
+		const CLdStringA& operator=(const CLdStringA& src);
 
-		bool operator == (TCHAR* str) const;
-		bool operator == (const TCHAR* str) const
+		const CLdStringA& operator=(const char ch);
+		const CLdStringA& operator=(char* lpStr);
+		const CLdStringA& operator=(const char* lpStr);
+		const CLdStringA& operator=(wchar_t* lpStr);
+		const CLdStringA& operator=(const wchar_t* lpStr);
+
+		CLdStringA operator+(const CLdStringA& src) const;
+		CLdStringA operator+(char* pstr) const;
+		const CLdStringA& operator+=(const CLdStringA& src);
+		const CLdStringA& operator+=(char* pstr);
+		const CLdStringA& operator+=(const char ch);
+
+		bool operator == (char* str) const;
+		bool operator == (const char* str) const
 		{
-			return *this == (TCHAR*)str;
+			return *this == (char*)str;
 		};
-		bool operator != (TCHAR* str) const;
-		bool operator <= (TCHAR* str) const;
-		bool operator <  (TCHAR* str) const;
-		bool operator >= (TCHAR* str) const;
-		bool operator >  (TCHAR* str) const;
+		bool operator != (char* str) const;
+		bool operator <= (char* str) const;
+		bool operator <  (char* str) const;
+		bool operator >= (char* str) const;
+		bool operator >  (char* str) const;
 
-		int Compare(TCHAR* pstr) const;
-		int CompareNoCase(TCHAR* pstr) const;
+		int Compare(char* pstr) const;
+		int CompareNoCase(char* pstr) const;
 
 		void MakeUpper();
 		void MakeLower();
 
-		CLdString Left(int nLength) const;
-		CLdString Mid(int iPos, int nLength = -1) const;
-		CLdString Right(int nLength) const;
+		CLdStringA Left(int nLength) const;
+		CLdStringA Mid(int iPos, int nLength = -1) const;
+		CLdStringA Right(int nLength) const;
 
-		int Find(TCHAR ch, int iPos = 0) const;
-		int Find(TCHAR* pstr, int iPos = 0) const;
-		int ReverseFind(TCHAR ch) const;
-		int Replace(TCHAR* pstrFrom, TCHAR* pstrTo);
+		int Find(char ch, int iPos = 0) const;
+		int Find(char* pstr, int iPos = 0) const;
+		int ReverseFind(char ch) const;
+		int Replace(char* pstrFrom, char* pstrTo);
 		void Delete(int nStart, int nLength);
-		void Insert(int nStart, TCHAR* lpStr);
+		void Insert(int nStart, char* lpStr);
 
-		int __cdecl Format(TCHAR* pstrFormat, ...);
+		int __cdecl Format(char* pstrFormat, ...);
 
 		int Try2Int(int Default = 0);
 	protected:
-		TCHAR* m_pstr;
+		char* m_pstr;
 	};
 
+	class CLdStringW
+	{
+	public:
+
+		CLdStringW();
+		CLdStringW(const WCHAR ch);
+		CLdStringW(const CLdStringW& src);
+		CLdStringW(WCHAR* lpsz);
+		CLdStringW(UINT ccSize);
+
+		~CLdStringW();
+		CLdStringW ToString();
+
+		void Empty();
+		int GetLength() const;
+		void SetLength(UINT cSize);
+		bool IsEmpty() const;
+		WCHAR GetAt(int nIndex) const;
+		void Append(WCHAR* pstr);
+		void Assign(WCHAR* pstr, int nLength = -1);
+		WCHAR* GetData() const;
+		VOID CopyTo(WCHAR* pStr);
+		void Trim();
+
+		void SetAt(int nIndex, WCHAR ch);
+		operator WCHAR*() const;
+		//	operator WCHAR*() const;
+
+		WCHAR operator[] (int nIndex) const;
+		const CLdStringW& operator=(const CLdStringW& src);
+		const CLdStringW& operator=(const WCHAR ch);
+		const CLdStringW& operator=(WCHAR* lpStr);
+		const CLdStringW& operator=(const WCHAR* lpStr);
+		const CLdStringW& operator=(char* lpStr);
+		const CLdStringW& operator=(const char* lpStr);
+
+		CLdStringW operator+(const CLdStringW& src) const;
+		CLdStringW operator+(WCHAR* pstr) const;
+		const CLdStringW& operator+=(const CLdStringW& src);
+		const CLdStringW& operator+=(WCHAR* pstr);
+		const CLdStringW& operator+=(const WCHAR ch);
+
+		bool operator == (WCHAR* str) const;
+		bool operator == (const WCHAR* str) const
+		{
+			return *this == (WCHAR*)str;
+		};
+		bool operator != (WCHAR* str) const;
+		bool operator <= (WCHAR* str) const;
+		bool operator <  (WCHAR* str) const;
+		bool operator >= (WCHAR* str) const;
+		bool operator >  (WCHAR* str) const;
+
+		int Compare(WCHAR* pstr) const;
+		int CompareNoCase(WCHAR* pstr) const;
+
+		void MakeUpper();
+		void MakeLower();
+
+		CLdStringW Left(int nLength) const;
+		CLdStringW Mid(int iPos, int nLength = -1) const;
+		CLdStringW Right(int nLength) const;
+
+		int Find(WCHAR ch, int iPos = 0) const;
+		int Find(WCHAR* pstr, int iPos = 0) const;
+		int ReverseFind(WCHAR ch) const;
+		int Replace(WCHAR* pstrFrom, WCHAR* pstrTo);
+		void Delete(int nStart, int nLength);
+		void Insert(int nStart, WCHAR* lpStr);
+
+		int __cdecl Format(WCHAR* pstrFormat, ...);
+
+		int Try2Int(int Default = 0);
+	protected:
+		WCHAR* m_pstr;
+	};
+
+#ifdef UNICODE
+#define CLdString CLdStringW
+#else
+#define CLdString CLdStringA
+#endif
 };

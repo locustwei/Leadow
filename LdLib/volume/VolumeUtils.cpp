@@ -24,7 +24,7 @@ namespace LeadowLib {
 
 	DWORD CVolumeUtils::EnumVolumeNames(IGernalCallback<TCHAR*>* callback, UINT_PTR Param)
 	{
-		WCHAR Volume[MAX_PATH] = { 0 };
+		TCHAR Volume[MAX_PATH] = { 0 };
 		ULONG CharCount = MAX_PATH;
 
 		HANDLE hFind = FindFirstVolume(Volume, ARRAYSIZE(Volume));
@@ -33,7 +33,7 @@ namespace LeadowLib {
 
 		while (TRUE) {
 
-			size_t Index = wcslen(Volume) - 1;
+			size_t Index = _tcslen(Volume) - 1;
 			if (Index < 0)
 				Index = 0;
 

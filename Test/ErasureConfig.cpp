@@ -6,6 +6,8 @@ using namespace std;
 
 
 CErasureConfig::CErasureConfig()
+	:m_Config()
+	,m_ConfigFileName()
 {
 	CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
 	CLdString cf = appPath;
@@ -27,11 +29,23 @@ CErasureConfig::~CErasureConfig()
 
 BOOL CErasureConfig::LoadConfig()
 {
+	m_Config.loadFromFile(m_ConfigFileName);
 	return true;
 }
 
 BOOL CErasureConfig::GetBoolean(TCHAR* Path)
 {
+	CLdStringA string;
+	string = ((wchar_t*)Path);
+	for(int i=0; i<string.GetLength(); i++)
+	{
+		if (string.GetData()[i] == '\\')
+			string.GetData()[i] = '\0';
+	}
+	JsonBox::Object obj = m_Config.getObject();
+	JsonBox::Value val = obj[""];
+	val.getObject();
+	return true;
 }
 
 double CErasureConfig::GetDouble(TCHAR * Path)
