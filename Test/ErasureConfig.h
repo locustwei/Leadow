@@ -33,4 +33,5 @@ protected:
 	CLdStringA m_ConfigFileName;
 private:
 	JsonBox::Value m_Config;
+	JsonBox::Value GetConfigObject(TCHAR* Path);
 };

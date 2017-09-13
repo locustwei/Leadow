@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include "../Jsonlib/JsonBox.h"
 #include <sqlext.h>
+#include "ErasureConfig.h"
 
 #import "C:\\Program Files (x86)\\Common Files\\System\\ado\\msado15.dll" no_namespace rename("EOF", "ADOEOF")
 
@@ -160,11 +161,12 @@ int _tmain(int argc, _TCHAR* argv[])
 //	o["array"] = JsonBox::Value(a);
 //	
 //	std::cout << o << std::endl;
-	JsonBox::Value v;
-	v.loadFromFile("file.json");
+	CErasureConfig config;
 
-	//std::cout << v << std::endl;
-	printf(v.getString().c_str());
+	config.LoadConfig();
+
+	
+	printf("%S\n", config.GetString(L"child\\myName").GetData());
 	printf("\npress any key exit");
 	getchar();
 
