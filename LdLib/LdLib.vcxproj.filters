@@ -53,6 +53,9 @@
     <ClCompile Include="ldapp\LdApp.cpp">
       <Filter>ldapp</Filter>
     </ClCompile>
+    <ClCompile Include="ldapp\LdConfig.cpp">
+      <Filter>ldapp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -128,6 +131,9 @@
       <Filter>ldapp</Filter>
     </ClInclude>
     <ClInclude Include="ldapp\LdApp.h">
+      <Filter>ldapp</Filter>
+    </ClInclude>
+    <ClInclude Include="ldapp\LdConfig.h">
       <Filter>ldapp</Filter>
     </ClInclude>
   </ItemGroup>
