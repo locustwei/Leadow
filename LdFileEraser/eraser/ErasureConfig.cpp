@@ -5,7 +5,7 @@
 using namespace std;
 
 
-CErasureConfig::CErasureConfig()
+CLdConfig::CLdConfig()
 	:m_Config()
 	,m_ConfigFileName("file.json")
 {
@@ -24,39 +24,39 @@ CErasureConfig::CErasureConfig()
 }
 
 
-CErasureConfig::~CErasureConfig()
+CLdConfig::~CLdConfig()
 {
 }
 
-BOOL CErasureConfig::LoadConfig()
+BOOL CLdConfig::LoadConfig()
 {
 	m_Config.loadFromFile(m_ConfigFileName);
 	return true;
 }
 
-BOOL CErasureConfig::GetBoolean(TCHAR* Path)
+BOOL CLdConfig::GetBoolean(TCHAR* Path)
 {
 	JsonBox::Value val = GetConfigObject(Path);
 
 	return val.getBoolean();
 }
 
-double CErasureConfig::GetDouble(TCHAR * Path)
+double CLdConfig::GetDouble(TCHAR * Path)
 {
 	return GetConfigObject(Path).getDouble();
 }
 
-float CErasureConfig::GetFloat(TCHAR * Path)
+float CLdConfig::GetFloat(TCHAR * Path)
 {
 	return GetConfigObject(Path).getFloat();
 }
 
-int CErasureConfig::GetInteger(TCHAR * Path)
+int CLdConfig::GetInteger(TCHAR * Path)
 {
 	return GetConfigObject(Path).getInteger();
 }
 
-CLdString CErasureConfig::GetString(TCHAR * Path)
+CLdString CLdConfig::GetString(TCHAR * Path)
 {
 	JsonBox::Value val = GetConfigObject(Path);
 	string s = val.getString();
@@ -65,27 +65,27 @@ CLdString CErasureConfig::GetString(TCHAR * Path)
 	return result;
 }
 
-VOID CErasureConfig::SetBoolean(TCHAR * Path, BOOL Value)
+VOID CLdConfig::SetBoolean(TCHAR * Path, BOOL Value)
 {
 	GetConfigObject(Path).setBoolean(Value);
 }
 
-VOID CErasureConfig::SetDouble(TCHAR * Path, double Value)
+VOID CLdConfig::SetDouble(TCHAR * Path, double Value)
 {
 	GetConfigObject(Path).setDouble(Value);
 }
 
-VOID CErasureConfig::SetFloat(TCHAR * Path, float Value)
+VOID CLdConfig::SetFloat(TCHAR * Path, float Value)
 {
 	GetConfigObject(Path).setDouble(Value);
 }
 
-VOID CErasureConfig::SetInteger(TCHAR * Path, int Value)
+VOID CLdConfig::SetInteger(TCHAR * Path, int Value)
 {
 	GetConfigObject(Path).setInteger(Value);
 }
 
-VOID CErasureConfig::SetString(TCHAR * Path, TCHAR * Value)
+VOID CLdConfig::SetString(TCHAR * Path, TCHAR * Value)
 {
 	CLdStringA s;
 	s = Value;
@@ -93,7 +93,7 @@ VOID CErasureConfig::SetString(TCHAR * Path, TCHAR * Value)
 	val.setString(s.GetData());
 }
 
-JsonBox::Value CErasureConfig::GetConfigObject(TCHAR* Path)
+JsonBox::Value CLdConfig::GetConfigObject(TCHAR* Path)
 {
 	CLdStringA string;
 	string = ((wchar_t*)Path);
