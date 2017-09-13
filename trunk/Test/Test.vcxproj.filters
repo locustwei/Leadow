@@ -18,7 +18,7 @@
     <ClCompile Include="Test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ErasureConfig.cpp">
+    <ClCompile Include="LdConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +26,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureConfig.h">
+    <ClInclude Include="LdConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

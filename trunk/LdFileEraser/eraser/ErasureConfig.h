@@ -1,10 +1,10 @@
 #pragma once
 
-class CErasureConfig
+class CLdConfig
 {
 public:
-	CErasureConfig();
-	~CErasureConfig();
+	CLdConfig();
+	~CLdConfig();
 
 	BOOL LoadConfig();
 	BOOL SaveConfig();
