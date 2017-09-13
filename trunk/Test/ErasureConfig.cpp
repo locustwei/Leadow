@@ -7,9 +7,9 @@ using namespace std;
 
 CErasureConfig::CErasureConfig()
 	:m_Config()
-	,m_ConfigFileName()
+	,m_ConfigFileName("file.json")
 {
-	CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
+	/*CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
 	CLdString cf = appPath;
 	cf += _T("rderasure.cng");
 
@@ -19,7 +19,8 @@ CErasureConfig::CErasureConfig()
 
 	JsonBox::Value json;
 	json.loadFromFile(lpMultiByteStr);
-	delete lpMultiByteStr;
+	delete lpMultiByteStr;*/
+	
 }
 
 
@@ -35,60 +36,85 @@ BOOL CErasureConfig::LoadConfig()
 
 BOOL CErasureConfig::GetBoolean(TCHAR* Path)
 {
-	CLdStringA string;
-	string = ((wchar_t*)Path);
-	for(int i=0; i<string.GetLength(); i++)
-	{
-		if (string.GetData()[i] == '\\')
-			string.GetData()[i] = '\0';
-	}
-	JsonBox::Object obj = m_Config.getObject();
-	JsonBox::Value val = obj[""];
-	val.getObject();
-	return true;
+	JsonBox::Value val = GetConfigObject(Path);
+
+	return val.getBoolean();
 }
 
 double CErasureConfig::GetDouble(TCHAR * Path)
 {
-	return 0.0;
+	return GetConfigObject(Path).getDouble();
 }
 
 float CErasureConfig::GetFloat(TCHAR * Path)
 {
-	return 0.0f;
+	return GetConfigObject(Path).getFloat();
 }
 
 int CErasureConfig::GetInteger(TCHAR * Path)
 {
-	return 0;
+	return GetConfigObject(Path).getInteger();
 }
 
 CLdString CErasureConfig::GetString(TCHAR * Path)
 {
-	return CLdString();
+	JsonBox::Value val = GetConfigObject(Path);
+	string s = val.getString();
+	CLdString result;
+	result = ((char*)s.c_str());
+	return result;
 }
 
 VOID CErasureConfig::SetBoolean(TCHAR * Path, BOOL Value)
 {
-	return VOID();
+	GetConfigObject(Path).setBoolean(Value);
 }
 
 VOID CErasureConfig::SetDouble(TCHAR * Path, double Value)
 {
-	return VOID();
+	GetConfigObject(Path).setDouble(Value);
 }
 
 VOID CErasureConfig::SetFloat(TCHAR * Path, float Value)
 {
-	return VOID();
+	GetConfigObject(Path).setDouble(Value);
 }
 
 VOID CErasureConfig::SetInteger(TCHAR * Path, int Value)
 {
-	return VOID();
+	GetConfigObject(Path).setInteger(Value);
 }
 
 VOID CErasureConfig::SetString(TCHAR * Path, TCHAR * Value)
 {
-	return VOID();
+	CLdStringA s;
+	s = Value;
+	JsonBox::Value val = GetConfigObject(Path);
+	val.setString(s.GetData());
+}
+
+JsonBox::Value CErasureConfig::GetConfigObject(TCHAR* Path)
+{
+	CLdStringA string;
+	string = ((wchar_t*)Path);
+
+	int len = string.GetLength();
+
+	for (int i = 0; i<string.GetLength(); i++)
+	{
+		if (string.GetData()[i] == '\\')
+			string.GetData()[i] = '\0';
+	}
+
+	size_t k = 0;
+	JsonBox::Value val = m_Config;
+
+	while (k < len)
+	{
+		char* p = string.GetData() + k;
+		k += strlen(p) + 1;
+		JsonBox::Object obj = val.getObject();
+		val = obj[p];
+	}
+	return val;
 }
