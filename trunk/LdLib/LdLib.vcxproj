@@ -155,6 +155,7 @@
     <ClInclude Include="file\FileInfo.h" />
     <ClInclude Include="file\FileUtils.h" />
     <ClInclude Include="ldapp\LdApp.h" />
+    <ClInclude Include="ldapp\LdConfig.h" />
     <ClInclude Include="ldapp\LdNamedPipe.h" />
     <ClInclude Include="ldapp\LdStructs.h" />
     <ClInclude Include="ldapp\Ldbrary.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />
     <ClCompile Include="ldapp\LdApp.cpp" />
+    <ClCompile Include="ldapp\LdConfig.cpp" />
     <ClCompile Include="ldapp\LdNamedPipe.cpp" />
     <ClCompile Include="ldapp\Ldbrary.cpp" />
     <ClCompile Include="ldapp\PulicRoutimes.cpp" />
