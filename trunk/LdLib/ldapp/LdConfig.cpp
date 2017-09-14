@@ -29,7 +29,13 @@ namespace LeadowLib {
 	BOOL CLdConfig::LoadConfig()
 	{
 		m_Config.loadFromFile(m_ConfigFileName);
-		return true;
+		return TRUE;
+	}
+
+	BOOL CLdConfig::SaveConfig()
+	{
+		m_Config.writeToFile(m_ConfigFileName);
+		return TRUE;
 	}
 
 	BOOL CLdConfig::GetBoolean(TCHAR* Path)

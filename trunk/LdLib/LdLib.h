@@ -10,7 +10,6 @@
 #include "ldapp/LdStructs.h"
 #include "ldapp/PublicRoutimes.h"
 #include "ldapp/LdNamedPipe.h"
-#include "ldapp/Ldbrary.h"
 #include "ldapp/LdApp.h"
 #include "ldapp/LdConfig.h"
 

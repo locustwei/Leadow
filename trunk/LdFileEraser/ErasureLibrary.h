@@ -7,7 +7,6 @@
 class LDLIB_API IErasureLibrary
 {
 public:
-	virtual ~IErasureLibrary() {};
 	/*窗口资源ID
 	*用于builer窗口*/
 	virtual TCHAR* UIResorce() = 0;
@@ -20,5 +19,6 @@ public:
 	获取窗口消息处理对象（窗口Build好后，添加消息处理对象）
 	*/
 	virtual CFramNotifyPump* GetNotifyPump() = 0;
-private:
-}; 
+protected:
+	virtual ~IErasureLibrary() {};
+};

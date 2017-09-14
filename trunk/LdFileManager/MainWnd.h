@@ -1,4 +1,9 @@
 #pragma once
+
+/*
+程序主窗口，框架窗口嵌入功能模块窗口。
+*/
+
 #include "Library.h"
 
 class CMainWnd : public WindowImplBase
@@ -19,9 +24,8 @@ protected:
 	void InitWindow() override;
 private:
 	TCHAR* m_Skin;
-	IErasureLibrary* m_ErasureLib;
+	IErasureLibrary* m_ErasureLib;  //文件擦除模块
 	CButtonUI* m_btnLogo;
-	//CWndShadow m_WndShadow;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);

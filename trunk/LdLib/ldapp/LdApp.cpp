@@ -42,6 +42,16 @@ namespace LeadowLib {
 		return m_AppDataPath;
 	}
 
+	HINSTANCE CLdApp::GetInstance()
+	{
+		return m_Instance;
+	}
+
+	DWORD CLdApp::GetMainThreadId()
+	{
+		return m_ThreadID;
+	}
+
 	BOOL CLdApp::Initialize(HINSTANCE hInstance)
 	{
 		CoInitialize(nullptr);
