@@ -1,5 +1,9 @@
 #pragma once
+/*
+文件擦除动态库导出接口
+调用API_Init获取这个接口。
 
+*/
 class LDLIB_API IErasureLibrary
 {
 public:

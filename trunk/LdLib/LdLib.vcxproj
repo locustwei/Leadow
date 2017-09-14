@@ -107,6 +107,8 @@
     <Lib>
       <TargetMachine>
       </TargetMachine>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>

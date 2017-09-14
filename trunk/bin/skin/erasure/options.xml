@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <HorizontalLayout >
-     <VerticalLayout style="hor_word" inset="10,10,10,10" childpadding="10" vscrollbar="true">
+     <VerticalLayout name="ErasureOptions" style="hor_word" inset="10,10,10,10" childpadding="10" vscrollbar="true">
      			<HorizontalLayout childvalign="vcenter" childpadding="8" height="24">
          			<Label text="文件擦除方法" style="txt_default" width="100"/>
          			<Combo style="Combo_default" name="cbmothed1" >

@@ -18,6 +18,7 @@ private:
 	CFramNotifyPump* m_ErasureFile;
 	CFramNotifyPump* m_ErasureRecycle;
 	CFramNotifyPump* m_ErasureVolume;
+	CFramNotifyPump* m_ErasureOptions;
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 
