@@ -1,8 +1,12 @@
 #pragma once
 
-class CErasureConfig:CLdConfig
+class CErasureConfig
+	:public CLdConfig
 {
 public:
 	CErasureConfig();
 	~CErasureConfig();
+
+private:
+	
 };

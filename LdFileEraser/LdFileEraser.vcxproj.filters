@@ -60,6 +60,9 @@
     <ClCompile Include="ui\ErasureOptions.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="ErasureImpl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="ui\ErasureOptions.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureImpl.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

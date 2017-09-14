@@ -1,3 +1,6 @@
+/*
+主窗口
+*/
 #include "stdafx.h"
 #include "Library.h"
 #include "MainWnd.h"
@@ -10,9 +13,8 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
-CMainWnd::CMainWnd(TCHAR* xmlSkin):
-	WindowImplBase()
-	//, m_WndShadow()
+CMainWnd::CMainWnd(TCHAR* xmlSkin)
+	:WindowImplBase()
 {
 	m_Skin = xmlSkin;
 	m_ErasureLib = NULL;
@@ -22,7 +24,7 @@ CMainWnd::~CMainWnd()
 {
 	if (m_ErasureLib)
 	{
-		delete m_ErasureLib;
+		CLdLibray::FreeErasureLibrary();
 		m_ErasureLib = nullptr;
 	}
 
@@ -76,15 +78,12 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 
 void CMainWnd::InitWindow()
 {
-//	m_WndShadow.Create(m_hWnd);
-//	m_WndShadow.SetSize(15);
-//	m_WndShadow.SetPosition(0, 0);
 
 	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
 	if (!pControl)
 		return;
-
-	m_ErasureLib = CLdLibray::LoadEraserLarary(&m_PaintManager, CLdApp::ThisApp);
+	//嵌入文件擦除模块窗口
+	m_ErasureLib = CLdLibray::LoadErasureLibrary();
 	if (m_ErasureLib)
 	{
 		CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();

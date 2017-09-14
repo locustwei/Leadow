@@ -24,6 +24,10 @@ CErasureMainWnd::~CErasureMainWnd()
 		delete m_ErasureRecycle;
 	if (m_ErasureVolume)
 		delete m_ErasureVolume;
+	if (m_ErasureFile)
+		delete m_ErasureFile;
+	if (m_ErasureOptions)
+		delete m_ErasureOptions;
 }
 
 void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
@@ -85,15 +89,6 @@ void CErasureMainWnd::AttanchControl(CControlUI * pCtrl)
 	__super::AttanchControl(pCtrl);
 	m_TabUI = (CTabLayoutUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("pagelist"), 0);
 
-//	if (m_ErasureFile == nullptr)
-//	{
-//		m_ErasureFile = new CErasureFileUI();
-//		CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureFile"), 0);
-//		m_ErasureFile->AttanchControl(pCtrl);
-//		AddVirtualWnd(m_ErasureFile->GetName(), m_ErasureFile);
-//	}
-
-	//m_TabUI->SelectItem(0);
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureMainWnd, CFramNotifyPump)

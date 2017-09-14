@@ -1,5 +1,7 @@
 #pragma once
-
+/*
+文件擦除主控页面。
+*/
 
 class CErasureMainWnd : public CFramNotifyPump
 {
@@ -14,11 +16,11 @@ private:
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);
 	
-	CTabLayoutUI* m_TabUI;
-	CFramNotifyPump* m_ErasureFile;
-	CFramNotifyPump* m_ErasureRecycle;
-	CFramNotifyPump* m_ErasureVolume;
-	CFramNotifyPump* m_ErasureOptions;
+	CTabLayoutUI* m_TabUI;               //
+	CFramNotifyPump* m_ErasureFile;      //文件擦除页
+	CFramNotifyPump* m_ErasureRecycle;   //擦除回收站页
+	CFramNotifyPump* m_ErasureVolume;    //磁盘擦除页
+	CFramNotifyPump* m_ErasureOptions;   //擦除选项页
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 

@@ -1,5 +1,8 @@
 #pragma once
+/*
+应用程序全局设置、数据。
 
+*/
 #include "../classes/LdString.h"
 #include "../utils/HandleUitls.h"
 
@@ -9,14 +12,16 @@ namespace LeadowLib {
 	{
 	public:
 		CLdApp();
-		CLdString& GetInstallPath();
-		CLdString& GetAppDataPath();
+		CLdString& GetInstallPath();    //应用程序安装路径
+		CLdString& GetAppDataPath();    //应用程序配置文件路径
+		HINSTANCE GetInstance();
+		DWORD GetMainThreadId();
 
-		static CLdApp* ThisApp;
+		static CLdApp* ThisApp;         //
 
-		static BOOL Initialize(HINSTANCE hInstance);
-		static void MainThreadMessage(MSG& msg);
-		static BOOL Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param);
+		static BOOL Initialize(HINSTANCE hInstance);  //初始化，程序启动时调用
+		static void MainThreadMessage(MSG& msg);      //消息循环过滤主线程消息  
+		static BOOL Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param); //发送消息到主线程，并执行回掉函数
 	private:
 		HINSTANCE m_Instance;
 		DWORD m_ThreadID;

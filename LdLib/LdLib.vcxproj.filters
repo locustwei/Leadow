@@ -47,9 +47,6 @@
     <ClCompile Include="volume\VolumeUtils.cpp">
       <Filter>volume</Filter>
     </ClCompile>
-    <ClCompile Include="ldapp\Ldbrary.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
     <ClCompile Include="ldapp\LdApp.cpp">
       <Filter>ldapp</Filter>
     </ClCompile>
@@ -126,9 +123,6 @@
     </ClInclude>
     <ClInclude Include="volume\VolumeUtils.h">
       <Filter>volume</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\Ldbrary.h">
-      <Filter>ldapp</Filter>
     </ClInclude>
     <ClInclude Include="ldapp\LdApp.h">
       <Filter>ldapp</Filter>
