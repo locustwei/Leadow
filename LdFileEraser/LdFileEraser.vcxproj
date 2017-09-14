@@ -175,6 +175,7 @@
     </ClCompile>
     <ClCompile Include="ui\ErasureFileUI.cpp" />
     <ClCompile Include="ui\ErasureMainWnd.cpp" />
+    <ClCompile Include="ui\ErasureOptions.cpp" />
     <ClCompile Include="ui\ErasureRecycleUI.cpp" />
     <ClCompile Include="ui\ErasureVolumeUI.cpp" />
     <ClCompile Include="ui\ShFileView.cpp" />
@@ -191,6 +192,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="ui\ErasureFileUI.h" />
     <ClInclude Include="ui\ErasureMainWnd.h" />
+    <ClInclude Include="ui\ErasureOptions.h" />
     <ClInclude Include="ui\ErasureRecycleUI.h" />
     <ClInclude Include="ui\ErasureVolumeUI.h" />
     <ClInclude Include="ui\ShFileView.h" />

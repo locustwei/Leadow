@@ -12,6 +12,7 @@
 #include "ldapp/LdNamedPipe.h"
 #include "ldapp/Ldbrary.h"
 #include "ldapp/LdApp.h"
+#include "ldapp/LdConfig.h"
 
 #include "file/FileInfo.h"
 #include "file/FileUtils.h"

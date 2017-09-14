@@ -57,6 +57,9 @@
     <ClCompile Include="eraser\ErasureConfig.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ErasureOptions.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -100,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="eraser\ErasureConfig.h">
       <Filter>Erasure</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ErasureOptions.h">
+      <Filter>UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 #include "ErasureFileUI.h"
 #include "ErasureRecycleUI.h"
 #include "ErasureVolumeUI.h"
+#include "ErasureOptions.h"
 
 //#include "ErasureVolumeUI.h"
 
@@ -12,6 +13,7 @@ CErasureMainWnd::CErasureMainWnd():
 	m_ErasureFile = nullptr;
 	m_ErasureRecycle = nullptr;
 	m_ErasureVolume = nullptr;
+	m_ErasureOptions = nullptr;
 	m_Name = _T("erasure/ErasureMainWnd");
 }
 
@@ -60,10 +62,18 @@ void CErasureMainWnd::OnSelectChanged(TNotifyUI & msg)
 		}
 		m_TabUI->SelectItem(3);
 	}
-	else if (name == _T("truemove"))
+	else if (name == _T("options"))
 	{
+		if (m_ErasureOptions == nullptr)
+		{
+			m_ErasureOptions = new CErasureOptionsUI();
+			CControlUI* pCtrl = m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("ErasureOptions"), 0);
+			m_ErasureOptions->AttanchControl(pCtrl);
+			AddVirtualWnd(m_ErasureOptions->GetName(), m_ErasureOptions);
+		}
 		m_TabUI->SelectItem(4);
 	}
+
 }
 
 void CErasureMainWnd::OnItemClick(TNotifyUI & msg)
