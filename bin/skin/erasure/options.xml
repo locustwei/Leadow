@@ -43,12 +43,12 @@
          	</HorizontalLayout>
          	<HorizontalLayout height="32">
 		         	<HorizontalLayout childvalign="vcenter" childpadding="8"  width="200">
-         					<Option name="skipfreespace" style="radiobox_default" group="volume"/>
+         					<Option name="skipfreespace" style="radiobox_default" />
          					<Label text="磁盘擦除：跳过空闲空间" style="txt_default" />
          			</HorizontalLayout>
          			<HorizontalLayout childvalign="vcenter" childpadding="8" width="200">
-         					<Option name="skiptrack" style="ckbox_default"/>
-         					<Label text="磁盘擦除：跳过删除痕迹" style="radiobox_default" group="volume"/>
+         					<Option name="skiptrack" style="radiobox_default" />
+         					<Label text="磁盘擦除：跳过删除痕迹" style="txt_default"/>
          			</HorizontalLayout>
 		         	<HorizontalLayout childvalign="vcenter" childpadding="8" >
          					<Option name="fileunuse" style="ckbox_default"/>
