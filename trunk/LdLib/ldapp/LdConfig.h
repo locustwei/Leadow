@@ -27,6 +27,12 @@ namespace LeadowLib {
 		int GetInteger(TCHAR* Path);
 		CLdString GetString(TCHAR* Path);
 
+		BOOL GetBoolean(char* Path, BOOL def);
+		double GetDouble(char* Path, double def);
+		float GetFloat(char* Path, float def);
+		int GetInteger(char* Path, int def);
+		CLdString GetString(char* Path, TCHAR* def);
+
 		VOID SetBoolean(TCHAR* Path, BOOL Value);
 		VOID SetDouble(TCHAR* Path, double Value);
 		VOID SetFloat(TCHAR* Path, float Value);
