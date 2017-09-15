@@ -9,6 +9,7 @@ namespace LeadowLib {
 		CLdStringA(const char ch);
 		CLdStringA(const CLdStringA& src);
 		CLdStringA(char* lpsz);
+		CLdStringA(wchar_t* lpsz);
 		CLdStringA(UINT ccSize);
 
 		~CLdStringA();
@@ -21,6 +22,7 @@ namespace LeadowLib {
 		char GetAt(int nIndex) const;
 		void Append(char* pstr);
 		void Assign(char* pstr, int nLength = -1);
+		void Assign(wchar_t* pstr, int nLength = -1);
 		char* GetData() const;
 		VOID CopyTo(char* pStr);
 		void Trim();
@@ -87,6 +89,7 @@ namespace LeadowLib {
 		CLdStringW(const WCHAR ch);
 		CLdStringW(const CLdStringW& src);
 		CLdStringW(WCHAR* lpsz);
+		CLdStringW(char* lpsz);
 		CLdStringW(UINT ccSize);
 
 		~CLdStringW();
@@ -99,6 +102,7 @@ namespace LeadowLib {
 		WCHAR GetAt(int nIndex) const;
 		void Append(WCHAR* pstr);
 		void Assign(WCHAR* pstr, int nLength = -1);
+		void Assign(char* pstr, int nLength = -1);
 		WCHAR* GetData() const;
 		VOID CopyTo(WCHAR* pStr);
 		void Trim();

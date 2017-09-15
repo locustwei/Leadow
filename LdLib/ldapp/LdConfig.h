@@ -27,21 +27,21 @@ namespace LeadowLib {
 		int GetInteger(TCHAR* Path);
 		CLdString GetString(TCHAR* Path);
 
-		BOOL GetBoolean(char* Path, BOOL def);
-		double GetDouble(char* Path, double def);
-		float GetFloat(char* Path, float def);
-		int GetInteger(char* Path, int def);
-		CLdString GetString(char* Path, TCHAR* def);
+		BOOL GetBoolean(char* Path, BOOL def = FALSE);
+		double GetDouble(char* Path, double def = 0.0);
+		float GetFloat(char* Path, float def = 0.0);
+		int GetInteger(char* Path, int def = 0);
+		CLdString GetString(char* Path, TCHAR* def = nullptr);
 
-		VOID SetBoolean(TCHAR* Path, BOOL Value);
-		VOID SetDouble(TCHAR* Path, double Value);
-		VOID SetFloat(TCHAR* Path, float Value);
-		VOID SetInteger(TCHAR* Path, int Value);
-		VOID SetString(TCHAR* Path, TCHAR* Value);
+		VOID SetBoolean(char* Path, BOOL Value);
+		VOID SetDouble(char* Path, double Value);
+		VOID SetFloat(char* Path, float Value);
+		VOID SetInteger(char* Path, int Value);
+		VOID SetString(char* Path, TCHAR* Value);
 	protected:
 		CLdStringA m_ConfigFileName;
 	private:
 		JsonBox::Value m_Config;
-		JsonBox::Value GetConfigObject(TCHAR* Path);
+		JsonBox::Value GetConfigObject(CLdStringA string);
 	};
 }
