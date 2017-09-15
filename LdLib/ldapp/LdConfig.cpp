@@ -68,6 +68,11 @@ namespace LeadowLib {
 		return result;
 	}
 
+	BOOL CLdConfig::GetBoolean(char* Path, BOOL def)
+	{
+
+	}
+
 	VOID CLdConfig::SetBoolean(TCHAR * Path, BOOL Value)
 	{
 		GetConfigObject(Path).setBoolean(Value==TRUE);
@@ -99,7 +104,7 @@ namespace LeadowLib {
 	JsonBox::Value CLdConfig::GetConfigObject(TCHAR* Path)
 	{
 		CLdStringA string;
-		string = ((wchar_t*)Path);
+		string = ((TCHAR*)Path);
 
 		int len = string.GetLength();
 
