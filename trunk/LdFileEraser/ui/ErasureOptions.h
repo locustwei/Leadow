@@ -22,6 +22,7 @@ private:
 	CEditUI* m_edtFile;
 	CEditUI* m_edtRecycle;
 	CEditUI* m_edtVolume;
+	void SaveConfig();
 	void OnClick(TNotifyUI& msg);
 	void OnSelectChanged(TNotifyUI &msg);
 	void OnItemClick(TNotifyUI &msg);

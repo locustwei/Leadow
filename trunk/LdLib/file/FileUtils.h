@@ -1,4 +1,9 @@
 #pragma once
+
+/*
+一般的文件处理函数放这里
+*/
+
 #include <shellapi.h>
 #include "../ldapp/LdStructs.h"
 #include "../classes/LdString.h"

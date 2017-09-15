@@ -35,6 +35,12 @@ namespace LeadowLib {
 		Assign(lpsz);
 	}
 
+	CLdStringW::CLdStringW(char* lpsz)
+	{
+		m_pstr = nullptr;
+		Assign(lpsz);
+	}
+
 	void CLdStringW::SetLength(UINT cSize)
 	{
 		m_pstr = reallocstrW(m_pstr, cSize);
@@ -102,6 +108,12 @@ namespace LeadowLib {
 		}
 		wcsncpy(m_pstr, pstr, cchMax);
 		m_pstr[cchMax] = _T('\0');
+	}
+
+	void CLdStringW::Assign(char* pstr, int nLength)
+	{
+		SetLength((UINT)strlen(pstr) + 1);
+		MultiByteToWideChar(CP_ACP, NULL, pstr, -1, m_pstr, (int)strlen(pstr));
 	}
 
 	bool CLdStringW::IsEmpty() const
@@ -189,8 +201,7 @@ namespace LeadowLib {
 
 	const CLdStringW& CLdStringW::operator=(char* lpStr)
 	{
-		SetLength((UINT)strlen(lpStr) + 1);
-		MultiByteToWideChar(CP_ACP, NULL, lpStr, -1, m_pstr, (int)strlen(lpStr));
+		Assign(lpStr);
 		return *this;
 	}
 
@@ -382,9 +393,9 @@ namespace LeadowLib {
 
 	void CLdStringW::Delete(int nStart, int nLength)
 	{
-		if (!m_pstr || nStart < 0 || nLength <= 0 || wcslen(m_pstr) <= nStart)
+		if (!m_pstr || nStart < 0 || nLength <= 0 || wcslen(m_pstr) <= (size_t)nStart)
 			return;
-		if (nStart + nLength >= wcslen(m_pstr))
+		if (nStart + nLength >= (int)wcslen(m_pstr))
 		{
 			m_pstr[nStart] = '\0';
 			return;
@@ -398,7 +409,7 @@ namespace LeadowLib {
 	{
 		if (!m_pstr || nStart < 0 || !lpStr)
 			return;
-		if (nStart >= wcslen(m_pstr))
+		if (nStart >= (int)wcslen(m_pstr))
 			*this += lpStr;
 		CLdStringW s(lpStr);
 		s += m_pstr + nStart;
@@ -465,6 +476,12 @@ namespace LeadowLib {
 	CLdStringA::CLdStringA(char* lpsz)
 	{
 		m_pstr = NULL;
+		Assign(lpsz);
+	}
+
+	CLdStringA::CLdStringA(wchar_t* lpsz)
+	{
+		m_pstr = nullptr;
 		Assign(lpsz);
 	}
 
@@ -535,6 +552,12 @@ namespace LeadowLib {
 		}
 		strncpy(m_pstr, pstr, cchMax);
 		m_pstr[cchMax] = _T('\0');
+	}
+
+	void CLdStringA::Assign(wchar_t* pstr, int nLength)
+	{
+		SetLength((UINT)wcslen(pstr) + 1);
+		WideCharToMultiByte(CP_ACP, NULL, pstr, -1, m_pstr, (int)wcslen(pstr) * sizeof(TCHAR), NULL, FALSE);
 	}
 
 	bool CLdStringA::IsEmpty() const
@@ -622,8 +645,7 @@ namespace LeadowLib {
 
 	const CLdStringA& CLdStringA::operator=(wchar_t* lpStr)
 	{
-		SetLength((UINT)wcslen(lpStr) + 1);
-		WideCharToMultiByte(CP_ACP, NULL, lpStr, -1, m_pstr, (int)wcslen(lpStr) * sizeof(TCHAR), NULL, FALSE);
+		Assign(lpStr);
 		return *this;
 	}
 
@@ -815,9 +837,9 @@ namespace LeadowLib {
 
 	void CLdStringA::Delete(int nStart, int nLength)
 	{
-		if (!m_pstr || nStart < 0 || nLength <= 0 || strlen(m_pstr) <= nStart)
+		if (!m_pstr || nStart < 0 || nLength <= 0 || (int)strlen(m_pstr) <= nStart)
 			return;
-		if (nStart + nLength >= strlen(m_pstr))
+		if (nStart + nLength >= (int)strlen(m_pstr))
 		{
 			m_pstr[nStart] = '\0';
 			return;
@@ -831,7 +853,7 @@ namespace LeadowLib {
 	{
 		if (!m_pstr || nStart < 0 || !lpStr)
 			return;
-		if (nStart >= strlen(m_pstr))
+		if (nStart >= (int)strlen(m_pstr))
 			*this += lpStr;
 		CLdStringA s(lpStr);
 		s += m_pstr + nStart;

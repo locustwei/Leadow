@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "LdConfig.h"
+#include "../file/FileUtils.h"
+#include <Shlwapi.h>
+
+//#pragma warning(disable:4800)
 
 namespace LeadowLib {
 
@@ -7,17 +11,6 @@ namespace LeadowLib {
 		:m_Config()
 		, m_ConfigFileName()
 	{
-		/*CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
-		CLdString cf = appPath;
-		cf += _T("rderasure.cng");
-
-		char* lpMultiByteStr = new char[(cf.GetLength()+1)*sizeof(TCHAR)];
-
-		WideCharToMultiByte(CP_ACP, NULL, cf.GetData(), -1, lpMultiByteStr, cf.GetLength()*sizeof(TCHAR), NULL, FALSE);
-
-		JsonBox::Value json;
-		json.loadFromFile(lpMultiByteStr);
-		delete lpMultiByteStr;*/
 
 	}
 
@@ -28,14 +21,32 @@ namespace LeadowLib {
 
 	BOOL CLdConfig::LoadConfig()
 	{
-		m_Config.loadFromFile(m_ConfigFileName);
-		return TRUE;
+		try {
+			if(!PathFileExistsA(m_ConfigFileName))
+			{
+				CLdString tmp = (char*)m_ConfigFileName;
+				CLdString path((UINT)MAX_PATH);
+				CFileUtils::ExtractFilePath(tmp, path.GetData());
+				CFileUtils::ForceDirectories(path);
+			}
+			m_Config.loadFromFile(m_ConfigFileName);
+			return TRUE;
+		}catch(...)
+		{
+			return FALSE;
+		}
 	}
 
 	BOOL CLdConfig::SaveConfig()
 	{
-		m_Config.writeToFile(m_ConfigFileName);
-		return TRUE;
+		try {
+			m_Config.writeToFile(m_ConfigFileName);
+			return TRUE;
+		}
+		catch (...)
+		{
+			return FALSE;
+		}
 	}
 
 	BOOL CLdConfig::GetBoolean(TCHAR* Path)
@@ -70,30 +81,59 @@ namespace LeadowLib {
 
 	BOOL CLdConfig::GetBoolean(char* Path, BOOL def)
 	{
-
+		JsonBox::Value val = GetConfigObject(Path);
+		return val.tryGetBoolean(def == TRUE) ;
 	}
 
-	VOID CLdConfig::SetBoolean(TCHAR * Path, BOOL Value)
+	double CLdConfig::GetDouble(char* Path, double def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		return val.tryGetDouble(def);
+	}
+
+	float CLdConfig::GetFloat(char* Path, float def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		return val.tryGetFloat(def);
+	}
+
+	int CLdConfig::GetInteger(char* Path, int def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		return val.tryGetInteger(def);
+	}
+
+	CLdString CLdConfig::GetString(char* Path, TCHAR* def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		CLdString result;
+		result = val.getString().c_str();
+		if (result.IsEmpty())
+			result = def;
+		return result;
+	}
+
+	VOID CLdConfig::SetBoolean(char * Path, BOOL Value)
 	{
 		GetConfigObject(Path).setBoolean(Value==TRUE);
 	}
 
-	VOID CLdConfig::SetDouble(TCHAR * Path, double Value)
+	VOID CLdConfig::SetDouble(char * Path, double Value)
 	{
 		GetConfigObject(Path).setDouble(Value);
 	}
 
-	VOID CLdConfig::SetFloat(TCHAR * Path, float Value)
+	VOID CLdConfig::SetFloat(char * Path, float Value)
 	{
 		GetConfigObject(Path).setDouble(Value);
 	}
 
-	VOID CLdConfig::SetInteger(TCHAR * Path, int Value)
+	VOID CLdConfig::SetInteger(char * Path, int Value)
 	{
 		GetConfigObject(Path).setInteger(Value);
 	}
 
-	VOID CLdConfig::SetString(TCHAR * Path, TCHAR * Value)
+	VOID CLdConfig::SetString(char * Path, TCHAR * Value)
 	{
 		CLdStringA s;
 		s = Value;
@@ -101,20 +141,17 @@ namespace LeadowLib {
 		val.setString(s.GetData());
 	}
 
-	JsonBox::Value CLdConfig::GetConfigObject(TCHAR* Path)
+	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string)
 	{
-		CLdStringA string;
-		string = ((TCHAR*)Path);
-
 		int len = string.GetLength();
 
 		for (int i = 0; i < string.GetLength(); i++)
 		{
-			if (string.GetData()[i] == '\\')
+			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
 				string.GetData()[i] = '\0';
 		}
 
-		size_t k = 0;
+		int k = 0;
 		JsonBox::Value val = m_Config;
 
 		while (k < len)
@@ -122,6 +159,7 @@ namespace LeadowLib {
 			char* p = string.GetData() + k;
 			k += strlen(p) + 1;
 			JsonBox::Object obj = val.getObject();
+			if(obj._Isnil())
 			val = obj[p];
 		}
 		return val;
