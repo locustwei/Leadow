@@ -42,6 +42,6 @@ namespace LeadowLib {
 		CLdStringA m_ConfigFileName;
 	private:
 		JsonBox::Value m_Config;
-		JsonBox::Value GetConfigObject(CLdStringA string);
+		JsonBox::Value GetConfigObject(CLdStringA string, JsonBox::Value::Type type= JsonBox::Value::NULL_VALUE, PVOID pValue=nullptr);
 	};
 }
