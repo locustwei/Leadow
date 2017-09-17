@@ -2,6 +2,7 @@
 #include "LdConfig.h"
 #include "../file/FileUtils.h"
 #include <Shlwapi.h>
+#include "../classes/LdMap.h"
 
 //#pragma warning(disable:4800)
 
@@ -115,53 +116,91 @@ namespace LeadowLib {
 
 	VOID CLdConfig::SetBoolean(char * Path, BOOL Value)
 	{
-		GetConfigObject(Path).setBoolean(Value==TRUE);
+		GetConfigObject(Path, JsonBox::Value::BOOLEAN, &Value);
 	}
 
 	VOID CLdConfig::SetDouble(char * Path, double Value)
 	{
-		GetConfigObject(Path).setDouble(Value);
+		GetConfigObject(Path, JsonBox::Value::DOUBLE, &Value);
 	}
 
 	VOID CLdConfig::SetFloat(char * Path, float Value)
 	{
-		GetConfigObject(Path).setDouble(Value);
+		GetConfigObject(Path, JsonBox::Value::DOUBLE, &Value);
 	}
 
 	VOID CLdConfig::SetInteger(char * Path, int Value)
 	{
-		GetConfigObject(Path).setInteger(Value);
+		GetConfigObject(Path, JsonBox::Value::INTEGER, &Value);
 	}
 
 	VOID CLdConfig::SetString(char * Path, TCHAR * Value)
 	{
 		CLdStringA s;
 		s = Value;
-		JsonBox::Value val = GetConfigObject(Path);
-		val.setString(s.GetData());
+		GetConfigObject(Path, JsonBox::Value::STRING, s.GetData());
 	}
 
-	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string)
+	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string, JsonBox::Value::Type type, PVOID pValue)
 	{
 		int len = string.GetLength();
+		CLdMap<char*, JsonBox::Value> objs;
+		char* p = string.GetData();
+		JsonBox::Value parent = m_Config;
+		JsonBox::Value value = JsonBox::Value::NULL_VALUE;
 
-		for (int i = 0; i < string.GetLength(); i++)
+		for (int i = 0; i < len; i++)
 		{
 			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
+			{
 				string.GetData()[i] = '\0';
+				value = parent[p];
+				if (type != JsonBox::Value::NULL_VALUE)
+				{
+					objs.Put(p, parent);
+				}
+				else if (value.isNull())
+					break;
+				parent = value;
+				p = string.GetData() + i + 1;
+			}
 		}
+		objs.Put(p, parent);
+		value = parent[p];
 
-		int k = 0;
-		JsonBox::Value val = m_Config;
-
-		while (k < len)
+		if(type!=JsonBox::Value::NULL_VALUE && pValue!=nullptr)
 		{
-			char* p = string.GetData() + k;
-			k += strlen(p) + 1;
-			JsonBox::Object obj = val.getObject();
-			if(obj._Isnil())
-			val = obj[p];
+			switch(type)
+			{
+			case JsonBox::Value::Type::STRING:
+				value.setString((char*)pValue);
+				break;
+			case JsonBox::Value::Type::BOOLEAN:
+				value.setBoolean((*(PBOOL)pValue)==TRUE);
+				break;
+			case JsonBox::Value::Type::DOUBLE:
+				value.setDouble(*(double*)pValue);
+				break;
+			case JsonBox::Value::Type::INTEGER:
+				value.setInteger(*(int*)pValue);
+				break;
+			default:
+				return value;
+			}
+
+			JsonBox::Value v = value;
+
+			JsonBox::Value *p = nullptr;
+			for(int i=objs.GetCount()-1;i>=0;i--)
+			{
+				char** pkey = objs.GetAt(i, &p);
+				(*p)[*pkey] = v;
+				v = *p;
+			}
+			if(p)
+				m_Config = *p;
 		}
-		return val;
+
+		return value;
 	}
 }
