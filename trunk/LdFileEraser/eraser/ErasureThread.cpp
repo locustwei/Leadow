@@ -12,6 +12,13 @@ CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 	m_Files = nullptr;
 	m_Method = nullptr;
 	m_ThreadCount = 0;
+	ZeroMemory(m_Options, sizeof(ERASER_OPTIONS));
+	m_Options.bRemoveFolder = ThisLibrary->GetConfig()->IsRemoveFolder();
+	m_Options.bSkipSpace = ThisLibrary->GetConfig()->IsSkipSpace();
+	m_Options.bSkipTrack = ThisLibrary->GetConfig()->IsSkipTrack();
+	m_Options.bFreeFileSpace = ThisLibrary->GetConfig()->IsErasureFreeFileSpace();
+	m_Options.nFileMothedIndex = ThisLibrary->GetConfig()->GetFileErasureMothedIndex();
+	m_Options.nVolumeMothedIndex = ThisLibrary->GetConfig()->GetVolumeErasureMethedIndex();
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -170,10 +177,10 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 	{
 	case vft_file:
 	case vft_folder:
-		erasure.FileErasure(pFile->GetFullName(), m_Method, &impl);
+		erasure.FileErasure(pFile->GetFullName(), m_Method, &impl, TRUE);
 		break;
 	case vft_volume:
-		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_Method, &impl);
+		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_Method, &impl, FALSE, FALSE);
 		break;
 	default:
 		break;
@@ -258,6 +265,11 @@ int CEreaserThrads::WaitForThread(/*HANDLE* threads*/)
 	}
 
 	return k;
+}
+
+PERASER_OPTIONS CEreaserThrads::GetOptions()
+{
+	return &m_Options;
 }
 
 CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CVirtualFile* pFile)

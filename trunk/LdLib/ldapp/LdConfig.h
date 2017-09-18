@@ -1,4 +1,9 @@
 #pragma once
+
+/*
+配置文件读写基类（JSON格式），各功能模块配置文件从此继承
+*/
+
 #include "../../Jsonlib/JsonBox.h"
 #include "../classes/LdString.h"
 
@@ -9,8 +14,10 @@ namespace LeadowLib {
 		CLdConfig();
 		~CLdConfig();
 
-		BOOL LoadConfig();
-		BOOL SaveConfig();
+		BOOL LoadConfig();        //加载配置文件
+		BOOL SaveConfig();        //写入配置文件
+
+		void operator = (CLdConfig& source);    //Copy配置文件（内容不包含文件路径）
 
 		int GetDataType(TCHAR* Path);
 
@@ -21,7 +28,7 @@ namespace LeadowLib {
 		//	int GetArrayInteger(TCHAR* Path, int index);
 		//	CLdString GetArrayString(TCHAR* Path, int index);
 
-		BOOL GetBoolean(TCHAR* Path);
+		BOOL GetBoolean(TCHAR* Path);       //Path格式 "****\*****"或"*****/****"
 		double GetDouble(TCHAR* Path);
 		float GetFloat(TCHAR* Path);
 		int GetInteger(TCHAR* Path);
@@ -42,6 +49,10 @@ namespace LeadowLib {
 		CLdStringA m_ConfigFileName;
 	private:
 		JsonBox::Value m_Config;
-		JsonBox::Value GetConfigObject(CLdStringA string, JsonBox::Value::Type type= JsonBox::Value::NULL_VALUE, PVOID pValue=nullptr);
+		JsonBox::Value GetConfigObject(    //获取指定路径下的对象
+			CLdStringA string,             //路径
+			JsonBox::Value::Type type= JsonBox::Value::NULL_VALUE,       //数据类如果不为null_value,则当对象不存在时创建一个
+			PVOID pValue=nullptr                                         //如果创建,对象值
+		);
 	};
 }

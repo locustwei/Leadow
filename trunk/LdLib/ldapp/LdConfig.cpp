@@ -28,7 +28,8 @@ namespace LeadowLib {
 				CLdString tmp = (char*)m_ConfigFileName;
 				CLdString path((UINT)MAX_PATH);
 				CFileUtils::ExtractFilePath(tmp, path.GetData());
-				CFileUtils::ForceDirectories(path);
+				if (CFileUtils::ForceDirectories(path) != 0)
+					return FALSE;
 			}
 			m_Config.loadFromFile(m_ConfigFileName);
 			return TRUE;
@@ -48,6 +49,11 @@ namespace LeadowLib {
 		{
 			return FALSE;
 		}
+	}
+
+	void CLdConfig::operator=(CLdConfig & source)
+	{
+		m_Config = source.m_Config;
 	}
 
 	BOOL CLdConfig::GetBoolean(TCHAR* Path)
@@ -155,8 +161,8 @@ namespace LeadowLib {
 			{
 				string.GetData()[i] = '\0';
 				value = parent[p];
-				if (type != JsonBox::Value::NULL_VALUE)
-				{
+				if (type != JsonBox::Value::NULL_VALUE)  
+				{//需要添加不存在的对象,把路径保存下来.
 					objs.Put(p, parent);
 				}
 				else if (value.isNull())
@@ -190,15 +196,15 @@ namespace LeadowLib {
 
 			JsonBox::Value v = value;
 
-			JsonBox::Value *p = nullptr;
+			JsonBox::Value *pItem = nullptr;
 			for(int i=objs.GetCount()-1;i>=0;i--)
 			{
-				char** pkey = objs.GetAt(i, &p);
-				(*p)[*pkey] = v;
-				v = *p;
+				char** pkey = objs.GetAt(i, &pItem);
+				(*pItem)[*pkey] = v;
+				v = *pItem;
 			}
-			if(p)
-				m_Config = *p;
+			if(pItem)
+				m_Config = *pItem;
 		}
 
 		return value;
