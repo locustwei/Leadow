@@ -1,5 +1,19 @@
 #pragma once
+/*
+文件擦除的功能实现。
+擦除文件过程：
+1、覆盖文件内容，写入擦除算法的数据（随机数、特定值）。擦除算法可能需要重复多次不同值
+2、重命名文件名，生成随机文件名覆盖原文件名。
+3、修改文件大小（修改为0）、创建日期（修改为最小日期）等文件信息，
+4、删除文件。
+擦除磁盘过程：
+1、生成临时文件，足够多的临时文件占满磁盘可用空间。
+2、对生成的临时文件执行“文件擦除过程”
+3、对文件分配表整理（擦除已删除文件在文件分配表中的文件名、大小等信息）。
+	NTFS：重复创建0字节文件，直到文件分配表空间。对生成的临时文件执行文件擦除过程
+	FAT：
 
+*/
 #include "ErasureMethod.h"
 #include "VolumeEx.h"
 
@@ -41,7 +55,7 @@ public:
 	// Qualifier: 擦除磁盘空闲空间，所有已删除文件记录
 	DWORD UnuseSpaceErasure(
 		CVolumeEx* pvolume,          //待擦除磁盘
-		CErasureMethod* method,      //擦除算法
+		CErasureMothed* method,      //擦除算法
 		IErasureCallback* callback,  //擦除过程回掉函数
 		BOOL bSkipSpace,             //是否跳过未使用空间擦除(不擦除磁盘空闲空间)
 		BOOL bSkipTrack              //是否跳过文件分配表文件被删除痕迹擦除
@@ -50,7 +64,7 @@ public:
 	// 擦除文件(文件夹）。
 	DWORD FileErasure(
 		TCHAR* lpFileName,         //文件名
-		CErasureMethod* method,    //擦除算法
+		CErasureMothed* method,    //擦除算法
 		IErasureCallback* callbck, //擦除过程回掉函数
 		BOOL bRemoveFolder         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
 	);
@@ -58,9 +72,8 @@ private:
 	CVolumeEx* m_Volume;
 	CLdString m_tmpDir;               //历史文件目录名
 	//IErasureCallback* m_callback;
-	CErasureMethod* m_method;         //擦除方法
+	CErasureMothed* m_method;         //擦除方法
 	CLdArray<CLdString*> m_Tmpfiles;  //保存生成的临时文件名(完成时删除之)
-	UINT64 m_DeleteFileTraces;        //被删除的文件个数(磁盘擦除时计算需要时间)
 	//擦除文件
 	DWORD EraseFile(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSize, IErasureCallback* callbck);
 	//Buffer 写到文件中去

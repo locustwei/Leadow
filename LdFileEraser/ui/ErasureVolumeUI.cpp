@@ -308,7 +308,6 @@ void CErasureVolumeUI::StatAnalysis()
 
 void CErasureVolumeUI::StatErase()
 {
-	m_EreaserThreads.SetEreaureMethod(&CErasureMethod::Pseudorandom());
 	m_EreaserThreads.SetEreaureFiles(&m_Volumes);
 	m_EreaserThreads.StartEreasure(4);
 }

@@ -13,21 +13,21 @@ public:
 	CErasureConfig();
 	~CErasureConfig();
 
-	CErasureMethod& GetFileErasureMothed();
-	int GetFileErasureMothedIndex();
+	//ErasureMothedType GetFileErasureMothed();
+	ErasureMothedType GetFileErasureMothed();
 	BOOL IsRemoveFolder();
 	
-	CErasureMethod& GetVolumeErasureMethed();
-	int GetVolumeErasureMethedIndex();
+	//CErasureMothed& GetVolumeErasureMethed();
+	ErasureMothedType GetVolumeErasureMethed();
 	BOOL IsSkipSpace();
 	BOOL IsSkipTrack();
 	BOOL IsErasureFreeFileSpace();
 	BOOL IsShutDown();
 
-	void SetFileErasureMothed(int MothedIndex);
+	void SetFileErasureMothed(ErasureMothedType Mothed);
 	void SetRemoveFolder(BOOL value);
 
-	void SetVolumeErasureMethed(int MothedIndex);
+	void SetVolumeErasureMethed(ErasureMothedType Mothed);
 	void SetSkipSpace(BOOL value);
 	void SetSkipTrack(BOOL value);
 	void SetErasureFreeFileSpace(BOOL value);

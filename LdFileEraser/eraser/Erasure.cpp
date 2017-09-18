@@ -2,16 +2,15 @@
 #include "Erasure.h"
 #include "../../MftLib/FatMftReader.h"
 
-#define Erasure_temp_path _T("___Leadow_Erasure_tmp")
+#define Erasure_temp_path _T("___Leadow_Erasure_tmp") //存放临时文件的临时文件夹
 #define MIN_TEMPFILESIZE 1024 * 1024 * 256   //历时文件最小值（文件太小会影响擦除速度）
 #define MAX_TEMPFILESIZE 0x100000000 //(INT64)1024 * (INT64)1024 * (INT64)4096
 #define MAX_BUFFER_SIZE 1024 * 1024
 
-CErasure::CErasure():
-	m_Tmpfiles(),
-	m_tmpDir(),
-	m_Volume(),
-	m_DeleteFileTraces(0)
+CErasure::CErasure()
+	:m_Volume()
+	,m_tmpDir()
+	,m_Tmpfiles()
 {
 	m_method = NULL;
 }
@@ -21,7 +20,7 @@ CErasure::~CErasure()
 {
 }
 
-DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IErasureCallback* callback, BOOL bSkipSpace, BOOL bSkipTrack)
+DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMothed* method, IErasureCallback* callback, BOOL bSkipSpace, BOOL bSkipTrack)
 {
 	//检查是否有管理员权限（错误）
 	//检查是否有系统还原点（警告）
@@ -64,7 +63,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IE
 	return result;
 }
 
-DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasureCallback * callbck, BOOL bRemoveFolder)
+DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasureCallback * callbck, BOOL bRemoveFolder)
 {
 	DWORD result = 0;
 

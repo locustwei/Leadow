@@ -39,32 +39,48 @@ public:
 	UINT nCount;    //写入数据长的
 	PBYTE bytes;    //写入数据    
 };
-
+//擦除算法枚举
+typedef enum ErasureMothedType
+{
+	em_Pseudorandom,       //伪随机数据（1次处理）
+	em_HMGIS5Baseline,     //British HMG IS5(Baseline) (1 passes)：英国英国政府5（基线）（1次处理）
+	em_GOSTP50739,         //ussian GOST P50739-95(2 passes)：俄罗斯 p50739-95（2次处理）
+	em_DoD_E,              //U.S.DoD 5220.22-M（8-306./E）(3 passes)：美国国防部5220.22-m(8-306./E,C&E)(3次处理)
+	em_USAF5020,           //US Air Force 5020 (3 passes)：美国空军5020（3次处理）
+	em_USArmyAR380_19,     //US Army AR380-19 (3 passes)：美国陆军ar380-19（3次处理）
+	em_HMGIS5Enhanced,     //British HMG IS5(Enhanced) (3 passes)：英国邮政IS5(增强)（3次处理）
+	em_DoD_EcE,            //U.S. DoD 5220.22-M（8-306./E,C&E）(7 passes)：美国国防部5220.22-m(8?-306./E,C&E)(7次处理)
+	em_RCMP_TSSIT_OPS_II,  //RCMP TSSIT OPS-II (7 passes)：加拿大皇家骑警tssit ops-ii（7次处理）
+	em_Schneier,           //Schneier 7 passes (7 passes)：施奈尔7（7次处理）
+	em_VSITR,              //German VSITR(7 passes)：德国vsitr（7次处理）
+	em_Gutmann             //Gutmann（35 passes）：古特曼（35)
+};
 /*擦除方法*/
-class LDLIB_API CErasureMethod
+class LDLIB_API CErasureMothed
 {
 public:
-	CErasureMethod();
-	~CErasureMethod();
+	CErasureMothed(ErasureMothedType mothed);
+	~CErasureMothed();
 	UINT GetPassCount();     //擦除几遍
 	ErasureMethodPass* GetPassData(UINT nIndex);  //单遍数据
 	
-	static CErasureMethod& Pseudorandom();       //伪随机数据（1次处理）
-	static CErasureMethod& HMGIS5Baseline();     //British HMG IS5(Baseline) (1 passes)：英国英国政府5（基线）（1次处理）
-	static CErasureMethod& GOSTP50739();         //ussian GOST P50739-95(2 passes)：俄罗斯 p50739-95（2次处理）
-	static CErasureMethod& DoD_E();              //U.S.DoD 5220.22-M（8-306./E）(3 passes)：美国国防部5220.22-m(8-306./E,C&E)(3次处理)
-	static CErasureMethod& USAF5020();           //US Air Force 5020 (3 passes)：美国空军5020（3次处理）
-	static CErasureMethod& USArmyAR380_19();     //US Army AR380-19 (3 passes)：美国陆军ar380-19（3次处理）
-	static CErasureMethod& HMGIS5Enhanced();     //British HMG IS5(Enhanced) (3 passes)：英国邮政IS5(增强)（3次处理）
-	static CErasureMethod& DoD_EcE();            //U.S. DoD 5220.22-M（8-306./E,C&E）(7 passes)：美国国防部5220.22-m(8?-306./E,C&E)(7次处理)
-	static CErasureMethod& RCMP_TSSIT_OPS_II();  //RCMP TSSIT OPS-II (7 passes)：加拿大皇家骑警tssit ops-ii（7次处理）
-	static CErasureMethod& Schneier();           //Schneier 7 passes (7 passes)：施奈尔7（7次处理）
-	static CErasureMethod& VSITR();              //German VSITR(7 passes)：德国vsitr（7次处理）
-	static CErasureMethod& Gutmann();            //Gutmann（35 passes）：古特曼（35)
 private:
 	UINT nPassCount;
 	ErasureMethodPass* Passes;
+	CErasureMothed();
 
+	void Pseudorandom();       //伪随机数据（1次处理）
+	void HMGIS5Baseline();     //British HMG IS5(Baseline) (1 passes)：英国英国政府5（基线）（1次处理）
+	void GOSTP50739();         //ussian GOST P50739-95(2 passes)：俄罗斯 p50739-95（2次处理）
+	void DoD_E();              //U.S.DoD 5220.22-M（8-306./E）(3 passes)：美国国防部5220.22-m(8-306./E,C&E)(3次处理)
+	void USAF5020();           //US Air Force 5020 (3 passes)：美国空军5020（3次处理）
+	void USArmyAR380_19();     //US Army AR380-19 (3 passes)：美国陆军ar380-19（3次处理）
+	void HMGIS5Enhanced();     //British HMG IS5(Enhanced) (3 passes)：英国邮政IS5(增强)（3次处理）
+	void DoD_EcE();            //U.S. DoD 5220.22-M（8-306./E,C&E）(7 passes)：美国国防部5220.22-m(8?-306./E,C&E)(7次处理)
+	void RCMP_TSSIT_OPS_II();  //RCMP TSSIT OPS-II (7 passes)：加拿大皇家骑警tssit ops-ii（7次处理）
+	void Schneier();           //Schneier 7 passes (7 passes)：施奈尔7（7次处理）
+	void VSITR();              //German VSITR(7 passes)：德国vsitr（7次处理）
+	void Gutmann();            //Gutmann（35 passes）：古特曼（35)
 };
 
 

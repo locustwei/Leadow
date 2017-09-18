@@ -13,31 +13,9 @@ CErasureConfig::~CErasureConfig()
 {
 }
 
-CErasureMethod& CErasureConfig::GetFileErasureMothed()
+ErasureMothedType CErasureConfig::GetFileErasureMothed()
 {
-	int k = GetFileErasureMothedIndex();
-	switch(k)
-	{
-	case 0: return CErasureMethod::Pseudorandom();      
-	case 1: return CErasureMethod::HMGIS5Baseline();    
-	case 2: return CErasureMethod::GOSTP50739();        
-	case 3: return CErasureMethod::DoD_E();             
-	case 4: return CErasureMethod::USAF5020();          
-	case 5: return CErasureMethod::USArmyAR380_19();    
-	case 6: return CErasureMethod::HMGIS5Enhanced();    
-	case 7: return CErasureMethod::DoD_EcE();           
-	case 8: return CErasureMethod::RCMP_TSSIT_OPS_II(); 
-	case 9: return CErasureMethod::Schneier();          
-	case 10: return CErasureMethod::VSITR();            
-	case 11: return CErasureMethod::Gutmann();          
-	default:
-		return CErasureMethod::Pseudorandom();          
-	}
-}
-
-int CErasureConfig::GetFileErasureMothedIndex()
-{
-	return GetInteger("file/mothed", 3);
+	return (ErasureMothedType)GetInteger("file/mothed", 3);
 }
 
 BOOL CErasureConfig::IsRemoveFolder()
@@ -45,31 +23,9 @@ BOOL CErasureConfig::IsRemoveFolder()
 	return GetBoolean("file/removefolder", true);
 }
 
-CErasureMethod & CErasureConfig::GetVolumeErasureMethed()
+ErasureMothedType CErasureConfig::GetVolumeErasureMethed()
 {
-	int k = GetVolumeErasureMethedIndex();
-	switch (k)
-	{
-	case 0: return CErasureMethod::Pseudorandom();
-	case 1: return CErasureMethod::HMGIS5Baseline();
-	case 2: return CErasureMethod::GOSTP50739();
-	case 3: return CErasureMethod::DoD_E();
-	case 4: return CErasureMethod::USAF5020();
-	case 5: return CErasureMethod::USArmyAR380_19();
-	case 6: return CErasureMethod::HMGIS5Enhanced();
-	case 7: return CErasureMethod::DoD_EcE();
-	case 8: return CErasureMethod::RCMP_TSSIT_OPS_II();
-	case 9: return CErasureMethod::Schneier();
-	case 10: return CErasureMethod::VSITR();
-	case 11: return CErasureMethod::Gutmann();
-	default:
-		return CErasureMethod::Pseudorandom();
-	}
-}
-
-int CErasureConfig::GetVolumeErasureMethedIndex()
-{
-	return GetInteger("volume/mothed", 0);
+	return (ErasureMothedType)GetInteger("volume/mothed", 0);
 }
 
 BOOL CErasureConfig::IsSkipSpace()
@@ -92,9 +48,9 @@ BOOL CErasureConfig::IsShutDown()
 	return GetBoolean("volume/shutdown", false);;
 }
 
-void CErasureConfig::SetFileErasureMothed(int MothedIndex)
+void CErasureConfig::SetFileErasureMothed(ErasureMothedType Mothed)
 {
-	SetInteger("file/mothed", MothedIndex);
+	SetInteger("file/mothed", Mothed);
 }
 
 void CErasureConfig::SetRemoveFolder(BOOL value)
@@ -102,9 +58,9 @@ void CErasureConfig::SetRemoveFolder(BOOL value)
 	SetBoolean("file/removefolder", value);
 }
 
-void CErasureConfig::SetVolumeErasureMethed(int MothedIndex)
+void CErasureConfig::SetVolumeErasureMethed(ErasureMothedType Mothed)
 {
-	SetInteger("volume/mothed", MothedIndex);
+	SetInteger("volume/mothed", Mothed);
 }
 
 void CErasureConfig::SetSkipSpace(BOOL value)

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 #include "VolumeEx.h"
+#include "../ErasureImpl.h"
 
 CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 {
@@ -10,15 +11,16 @@ CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 	m_MaxThreadCount = 1;
 	m_ControlThread = nullptr;
 	m_Files = nullptr;
-	m_Method = nullptr;
+	m_FileMothed = nullptr;
+	m_VolumeMothed = nullptr;
 	m_ThreadCount = 0;
-	ZeroMemory(m_Options, sizeof(ERASER_OPTIONS));
+	ZeroMemory(&m_Options, sizeof(ERASER_OPTIONS));
 	m_Options.bRemoveFolder = ThisLibrary->GetConfig()->IsRemoveFolder();
 	m_Options.bSkipSpace = ThisLibrary->GetConfig()->IsSkipSpace();
 	m_Options.bSkipTrack = ThisLibrary->GetConfig()->IsSkipTrack();
 	m_Options.bFreeFileSpace = ThisLibrary->GetConfig()->IsErasureFreeFileSpace();
-	m_Options.nFileMothedIndex = ThisLibrary->GetConfig()->GetFileErasureMothedIndex();
-	m_Options.nVolumeMothedIndex = ThisLibrary->GetConfig()->GetVolumeErasureMethedIndex();
+	m_Options.FileMothed = ThisLibrary->GetConfig()->GetFileErasureMothed();
+	m_Options.VolumeMothed = ThisLibrary->GetConfig()->GetVolumeErasureMethed();
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -30,6 +32,10 @@ CEreaserThrads::~CEreaserThrads()
 		CloseHandle(m_hEvent);
 		m_hEvent = NULL;
 	}
+	if (m_FileMothed)
+		delete m_FileMothed;
+	if (m_VolumeMothed)
+		delete m_VolumeMothed;
 }
 
 void CEreaserThrads::StopThreads()
@@ -44,15 +50,18 @@ void CEreaserThrads::SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles)
 	m_Files = pFiles;
 }
 
-void CEreaserThrads::SetEreaureMethod(CErasureMethod* pMethod)
-{
-	m_Method = pMethod;
-}
-
 DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 {
 	if (m_ControlThread)  //上一次擦除还没有结束
 		return (DWORD)-1;
+
+	if (m_FileMothed)
+		delete m_FileMothed;
+	if (m_VolumeMothed)
+		delete m_VolumeMothed;
+
+	m_FileMothed = new CErasureMothed(m_Options.FileMothed);
+	m_VolumeMothed = new CErasureMothed(m_Options.VolumeMothed);
 
 	if (m_hEvent == NULL)
 		m_hEvent = CreateEvent(nullptr, true, false, nullptr);
@@ -177,10 +186,10 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 	{
 	case vft_file:
 	case vft_folder:
-		erasure.FileErasure(pFile->GetFullName(), m_Method, &impl, TRUE);
+		erasure.FileErasure(pFile->GetFullName(), m_FileMothed, &impl, m_Options.bRemoveFolder);
 		break;
 	case vft_volume:
-		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_Method, &impl, FALSE, FALSE);
+		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);
 		break;
 	default:
 		break;

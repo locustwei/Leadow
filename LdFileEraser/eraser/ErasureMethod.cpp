@@ -1,14 +1,62 @@
 #include "stdafx.h"
 #include "ErasureMethod.h"
 
-CErasureMethod::CErasureMethod()
+CErasureMothed::CErasureMothed()
 {
 	nPassCount = 0;
 	Passes = NULL;
 }
 
 
-CErasureMethod::~CErasureMethod()
+CErasureMothed::CErasureMothed(ErasureMothedType mothed)
+{
+	nPassCount = 0;
+	Passes = NULL;
+
+	switch(mothed)
+	{
+	case em_Pseudorandom: 
+		Pseudorandom();
+		break;
+	case em_HMGIS5Baseline: 
+		HMGIS5Baseline();
+		break;
+	case em_GOSTP50739: 
+		GOSTP50739();
+		break;
+	case em_DoD_E: 
+		DoD_E();
+		break;
+	case em_USAF5020: 
+		USAF5020();
+		break;
+	case em_USArmyAR380_19: 
+		USArmyAR380_19();
+		break;
+	case em_HMGIS5Enhanced: 
+		HMGIS5Enhanced();
+		break;
+	case em_DoD_EcE: 
+		DoD_EcE();
+		break;
+	case em_RCMP_TSSIT_OPS_II: 
+		RCMP_TSSIT_OPS_II();
+		break;
+	case em_Schneier: 
+		Schneier();
+		break;
+	case em_VSITR: 
+		VSITR();
+		break;
+	case em_Gutmann: 
+		Gutmann();
+		break;
+	default: 
+		break;
+	}
+}
+
+CErasureMothed::~CErasureMothed()
 {
 	if (nPassCount == 0 || Passes == NULL)
 		return;
@@ -22,378 +70,349 @@ CErasureMethod::~CErasureMethod()
 	delete[] Passes;
 }
 
-UINT CErasureMethod::GetPassCount()
+UINT CErasureMothed::GetPassCount()
 {
 	return nPassCount;
 }
 
-ErasureMethodPass * CErasureMethod::GetPassData(UINT nIndex)
+ErasureMethodPass * CErasureMothed::GetPassData(UINT nIndex)
 {
 	return &Passes[nIndex];
 }
 
-CErasureMethod& CErasureMethod::DoD_EcE()
+void CErasureMothed::DoD_EcE()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 7;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 7;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{BYTE(rand() & 0xFF)};
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{BYTE(rand() & 0xFF)};
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[1].nCount]{ BYTE(~(Result.Passes[0].bytes[0])) };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[1].nCount]{ BYTE(~(Passes[0].bytes[0])) };
 
-	Result.Passes[2].function = WriteRandom;
+	Passes[2].function = WriteRandom;
 
-	Result.Passes[3].function = WriteConstant;
-	Result.Passes[3].nCount = 1;
-	Result.Passes[3].bytes = new BYTE[Result.Passes[3].nCount]{ BYTE(rand() >> 8 & 0xFF) };
+	Passes[3].function = WriteConstant;
+	Passes[3].nCount = 1;
+	Passes[3].bytes = new BYTE[Passes[3].nCount]{ BYTE(rand() >> 8 & 0xFF) };
 
-	Result.Passes[4].function = WriteConstant;
-	Result.Passes[4].nCount = 1;
-	Result.Passes[4].bytes = new BYTE[Result.Passes[4].nCount]{ BYTE(rand() >> 16 & 0xFF) };
+	Passes[4].function = WriteConstant;
+	Passes[4].nCount = 1;
+	Passes[4].bytes = new BYTE[Passes[4].nCount]{ BYTE(rand() >> 16 & 0xFF) };
 
-	Result.Passes[5].function = WriteConstant;
-	Result.Passes[5].nCount = 1;
-	Result.Passes[5].bytes = new BYTE[Result.Passes[5].nCount]{ BYTE(~Result.Passes[5].bytes[0]) };
+	Passes[5].function = WriteConstant;
+	Passes[5].nCount = 1;
+	Passes[5].bytes = new BYTE[Passes[5].nCount]{ BYTE(~Passes[5].bytes[0]) };
 
-	Result.Passes[6].function = WriteRandom;
-	
-	return Result;
+	Passes[6].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::DoD_E()
+void CErasureMothed::DoD_E()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 3;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 3;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[1].nCount]{ 0xFF };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[1].nCount]{ 0xFF };
 
-	Result.Passes[2].function = WriteRandom;
-	return Result;
+	Passes[2].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::GOSTP50739()
+void CErasureMothed::GOSTP50739()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 2;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 2;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[1].function = WriteRandom;
-
-	return Result;
+	Passes[1].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::Gutmann()
+void CErasureMothed::Gutmann()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 1;
+	nPassCount = 1;
 
-	Result.Passes[0].function = WriteRandom;                                   // 1
-	Result.Passes[1].function = WriteRandom;
-	Result.Passes[2].function = WriteRandom;
-	Result.Passes[3].function = WriteRandom;
+	Passes[0].function = WriteRandom;                                   // 1
+	Passes[1].function = WriteRandom;
+	Passes[2].function = WriteRandom;
+	Passes[3].function = WriteRandom;
 
-	Result.Passes[4].function = WriteConstant;
-	Result.Passes[4].nCount = 1;
-	Result.Passes[4].bytes = new BYTE[Result.Passes[4].nCount]{ 0x55 };                    // 5
+	Passes[4].function = WriteConstant;
+	Passes[4].nCount = 1;
+	Passes[4].bytes = new BYTE[Passes[4].nCount]{ 0x55 };                    // 5
 
-	Result.Passes[5].function = WriteConstant;
-	Result.Passes[5].nCount = 1;
-	Result.Passes[5].bytes = new BYTE[Result.Passes[5].nCount]{ 0xAA };
+	Passes[5].function = WriteConstant;
+	Passes[5].nCount = 1;
+	Passes[5].bytes = new BYTE[Passes[5].nCount]{ 0xAA };
 
-	Result.Passes[6].function = WriteConstant;
-	Result.Passes[6].nCount = 3;
-	Result.Passes[6].bytes = new BYTE[Result.Passes[6].nCount]{ 0x92, 0x49, 0x24 };
+	Passes[6].function = WriteConstant;
+	Passes[6].nCount = 3;
+	Passes[6].bytes = new BYTE[Passes[6].nCount]{ 0x92, 0x49, 0x24 };
 
-	Result.Passes[7].function = WriteConstant;
-	Result.Passes[7].nCount = 3;
-	Result.Passes[7].bytes = new BYTE[Result.Passes[7].nCount]{ 0x49, 0x24, 0x92 };
+	Passes[7].function = WriteConstant;
+	Passes[7].nCount = 3;
+	Passes[7].bytes = new BYTE[Passes[7].nCount]{ 0x49, 0x24, 0x92 };
 
-	Result.Passes[8].function = WriteConstant;
-	Result.Passes[8].nCount = 3;
-	Result.Passes[8].bytes = new BYTE[Result.Passes[8].nCount]{ 0x24, 0x92, 0x49 };
+	Passes[8].function = WriteConstant;
+	Passes[8].nCount = 3;
+	Passes[8].bytes = new BYTE[Passes[8].nCount]{ 0x24, 0x92, 0x49 };
 
-	Result.Passes[9].function = WriteConstant;
-	Result.Passes[9].nCount = 1;
-	Result.Passes[9].bytes = new BYTE[Result.Passes[9].nCount]{ 0 };
+	Passes[9].function = WriteConstant;
+	Passes[9].nCount = 1;
+	Passes[9].bytes = new BYTE[Passes[9].nCount]{ 0 };
 
-	Result.Passes[10].function = WriteConstant;
-	Result.Passes[10].nCount = 1;
-	Result.Passes[10].bytes = new BYTE[Result.Passes[10].nCount]{ 0x11 };
+	Passes[10].function = WriteConstant;
+	Passes[10].nCount = 1;
+	Passes[10].bytes = new BYTE[Passes[10].nCount]{ 0x11 };
 
-	Result.Passes[11].function = WriteConstant;
-	Result.Passes[11].nCount = 1;
-	Result.Passes[11].bytes = new BYTE[Result.Passes[11].nCount]{ 0x22 };
+	Passes[11].function = WriteConstant;
+	Passes[11].nCount = 1;
+	Passes[11].bytes = new BYTE[Passes[11].nCount]{ 0x22 };
 
-	Result.Passes[12].function = WriteConstant;
-	Result.Passes[12].nCount = 1;
-	Result.Passes[12].bytes = new BYTE[Result.Passes[12].nCount]{ 0x33 };
+	Passes[12].function = WriteConstant;
+	Passes[12].nCount = 1;
+	Passes[12].bytes = new BYTE[Passes[12].nCount]{ 0x33 };
 
-	Result.Passes[13].function = WriteConstant;
-	Result.Passes[13].nCount = 1;
-	Result.Passes[13].bytes = new BYTE[Result.Passes[13].nCount]{ 0x44 };
+	Passes[13].function = WriteConstant;
+	Passes[13].nCount = 1;
+	Passes[13].bytes = new BYTE[Passes[13].nCount]{ 0x44 };
 
-	Result.Passes[14].function = WriteConstant;
-	Result.Passes[14].nCount = 1;
-	Result.Passes[14].bytes = new BYTE[Result.Passes[14].nCount]{ 0x55 };
+	Passes[14].function = WriteConstant;
+	Passes[14].nCount = 1;
+	Passes[14].bytes = new BYTE[Passes[14].nCount]{ 0x55 };
 
-	Result.Passes[15].function = WriteConstant;
-	Result.Passes[15].nCount = 1;
-	Result.Passes[15].bytes = new BYTE[Result.Passes[15].nCount]{ 0x66 };
+	Passes[15].function = WriteConstant;
+	Passes[15].nCount = 1;
+	Passes[15].bytes = new BYTE[Passes[15].nCount]{ 0x66 };
 
-	Result.Passes[16].function = WriteConstant;
-	Result.Passes[16].nCount = 1;
-	Result.Passes[16].bytes = new BYTE[Result.Passes[16].nCount]{ 0x77 };
+	Passes[16].function = WriteConstant;
+	Passes[16].nCount = 1;
+	Passes[16].bytes = new BYTE[Passes[16].nCount]{ 0x77 };
 
-	Result.Passes[17].function = WriteConstant;
-	Result.Passes[17].nCount = 1;
-	Result.Passes[17].bytes = new BYTE[Result.Passes[17].nCount]{ 0x88 };
+	Passes[17].function = WriteConstant;
+	Passes[17].nCount = 1;
+	Passes[17].bytes = new BYTE[Passes[17].nCount]{ 0x88 };
 
-	Result.Passes[18].function = WriteConstant;
-	Result.Passes[18].nCount = 1;
-	Result.Passes[18].bytes = new BYTE[Result.Passes[18].nCount]{ 0x99 };
+	Passes[18].function = WriteConstant;
+	Passes[18].nCount = 1;
+	Passes[18].bytes = new BYTE[Passes[18].nCount]{ 0x99 };
 
-	Result.Passes[19].function = WriteConstant;
-	Result.Passes[19].nCount = 1;
-	Result.Passes[19].bytes = new BYTE[Result.Passes[19].nCount]{ 0xAA };
+	Passes[19].function = WriteConstant;
+	Passes[19].nCount = 1;
+	Passes[19].bytes = new BYTE[Passes[19].nCount]{ 0xAA };
 
-	Result.Passes[20].function = WriteConstant;
-	Result.Passes[20].nCount = 1;
-	Result.Passes[20].bytes = new BYTE[Result.Passes[20].nCount]{ 0xBB };
+	Passes[20].function = WriteConstant;
+	Passes[20].nCount = 1;
+	Passes[20].bytes = new BYTE[Passes[20].nCount]{ 0xBB };
 
-	Result.Passes[21].function = WriteConstant;
-	Result.Passes[21].nCount = 1;
-	Result.Passes[21].bytes = new BYTE[Result.Passes[21].nCount]{ 0xCC };
+	Passes[21].function = WriteConstant;
+	Passes[21].nCount = 1;
+	Passes[21].bytes = new BYTE[Passes[21].nCount]{ 0xCC };
 
-	Result.Passes[22].function = WriteConstant;
-	Result.Passes[22].nCount = 1;
-	Result.Passes[22].bytes = new BYTE[Result.Passes[22].nCount]{ 0xDD };
+	Passes[22].function = WriteConstant;
+	Passes[22].nCount = 1;
+	Passes[22].bytes = new BYTE[Passes[22].nCount]{ 0xDD };
 
-	Result.Passes[23].function = WriteConstant;
-	Result.Passes[23].nCount = 1;
-	Result.Passes[23].bytes = new BYTE[Result.Passes[23].nCount]{ 0xEE };
+	Passes[23].function = WriteConstant;
+	Passes[23].nCount = 1;
+	Passes[23].bytes = new BYTE[Passes[23].nCount]{ 0xEE };
 
-	Result.Passes[24].function = WriteConstant;
-	Result.Passes[24].nCount = 1;
-	Result.Passes[24].bytes = new BYTE[Result.Passes[24].nCount]{ 0xFF };
+	Passes[24].function = WriteConstant;
+	Passes[24].nCount = 1;
+	Passes[24].bytes = new BYTE[Passes[24].nCount]{ 0xFF };
 
-	Result.Passes[25].function = WriteConstant;
-	Result.Passes[25].nCount = 3;
-	Result.Passes[25].bytes = new BYTE[Result.Passes[25].nCount]{ 0x92, 0x49, 0x24 };
+	Passes[25].function = WriteConstant;
+	Passes[25].nCount = 3;
+	Passes[25].bytes = new BYTE[Passes[25].nCount]{ 0x92, 0x49, 0x24 };
 
-	Result.Passes[26].function = WriteConstant;
-	Result.Passes[26].nCount = 3;
-	Result.Passes[26].bytes = new BYTE[Result.Passes[26].nCount]{ 0x49, 0x24, 0x92 };
+	Passes[26].function = WriteConstant;
+	Passes[26].nCount = 3;
+	Passes[26].bytes = new BYTE[Passes[26].nCount]{ 0x49, 0x24, 0x92 };
 
-	Result.Passes[27].function = WriteConstant;
-	Result.Passes[27].nCount = 3;
-	Result.Passes[27].bytes = new BYTE[Result.Passes[27].nCount]{ 0x24, 0x92, 0x49 };
+	Passes[27].function = WriteConstant;
+	Passes[27].nCount = 3;
+	Passes[27].bytes = new BYTE[Passes[27].nCount]{ 0x24, 0x92, 0x49 };
 
-	Result.Passes[28].function = WriteConstant;
-	Result.Passes[28].nCount = 3;
-	Result.Passes[28].bytes = new BYTE[Result.Passes[28].nCount]{ 0x6D, 0xB6, 0xDB };
+	Passes[28].function = WriteConstant;
+	Passes[28].nCount = 3;
+	Passes[28].bytes = new BYTE[Passes[28].nCount]{ 0x6D, 0xB6, 0xDB };
 
-	Result.Passes[29].function = WriteConstant;
-	Result.Passes[29].nCount = 3;
-	Result.Passes[29].bytes = new BYTE[Result.Passes[29].nCount]{ 0xB6, 0xDB, 0x6D };
+	Passes[29].function = WriteConstant;
+	Passes[29].nCount = 3;
+	Passes[29].bytes = new BYTE[Passes[29].nCount]{ 0xB6, 0xDB, 0x6D };
 
-	Result.Passes[30].function = WriteConstant;
-	Result.Passes[30].nCount = 3;
-	Result.Passes[30].bytes = new BYTE[Result.Passes[30].nCount]{ 0xDB, 0x6D, 0xB6 };
+	Passes[30].function = WriteConstant;
+	Passes[30].nCount = 3;
+	Passes[30].bytes = new BYTE[Passes[30].nCount]{ 0xDB, 0x6D, 0xB6 };
 
-	Result.Passes[31].function = WriteRandom;
-	Result.Passes[32].function = WriteRandom;
-	Result.Passes[33].function = WriteRandom;
-	Result.Passes[34].function = WriteRandom;                                   // 35
-	return Result;
+	Passes[31].function = WriteRandom;
+	Passes[32].function = WriteRandom;
+	Passes[33].function = WriteRandom;
+	Passes[34].function = WriteRandom;                                   // 35
 }
 
-CErasureMethod& CErasureMethod::HMGIS5Enhanced()
+void CErasureMothed::HMGIS5Enhanced()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 3;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 3;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[2].function = WriteRandom;
-	return Result;
+	Passes[2].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::RCMP_TSSIT_OPS_II()
+void CErasureMothed::RCMP_TSSIT_OPS_II()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 7;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 7;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[2].function = WriteConstant;
-	Result.Passes[2].nCount = 1;
-	Result.Passes[2].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[2].function = WriteConstant;
+	Passes[2].nCount = 1;
+	Passes[2].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[3].function = WriteConstant;
-	Result.Passes[3].nCount = 1;
-	Result.Passes[3].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[3].function = WriteConstant;
+	Passes[3].nCount = 1;
+	Passes[3].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[4].function = WriteConstant;
-	Result.Passes[4].nCount = 1;
-	Result.Passes[4].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[4].function = WriteConstant;
+	Passes[4].nCount = 1;
+	Passes[4].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[5].function = WriteConstant;
-	Result.Passes[5].nCount = 1;
-	Result.Passes[5].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[5].function = WriteConstant;
+	Passes[5].nCount = 1;
+	Passes[5].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[6].function = WriteConstant;
-	Result.Passes[6].nCount = 1;
-	Result.Passes[6].bytes = new BYTE[Result.Passes[1].nCount]{ BYTE(rand() & 0xFF) };
+	Passes[6].function = WriteConstant;
+	Passes[6].nCount = 1;
+	Passes[6].bytes = new BYTE[Passes[1].nCount]{ BYTE(rand() & 0xFF) };
 
-	return Result;
 }
 
-CErasureMethod& CErasureMethod::Schneier()
+void CErasureMothed::Schneier()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 7;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 7;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[2].function = WriteRandom;
-	Result.Passes[3].function = WriteRandom;
-	Result.Passes[4].function = WriteRandom;
-	Result.Passes[5].function = WriteRandom;
-	Result.Passes[6].function = WriteRandom;
-
-	return Result;
+	Passes[2].function = WriteRandom;
+	Passes[3].function = WriteRandom;
+	Passes[4].function = WriteRandom;
+	Passes[5].function = WriteRandom;
+	Passes[6].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::USAF5020()
+void CErasureMothed::USAF5020()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 3;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 3;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ BYTE(rand() & 0xFF) };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ BYTE(rand() & 0xFF) };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[0].nCount]{ BYTE(rand() >> 8 & 0xFF) };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[0].nCount]{ BYTE(rand() >> 8 & 0xFF) };
 
-	Result.Passes[2].function = WriteConstant;
-	Result.Passes[2].nCount = 1;
-	Result.Passes[2].bytes = new BYTE[Result.Passes[1].nCount]{ BYTE(rand() >> 16 & 0xFF) };
+	Passes[2].function = WriteConstant;
+	Passes[2].nCount = 1;
+	Passes[2].bytes = new BYTE[Passes[1].nCount]{ BYTE(rand() >> 16 & 0xFF) };
 
-	return Result;
 }
 
-CErasureMethod& CErasureMethod::USArmyAR380_19()
+void CErasureMothed::USArmyAR380_19()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 3;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
-	Result.Passes[0].function = WriteRandom;
+	nPassCount = 3;
+	Passes = new ErasureMethodPass[nPassCount];
+	Passes[0].function = WriteRandom;
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[0].nCount]{ BYTE(rand() & 0xFF) };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[0].nCount]{ BYTE(rand() & 0xFF) };
 
-	Result.Passes[2].function = WriteConstant;
-	Result.Passes[2].nCount = 1;
-	Result.Passes[2].bytes = new BYTE[Result.Passes[1].nCount]{ BYTE(~(rand() & 0xFF)) };
+	Passes[2].function = WriteConstant;
+	Passes[2].nCount = 1;
+	Passes[2].bytes = new BYTE[Passes[1].nCount]{ BYTE(~(rand() & 0xFF)) };
 
-	return Result;
 }
 
-CErasureMethod& CErasureMethod::VSITR()
+void CErasureMothed::VSITR()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 7;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 7;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[1].function = WriteConstant;
-	Result.Passes[1].nCount = 1;
-	Result.Passes[1].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[1].function = WriteConstant;
+	Passes[1].nCount = 1;
+	Passes[1].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[2].function = WriteConstant;
-	Result.Passes[2].nCount = 1;
-	Result.Passes[2].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[2].function = WriteConstant;
+	Passes[2].nCount = 1;
+	Passes[2].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[3].function = WriteConstant;
-	Result.Passes[3].nCount = 1;
-	Result.Passes[3].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[3].function = WriteConstant;
+	Passes[3].nCount = 1;
+	Passes[3].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[4].function = WriteConstant;
-	Result.Passes[4].nCount = 1;
-	Result.Passes[4].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
+	Passes[4].function = WriteConstant;
+	Passes[4].nCount = 1;
+	Passes[4].bytes = new BYTE[Passes[0].nCount]{ 0 };
 
-	Result.Passes[5].function = WriteConstant;
-	Result.Passes[5].nCount = 1;
-	Result.Passes[5].bytes = new BYTE[Result.Passes[1].nCount]{ 0x1 };
+	Passes[5].function = WriteConstant;
+	Passes[5].nCount = 1;
+	Passes[5].bytes = new BYTE[Passes[1].nCount]{ 0x1 };
 
-	Result.Passes[6].function = WriteRandom;
-
-	return Result;
+	Passes[6].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::Pseudorandom()
+void CErasureMothed::Pseudorandom()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 1;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 1;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteRandom;
-
-	return Result;
+	Passes[0].function = WriteRandom;
 }
 
-CErasureMethod& CErasureMethod::HMGIS5Baseline()
+void CErasureMothed::HMGIS5Baseline()
 {
-	static CErasureMethod Result;
-	Result.nPassCount = 1;
-	Result.Passes = new ErasureMethodPass[Result.nPassCount];
+	nPassCount = 1;
+	Passes = new ErasureMethodPass[nPassCount];
 
-	Result.Passes[0].function = WriteConstant;
-	Result.Passes[0].nCount = 1;
-	Result.Passes[0].bytes = new BYTE[Result.Passes[0].nCount]{ 0 };
-	return Result;
+	Passes[0].function = WriteConstant;
+	Passes[0].nCount = 1;
+	Passes[0].bytes = new BYTE[Passes[0].nCount]{ 0 };
 }

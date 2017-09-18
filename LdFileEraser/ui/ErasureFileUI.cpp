@@ -241,7 +241,6 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 
 void CErasureFileUI::StatErase()
 {
-	m_EreaserThreads.SetEreaureMethod(&CErasureMethod::Pseudorandom());
 	m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
 	m_EreaserThreads.StartEreasure(10);
 }

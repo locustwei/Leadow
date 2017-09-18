@@ -45,8 +45,8 @@ typedef struct ERASER_OPTIONS
 	BOOL bSkipSpace;         //跳过空闲空间
 	BOOL bSkipTrack;         //跳过删除痕迹
 	BOOL bFreeFileSpace;     //擦除文件空闲
-	int nFileMothedIndex;    //文件擦除方法索引
-	int nVolumeMothedIndex;  //磁盘擦除方法索引
+	ErasureMothedType FileMothed;    //文件擦除方法索引
+	ErasureMothedType VolumeMothed;  //磁盘擦除方法索引
 }*PERASER_OPTIONS;
 
 //文件擦除线程（同时创建多个文件擦除线程）
@@ -59,7 +59,6 @@ public:
 
 	void StopThreads();                                      //终止擦除
 	void SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles);  //添加擦除文件
-	void SetEreaureMethod(CErasureMethod* pMethod);
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 	DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
 	PERASER_OPTIONS GetOptions();
@@ -72,8 +71,9 @@ private:
 	boolean m_Abort;                   //停止擦除
 	int m_MaxThreadCount;              //最多线程数
 	CThread* m_ControlThread;          //控制线程
-	CErasureMethod* m_Method;          //擦除算法
 	ERASER_OPTIONS m_Options;          //
+	CErasureMothed* m_FileMothed;
+	CErasureMothed* m_VolumeMothed;
 
 	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
 	CLdArray<CVirtualFile*>* m_Files;   //待擦除的文件
