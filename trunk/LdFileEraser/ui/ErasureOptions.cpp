@@ -35,13 +35,13 @@ void CErasureOptionsUI::OnItemClick(TNotifyUI & msg)
 
 void CErasureOptionsUI::LoadConfig()
 {
-	int k = ThisLibrary->GetConfig()->GetFileErasureMothedIndex();
+	int k = ThisLibrary->GetConfig()->GetFileErasureMothed();
 	if (m_cbFile)
 		m_cbFile->SelectItem(k, false);
 	BOOL b = ThisLibrary->GetConfig()->IsRemoveFolder();
 	if(m_ckFolder)
 		m_ckFolder->SetCheck(b==TRUE, false);
-	k = ThisLibrary->GetConfig()->GetVolumeErasureMethedIndex();
+	k = ThisLibrary->GetConfig()->GetVolumeErasureMethed();
 	if (m_cbVolume)
 		m_cbVolume->SelectItem(k);
 	b = ThisLibrary->GetConfig()->IsSkipSpace();
@@ -87,11 +87,11 @@ void CErasureOptionsUI::AttanchControl(CControlUI* pCtrl)
 void CErasureOptionsUI::SaveConfig()
 {
 	if (m_cbFile)
-		ThisLibrary->GetConfig()->SetFileErasureMothed(m_cbFile->GetCurSel());
+		ThisLibrary->GetConfig()->SetFileErasureMothed((ErasureMothedType)m_cbFile->GetCurSel());
 	if (m_ckFolder)
 		ThisLibrary->GetConfig()->SetRemoveFolder(m_ckFolder->GetCheck());
 	if (m_cbVolume)
-		ThisLibrary->GetConfig()->SetVolumeErasureMethed(m_cbVolume->GetCurSel());
+		ThisLibrary->GetConfig()->SetVolumeErasureMethed((ErasureMothedType)m_cbVolume->GetCurSel());
 	if (m_ckSkipSpace)
 		ThisLibrary->GetConfig()->SetSkipSpace(m_ckSkipSpace->GetCheck());
 	if (m_ckSkipTrack)
