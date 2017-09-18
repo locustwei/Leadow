@@ -14,18 +14,14 @@ class CErasureImpl
 	friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/);
 public:
 	CErasureImpl();
-	~CErasureImpl() override;
+	~CErasureImpl();
 	CErasureConfig* GetConfig();
 	HMODULE GetModuleHandle();
 protected:
-	virtual CFramNotifyPump* GetNotifyPump() override;;
-
-	TCHAR* UIResorce() override;;
-
-	void SetUI(CControlUI* pCtrl) override;;
-
-	CControlUI* GetUI() override;;
-
+	CFramNotifyPump* GetNotifyPump() override;
+	TCHAR* UIResorce() override;
+	void SetUI(CControlUI* pCtrl) override;
+	CControlUI* GetUI() override;
 private:
 	CErasureMainWnd* m_MainWnd;
 	CControlUI* m_Ctrl;

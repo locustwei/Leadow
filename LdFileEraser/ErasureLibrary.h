@@ -20,5 +20,5 @@ public:
 	*/
 	virtual CFramNotifyPump* GetNotifyPump() = 0;
 protected:
-	virtual ~IErasureLibrary() {};
+	//virtual ~IErasureLibrary() {};
 };

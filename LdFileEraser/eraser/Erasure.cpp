@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Erasure.h"
+#include "../../MftLib/FatMftReader.h"
 
 #define Erasure_temp_path _T("___Leadow_Erasure_tmp")
 #define MIN_TEMPFILESIZE 1024 * 1024 * 256   //历时文件最小值（文件太小会影响擦除速度）
@@ -20,7 +21,7 @@ CErasure::~CErasure()
 {
 }
 
-DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IErasureCallback* callback)
+DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IErasureCallback* callback, BOOL bSkipSpace, BOOL bSkipTrack)
 {
 	//检查是否有管理员权限（错误）
 	//检查是否有系统还原点（警告）
@@ -63,7 +64,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMethod* method, IE
 	return result;
 }
 
-DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasureCallback * callbck)
+DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMethod * method, IErasureCallback * callbck, BOOL bRemoveFolder)
 {
 	DWORD result = 0;
 

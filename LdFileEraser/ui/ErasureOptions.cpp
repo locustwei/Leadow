@@ -35,25 +35,25 @@ void CErasureOptionsUI::OnItemClick(TNotifyUI & msg)
 
 void CErasureOptionsUI::LoadConfig()
 {
-	int k = ThisLibrary->GetConfig()->GetInteger("file/mothed", 3);
+	int k = ThisLibrary->GetConfig()->GetFileErasureMothedIndex();
 	if (m_cbFile)
 		m_cbFile->SelectItem(k, false);
-	BOOL b = ThisLibrary->GetConfig()->GetBoolean("file/removefolder", true);
+	BOOL b = ThisLibrary->GetConfig()->IsRemoveFolder();
 	if(m_ckFolder)
 		m_ckFolder->SetCheck(b==TRUE, false);
-	k = ThisLibrary->GetConfig()->GetInteger("volume/mothed", 0);
+	k = ThisLibrary->GetConfig()->GetVolumeErasureMethedIndex();
 	if (m_cbVolume)
 		m_cbVolume->SelectItem(k);
-	b = ThisLibrary->GetConfig()->GetBoolean("volume/skipspace", false);
+	b = ThisLibrary->GetConfig()->IsSkipSpace();
 	if (m_ckSkipSpace)
 		m_ckSkipSpace->SetCheck(b==TRUE, false);
-	b = ThisLibrary->GetConfig()->GetBoolean("volume/skiptrack", false);
+	b = ThisLibrary->GetConfig()->IsSkipTrack();
 	if (m_ckSkipTrack)
 		m_ckSkipTrack->SetCheck(b == TRUE, false);
-	b = ThisLibrary->GetConfig()->GetBoolean("volume/filefree", false);
+	b = ThisLibrary->GetConfig()->IsErasureFreeFileSpace();
 	if (m_ckFileFree)
 		m_ckFileFree->SetCheck(b == TRUE, false);
-	b = ThisLibrary->GetConfig()->GetBoolean("volume/shutdown", false);
+	b = ThisLibrary->GetConfig()->IsShutDown();
 	if (m_ckShutdown)
 		m_ckShutdown->SetCheck(b == TRUE, false);
 }
@@ -87,19 +87,19 @@ void CErasureOptionsUI::AttanchControl(CControlUI* pCtrl)
 void CErasureOptionsUI::SaveConfig()
 {
 	if (m_cbFile)
-		ThisLibrary->GetConfig()->SetInteger("file/mothed", m_cbFile->GetCurSel());
+		ThisLibrary->GetConfig()->SetFileErasureMothed(m_cbFile->GetCurSel());
 	if (m_ckFolder)
-		ThisLibrary->GetConfig()->SetBoolean("file/removefolder", m_ckFolder->GetCheck());
+		ThisLibrary->GetConfig()->SetRemoveFolder(m_ckFolder->GetCheck());
 	if (m_cbVolume)
-		ThisLibrary->GetConfig()->SetInteger("volume/mothed", m_cbVolume->GetCurSel());
+		ThisLibrary->GetConfig()->SetVolumeErasureMethed(m_cbVolume->GetCurSel());
 	if (m_ckSkipSpace)
-		ThisLibrary->GetConfig()->SetBoolean("volume/skipspace", m_ckSkipSpace->GetCheck());
+		ThisLibrary->GetConfig()->SetSkipSpace(m_ckSkipSpace->GetCheck());
 	if (m_ckSkipTrack)
-		ThisLibrary->GetConfig()->SetBoolean("volume/skiptrack", m_ckSkipTrack->GetCheck());
+		ThisLibrary->GetConfig()->SetSkipTrack(m_ckSkipTrack->GetCheck());
 	if (m_ckFileFree)
-		ThisLibrary->GetConfig()->SetBoolean("volume/filefree", m_ckFileFree->GetCheck());
+		ThisLibrary->GetConfig()->SetErasureFreeFileSpace(m_ckFileFree->GetCheck());
 	if (m_ckShutdown)
-		ThisLibrary->GetConfig()->SetBoolean("volume/shutdown", m_ckShutdown->GetCheck());
+		ThisLibrary->GetConfig()->SetShutDown(m_ckShutdown->GetCheck());
 
 	ThisLibrary->GetConfig()->SaveConfig();
 }
