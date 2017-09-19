@@ -11,12 +11,21 @@
 
 #include <windows.h>
 
-// C 运行时头文件
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-#include "..\DuiLib\UIlib.h"
-using namespace DuiLib;
+#include <LdLib.h>
+using namespace LeadowLib;
+
+#ifdef _DEBUG
+#ifdef _X64
+#pragma comment(lib,"LdLib_d64.lib")
+#else
+#pragma comment(lib,"LdLib_d32.lib")
+#endif
+#else
+#ifdef _X64
+#pragma comment(lib,"LdLib.lib")
+#else
+#pragma comment(lib,"LdLib.lib")
+#endif
+#endif
 
 // TODO: 在此处引用程序需要的其他头文件
