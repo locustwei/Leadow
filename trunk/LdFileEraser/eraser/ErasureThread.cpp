@@ -185,8 +185,11 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 	switch (pFile->GetFileType())
 	{
 	case vft_file:
+		erasure.FileErasure(pFile->GetFullName(), m_FileMothed, &impl);
+		break;
 	case vft_folder:
-		erasure.FileErasure(pFile->GetFullName(), m_FileMothed, &impl, m_Options.bRemoveFolder);
+		if(m_Options.bRemoveFolder)
+			erasure.DirectoryErasure(pFile->GetFullName(), &impl);
 		break;
 	case vft_volume:
 		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);

@@ -63,7 +63,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMothed* method, IE
 	return result;
 }
 
-DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasureCallback * callbck, BOOL bRemoveFolder)
+DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasureCallback * callbck)
 {
 	DWORD result = 0;
 
@@ -75,60 +75,55 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 	DWORD dwAttr = GetFileAttributes(lpFileName);
 	SetFileAttributes(lpFileName, FILE_ATTRIBUTE_NORMAL);
 
-	if((dwAttr & FILE_ATTRIBUTE_DIRECTORY)==0)
+	HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
 	{
-
-		HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		result = GetLastError();
+		if (result == ERROR_ACCESS_DENIED) //重试一次
+			ClearFileSecurity(lpFileName);
+		hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
-		{
 			result = GetLastError();
-			if (result == ERROR_ACCESS_DENIED) //重试一次
-				ClearFileSecurity(lpFileName);
-			hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-			if (hFile == INVALID_HANDLE_VALUE)
-				result = GetLastError();
-		}
+	}
 		
-		LARGE_INTEGER fileSize;
-		if (result == 0)
-		{
-			if (!GetFileSizeEx(hFile, &fileSize))
-				result = GetLastError();
-		}
+	LARGE_INTEGER fileSize;
+	if (result == 0)
+	{
+		if (!GetFileSizeEx(hFile, &fileSize))
+			result = GetLastError();
+	}
 
-		if (result == 0 && fileSize.QuadPart > 0)
-			result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			CloseHandle(hFile);
-		}
+	if (result == 0 && fileSize.QuadPart > 0)
+		result = EraseFile(hFile, 0, fileSize.QuadPart, callbck);
+	if (hFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(hFile);
+	}
 
-		//擦除交换数据流
-		CLdArray<PFILE_ADS_INFO> fileStreamNames;
-		if (CFileUtils::GetFileADSNames(lpFileName, &fileStreamNames) == 0)
+	//擦除交换数据流
+	CLdArray<PFILE_ADS_INFO> fileStreamNames;
+	if (CFileUtils::GetFileADSNames(lpFileName, &fileStreamNames) == 0)
+	{
+		for(int i=0; i<fileStreamNames.GetCount(); i++)
 		{
-			for(int i=0; i<fileStreamNames.GetCount(); i++)
+			CLdString fileName = lpFileName;
+			fileName += fileStreamNames[i]->StreamName;
+			HANDLE hStream = CreateFile(fileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+			if (hStream != INVALID_HANDLE_VALUE)
 			{
-				CLdString fileName = lpFileName;
-				fileName += fileStreamNames[i]->StreamName;
-				HANDLE hStream = CreateFile(fileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-				if (hStream != INVALID_HANDLE_VALUE)
+				LARGE_INTEGER StreamSize;
+				if (result == 0)
 				{
-					LARGE_INTEGER StreamSize;
-					if (result == 0)
-					{
-						if (!GetFileSizeEx(hStream, &StreamSize))
-							result = GetLastError();
-					}
-
-					if (result == 0 && StreamSize.QuadPart > 0)
-						result = EraseFile(hStream, 0, StreamSize.QuadPart, callbck);
-					CloseHandle(hStream);
+					if (!GetFileSizeEx(hStream, &StreamSize))
+						result = GetLastError();
 				}
-				delete fileStreamNames[i];
-			}
-		}
 
+				if (result == 0 && StreamSize.QuadPart > 0)
+					result = EraseFile(hStream, 0, StreamSize.QuadPart, callbck);
+				CloseHandle(hStream);
+			}
+			delete fileStreamNames[i];
+		}
 	}
 
 	if (result == 0)
@@ -151,17 +146,8 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 			result = 0;
 		}
 
-		if (dwAttr & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			if (!RemoveDirectory(path->GetData()))
-				result = GetLastError();
-			delete path;
-		}
-		else
-		{
-			m_Tmpfiles.Add(path/*new CLdString(lpFileName)*/);
-			result = DeleteTempFiles(callbck);
-		}
+		m_Tmpfiles.Add(path/*new CLdString(lpFileName)*/);
+		result = DeleteTempFiles(callbck);
 
 	}
 
@@ -169,6 +155,40 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 
 	//DebugOutput(L"%d %s\n", result, lpFileName);
 
+	return result;
+}
+
+DWORD CErasure::DirectoryErasure(TCHAR * lpDirName, IErasureCallback * callbck)
+{
+	DWORD result = 0;
+
+	if (!callbck->ErasureStart())
+		return ERROR_CANCELED;
+
+	CLdString tmpName;
+	CFileUtils::GenerateRandomFileName(120, &tmpName);
+	result = CFileUtils::RenameFile(lpDirName, tmpName);
+	CLdString* path;
+	if (result == 0)
+	{
+		path = new CLdString((UINT)MAX_PATH);
+		CFileUtils::ExtractFilePath(lpDirName, path->GetData());
+		if (!path->IsEmpty() && path->GetData()[path->GetLength() - 1] != '\\')
+			*path += '\\';
+		*path += tmpName.GetData();
+
+	}
+	else
+	{//重命名失败，就睁一只眼闭一只眼吧。
+		path = new CLdString(lpDirName);
+		result = 0;
+	}
+
+	if (!RemoveDirectory(path->GetData()))
+		result = GetLastError();
+	delete path;
+
+	callbck->ErasureCompleted(result);
 	return result;
 }
 

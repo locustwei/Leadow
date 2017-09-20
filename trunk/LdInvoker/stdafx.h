@@ -15,13 +15,13 @@
 using namespace LeadowLib;
 
 #ifdef _DEBUG
-#ifdef _X64
+#ifdef WIN64
 #pragma comment(lib,"LdLib_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #endif
 #else
-#ifdef _X64
+#ifdef WIN64
 #pragma comment(lib,"LdLib.lib")
 #else
 #pragma comment(lib,"LdLib.lib")

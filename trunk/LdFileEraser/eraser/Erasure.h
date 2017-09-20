@@ -2,10 +2,11 @@
 /*
 文件擦除的功能实现。
 擦除文件过程：
-1、覆盖文件内容，写入擦除算法的数据（随机数、特定值）。擦除算法可能需要重复多次不同值
-2、重命名文件名，生成随机文件名覆盖原文件名。
-3、修改文件大小（修改为0）、创建日期（修改为最小日期）等文件信息，
-4、删除文件。
+1、覆盖文件内容，写入擦除算法的数据（随机数、特定值）。擦除算法可能需要重复多次不同值。
+2、擦除文件交换数据流
+3、重命名文件名，生成随机文件名覆盖原文件名。
+4、修改文件大小（修改为0）、创建日期（修改为最小日期）等文件信息，
+5、删除文件。
 擦除磁盘过程：
 1、生成临时文件，足够多的临时文件占满磁盘可用空间。
 2、对生成的临时文件执行“文件擦除过程”
@@ -61,12 +62,18 @@ public:
 		BOOL bSkipTrack              //是否跳过文件分配表文件被删除痕迹擦除
 	);
 
-	// 擦除文件(文件夹）。
+	// 擦除文件。
 	DWORD FileErasure(
 		TCHAR* lpFileName,         //文件名
 		CErasureMothed* method,    //擦除算法
-		IErasureCallback* callbck, //擦除过程回掉函数
-		BOOL bRemoveFolder         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
+		IErasureCallback* callbck  //擦除过程回掉函数
+		//BOOL bRemoveFolder         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
+	);
+	//擦除文件夹（文件夹必须是空文件夹）
+	DWORD DirectoryErasure(
+		TCHAR* lpDirName,         //文件名
+		//CErasureMothed* method,    //擦除算法
+		IErasureCallback* callbck //擦除过程回掉函数
 	);
 private:
 	CVolumeEx* m_Volume;
