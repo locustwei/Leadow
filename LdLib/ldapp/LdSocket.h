@@ -2,67 +2,101 @@
 #pragma once
 
 #include <winsock.h>
+#include "../classes/Thread.h"
+#include "../classes/LdArray.h"
 
-typedef enum SOCKET_STATUS
+namespace LeadowLib
 {
-	SS_NONE,
-	SS_CONNECTED,
-	SS_BINDED,
-	SS_LISTENING
+	enum SOCKET_STATUS
+	{
+		SS_NONE,
+		SS_CONNECTED,
+		SS_BINDED,
+		SS_LISTENING
+	};
+
+	class CSocketBase
+	{
+		friend class CLdSocket;
+	public:
+		CSocketBase();
+		CSocketBase(SOCKET s);
+		~CSocketBase();
+		SOCKET GetSocket() const
+		{ return m_Socket; };
+		PVOID GetRecvData() const
+		{ return lpRecvedBuffer; };
+		int GetRecvSize() const
+		{ return nRecvSize; };
+		bool IsClosed() const
+		{ return bClosed; };
+		SOCKET_STATUS GetStatus() const
+		{ return m_Status; };
+		UINT_PTR GetTag() const
+		{ return tag; };
+		VOID SetTag(UINT_PTR value) { tag = value; };
+
+		void Close();
+		int Send(char* buffer, int nSize);  //发送数据
+		int Recv();
+	protected:
+		SOCKET m_Socket;
+		IN_ADDR m_addr;
+		UINT m_port;
+
+		PVOID lpRecvedBuffer;
+		int nRecvSize;
+		bool bClosed;
+		//_LD_CLIENT_SOCKET* pNext;
+		UINT_PTR tag;   //使用者自定义数据
+		SOCKET_STATUS m_Status;
+
+	};// LD_CLIENT_SOCKET, *CClientSockt*;
+
+	class ISocketListener //监听接口，处理Socket事件
+	{
+	public:
+		virtual void OnConnected(CSocketBase*) = 0;
+		virtual void OnRecv(CSocketBase*) = 0;
+		virtual void OnClosed(CSocketBase*) = 0;
+		virtual void OnAccept(CSocketBase*) = 0;
+		virtual void OnError(CSocketBase*, int) = 0;
+	};
+
+
+	class CLdSocket :
+		public CSocketBase,
+		public IThreadRunable
+	{
+	public:
+		CLdSocket(void);
+		~CLdSocket(void);
+
+		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
+		BOOL Listen(int port);                                             //使用TCP协议监听端口（服务端）
+		BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
+		CSocketBase* GetClient();                                        //Server 连接的客户端列表。
+		void SetListener(ISocketListener* listener);                          //设置监听
+		ISocketListener* GetListener();
+	protected:
+		//HANDLE m_hSelectThread;
+		ISocketListener* m_Listner;
+		CLdArray<CSocketBase*> m_ClientSockets;
+		
+		BOOL StartSelectThread();
+		//CSocketBase* m_ClientHead;
+		CSocketBase* AddClient(SOCKET s);
+		void DoRead();
+		void DoClientRead(CSocketBase* pClient);
+		void DoClientExcept(CSocketBase* pClient);
+		void DoAccept();
+		//int RecvData(CSocketBase* pClient);
+		//int GetSocketError(SOCKET Socket);
+		void DoClientClosed(CSocketBase* pClient);
+		void RemoveClient(CSocketBase* pClient);
+
+		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
+		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
+		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
+	};
 };
-
-typedef struct _LD_CLIENT_SOCKET
-{
-	SOCKET m_Socket;
-	char* lpRecvedBuffer;
-	int nRecvSize;
-	bool bClosed;
-	_LD_CLIENT_SOCKET* pNext;
-	DWORD tag;   //使用者自定义数据
-
-}LD_CLIENT_SOCKET, *PLD_CLIENT_SOCKET;
-
-struct ISocketListener //监听接口，处理Socket事件
-{
-	virtual void OnConnected(PLD_CLIENT_SOCKET) = 0;
-	virtual void OnRecv(PLD_CLIENT_SOCKET) = 0;
-	virtual void OnClosed(PLD_CLIENT_SOCKET) = 0;
-	virtual void OnAccept(PLD_CLIENT_SOCKET) = 0;
-	virtual void OnError(PLD_CLIENT_SOCKET, int) = 0;
-};
-
-
-class CLdSocket: public LD_CLIENT_SOCKET
-{
-	friend DWORD WINAPI SocketSelectThreadProc(_In_ LPVOID lpParameter);
-public:
-	CLdSocket(void);
-	~CLdSocket(void);
-	
-	BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
-	BOOL Listen(int port);                                             //使用TCP协议监听端口（服务端）
-	BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
-	int Send(char* buffer, int nSize, PLD_CLIENT_SOCKET pClient = NULL);  //发送数据
-	PLD_CLIENT_SOCKET GetClientHead();                                  //Server 连接的客户端列表。
-	void SetListener(ISocketListener* listener);                          //设置监听
-	void Close();
-	SOCKET_STATUS GetStatus();
-	ISocketListener* GetListener();
-protected:
-	HANDLE m_hSelectThread;
-	ISocketListener* m_Listner;
-	SOCKET_STATUS m_Status;
-
-	BOOL StartSelectThread();
-	PLD_CLIENT_SOCKET m_ClientHead;
-	PLD_CLIENT_SOCKET AddClient(SOCKET s);
-	void DoRead();
-	void DoClientRead(PLD_CLIENT_SOCKET pClient);
-	void DoClientExcept(PLD_CLIENT_SOCKET pClient);
-	void DoAccept();
-	int RecvData(PLD_CLIENT_SOCKET pClient);
-	int GetSocketError(SOCKET Socket);
-	void DoClientClosed(PLD_CLIENT_SOCKET pClient);
-	void RemoveClient(PLD_CLIENT_SOCKET pClient);
-};
-
