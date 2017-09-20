@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "LdSocket.h"
 
 #pragma comment(lib, "ws2_32.lib")
@@ -41,17 +42,37 @@ namespace LeadowLib
 		bClosed = true;
 	}
 
+	int CSocketBase::Connect(LPCSTR szIp, int port)
+	{
+		if (m_Socket != INVALID_SOCKET)
+			return SOCKET_ERROR;
+		m_Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (m_Socket == INVALID_SOCKET)
+			return WSAGetLastError();
+		sockaddr_in address = { 0 };
+		address.sin_family = PF_INET;
+		address.sin_addr.s_addr = inet_addr(szIp);
+		address.sin_port = htons(port);
+
+		if (connect(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
+			closesocket(m_Socket);
+			m_Socket = INVALID_SOCKET;
+			return WSAGetLastError();
+		}
+		return 0;
+	}
+
 	int CSocketBase::Send(char* buffer, int nSize)
 	{
 		if (m_Socket == INVALID_SOCKET || !buffer || nSize == 0)
-			return 0;
+			return SOCKET_ERROR;
 
 		int nCount;
 		do
 		{
 			nCount = send(m_Socket, buffer, nSize, 0);
 			if (nCount == SOCKET_ERROR) {
-				break;
+				return WSAGetLastError();
 			}
 			else {
 				buffer += nCount;
@@ -59,7 +80,7 @@ namespace LeadowLib
 			}
 
 		} while (nSize > 0);
-		return nCount;
+		return 0;
 	}
 
 	int CSocketBase::Recv()
@@ -74,13 +95,13 @@ namespace LeadowLib
 			if (nBytes > 0) {
 				if (nTotal + nBytes > nRecvSize) {
 					nRecvSize = nTotal + nBytes;
-					lpRecvedBuffer = (char*)realloc(lpRecvedBuffer, nRecvSize);
+					lpRecvedBuffer = (PUCHAR)realloc(lpRecvedBuffer, nRecvSize);
 				}
 				CopyMemory(lpRecvedBuffer + nTotal, buffer, nBytes);
 				nTotal += nBytes;
 			}
 			else
-				break;
+				return nBytes;
 
 		} while (nBytes >= RECV_BUFFER_LEN);
 
@@ -93,8 +114,6 @@ namespace LeadowLib
 	CLdSocket::CLdSocket(void)
 		:m_ClientSockets()
 	{
-		WSADATA wsaData;
-		WSAStartup(MAKEWORD(2, 2), &wsaData);
 		m_Listner = NULL;
 	}
 

@@ -10,8 +10,12 @@
 
 #include "stdafx.h"
 #include <shellapi.h>
-#include <Shlwapi.h>
-#include "LdInvoker.h"
+
+#define CMD_ERASE_FILE L"/erasefile"
+#define CMD_ERASE_RECYCLE L"/eraserecycle"
+#define CMD_ERASE_VOLUME L"/erasevolume"
+
+bool AnalEraseFileParam(LPWSTR*, int);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -19,12 +23,40 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CLdStringW cmdLine = lpCmdLine;
 	int ParamCount;
+	
 	LPWSTR* lpParamStrs = CommandLineToArgvW(cmdLine, &ParamCount);
+
+	if(ParamCount==0)
+	{
+		//goto help;
+		return 0;
+	}
+
+	if(wcsicmp(lpParamStrs[0], CMD_ERASE_FILE) == 0)
+	{
+		if(ParamCount < 2)
+		{
+			//goto help
+			return 0;
+		}
+		if(!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1))
+		{
+			//goto help;
+			return 0;
+		}
+
+		for(int i=1;i<ParamCount;i++)
+		{
+			
+		}
+	}
 
 	for(int i=0; i<ParamCount;i++)
 	{
 		MessageBox(0, lpParamStrs[i], nullptr, 0);
 	}
+
+	LocalFree(lpParamStrs);
 
 	CLdApp::Initialize(hInstance);
 
@@ -37,4 +69,21 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	PostQuitMessage(0);
 
 	return (int) 0;
+}
+
+bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount)
+{
+#define MOTHED L"mothed"
+
+	bool result = false;
+
+	for(int i=0; i<nParamCount; i++)
+	{
+		if(wcsicmp(lpParams[i], MOTHED)==0)
+		{
+			
+		}
+	}
+
+	return result;
 }
