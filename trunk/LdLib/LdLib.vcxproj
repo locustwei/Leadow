@@ -162,7 +162,6 @@
     <ClInclude Include="ldapp\LdSocket.h" />
     <ClInclude Include="ldapp\LdStructs.h" />
     <ClInclude Include="ldapp\PublicRoutimes.h" />
-    <ClInclude Include="ldapp\TdxTradSocket.h" />
     <ClInclude Include="LdLib.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -188,7 +187,6 @@
     <ClCompile Include="ldapp\LdNamedPipe.cpp" />
     <ClCompile Include="ldapp\LdSocket.cpp" />
     <ClCompile Include="ldapp\PulicRoutimes.cpp" />
-    <ClCompile Include="ldapp\TdxTradSocket.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

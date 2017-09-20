@@ -36,15 +36,16 @@ namespace LeadowLib
 		{ return tag; };
 		VOID SetTag(UINT_PTR value) { tag = value; };
 
-		void Close();
+		int Connect(LPCSTR szIp, int port);                            //连接服务地址（客户端）
 		int Send(char* buffer, int nSize);  //发送数据
 		int Recv();
+		void Close();
 	protected:
 		SOCKET m_Socket;
 		IN_ADDR m_addr;
 		UINT m_port;
 
-		PVOID lpRecvedBuffer;
+		PUCHAR lpRecvedBuffer;
 		int nRecvSize;
 		bool bClosed;
 		//_LD_CLIENT_SOCKET* pNext;

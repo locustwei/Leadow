@@ -8,14 +8,14 @@ namespace LeadowLib {
 	void DebugOutput(LPCTSTR pstrFormat, ...)
 	{
 #ifdef _DEBUG
-		LPTSTR szSprintf = NULL;
+		LPTSTR szSprintf;
 		va_list argList;
 		int nLen;
 		va_start(argList, pstrFormat);
 		nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
 		szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
 		ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
-		int iRet = _vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		_vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
 		va_end(argList);
 		::OutputDebugString(szSprintf);
 		free(szSprintf);
@@ -27,8 +27,10 @@ namespace LeadowLib {
 
 
 	CLdApp::CLdApp() 
-		:m_InstallPath()
-		,m_AppDataPath()
+		: m_Instance(nullptr)
+		, m_ThreadID(0)
+		, m_InstallPath()
+		, m_AppDataPath()
 	{
 	}
 
@@ -55,6 +57,10 @@ namespace LeadowLib {
 	BOOL CLdApp::Initialize(HINSTANCE hInstance)
 	{
 		CoInitialize(nullptr);
+
+		WSADATA wsaData;
+		WSAStartup(MAKEWORD(2, 2), &wsaData);
+
 		ThisApp = new CLdApp();
 		ThisApp->m_Instance = hInstance;
 		ThisApp->m_ThreadID = GetCurrentThreadId();

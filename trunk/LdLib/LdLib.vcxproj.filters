@@ -56,9 +56,6 @@
     <ClCompile Include="ldapp\LdSocket.cpp">
       <Filter>ldapp</Filter>
     </ClCompile>
-    <ClCompile Include="ldapp\TdxTradSocket.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -134,9 +131,6 @@
       <Filter>ldapp</Filter>
     </ClInclude>
     <ClInclude Include="ldapp\LdConfig.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\TdxTradSocket.h">
       <Filter>ldapp</Filter>
     </ClInclude>
     <ClInclude Include="ldapp\LdSocket.h">
