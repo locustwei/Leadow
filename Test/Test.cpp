@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include "../Jsonlib/JsonBox.h"
 #include <sqlext.h>
-#include "LdConfig.h"
 
 #import "C:\\Program Files (x86)\\Common Files\\System\\ado\\msado15.dll" no_namespace rename("EOF", "ADOEOF")
 
@@ -64,6 +63,7 @@ void PrintComError(_com_error &e);
 
 
 void ConnectionStringX() {
+	//https://docs.microsoft.com/en-us/sql/ado/reference/ado-api/connectionstring-connectiontimeout-and-state-properties-example-vc
 	// Define Connection object pointers.  Initialize pointers on define.  These are in the ADODB::  namespace  
 	_ConnectionPtr pConnection1 = NULL;
 
@@ -135,38 +135,120 @@ void PrintComError(_com_error &e) {
 	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
 }
 
+int Try2Int(LPWSTR pstr, int Default)
+{
+	if (!pstr)
+		return Default;
+	else
+	{
+		int result;// = _wtoi(pstr);
+		Default = swscanf(pstr, L"%d", &result);
+		if (Default == 0)
+			return result;
+		else
+			return Default;
+	}
+}
+
+bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Params)
+{
+#define MOTHED L"mothed"
+#define FILE L"file"
+#define UNDELFOLDER L"undelfolder"
+
+	int mothed;
+	for (int i = 0; i<nParamCount; i++)
+	{
+		if (wcsnicmp(lpParams[i], MOTHED, wcslen(MOTHED)) == 0)
+		{
+			LPWSTR p = wcschr(lpParams[i], ':');
+			if (!p)
+				return false;
+			mothed = Try2Int(p, -1);
+			if (mothed == -1)
+				return false;
+			Params["mothed"] = mothed;
+		}
+		else if (wcsnicmp(lpParams[i], FILE, wcslen(FILE)) == 0)
+		{
+			LPWSTR p = wcschr(lpParams[i], ':');
+			if (!p)
+				return false;
+			p += 1;
+			CLdStringA str = p;
+			str.Trim();
+			if (str.GetLength() < 3)
+				return false;
+			if (str[0] == '\"')
+			{
+				str.Delete(0, 1);
+			}
+			if (str[str.GetLength() - 1] == '\"')
+				str.Delete(str.GetLength() - 1, 1);
+
+			JsonBox::Array arr = Params["file"].getArray();
+			arr.push_back(JsonBox::Value(str.GetData()));
+			Params["file"] = arr;
+		}
+		else if (wcsnicmp(lpParams[i], UNDELFOLDER, wcslen(UNDELFOLDER)) == 0)
+		{
+			Params["delfolder"] = true;
+		}
+		else
+			return false;
+	}
+
+	return true;
+}
+
+#define CMD_ERASE_FILE L"/erasefile"
+#define CMD_ERASE_RECYCLE L"/eraserecycle"
+#define CMD_ERASE_VOLUME L"/erasevolume"
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
+	CLdStringW cmdLine = L"   /erasefile    mothed:3    asflkasdfkl asdlkasflkasdf adlkjas";
+	int ParamCount;
+	cmdLine.Trim();
 
-	//ConnectionStringX();
+	LPWSTR* lpParamStrs = CommandLineToArgvW(cmdLine, &ParamCount);
 
-	//https://docs.microsoft.com/en-us/sql/ado/reference/ado-api/connectionstring-connectiontimeout-and-state-properties-example-vc
-//	TCHAR lpcwszStr[] = L"力量大啊实打实的发";
-//	char lpMultiByteStr[100] = {0};
-//
-//	WideCharToMultiByte(CP_ACP, NULL, lpcwszStr, -1, lpMultiByteStr, 100, NULL, FALSE);
-//	printf(lpMultiByteStr);
-//
-//	JsonBox::Object o;
-//	o["myName"] = JsonBox::Value(lpMultiByteStr);
-//	o["myOtherMember"] = JsonBox::Value("asld\\kfn");
-//	o["hahaha"] = JsonBox::Value(true);
-//	o["adamo"] = JsonBox::Value(129.09);
-//	o["child"] = JsonBox::Value(o);
-//	JsonBox::Array a;
-//	a.push_back(JsonBox::Value("I'm a string..."));
-//	a.push_back(JsonBox::Value(123));
-//	o["array"] = JsonBox::Value(a);
-//	
-//	std::cout << o << std::endl;
-	CLdConfig config;
+	if (ParamCount == 0)
+	{
+		//goto help;
+		return 0;
+	}
 
-	config.LoadConfig();
+	if (wcsicmp(lpParamStrs[0], CMD_ERASE_FILE) == 0)
+	{
+		if (ParamCount < 2)
+		{
+			//goto help
+			return 0;
+		}
+		JsonBox::Value Param;
+		if (!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1, Param))
+		{
+			//goto help;
+			//return 0;
+		}
 
-	
-	printf("%S\n", config.GetString(L"child\\myName").GetData());
+		std::cout << Param << std::endl;
+
+		for (int i = 1; i<ParamCount; i++)
+		{
+
+		}
+	}
+
+	for (int i = 0; i<ParamCount; i++)
+	{
+		MessageBox(0, lpParamStrs[i], nullptr, 0);
+	}
+
+	LocalFree(lpParamStrs);
 	printf("\npress any key exit");
 	getchar();
 

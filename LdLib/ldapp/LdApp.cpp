@@ -58,9 +58,6 @@ namespace LeadowLib {
 	{
 		CoInitialize(nullptr);
 
-		WSADATA wsaData;
-		WSAStartup(MAKEWORD(2, 2), &wsaData);
-
 		ThisApp = new CLdApp();
 		ThisApp->m_Instance = hInstance;
 		ThisApp->m_ThreadID = GetCurrentThreadId();
