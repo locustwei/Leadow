@@ -114,6 +114,9 @@ namespace LeadowLib
 	CLdSocket::CLdSocket(void)
 		:m_ClientSockets()
 	{
+		WSADATA wsaData;
+		WSAStartup(MAKEWORD(2, 2), &wsaData);
+
 		m_Listner = NULL;
 	}
 

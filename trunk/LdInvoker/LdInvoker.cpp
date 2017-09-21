@@ -15,13 +15,20 @@
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
 #define CMD_ERASE_VOLUME L"/erasevolume"
 
-bool AnalEraseFileParam(LPWSTR*, int);
+bool AnalEraseFileParam(LPWSTR*, int, JsonBox::Value&);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 
 	CLdStringW cmdLine = lpCmdLine;
+	cmdLine.Trim();
+	if(cmdLine.IsEmpty())
+	{
+		//goto help
+		return 0;
+	}
+
 	int ParamCount;
 	
 	LPWSTR* lpParamStrs = CommandLineToArgvW(cmdLine, &ParamCount);
@@ -39,7 +46,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			//goto help
 			return 0;
 		}
-		if(!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1))
+		JsonBox::Value Param;
+		if(!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1, Param))
 		{
 			//goto help;
 			return 0;
@@ -71,19 +79,68 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	return (int) 0;
 }
 
-bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount)
+int Try2Int(LPWSTR pstr, int Default)
 {
-#define MOTHED L"mothed"
-
-	bool result = false;
-
-	for(int i=0; i<nParamCount; i++)
+	if (!pstr)
+		return Default;
+	else
 	{
-		if(wcsicmp(lpParams[i], MOTHED)==0)
+		try
 		{
-			
+			return _wtoi(pstr);
+		}
+		catch (...)
+		{
+			return Default;
 		}
 	}
+}
 
-	return result;
+bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Params)
+{
+#define MOTHED L"mothed"
+#define FILE L"file"
+#define UNDELFOLDER L"undelfolder"
+
+	int mothed;
+	for(int i=0; i<nParamCount; i++)
+	{
+		if(wcsnicmp(lpParams[i], MOTHED, wcslen(MOTHED))==0)
+		{
+			LPWSTR p = wcschr(lpParams[i], ':');
+			if (!p)
+				return false;
+			mothed = Try2Int(p, -1);
+			if (mothed == -1)
+				return false;
+			Params["mothed"] = mothed;
+		}else if (wcsnicmp(lpParams[i], FILE, wcslen(FILE)) == 0)
+		{
+			LPWSTR p = wcschr(lpParams[i], ':');
+			if (!p)
+				return false;
+			p += 1;
+			CLdStringA str = p;
+			str.Trim();
+			if (str.GetLength() < 3)
+				return false;
+			if(str[0]=='\"')
+			{
+				str.Delete(0, 1);
+			}
+			if (str[str.GetLength() - 1] == '\"')
+				str.Delete(str.GetLength() - 1, 1);
+
+			JsonBox::Array arr = Params["file"].getArray();
+			arr.push_back(JsonBox::Value(str.GetData()));
+			Params["file"] = arr;
+		}else if (wcsnicmp(lpParams[i], UNDELFOLDER, wcslen(UNDELFOLDER)) == 0)
+		{
+			Params["delfolder"] = true;
+		}
+		else
+			return false;
+	}
+
+	return true;
 }
