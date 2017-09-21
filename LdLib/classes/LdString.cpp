@@ -140,15 +140,16 @@ namespace LeadowLib {
 
 	void CLdStringW::Trim()
 	{
-		if (!m_pstr)
+		if (IsEmpty())
 			return;
 		for (int i = GetLength() - 1; i > 0; i--)
 		{
 			if (m_pstr[i] == ' ')
 			{
 				m_pstr[i + 1] = '\0';
-				break;
 			}
+			else
+				break;
 		}
 		for (int i = 0; i < GetLength(); i++)
 		{
@@ -591,8 +592,9 @@ namespace LeadowLib {
 			if (m_pstr[i] == ' ')
 			{
 				m_pstr[i + 1] = '\0';
-				break;
 			}
+			else
+				break;
 		}
 		for (int i = 0; i < GetLength(); i++)
 		{
