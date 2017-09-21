@@ -142,8 +142,7 @@ int Try2Int(LPWSTR pstr, int Default)
 	else
 	{
 		int result;// = _wtoi(pstr);
-		Default = swscanf(pstr, L"%d", &result);
-		if (Default == 0)
+		if (swscanf(pstr, L"%d", &result) > 0)
 			return result;
 		else
 			return Default;
@@ -164,6 +163,7 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Param
 			LPWSTR p = wcschr(lpParams[i], ':');
 			if (!p)
 				return false;
+			p += 1;
 			mothed = Try2Int(p, -1);
 			if (mothed == -1)
 				return false;
@@ -185,7 +185,9 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Param
 			}
 			if (str[str.GetLength() - 1] == '\"')
 				str.Delete(str.GetLength() - 1, 1);
-
+			
+			printf("%s\n", str.GetData());
+			
 			JsonBox::Array arr = Params["file"].getArray();
 			arr.push_back(JsonBox::Value(str.GetData()));
 			Params["file"] = arr;
@@ -209,10 +211,10 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
-	CLdStringW cmdLine = L"   /erasefile    mothed:3    asflkasdfkl asdlkasflkasdf adlkjas";
+	CLdStringW cmdLine = L"   /erasefile  undelfolder  mothed:3    file:c:\\abc.txt  file:\"c:\\ddd ddd\ddd.exe\"";
 	int ParamCount;
 	cmdLine.Trim();
-
+	printf("%S\n", cmdLine);
 	LPWSTR* lpParamStrs = CommandLineToArgvW(cmdLine, &ParamCount);
 
 	if (ParamCount == 0)
