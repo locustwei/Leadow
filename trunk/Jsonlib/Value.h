@@ -105,6 +105,7 @@ namespace JsonBox {
 		 */
 		Value(const char *newCString);
 
+		Value(wchar_t* newString);
 		/**
 		 * Constructs the value from an integer.
 		 * @param newInt Integer used as the value.

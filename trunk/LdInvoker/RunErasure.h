@@ -1,4 +1,4 @@
 #pragma once
 
-DWORD RunEraseFile(JsonBox::Value Param);
+DWORD RunEraseFile(CLdConfig& Param);
 
