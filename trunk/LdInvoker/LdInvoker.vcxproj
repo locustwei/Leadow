@@ -104,7 +104,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN64;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\LdLib\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\LdLib\;..\Duilib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
@@ -149,17 +149,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="LdInvoker.ico" />
     <None Include="ReadMe.txt" />
-    <None Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Library.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="RunErasure.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LdInvoker.cpp" />
+    <ClCompile Include="Library.cpp" />
+    <ClCompile Include="RunErasure.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -174,6 +176,12 @@
     <ProjectReference Include="..\LdLib\LdLib.vcxproj">
       <Project>{55055ab2-8705-4f35-b9fa-271c09c35a8c}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\bin\skin\DYDOT.ico" />
+    <Image Include="icon1.ico" />
+    <Image Include="LdInvoker.ico" />
+    <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

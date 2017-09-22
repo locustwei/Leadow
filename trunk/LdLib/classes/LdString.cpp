@@ -434,20 +434,18 @@ namespace LeadowLib {
 		return iRet;
 	}
 
-	int CLdStringW::Try2Int(int Default)
+	int CLdStringW::Try2Int(WCHAR* lpStr, int Default)
 	{
-		if (IsEmpty())
+		if (!lpStr)
 			return Default;
 		else
-			try
 		{
-			return _wtoi(m_pstr);
+			int result;// = _wtoi(pstr);
+			if (swscanf(lpStr, L"%d", &result) > 0)
+				return result;
+			else
+				return Default;
 		}
-		catch (...)
-		{
-			return Default;
-		}
-
 	}
 #pragma endregion  
 
@@ -879,20 +877,18 @@ namespace LeadowLib {
 		return iRet;
 	}
 
-	int CLdStringA::Try2Int(int Default)
+	int CLdStringA::Try2Int(char* lpStr, int Default)
 	{
-		if (IsEmpty())
+		if (!lpStr)
 			return Default;
 		else
-			try
 		{
-			return atoi(m_pstr);
+			int result;// = _wtoi(pstr);
+			if (sscanf(lpStr, "%d", &result) > 0)
+				return result;
+			else
+				return Default;
 		}
-		catch (...)
-		{
-			return Default;
-		}
-
 	}
 
 #pragma endregion   
