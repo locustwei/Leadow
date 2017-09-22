@@ -69,3 +69,8 @@ CControlUI* CErasureImpl::GetUI()
 {
 	return m_Ctrl;
 }
+
+DWORD CErasureImpl::EraseFile(CLdConfig Param)
+{
+	return 0;
+}

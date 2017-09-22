@@ -11,6 +11,7 @@
 class CErasureImpl
 	:public IErasureLibrary
 {
+private:
 	friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/);
 public:
 	CErasureImpl();
@@ -22,6 +23,7 @@ protected:
 	TCHAR* UIResorce() override;
 	void SetUI(CControlUI* pCtrl) override;
 	CControlUI* GetUI() override;
+	DWORD EraseFile(CLdConfig Param) override;
 private:
 	CErasureMainWnd* m_MainWnd;
 	CControlUI* m_Ctrl;

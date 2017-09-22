@@ -50,35 +50,35 @@ BOOL CErasureConfig::IsShutDown()
 
 void CErasureConfig::SetFileErasureMothed(ErasureMothedType Mothed)
 {
-	SetInteger("file/mothed", Mothed);
+	AddConfigObject("file/mothed", Mothed);
 }
 
 void CErasureConfig::SetRemoveFolder(BOOL value)
 {
-	SetBoolean("file/removefolder", value);
+	AddConfigObject("file/removefolder", value);
 }
 
 void CErasureConfig::SetVolumeErasureMethed(ErasureMothedType Mothed)
 {
-	SetInteger("volume/mothed", Mothed);
+	AddConfigObject("volume/mothed", Mothed);
 }
 
 void CErasureConfig::SetSkipSpace(BOOL value)
 {
-	SetBoolean("volume/skipspace", value);
+	AddConfigObject("volume/skipspace", value);
 }
 
 void CErasureConfig::SetSkipTrack(BOOL value)
 {
-	SetBoolean("volume/skiptrack", value);
+	AddConfigObject("volume/skiptrack", value);
 }
 
 void CErasureConfig::SetErasureFreeFileSpace(BOOL value)
 {
-	SetBoolean("volume/filefree", value);
+	AddConfigObject("volume/filefree", value);
 }
 
 void CErasureConfig::SetShutDown(BOOL value)
 {
-	SetBoolean("volume/shutdown", value);
+	AddConfigObject("volume/shutdown", value);
 }

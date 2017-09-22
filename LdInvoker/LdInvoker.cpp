@@ -18,7 +18,7 @@
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
 #define CMD_ERASE_VOLUME L"/erasevolume"
 
-bool AnalEraseFileParam(LPWSTR*, int, JsonBox::Value&);
+bool AnalEraseFileParam(LPWSTR*, int, CLdConfig&);
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -51,7 +51,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			//goto help
 			return 0;
 		}
-		JsonBox::Value Param;
+		CLdConfig Param;
 		if(!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1, Param))
 		{
 			//goto help;
@@ -79,7 +79,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	return (int) 0;
 }
 
-bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Params)
+bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CLdConfig& Params)
 {
 #define MOTHED L"mothed"
 #define FILE L"file"
@@ -97,7 +97,7 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Param
 			mothed = CLdStringW::Try2Int(p, -1);
 			if (mothed == -1)
 				return false;
-			Params["mothed"] = mothed;
+			Params.AddConfigObject("mothed", mothed);
 		}
 		else if (wcsnicmp(lpParams[i], FILE, wcslen(FILE)) == 0)
 		{
@@ -105,7 +105,7 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Param
 			if (!p)
 				return false;
 			p += 1;
-			CLdStringA str = p;
+			CLdString str = p;
 			str.Trim();
 			if (str.GetLength() < 3)
 				return false;
@@ -116,15 +116,11 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, JsonBox::Value& Param
 			if (str[str.GetLength() - 1] == '\"')
 				str.Delete(str.GetLength() - 1, 1);
 
-			printf("%s\n", str.GetData());
-
-			JsonBox::Array arr = Params["file"].getArray();
-			arr.push_back(JsonBox::Value(str.GetData()));
-			Params["file"] = arr;
+			Params.AddArrayValue("file", str.GetData());
 		}
 		else if (wcsnicmp(lpParams[i], UNDELFOLDER, wcslen(UNDELFOLDER)) == 0)
 		{
-			Params["delfolder"] = true;
+			Params.AddConfigObject("delfolder", true);
 		}
 		else
 			return false;

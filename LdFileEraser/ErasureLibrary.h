@@ -20,7 +20,7 @@ public:
 	*/
 	virtual CFramNotifyPump* GetNotifyPump() = 0;
 
-	virtual DWORD EraseFile(int mothed, bool undelfolder, CLdArray<CVirtualFile*> * files) = 0;
+	virtual DWORD EraseFile(CLdConfig Param) = 0;
 protected:
 	//virtual ~IErasureLibrary() {};
 };

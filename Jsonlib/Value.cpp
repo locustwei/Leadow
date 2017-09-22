@@ -16,6 +16,7 @@
 #include "SolidusEscaper.h"
 #include "JsonParsingError.h"
 #include "JsonWritingError.h"
+#include <codecvt>
 
 namespace JsonBox {
 
@@ -164,6 +165,21 @@ namespace JsonBox {
 
 	Value::Value(const char *newCString) : type(STRING),
 		data((char*)newCString) {
+	}
+
+	Value::Value(wchar_t* newString)
+	{
+
+		std::wstring string_to_convert = newString;
+
+		//setup converter
+		using convert_type = std::codecvt_utf8<wchar_t>;
+		std::wstring_convert<convert_type, wchar_t> converter;
+
+		//use converter (.to_bytes: wstr->str, .from_bytes: str->wstr)
+		std::string converted_str = converter.to_bytes(string_to_convert);
+		type = STRING;
+		data = (char*)converted_str.c_str();
 	}
 
 	Value::Value(int newInt) : type(INTEGER), data(new int(newInt)) {
