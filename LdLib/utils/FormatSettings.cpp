@@ -21,13 +21,13 @@ namespace LeadowLib {
 	{
 		CLdString s = GetLocaleStr(LOCALE_ICURRENCY);
 
-		return s.Try2Int();
+		return CLdString::Try2Int(s.GetData());
 	}
 
 	BYTE CFormatSettings::GetCurrencyDecimals()
 	{
 		CLdString s = GetLocaleStr(LOCALE_ICURRDIGITS);
-		return s.Try2Int();
+		return CLdString::Try2Int(s.GetData());
 	}
 
 	TCHAR CFormatSettings::GetDateSeparator()

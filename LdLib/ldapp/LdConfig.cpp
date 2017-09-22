@@ -56,61 +56,129 @@ namespace LeadowLib {
 		m_Config = source.m_Config;
 	}
 
-	BOOL CLdConfig::GetBoolean(TCHAR* Path)
+	int CLdConfig::GetArrayCount(CLdStringA Path)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return 0;
+		else
+		{
+			return (int)val.getArray().size();
+		}
+	}
+
+	BOOL CLdConfig::GetArrayBoolean(CLdStringA Path, int index, BOOL def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return def;
+		else
+		{
+			JsonBox::Array a = val.getArray();
+			if (a.size() <= index)
+				return def;
+			else
+				return a[index].tryGetBoolean(def == TRUE);
+		}
+	}
+
+	double CLdConfig::GetArrayDouble(CLdStringA Path, int index, double def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return def;
+		else
+		{
+			JsonBox::Array a = val.getArray();
+			if (a.size() <= index)
+				return def;
+			else
+				return a[index].tryGetDouble(def);
+		}
+	}
+
+	float CLdConfig::GetArrayFloat(CLdStringA Path, int index, float def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return def;
+		else
+		{
+			JsonBox::Array a = val.getArray();
+			if (a.size() <= index)
+				return def;
+			else
+				return a[index].tryGetFloat(def);
+		}
+	}
+
+	int CLdConfig::GetArrayInteger(CLdStringA Path, int index, int def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return def;
+		else
+		{
+			JsonBox::Array a = val.getArray();
+			if (a.size() <= index)
+				return def;
+			else
+				return a[index].tryGetInteger(def);
+		}
+	}
+
+	CLdString CLdConfig::GetArrayString(CLdStringA Path, int index, TCHAR * def)
+	{
+		JsonBox::Value val = GetConfigObject(Path);
+		if (val.getType() != JsonBox::Value::ARRAY)
+			return def;
+		else
+		{
+			JsonBox::Array a = val.getArray();
+			if (a.size() <= index)
+				return def;
+			else
+			{
+				CLdString result;
+				result = val.tryGetString("").c_str();
+				if (result.IsEmpty())
+					result = def;
+				return result;
+			}
+		}
+	}
+
+	VOID CLdConfig::SetArrayBoolean(CLdStringA Path, int index, BOOL Value)
+	{
+		GetConfigObject(Path, index, JsonBox::Value::BOOLEAN, &Value);
+	}
+
+	BOOL CLdConfig::GetBoolean(CLdStringA Path, BOOL def)
 	{
 		JsonBox::Value val = GetConfigObject(Path);
 
-		return val.getBoolean();
+		return val.tryGetBoolean(def == TRUE);
 	}
 
-	double CLdConfig::GetDouble(TCHAR * Path)
-	{
-		return GetConfigObject(Path).getDouble();
-	}
-
-	float CLdConfig::GetFloat(TCHAR * Path)
-	{
-		return GetConfigObject(Path).getFloat();
-	}
-
-	int CLdConfig::GetInteger(TCHAR * Path)
-	{
-		return GetConfigObject(Path).getInteger();
-	}
-
-	CLdString CLdConfig::GetString(TCHAR * Path)
-	{
-		JsonBox::Value val = GetConfigObject(Path);
-		CLdString result;
-		result = ((char*)val.getString().c_str());
-		return result;
-	}
-
-	BOOL CLdConfig::GetBoolean(char* Path, BOOL def)
-	{
-		JsonBox::Value val = GetConfigObject(Path);
-		return val.tryGetBoolean(def == TRUE) ;
-	}
-
-	double CLdConfig::GetDouble(char* Path, double def)
+	double CLdConfig::GetDouble(CLdStringA Path, double def)
 	{
 		JsonBox::Value val = GetConfigObject(Path);
 		return val.tryGetDouble(def);
 	}
 
-	float CLdConfig::GetFloat(char* Path, float def)
+	float CLdConfig::GetFloat(CLdStringA Path, float def)
 	{
 		JsonBox::Value val = GetConfigObject(Path);
 		return val.tryGetFloat(def);
 	}
 
-	int CLdConfig::GetInteger(char* Path, int def)
+	int CLdConfig::GetInteger(CLdStringA Path, int def)
 	{
 		JsonBox::Value val = GetConfigObject(Path);
 		return val.tryGetInteger(def);
 	}
 
-	CLdString CLdConfig::GetString(char* Path, TCHAR* def)
+	CLdString CLdConfig::GetString(CLdStringA Path, TCHAR* def)
 	{
 		JsonBox::Value val = GetConfigObject(Path);
 		CLdString result;
@@ -120,34 +188,34 @@ namespace LeadowLib {
 		return result;
 	}
 
-	VOID CLdConfig::SetBoolean(char * Path, BOOL Value)
+	VOID CLdConfig::SetBoolean(CLdStringA Path, BOOL Value)
 	{
-		GetConfigObject(Path, JsonBox::Value::BOOLEAN, &Value);
+		GetConfigObject(Path, 0, JsonBox::Value::BOOLEAN, &Value);
 	}
 
-	VOID CLdConfig::SetDouble(char * Path, double Value)
+	VOID CLdConfig::SetDouble(CLdStringA Path, double Value)
 	{
-		GetConfigObject(Path, JsonBox::Value::DOUBLE, &Value);
+		GetConfigObject(Path, 0, JsonBox::Value::DOUBLE, &Value);
 	}
 
-	VOID CLdConfig::SetFloat(char * Path, float Value)
+	VOID CLdConfig::SetFloat(CLdStringA Path, float Value)
 	{
-		GetConfigObject(Path, JsonBox::Value::DOUBLE, &Value);
+		GetConfigObject(Path, 0, JsonBox::Value::DOUBLE, &Value);
 	}
 
-	VOID CLdConfig::SetInteger(char * Path, int Value)
+	VOID CLdConfig::SetInteger(CLdStringA Path, int Value)
 	{
-		GetConfigObject(Path, JsonBox::Value::INTEGER, &Value);
+		GetConfigObject(Path, 0, JsonBox::Value::INTEGER, &Value);
 	}
 
-	VOID CLdConfig::SetString(char * Path, TCHAR * Value)
+	VOID CLdConfig::SetString(CLdStringA Path, TCHAR * Value)
 	{
 		CLdStringA s;
 		s = Value;
-		GetConfigObject(Path, JsonBox::Value::STRING, s.GetData());
+		GetConfigObject(Path, 0, JsonBox::Value::STRING, s.GetData());
 	}
 
-	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string, JsonBox::Value::Type type, PVOID pValue)
+	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string, int index, JsonBox::Value::Type type, PVOID pValue)
 	{
 		int len = string.GetLength();
 		CLdMap<char*, JsonBox::Value> objs;
@@ -176,6 +244,9 @@ namespace LeadowLib {
 
 		if(type!=JsonBox::Value::NULL_VALUE && pValue!=nullptr)
 		{
+			if (type == JsonBox::Value::ARRAY)
+				value = value[index];
+
 			switch(type)
 			{
 			case JsonBox::Value::Type::STRING:
@@ -189,6 +260,9 @@ namespace LeadowLib {
 				break;
 			case JsonBox::Value::Type::INTEGER:
 				value.setInteger(*(int*)pValue);
+				break;
+			case JsonBox::Value::ARRAY:
+				value[index] = "";
 				break;
 			default:
 				return value;

@@ -19,6 +19,8 @@ public:
 	获取窗口消息处理对象（窗口Build好后，添加消息处理对象）
 	*/
 	virtual CFramNotifyPump* GetNotifyPump() = 0;
+
+	virtual DWORD EraseFile(int mothed, bool undelfolder, CLdArray<CVirtualFile*> * files) = 0;
 protected:
 	//virtual ~IErasureLibrary() {};
 };

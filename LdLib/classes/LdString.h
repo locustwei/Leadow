@@ -76,7 +76,7 @@ namespace LeadowLib {
 
 		int __cdecl Format(char* pstrFormat, ...);
 
-		int Try2Int(int Default = 0);
+		static int Try2Int(char* lpStr, int Default = 0);
 	protected:
 		char* m_pstr;
 	};
@@ -155,7 +155,7 @@ namespace LeadowLib {
 
 		int __cdecl Format(WCHAR* pstrFormat, ...);
 
-		int Try2Int(int Default = 0);
+		static int Try2Int(WCHAR* lpStr, int Default = 0);
 	protected:
 		WCHAR* m_pstr;
 	};
