@@ -23,7 +23,6 @@ namespace LeadowLib {
 	};
 
 	CLdString SysErrorMsg(DWORD dwErrorCode);         //系统错误消息
-	BOOL RunInvoker(LD_FUNCTION_ID id, DWORD Flag, LPCTSTR lpPipeName);
 	//打开（关闭）程序令牌
 	BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
 	//ShllExecute 打开文件、网页等

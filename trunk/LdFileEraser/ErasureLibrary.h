@@ -1,4 +1,39 @@
 #pragma once
+
+#define EPN_MOTHED L"mothed"
+#define EPN_FILE L"file"
+#define EPN_UNDELFOLDER L"undelfolder"
+
+//文件擦除状态
+enum E_FILE_STATE
+{
+	efs_ready,      //准备
+	efs_erasuring,  //擦除中
+	efs_erasured,   //已擦除
+	efs_error,      //擦除失败（有错误）
+	efs_abort       //取消操作
+};
+//擦除线程动作
+enum E_THREAD_OPTION
+{
+	eto_start,      //控制线程开始   
+	eto_begin,      //开始擦除（单个文件）
+	eto_completed,  //擦除完成（单个文件）
+	eto_progress,   //擦除进度（单个文件）
+	eto_freespace,  //磁盘空闲空间
+	eto_track,      //删除的文件痕迹
+	eto_finished,   //全部擦除完成
+	eto_analy,      //磁盘分析
+	eto_analied     //磁盘分析完成
+};
+
+//擦除线程回掉函数
+class LDLIB_API IEraserThreadCallback
+{
+public:
+	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
+};
+
 /*
 文件擦除动态库导出接口
 调用API_Init获取这个接口。
@@ -20,7 +55,7 @@ public:
 	*/
 	virtual CFramNotifyPump* GetNotifyPump() = 0;
 
-	virtual DWORD EraseFile(CLdConfig Param) = 0;
+	virtual DWORD EraseFile(CLdConfig Param, IEraserThreadCallback * callback) = 0;
 protected:
 	//virtual ~IErasureLibrary() {};
 };

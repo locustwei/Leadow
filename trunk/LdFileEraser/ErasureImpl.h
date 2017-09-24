@@ -23,7 +23,8 @@ protected:
 	TCHAR* UIResorce() override;
 	void SetUI(CControlUI* pCtrl) override;
 	CControlUI* GetUI() override;
-	DWORD EraseFile(CLdConfig Param) override;
+
+	DWORD EraseFile(CLdConfig Param, IEraserThreadCallback* callback) override;
 private:
 	CErasureMainWnd* m_MainWnd;
 	CControlUI* m_Ctrl;

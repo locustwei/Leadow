@@ -88,4 +88,11 @@ namespace LeadowLib {
 	{
 		return PostThreadMessage(ThisApp->m_ThreadID, MM_CALLBACKMSG, (WPARAM)callback, Param);
 	}
+
+	BOOL CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, UINT nPort)
+	{
+		CLdString invoker = GetInstallPath() + INVOKER_EXE;
+
+		return ShellExecute(NULL, NULL, invoker, Param, NULL, SW_SHOWNORMAL) != NULL;
+	}
 }

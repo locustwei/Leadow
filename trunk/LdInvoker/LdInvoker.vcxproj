@@ -152,16 +152,18 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Eraser\EraserThreadCallbackImpl.h" />
+    <ClInclude Include="Eraser\RunErasure.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="RunErasure.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Eraser\EraserThreadCallbackImpl.cpp" />
+    <ClCompile Include="Eraser\RunErasure.cpp" />
     <ClCompile Include="LdInvoker.cpp" />
     <ClCompile Include="Library.cpp" />
-    <ClCompile Include="RunErasure.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

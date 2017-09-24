@@ -5,6 +5,8 @@
 #include "../classes/Thread.h"
 #include "../classes/LdArray.h"
 
+#define SOCKET_PORT 0x5389
+
 namespace LeadowLib
 {
 	enum SOCKET_STATUS
@@ -36,8 +38,8 @@ namespace LeadowLib
 		{ return tag; };
 		VOID SetTag(UINT_PTR value) { tag = value; };
 
-		int Connect(LPCSTR szIp, int port);                            //连接服务地址（客户端）
-		int Send(char* buffer, int nSize);  //发送数据
+		int Connect(LPCSTR szIp, int port = SOCKET_PORT);            //连接服务地址（客户端）
+		int Send(PVOID buffer, int nSize);             //发送数据
 		int Recv();
 		void Close();
 	protected:
@@ -73,7 +75,7 @@ namespace LeadowLib
 		CLdSocket(void);
 		~CLdSocket(void);
 
-		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
+//		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
 		BOOL Listen(int port);                                             //使用TCP协议监听端口（服务端）
 		BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
 		CSocketBase* GetClient();                                        //Server 连接的客户端列表。
