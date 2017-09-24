@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="eraser">
+      <UniqueIdentifier>{e7d14d23-abfb-4626-a68e-f7a00ee05919}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -27,11 +30,14 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="RunErasure.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Library.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Eraser\EraserThreadCallbackImpl.h">
+      <Filter>eraser</Filter>
+    </ClInclude>
+    <ClInclude Include="Eraser\RunErasure.h">
+      <Filter>eraser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -41,11 +47,14 @@
     <ClCompile Include="LdInvoker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="RunErasure.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Library.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Eraser\EraserThreadCallbackImpl.cpp">
+      <Filter>eraser</Filter>
+    </ClCompile>
+    <ClCompile Include="Eraser\RunErasure.cpp">
+      <Filter>eraser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

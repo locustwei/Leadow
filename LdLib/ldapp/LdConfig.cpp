@@ -3,9 +3,12 @@
 #include "../file/FileUtils.h"
 #include <Shlwapi.h>
 #include "../classes/LdMap.h"
+#include <sstream>
 
 #pragma warning(disable:4018)
 #pragma comment(lib,"Shlwapi.lib")
+
+using namespace std;
 
 namespace LeadowLib {
 
@@ -77,7 +80,6 @@ namespace LeadowLib {
 	BOOL CLdConfig::GetBoolean(CLdStringA Path, BOOL def, int index)
 	{
 		JsonBox::Value val = GetConfigObject(Path, index);
-
 		return val.tryGetBoolean(def == TRUE);
 	}
 
@@ -184,5 +186,12 @@ namespace LeadowLib {
 		}
 		if (pItem)
 			m_Config = *pItem;
+	}
+
+	CLdStringW CLdConfig::ToString()
+	{
+		std::ostringstream stream;
+		m_Config.writeToStream(stream, false, false);
+		return stream.str();
 	}
 }

@@ -47,6 +47,7 @@ namespace LeadowLib {
 			JsonBox::Value value,                                   //值
 			int index = -1                                          //数组下标：-1不是数组。
 		);
+		CLdString ToString();
 	protected:
 		JsonBox::Value m_Config;
 		CLdStringA m_ConfigFileName;

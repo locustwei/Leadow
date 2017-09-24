@@ -135,104 +135,18 @@ void PrintComError(_com_error &e) {
 	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
 }
 
-bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CLdConfig& Params)
-{
-#define MOTHED L"mothed"
-#define FILE L"file"
-#define UNDELFOLDER L"undelfolder"
-
-	int mothed;
-	for (int i = 0; i<nParamCount; i++)
-	{
-		if (wcsnicmp(lpParams[i], MOTHED, wcslen(MOTHED)) == 0)
-		{
-			LPWSTR p = wcschr(lpParams[i], ':');
-			if (!p)
-				return false;
-			p += 1;
-			mothed = CLdStringW::Try2Int(p, -1);
-			if (mothed == -1)
-				return false;
-			Params.AddConfigObject("mothed", mothed);
-		}
-		else if (wcsnicmp(lpParams[i], FILE, wcslen(FILE)) == 0)
-		{
-			LPWSTR p = wcschr(lpParams[i], ':');
-			if (!p)
-				return false;
-			p += 1;
-			CLdString str = p;
-			str.Trim();
-			if (str.GetLength() < 3)
-				return false;
-			if (str[0] == '\"')
-			{
-				str.Delete(0, 1);
-			}
-			if (str[str.GetLength() - 1] == '\"')
-				str.Delete(str.GetLength() - 1, 1);
-
-			printf("%s\n", str.GetData());
-
-			Params.AddArrayValue("file", str.GetData());
-		}
-		else if (wcsnicmp(lpParams[i], UNDELFOLDER, wcslen(UNDELFOLDER)) == 0)
-		{
-			Params.AddConfigObject("delfolder", true);
-		}
-		else
-			return false;
-	}
-}
-
-#define CMD_ERASE_FILE L"/erasefile"
-#define CMD_ERASE_RECYCLE L"/eraserecycle"
-#define CMD_ERASE_VOLUME L"/erasevolume"
-
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
-	CLdStringW cmdLine = L"   /erasefile  undelfolder  mothed:3    file:c:\\abc.txt  file:\"c:\\ddd dddddd.exe\"";
-	int ParamCount;
-	cmdLine.Trim();
-	printf("%S\n", cmdLine.GetData());
-	LPWSTR* lpParamStrs = CommandLineToArgvW(cmdLine, &ParamCount);
+	
+	CLdConfig config;
+	config.AddConfigObject("abc", 1);
+	config.AddConfigObject("dddd", false);
+	config.AddArrayValue("eeee", "dddddd");
+	config.AddArrayValue("sssss", 344);
 
-	if (ParamCount == 0)
-	{
-		//goto help;
-		return 0;
-	}
-
-	if (wcsicmp(lpParamStrs[0], CMD_ERASE_FILE) == 0)
-	{
-		if (ParamCount < 2)
-		{
-			//goto help
-			return 0;
-		}
-		CLdConfig Param;
-		if (!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1, Param))
-		{
-			//goto help;
-			//return 0;
-		}
-
-		std::cout << Param.m_Config << std::endl;
-
-		for (int i = 1; i<ParamCount; i++)
-		{
-
-		}
-	}
-
-	for (int i = 0; i<ParamCount; i++)
-	{
-		MessageBox(0, lpParamStrs[i], nullptr, 0);
-	}
-
-	LocalFree(lpParamStrs);
+	CLdString s = config.ToString();
 	printf("\npress any key exit");
 	getchar();
 

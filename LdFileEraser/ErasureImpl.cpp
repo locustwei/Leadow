@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureImpl.h"
+#include "eraser/ErasureThread.h"
 
 
 CErasureImpl* ThisLibrary = nullptr;
@@ -70,7 +71,44 @@ CControlUI* CErasureImpl::GetUI()
 	return m_Ctrl;
 }
 
-DWORD CErasureImpl::EraseFile(CLdConfig Param)
+DWORD CErasureImpl::EraseFile(CLdConfig Param, IEraserThreadCallback* callback)
 {
+	CFolderInfo m_ErasureFile;
+
+	int mothed;
+	if (Param.GetDataType(EPN_MOTHED) == JsonBox::Value::NULL_VALUE)
+		mothed = ThisLibrary->GetConfig()->GetFileErasureMothed();
+	else
+		mothed = Param.GetInteger(EPN_MOTHED, 3);
+	BOOL removefolder;
+	if (Param.GetDataType(EPN_UNDELFOLDER) == JsonBox::Value::NULL_VALUE)
+		removefolder = ThisLibrary->GetConfig()->IsRemoveFolder();
+	else
+		removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
+	int k = Param.GetArrayCount(EPN_FILE);
+	for(int i=0; i<k; i++)
+	{
+		CLdString s = Param.GetString(EPN_FILE, nullptr, i);
+		if (s.IsEmpty())
+			continue;
+		CFileInfo* info;
+		if (CFileUtils::IsDirectoryExists(s))
+		{
+			info = new CFolderInfo();
+			info->SetFileName(s);
+			((CFolderInfo*)info)->FindFiles(true);
+		}
+		else
+		{
+			info = new CFileInfo();
+			info->SetFileName(s);
+		}
+
+		m_ErasureFile.AddFile(info);
+	}
+	CEreaserThrads m_EreaserThreads(callback);
+	m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
+	m_EreaserThreads.StartEreasure(10);
+
 	return 0;
 }

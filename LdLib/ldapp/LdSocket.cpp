@@ -62,7 +62,7 @@ namespace LeadowLib
 		return 0;
 	}
 
-	int CSocketBase::Send(char* buffer, int nSize)
+	int CSocketBase::Send(PVOID buffer, int nSize)
 	{
 		if (m_Socket == INVALID_SOCKET || !buffer || nSize == 0)
 			return SOCKET_ERROR;
@@ -70,12 +70,12 @@ namespace LeadowLib
 		int nCount;
 		do
 		{
-			nCount = send(m_Socket, buffer, nSize, 0);
+			nCount = send(m_Socket, (char*)buffer, nSize, 0);
 			if (nCount == SOCKET_ERROR) {
 				return WSAGetLastError();
 			}
 			else {
-				buffer += nCount;
+				buffer = (char*)buffer + nCount;
 				nSize -= nCount;
 			}
 
@@ -196,6 +196,7 @@ namespace LeadowLib
 		return TRUE;
 	}
 
+/*
 	BOOL CLdSocket::ConnectTo(LPCSTR szIp, int port)
 	{
 		if (m_Socket != INVALID_SOCKET)
@@ -230,6 +231,7 @@ namespace LeadowLib
 
 		return TRUE;
 	}
+*/
 /*
 
 	DWORD WINAPI SocketSelectThreadProc(

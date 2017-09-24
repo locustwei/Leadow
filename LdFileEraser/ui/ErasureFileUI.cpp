@@ -69,7 +69,7 @@ bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 	RECT rect = pPaint->sender->GetPos();
 	rect.bottom = rect.top + 20;
 	rect.right = rect.left + ((rect.right - rect.left) * percent) / 100;
-	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x80FFFF00);
+	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x8008E0E0);
 	return true;
 }
 
@@ -241,6 +241,12 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 
 void CErasureFileUI::StatErase()
 {
+	CLdConfig param;
+	param.AddConfigObject(EPN_MOTHED, 3);
+	param.AddConfigObject(EPN_UNDELFOLDER, false);
+	param.AddArrayValue(EPN_FILE, "dasasdfa");
+	
+	CLdApp::ThisApp->RunInvoker(nullptr, 0);
 	m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
 	m_EreaserThreads.StartEreasure(10);
 }
