@@ -46,13 +46,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			//goto help
 			return 0;
 		}
-		CLdConfig Param;
-		if(!AnalEraseFileParam(&lpParamStrs[1], ParamCount - 1, Param))
+		if(!RunEraseFile(&lpParamStrs[1], ParamCount - 1) != 0)
 		{
 			//goto help;
 			return 0;
 		}
-		RunEraseFile(Param);
 	}
 
 	for(int i=0; i<ParamCount;i++)

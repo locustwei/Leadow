@@ -10,15 +10,11 @@ namespace LeadowLib {
 #ifdef WIN64
 #define INVOKER_EXE _T("LdInvoker_d64.exe")
 #else
-#define INVOKER_EXE _T("LdInvoker_d64.exe")
+#define INVOKER_EXE _T("LdInvoker_d32.exe")
 #endif
 #else
 #ifdef WIN64
-#define INVOKER_EXE _T("RdErasure_d32.dll")
-#define INVOKER_EXE _T("LdFileProtect_d32.dll")
 #else
-#define INVOKER_EXE _T("RdErasure_d32.dll")
-#define INVOKER_EXE _T("LdFileProtect_d32.dll")
 #endif
 #endif
 

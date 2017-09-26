@@ -52,9 +52,19 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CLdConfig& Params)
 	return true;
 }
 
-DWORD RunEraseFile(CLdConfig& Param)
+DWORD RunEraseFile(LPWSTR* lpParams, int nParamCount)
 {
+	CLdConfig Param;
+
+	if (!AnalEraseFileParam(lpParams, nParamCount, Param))
+	{
+		//goto help;
+		return 1;
+	}
+
+	CEraserThreadCallbackImpl impl;
+
 	IErasureLibrary* Eraser = CLdLibray::LoadErasureLibrary();
 	
-	return Eraser->EraseFile(Param, new CEraserThreadCallbackImpl());
+	return Eraser->EraseFile(Param, &impl);
 }
