@@ -76,7 +76,7 @@ namespace LeadowLib
 		~CLdSocket(void);
 
 //		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
-		BOOL Listen(int port);                                             //使用TCP协议监听端口（服务端）
+		BOOL Listen(int port = SOCKET_PORT);                                             //使用TCP协议监听端口（服务端）
 		BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
 		CSocketBase* GetClient();                                        //Server 连接的客户端列表。
 		void SetListener(ISocketListener* listener);                          //设置监听

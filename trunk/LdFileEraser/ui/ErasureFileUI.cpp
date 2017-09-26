@@ -246,9 +246,9 @@ void CErasureFileUI::StatErase()
 	param.AddConfigObject(EPN_UNDELFOLDER, false);
 	param.AddArrayValue(EPN_FILE, "dasasdfa");
 	
-	CLdApp::ThisApp->RunInvoker(nullptr, 0);
-	m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
-	m_EreaserThreads.StartEreasure(10);
+	CLdApp::ThisApp->RunInvoker(nullptr, 0, 0);
+	//m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
+	//m_EreaserThreads.StartEreasure(10);
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)

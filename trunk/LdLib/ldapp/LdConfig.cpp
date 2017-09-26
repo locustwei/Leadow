@@ -192,6 +192,7 @@ namespace LeadowLib {
 	{
 		std::ostringstream stream;
 		m_Config.writeToStream(stream, false, false);
-		return stream.str();
+		std::string s = stream.str();
+		return (char*)s.c_str();
 	}
 }

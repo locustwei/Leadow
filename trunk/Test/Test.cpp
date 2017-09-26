@@ -23,37 +23,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	return (int) 0;
 }
 
-/*
-class CImpl: 
-	public IGernalCallback<PSH_HEAD_INFO>
-	,public ISortCompare<CLdString*>
-{
-public:
-	CImpl()
-	{
-		Count = 0;
-	};
-
-	int Count;
-
-	int ArraySortCompare(CLdString** it1, CLdString** it2) override
-	{
-		int k = _tcsicmp((*it1)->GetData(), (*it2)->GetData());
-		if (k == 0)
-			printf("%d\n", Count++);
-		return k;
-	};
-
-	BOOL GernalCallback_Callback(_SH_HEAD_INFO* pData, UINT_PTR Param) override
-	{
-		CLdArray<CLdString>* columes = (CLdArray<CLdString>*)Param;
-		columes->Add(pData->szName);
-		//printf("%S\n", pData->szName);
-
-		return true;
-	};
-};*/
-
 // Function declarations  
 inline void TESTHR(HRESULT x) { if FAILED(x) _com_issue_error(x); };
 void ConnectionStringX();
@@ -135,18 +104,48 @@ void PrintComError(_com_error &e) {
 	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
 }
 
+class CSocketListenerImpl: public ISocketListener
+{
+public:
+	void OnConnected(CSocketBase*) override
+	{
+		printf("OnConnected\n");
+	};
+	void OnRecv(CSocketBase*) override
+	{
+		printf("OnRecv\n");
+	};
+	void OnClosed(CSocketBase*) override
+	{
+		printf("OnClosed\n");
+	};
+	void OnAccept(CSocketBase*) override
+	{
+		printf("OnAccept\n");
+	};
+	void OnError(CSocketBase*, int code) override
+	{
+		printf("OnError %d\n", code);
+	};
+};
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 	
-	CLdConfig config;
-	config.AddConfigObject("abc", 1);
-	config.AddConfigObject("dddd", false);
-	config.AddArrayValue("eeee", "dddddd");
-	config.AddArrayValue("sssss", 344);
+	CSocketListenerImpl impl;
+	CLdSocket socket;
+	socket.SetListener(&impl);
+	socket.Listen();
+	
+	CSocketListenerImpl impl1;
+	CLdSocket socket1;
+	socket1.SetListener(&impl1);
+	socket1.Connect("127.0.0.1");
 
-	CLdString s = config.ToString();
+	socket1.Send("ddddddddd", 6);
+
 	printf("\npress any key exit");
 	getchar();
 

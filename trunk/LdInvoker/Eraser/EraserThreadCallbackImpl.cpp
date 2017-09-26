@@ -41,8 +41,25 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THRE
 	return !m_Abort;
 }
 
+void CEraserThreadCallbackImpl::OnConnected(CSocketBase *)
+{
+
+}
+
 void CEraserThreadCallbackImpl::OnRecv(CSocketBase*)
 {
 	PVOID buffer = m_socket.GetRecvData();
 
+}
+
+void CEraserThreadCallbackImpl::OnClosed(CSocketBase *)
+{
+}
+
+void CEraserThreadCallbackImpl::OnAccept(CSocketBase *)
+{
+}
+
+void CEraserThreadCallbackImpl::OnError(CSocketBase *, int)
+{
 }
