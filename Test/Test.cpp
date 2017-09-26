@@ -111,9 +111,11 @@ public:
 	{
 		printf("OnConnected\n");
 	};
-	void OnRecv(CSocketBase*) override
+	void OnRecv(CSocketBase* s) override
 	{
-		printf("OnRecv\n");
+		PLDSOCKET_DATA p = s->GetRecvData();
+		int i 
+		printf("OnRecv %s \n", (char*)s->GetRecvData());
 	};
 	void OnClosed(CSocketBase*) override
 	{
@@ -134,6 +136,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 	
+	
 	CSocketListenerImpl impl;
 	CLdSocket socket;
 	socket.SetListener(&impl);
@@ -144,7 +147,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	socket1.SetListener(&impl1);
 	socket1.Connect("127.0.0.1");
 
-	socket1.Send("ddddddddd", 6);
+	socket1.Send("ddddddddd", 10);
+	socket1.Send("ddddddddd", 10);
+	socket1.Send("ddddddddd", 10);
+	socket1.Send("ddddddddd", 10);
+	socket1.Send("ddddddddd", 10);
 
 	printf("\npress any key exit");
 	getchar();

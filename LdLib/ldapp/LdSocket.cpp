@@ -14,16 +14,15 @@ namespace LeadowLib
 		lpRecvedBuffer = NULL;
 		nRecvSize = 0;
 		bClosed = true;
-
 	}
 
 	CSocketBase::CSocketBase(SOCKET s): m_port(0), tag(0)
 	{
 		m_Socket = s;
-		m_Status = SS_NONE;
+		m_Status = SS_CONNECTED;
 		lpRecvedBuffer = NULL;
 		nRecvSize = 0;
-		bClosed = true;
+		bClosed = s == INVALID_SOCKET;
 	}
 
 	CSocketBase::~CSocketBase()
@@ -31,6 +30,16 @@ namespace LeadowLib
 		Close();
 		if (lpRecvedBuffer)
 			delete lpRecvedBuffer;
+	}
+
+	PLDSOCKET_DATA CSocketBase::GetRecvData() const
+	{
+		return (PLDSOCKET_DATA)lpRecvedBuffer;
+	}
+
+	int CSocketBase::GetRecvSize() const
+	{
+		return nRecvSize;
 	}
 
 	void CSocketBase::Close()
@@ -62,24 +71,31 @@ namespace LeadowLib
 		return 0;
 	}
 
-	int CSocketBase::Send(PVOID buffer, int nSize)
+	int CSocketBase::Send(PVOID buffer, WORD nSize)
 	{
 		if (m_Socket == INVALID_SOCKET || !buffer || nSize == 0)
 			return SOCKET_ERROR;
-
+		
+		PBYTE p = (PBYTE)new BYTE[sizeof(WORD) + nSize];
+		*PWORD(p) = nSize;
+		memcpy(((PLDSOCKET_DATA)p)->data, buffer, nSize);
+		nSize += sizeof(WORD);
 		int nCount;
 		do
 		{
-			nCount = send(m_Socket, (char*)buffer, nSize, 0);
+			nCount = send(m_Socket, (char*)p, nSize, 0);
 			if (nCount == SOCKET_ERROR) {
 				return WSAGetLastError();
 			}
 			else {
-				buffer = (char*)buffer + nCount;
+				p = p + nCount;
 				nSize -= nCount;
 			}
 
 		} while (nSize > 0);
+
+		delete[] p;
+
 		return 0;
 	}
 
