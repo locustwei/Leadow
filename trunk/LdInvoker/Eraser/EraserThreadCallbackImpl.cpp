@@ -46,7 +46,7 @@ void CEraserThreadCallbackImpl::OnConnected(CSocketBase *)
 
 }
 
-void CEraserThreadCallbackImpl::OnRecv(CSocketBase*)
+void CEraserThreadCallbackImpl::OnRecv(CSocketBase*, PBYTE pData, WORD nLength)
 {
 	PVOID buffer = m_socket.GetRecvData();
 

@@ -111,11 +111,9 @@ public:
 	{
 		printf("OnConnected\n");
 	};
-	void OnRecv(CSocketBase* s) override
+	void OnRecv(CSocketBase* s, PBYTE pData, WORD nLength) override
 	{
-		PLDSOCKET_DATA p = s->GetRecvData();
-		int i 
-		printf("OnRecv %s \n", (char*)s->GetRecvData());
+		printf("OnRecv %s \n", (char*)pData);
 	};
 	void OnClosed(CSocketBase*) override
 	{
@@ -148,10 +146,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	socket1.Connect("127.0.0.1");
 
 	socket1.Send("ddddddddd", 10);
-	socket1.Send("ddddddddd", 10);
-	socket1.Send("ddddddddd", 10);
-	socket1.Send("ddddddddd", 10);
-	socket1.Send("ddddddddd", 10);
+	socket1.Send("eeeeeeeee", 10);
+	socket1.Send("fffffffff", 10);
+	socket1.Send("wwwwwwwww", 10);
+	socket1.Send("sssssssss", 10);
+	printf("-------------------------------------");
+	socket.GetClient(0)->Send("ddddddddd", 10);
+	socket.GetClient(0)->Send("eeeeeeeee", 10);
+	socket.GetClient(0)->Send("fffffffff", 10);
+	socket.GetClient(0)->Send("wwwwwwwww", 10);
+	socket.GetClient(0)->Send("sssssssss", 10);
 
 	printf("\npress any key exit");
 	getchar();

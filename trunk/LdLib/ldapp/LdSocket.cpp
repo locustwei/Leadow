@@ -7,39 +7,47 @@ namespace LeadowLib
 {
 #define RECV_BUFFER_LEN 1024
 
-	CSocketBase::CSocketBase(): m_port(0), tag(0)
+	CSocketBase::CSocketBase(): m_port(0), m_Listner(nullptr), tag(0)
 	{
 		m_Socket = INVALID_SOCKET;
-		m_Status = SS_NONE;
-		lpRecvedBuffer = NULL;
-		nRecvSize = 0;
 		bClosed = true;
 	}
 
-	CSocketBase::CSocketBase(SOCKET s): m_port(0), tag(0)
+	CSocketBase::CSocketBase(SOCKET s): m_port(0), m_Listner(nullptr), tag(0)
 	{
 		m_Socket = s;
-		m_Status = SS_CONNECTED;
-		lpRecvedBuffer = NULL;
-		nRecvSize = 0;
 		bClosed = s == INVALID_SOCKET;
 	}
 
 	CSocketBase::~CSocketBase()
 	{
 		Close();
-		if (lpRecvedBuffer)
-			delete lpRecvedBuffer;
+		
 	}
 
-	PLDSOCKET_DATA CSocketBase::GetRecvData() const
+	bool CSocketBase::IsClosed() const
 	{
-		return (PLDSOCKET_DATA)lpRecvedBuffer;
+		return bClosed;
 	}
 
-	int CSocketBase::GetRecvSize() const
+	UINT_PTR CSocketBase::GetTag() const
 	{
-		return nRecvSize;
+		return tag;
+	}
+
+	void CSocketBase::SetTag(UINT_PTR value)
+	{
+		tag = value;
+	}
+
+	void CSocketBase::SetListener(ISocketListener * listener)
+	{
+		m_Listner = listener;
+	}
+
+	ISocketListener * CSocketBase::GetListener()
+	{
+		return m_Listner;
 	}
 
 	void CSocketBase::Close()
@@ -51,50 +59,31 @@ namespace LeadowLib
 		bClosed = true;
 	}
 
-	int CSocketBase::Connect(LPCSTR szIp, int port)
-	{
-		if (m_Socket != INVALID_SOCKET)
-			return SOCKET_ERROR;
-		m_Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (m_Socket == INVALID_SOCKET)
-			return WSAGetLastError();
-		sockaddr_in address = { 0 };
-		address.sin_family = PF_INET;
-		address.sin_addr.s_addr = inet_addr(szIp);
-		address.sin_port = htons(port);
-
-		if (connect(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
-			closesocket(m_Socket);
-			m_Socket = INVALID_SOCKET;
-			return WSAGetLastError();
-		}
-		return 0;
-	}
-
 	int CSocketBase::Send(PVOID buffer, WORD nSize)
 	{
 		if (m_Socket == INVALID_SOCKET || !buffer || nSize == 0)
 			return SOCKET_ERROR;
 		
-		PBYTE p = (PBYTE)new BYTE[sizeof(WORD) + nSize];
-		*PWORD(p) = nSize;
+		PBYTE p = new BYTE[sizeof(WORD) + nSize];
+		((PLDSOCKET_DATA)p)->nSize = nSize;
 		memcpy(((PLDSOCKET_DATA)p)->data, buffer, nSize);
 		nSize += sizeof(WORD);
 		int nCount;
+		PBYTE p1 = p;
 		do
 		{
-			nCount = send(m_Socket, (char*)p, nSize, 0);
+			nCount = send(m_Socket, (char*)p1, nSize, 0);
 			if (nCount == SOCKET_ERROR) {
 				return WSAGetLastError();
 			}
 			else {
-				p = p + nCount;
+				p1 = p1 + nCount;
 				nSize -= nCount;
 			}
 
 		} while (nSize > 0);
 
-		delete[] p;
+		delete p;
 
 		return 0;
 	}
@@ -152,6 +141,45 @@ namespace LeadowLib
 
 		m_Listner = NULL;
 		m_Status = SS_NONE;
+	}
+
+	int CLdSocket::Connect(LPCSTR szIp, int port)
+	{
+		if (m_Socket != INVALID_SOCKET)
+			return SOCKET_ERROR;
+		m_Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+		if (m_Socket == INVALID_SOCKET)
+			return WSAGetLastError();
+		int result = 0;
+		sockaddr_in address = { 0 };
+		address.sin_family = PF_INET;
+		address.sin_addr.s_addr = inet_addr(szIp);
+		address.sin_port = htons(port);
+
+		if (connect(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
+			Close();
+			result = WSAGetLastError();
+		}
+		
+		if(result==0)
+		{
+			if (!StartSelectThread())
+			{
+				result = GetLastError();
+				Close();
+			}
+		}
+		return result;
+	}
+
+	PLDSOCKET_DATA CLdSocket::GetRecvData() const
+	{
+		return (PLDSOCKET_DATA)m_Buffer;
+	}
+
+	int CLdSocket::GetRecvSize() const
+	{
+		return m_RecvSize;
 	}
 
 	BOOL CLdSocket::Bind(int port)
@@ -355,7 +383,17 @@ namespace LeadowLib
 		else if (n == 0)
 			DoClientClosed(pClient);
 		else if (m_Listner)
-			m_Listner->OnRecv(pClient);
+		{
+			PLDSOCKET_DATA p = pClient->GetRecvData();
+			int i = 0;
+			while (i<pClient->GetRecvSize())
+			{
+				m_Listner->OnRecv(pClient, p->data, p->nSize);
+				p = (PLDSOCKET_DATA)((char*)p->data + p->nSize);
+				i += p->nSize;
+			}
+
+		}
 	}
 
 	void CLdSocket::DoClientExcept(CSocketBase* pClient)
@@ -455,9 +493,6 @@ namespace LeadowLib
 			FD_SET(m_Socket, &ReadSet);
 			FD_SET(m_Socket, &ExceptSet);
 
-			//todo (线程同步问题）
-			//CSocketBase* pClient = ldSocket->GetClientHead();
-			//while (pClient) 
 			for(int i=0; i<m_ClientSockets.GetCount(); i++)
 			{
 				CSocketBase* pClient = m_ClientSockets[i];
@@ -516,5 +551,15 @@ namespace LeadowLib
 	ISocketListener* CLdSocket::GetListener()
 	{
 		return m_Listner;
+	}
+
+	int CLdSocket::GetClientCount()
+	{	
+		return m_ClientSockets.GetCount();
+	}
+
+	CSocketBase* CLdSocket::GetClient(int idx)
+	{
+		return m_ClientSockets[idx];
 	}
 }

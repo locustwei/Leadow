@@ -17,62 +17,42 @@ namespace LeadowLib
 	}*PLDSOCKET_DATA;
 #pragma pack(pop)
 
-	enum SOCKET_STATUS
-	{
-		SS_NONE,
-		SS_CONNECTED,
-		SS_BINDED,
-		SS_LISTENING
-	};
-
-	class CSocketBase
-	{
-		friend class CLdSocket;
-	public:
-		CSocketBase();
-		CSocketBase(SOCKET s);
-		~CSocketBase();
-		SOCKET GetSocket() const
-		{ return m_Socket; };
-
-		PLDSOCKET_DATA GetRecvData() const;
-		int GetRecvSize() const;
-		bool IsClosed() const
-		{ return bClosed; };
-		SOCKET_STATUS GetStatus() const
-		{ return m_Status; };
-		UINT_PTR GetTag() const
-		{ return tag; };
-		VOID SetTag(UINT_PTR value) { tag = value; };
-
-		int Connect(LPCSTR szIp, int port = SOCKET_PORT);        //连接服务地址（客户端）
-		int Send(PVOID buffer, WORD nSize);                       //发送数据
-		int Recv();
-		void Close();
-	protected:
-		SOCKET m_Socket;
-		IN_ADDR m_addr;
-		UINT m_port;
-
-		PBYTE lpRecvedBuffer;
-		int nRecvSize;
-		bool bClosed;
-		//_LD_CLIENT_SOCKET* pNext;
-		UINT_PTR tag;   //使用者自定义数据
-		SOCKET_STATUS m_Status;
-
-	};// LD_CLIENT_SOCKET, *CClientSockt*;
+	class CSocketBase;
 
 	class ISocketListener //监听接口，处理Socket事件
 	{
 	public:
 		virtual void OnConnected(CSocketBase*) = 0;
-		virtual void OnRecv(CSocketBase*) = 0;
+		virtual void OnRecv(CSocketBase*, PBYTE pData, WORD nLength) = 0;
 		virtual void OnClosed(CSocketBase*) = 0;
 		virtual void OnAccept(CSocketBase*) = 0;
 		virtual void OnError(CSocketBase*, int) = 0;
 	};
 
+	class CSocketBase
+	{
+	public:
+		CSocketBase();
+		CSocketBase(SOCKET s);
+		virtual ~CSocketBase();
+
+		bool IsClosed() const;
+		UINT_PTR GetTag() const;
+		VOID SetTag(UINT_PTR value);
+		void SetListener(ISocketListener* listener);                          //设置监听
+		ISocketListener* GetListener();
+
+		void Close();
+	protected:
+		SOCKET m_Socket;
+		IN_ADDR m_addr;
+		UINT m_port;
+		ISocketListener* m_Listner;
+
+		bool bClosed;
+		UINT_PTR tag;   //使用者自定义数据
+
+	};
 
 	class CLdSocket :
 		public CSocketBase,
@@ -82,31 +62,44 @@ namespace LeadowLib
 		CLdSocket(void);
 		~CLdSocket(void);
 
-//		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
-		BOOL Listen(int port = SOCKET_PORT);                              //使用TCP协议监听端口（服务端）
-		BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
-		CSocketBase* GetClient();                                         //Server 连接的客户端列表。
-		void SetListener(ISocketListener* listener);                          //设置监听
-		ISocketListener* GetListener();
-	protected:
-		//HANDLE m_hSelectThread;
-		ISocketListener* m_Listner;
-		CLdArray<CSocketBase*> m_ClientSockets;
-		
+		int Connect(LPCSTR szIp, int port = SOCKET_PORT);        //连接服务地址（客户端）
+		int Send(PVOID buffer, WORD nSize);                       //发送数据
+		int Recv();
+		PLDSOCKET_DATA GetRecvData() const;
+		int GetRecvSize() const;
+	private:
+		PBYTE m_Buffer;
+		int m_RecvSize;
+
 		BOOL StartSelectThread();
-		//CSocketBase* m_ClientHead;
-		CSocketBase* AddClient(SOCKET s);
 		void DoRead();
-		void DoClientRead(CSocketBase* pClient);
-		void DoClientExcept(CSocketBase* pClient);
-		void DoAccept();
-		//int RecvData(CSocketBase* pClient);
-		//int GetSocketError(SOCKET Socket);
-		void DoClientClosed(CSocketBase* pClient);
-		void RemoveClient(CSocketBase* pClient);
+//		void DoClientRead(CSocketBase* pClient);
+//		void DoClientExcept(CSocketBase* pClient);
+//		void DoClientClosed(CSocketBase* pClient);
 
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
+	};
+
+	class CLdServerSocket:
+		public CSocketBase,
+		public IThreadRunable
+	{
+	public:
+		CLdServerSocket();
+		~CLdServerSocket();
+		BOOL Listen(int port = SOCKET_PORT);                              //使用TCP协议监听端口（服务端）
+		int GetClientCount();
+		CSocketBase* GetClient(int idx);
+	private:
+		CLdArray<CSocketBase*> m_ClientSockets;
+		BOOL StartSelectThread();
+		void DoAccept();
+		void RemoveClient(CSocketBase* pClient);
+		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
+		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
+		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
+		CSocketBase* AddClient(SOCKET s);
 	};
 };

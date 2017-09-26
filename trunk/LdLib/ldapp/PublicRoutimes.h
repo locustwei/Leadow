@@ -5,7 +5,7 @@
 #include "../classes/LdString.h"
 
 namespace LeadowLib {
-	typedef enum WIN_OS_TYPE
+	enum WIN_OS_TYPE
 	{
 		Windows_2000,
 		Windows_XP,
