@@ -9,6 +9,14 @@
 
 namespace LeadowLib
 {
+#pragma pack(push, 1)
+	typedef struct LDSOCKET_DATA
+	{
+		WORD nSize;
+		BYTE data[1];
+	}*PLDSOCKET_DATA;
+#pragma pack(pop)
+
 	enum SOCKET_STATUS
 	{
 		SS_NONE,
@@ -26,10 +34,9 @@ namespace LeadowLib
 		~CSocketBase();
 		SOCKET GetSocket() const
 		{ return m_Socket; };
-		PVOID GetRecvData() const
-		{ return lpRecvedBuffer; };
-		int GetRecvSize() const
-		{ return nRecvSize; };
+
+		PLDSOCKET_DATA GetRecvData() const;
+		int GetRecvSize() const;
 		bool IsClosed() const
 		{ return bClosed; };
 		SOCKET_STATUS GetStatus() const
@@ -38,8 +45,8 @@ namespace LeadowLib
 		{ return tag; };
 		VOID SetTag(UINT_PTR value) { tag = value; };
 
-		int Connect(LPCSTR szIp, int port = SOCKET_PORT);            //连接服务地址（客户端）
-		int Send(PVOID buffer, int nSize);             //发送数据
+		int Connect(LPCSTR szIp, int port = SOCKET_PORT);        //连接服务地址（客户端）
+		int Send(PVOID buffer, WORD nSize);                       //发送数据
 		int Recv();
 		void Close();
 	protected:
@@ -47,7 +54,7 @@ namespace LeadowLib
 		IN_ADDR m_addr;
 		UINT m_port;
 
-		PUCHAR lpRecvedBuffer;
+		PBYTE lpRecvedBuffer;
 		int nRecvSize;
 		bool bClosed;
 		//_LD_CLIENT_SOCKET* pNext;
@@ -76,9 +83,9 @@ namespace LeadowLib
 		~CLdSocket(void);
 
 //		BOOL ConnectTo(LPCSTR szIp, int port);                            //连接服务地址（客户端）
-		BOOL Listen(int port = SOCKET_PORT);                                             //使用TCP协议监听端口（服务端）
+		BOOL Listen(int port = SOCKET_PORT);                              //使用TCP协议监听端口（服务端）
 		BOOL Bind(int port);                                              //使用UDP协议监听端口（服务端）
-		CSocketBase* GetClient();                                        //Server 连接的客户端列表。
+		CSocketBase* GetClient();                                         //Server 连接的客户端列表。
 		void SetListener(ISocketListener* listener);                          //设置监听
 		ISocketListener* GetListener();
 	protected:
