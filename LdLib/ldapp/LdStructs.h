@@ -22,7 +22,7 @@ namespace LeadowLib {
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
 #define CMD_ERASE_VOLUME  L"/erasevolume"
 
-	typedef enum LD_FUNCTION_ID
+	enum LD_FUNCTION_ID
 	{
 		LFI_NONE,
 		LFI_HIDE_FILE,
@@ -30,7 +30,7 @@ namespace LeadowLib {
 		LFI_EARSE_FILE
 	};
 	//调用功能函数的标志。
-	typedef enum LD_FUNCTION_FLAG
+	enum LD_FUNCTION_FLAG
 	{
 		LFF_NONE = 0x0,
 		LFF_NEW_PROCESS = 0x00000001,

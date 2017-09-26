@@ -3,7 +3,7 @@
 namespace LeadowLib {
 	//通过命名管道进行参数传递。
 	//指示命名管道动作
-	typedef enum PIPE_FOLW_ACTION
+	enum PIPE_FOLW_ACTION
 	{
 		PFA_ERROR,
 		PFA_CREATE,
@@ -14,7 +14,7 @@ namespace LeadowLib {
 	};
 	//命名管道数据提供接口。
 
-	typedef struct IPipeDataProvider
+	struct IPipeDataProvider
 	{
 		virtual PIPE_FOLW_ACTION PFACallback(PIPE_FOLW_ACTION current, LPVOID& lpBuffer, UINT& nBufferSize, PVOID pContext) = 0;
 	};
