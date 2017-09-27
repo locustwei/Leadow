@@ -107,25 +107,29 @@ void PrintComError(_com_error &e) {
 class CSocketListenerImpl: public ISocketListener
 {
 public:
-	void OnConnected(CLdSocket*) override
+	CLdArray<CLdClientSocket*> Clients;
+
+	void OnConnected(CLdSocket* socket) override
 	{
-		printf("OnConnected\n");
+		printf("OnConnected s=%d\n", socket->GetHandle());
 	};
 	void OnRecv(CLdSocket* s, PBYTE pData, WORD nLength) override
 	{
-		printf("OnRecv %s \n", (char*)pData);
+		printf("OnRecv s=%d %s \n", s->GetHandle(), (char*)pData);
 	};
-	void OnClosed(CLdSocket*) override
+	void OnClosed(CLdSocket* socket) override
 	{
-		printf("OnClosed\n");
+		printf("OnCloseds s=%d\n", socket->GetHandle());
 	};
-	void OnAccept(CLdSocket*) override
+	void OnAccept(CLdSocket* socket) override
 	{
-		printf("OnAccept\n");
+		printf("OnAccepts s=%d\n", socket->GetHandle());
+		Clients.Add(static_cast<CLdClientSocket*>(socket));
+		socket->SetListener(new CSocketListenerImpl);
 	};
-	void OnError(CLdSocket*, int code) override
+	void OnError(CLdSocket* socket, int code) override
 	{
-		printf("OnError %d\n", code);
+		printf("OnError s=%d code=s=%d\n", socket->GetHandle(), code);
 	};
 };
 
@@ -133,7 +137,7 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
-	
+	CLdSocket::InitSocketDll();
 	
 	CSocketListenerImpl impl;
 	CLdServerSocket socket;
@@ -143,19 +147,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	CSocketListenerImpl impl1;
 	CLdClientSocket socket1;
 	socket1.SetListener(&impl1);
-	socket1.Connect("127.0.0.1");
-
+	socket1.Connect();
+	Sleep(100);
 	socket1.Send("ddddddddd", 10);
 	socket1.Send("eeeeeeeee", 10);
 	socket1.Send("fffffffff", 10);
 	socket1.Send("wwwwwwwww", 10);
 	socket1.Send("sssssssss", 10);
-	printf("-------------------------------------");
-	socket.GetClient(0)->Send("ddddddddd", 10);
-	socket.GetClient(0)->Send("eeeeeeeee", 10);
-	socket.GetClient(0)->Send("fffffffff", 10);
-	socket.GetClient(0)->Send("wwwwwwwww", 10);
-	socket.GetClient(0)->Send("sssssssss", 10);
+	printf("-------------------------------------\n");
+	impl.Clients[0]->Send("ddddddddd", 10);
+	impl.Clients[0]->Send("eeeeeeeee", 10);
+	impl.Clients[0]->Send("fffffffff", 10);
+	impl.Clients[0]->Send("wwwwwwwww", 10);
+	impl.Clients[0]->Send("sssssssss", 10);
+//
+//	socket1.Close();
+
 
 	printf("\npress any key exit");
 	getchar();

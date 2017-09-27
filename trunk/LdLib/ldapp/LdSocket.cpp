@@ -15,8 +15,7 @@ namespace LeadowLib
 
 	CLdSocket::~CLdSocket()
 	{
-		Close();
-		
+		Close();		
 	}
 
 	bool CLdSocket::IsClosed() const
@@ -53,6 +52,19 @@ namespace LeadowLib
 		m_Closed = true;
 	}
 
+	SOCKET CLdSocket::GetHandle()
+	{
+		return m_Socket;
+	}
+
+	int CLdSocket::InitSocketDll()
+	{
+		WORD wVersionRequested;
+		WSADATA wsaData;
+		wVersionRequested = MAKEWORD(2, 2);
+		return WSAStartup(wVersionRequested, &wsaData);
+	}
+
 	void CLdSocket::DoExcept()
 	{
 		int err = WSAGetLastError();
@@ -78,6 +90,7 @@ namespace LeadowLib
 
 	CLdClientSocket::CLdClientSocket(void)
 		: CLdSocket()
+		, m_hThread(INVALID_HANDLE_VALUE)
 		, m_Buffer(nullptr)
 		, m_RecvSize(0)
 	{
@@ -87,12 +100,12 @@ namespace LeadowLib
 
 	CLdClientSocket::~CLdClientSocket(void)
 	{
-		if (m_Socket != INVALID_SOCKET) {
-			closesocket(m_Socket);
-			m_Socket = INVALID_SOCKET;
+		Close();
+		if(m_hThread != INVALID_HANDLE_VALUE)
+		{
+			WaitForSingleObject(m_hThread, INFINITE);
+			m_hThread = INVALID_HANDLE_VALUE;
 		}
-
-		m_Listner = NULL;
 	}
 
 	int CLdClientSocket::Connect(LPCSTR szIp, int port)
@@ -120,6 +133,9 @@ namespace LeadowLib
 				result = GetLastError();
 				Close();
 			}
+
+			m_addr = address.sin_addr;
+			m_port = address.sin_port;
 		}
 		return result;
 	}
@@ -193,147 +209,19 @@ namespace LeadowLib
 
 	CLdClientSocket::CLdClientSocket(SOCKET s)
 		:CLdSocket()
+		, m_hThread(INVALID_HANDLE_VALUE)
 		, m_Buffer(nullptr)
 		, m_RecvSize(0)
 	{
 		m_Socket = s;
+		m_Closed = m_Socket == INVALID_SOCKET;
 	}
-
-	/*
-		BOOL CLdSocket::Bind(int port)
-		{
-			if (m_Socket != INVALID_SOCKET)
-				return FALSE;
-			m_Socket = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-			if (m_Socket == INVALID_SOCKET)
-				return FALSE;
-			sockaddr_in address = { 0 };
-			address.sin_family = PF_INET;
-			address.sin_addr.s_addr = htonl(INADDR_ANY);
-			address.sin_port = htons(port);
-	
-			if (bind(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
-				closesocket(m_Socket);
-				m_Socket = INVALID_SOCKET;
-				return FALSE;
-			};
-	
-			return TRUE;
-		}
-	*/
-
-
-/*
-	BOOL CLdSocket::ConnectTo(LPCSTR szIp, int port)
-	{
-		if (m_Socket != INVALID_SOCKET)
-			return FALSE;
-		m_Socket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
-		if (m_Socket == INVALID_SOCKET)
-			return FALSE;
-		sockaddr_in address = { 0 };
-		address.sin_family = PF_INET;
-		address.sin_addr.s_addr = inet_addr(szIp);
-		address.sin_port = htons(port);
-
-		if (connect(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {
-			closesocket(m_Socket);
-			m_Socket = INVALID_SOCKET;
-			return FALSE;
-		}
-
-		u_long nNoBlock = 1;
-		ioctlsocket(m_Socket, FIONBIO, &nNoBlock);
-
-		if (!StartSelectThread()) {
-			closesocket(m_Socket);
-			m_Socket = INVALID_SOCKET;
-			return FALSE;
-		}
-
-		m_Status = SS_CONNECTED;
-
-		if (m_Listner)
-			m_Listner->OnConnected(this);
-
-		return TRUE;
-	}
-*/
-/*
-
-	DWORD WINAPI SocketSelectThreadProc(
-		_In_ LPVOID lpParameter
-	)
-	{
-		fd_set ReadSet, WriteSet, ExceptSet;
-		CLdSocket* ldSocket = (CLdSocket*)lpParameter;
-		while (true) {
-			if (ldSocket->m_Socket == INVALID_SOCKET)
-				break;
-
-			FD_ZERO(&ReadSet);
-			FD_ZERO(&WriteSet);        //不处理send
-			FD_ZERO(&ExceptSet);
-
-			FD_SET(ldSocket->m_Socket, &ReadSet);
-			FD_SET(ldSocket->m_Socket, &ExceptSet);
-
-			//todo (线程同步问题）
-			CLdSocket* pClient = ldSocket->GetClientHead();
-			while (pClient) {
-				if (!pClient->bClosed) {
-					FD_SET(pClient->m_Socket, &ReadSet);
-					FD_SET(pClient->m_Socket, &ExceptSet);
-				}
-				pClient = pClient->pNext;
-			}
-
-			if (select(0, &ReadSet, NULL, &ExceptSet, 0) > 0) {
-				if (FD_ISSET(ldSocket->m_Socket, &ReadSet)) {
-					ldSocket->DoRead();
-				}
-
-				if (FD_ISSET(ldSocket->m_Socket, &ExceptSet)) {
-					ldSocket->DoClientExcept(ldSocket);
-				}
-				pClient = ldSocket->GetClientHead();
-				while (pClient) {
-					if (!pClient->bClosed) {
-						if (FD_ISSET(pClient->m_Socket, &ReadSet)) {
-							ldSocket->DoClientRead(pClient);
-						}
-
-						if (FD_ISSET(ldSocket->m_Socket, &ExceptSet)) {
-							ldSocket->DoClientExcept(pClient);
-						}
-					}
-					pClient = pClient->pNext;
-				}
-
-				pClient = ldSocket->GetClientHead();
-				while (pClient) {  //删除已经断开连接的客户端
-					if (pClient->bClosed) {
-						CLdSocket* pTmp = pClient->pNext;
-						ldSocket->RemoveClient(pClient);
-						pClient = pTmp;
-					}
-					else
-						pClient = pClient->pNext;
-				}
-			}
-
-
-		}
-		ldSocket->m_hSelectThread = NULL;
-		return 0;
-	}
-
-*/
 
 	BOOL CLdClientSocket::StartSelectThread()
 	{
 		CThread* thread = new CThread(this);
-		return thread->Start(0) != INVALID_HANDLE_VALUE;
+		m_hThread = thread->Start(0);
+		return m_hThread != INVALID_HANDLE_VALUE;
 	}
 
 	void CLdClientSocket::DoRead()
@@ -358,68 +246,11 @@ namespace LeadowLib
 		}
 	}
 
-/*
-	void CLdSocket::DoClientRead(CLdSocket* pClient)
-	{
-		int n = pClient->Recv();
-		if (n == SOCKET_ERROR) {
-			DoClientExcept(pClient);
-		}
-		else if (n == 0)
-			DoClientClosed(pClient);
-		else if (m_Listner)
-		{
-			PLDSOCKET_DATA p = pClient->GetRecvData();
-			int i = 0;
-			while (i<pClient->GetRecvSize())
-			{
-				m_Listner->OnRecv(pClient, p->data, p->nSize);
-				p = (PLDSOCKET_DATA)((char*)p->data + p->nSize);
-				i += p->nSize;
-			}
-
-		}
-	}
-*/
-
-/*
-	int CLdSocket::RecvData(CLdSocket* pClient)
-	{
-		//todo 线程同步问题
-
-		int nBytes, nTotal = 0;;
-		if (pClient->lpRecvedBuffer)
-			ZeroMemory(pClient->lpRecvedBuffer, pClient->nRecvSize);
-		do
-		{
-			char buffer[RECV_BUFFER_LEN] = { 0 };
-			nBytes = recv(pClient->m_Socket, buffer, RECV_BUFFER_LEN, 0);
-			if (nBytes > 0) {
-				if (nTotal + nBytes > pClient->nRecvSize) {
-					pClient->lpRecvedBuffer = (char*)realloc(pClient->lpRecvedBuffer, nTotal + nBytes);
-				}
-				CopyMemory(pClient->lpRecvedBuffer + nTotal, buffer, nBytes);
-				nTotal += nBytes;
-			}
-		} while (nBytes >= RECV_BUFFER_LEN);
-
-		pClient->nRecvSize = nTotal;
-
-		if (nBytes == SOCKET_ERROR)
-			return SOCKET_ERROR;
-		if (nTotal == 0)
-			return 0;
-		return nTotal;
-	}
-*/
-
 	void CLdClientSocket::ThreadBody(CThread * Sender, UINT_PTR Param)
 	{
 		fd_set ReadSet, WriteSet, ExceptSet;
 
-		while (true) {
-			if (m_Socket == INVALID_SOCKET)
-				break;
+		while (m_Socket != INVALID_SOCKET) {
 
 			FD_ZERO(&ReadSet);
 			FD_ZERO(&WriteSet);        //不处理send
@@ -446,20 +277,26 @@ namespace LeadowLib
 
 	void CLdClientSocket::OnThreadTerminated(CThread * Sender, UINT_PTR Param)
 	{
+		m_hThread = INVALID_HANDLE_VALUE;
 	}
 
 	CLdServerSocket::CLdServerSocket()
-		:m_ClientSockets()
+		:m_hThread(INVALID_HANDLE_VALUE)
 	{
 	}
 
 	CLdServerSocket::~CLdServerSocket()
 	{
-		for (int i = 0; i<m_ClientSockets.GetCount(); i++)
+		/*for (int i = 0; i<m_ClientSockets.GetCount(); i++)
 		{        //删除客户端
 			RemoveClient(m_ClientSockets[i]);
 		}
-		m_ClientSockets.Clear();
+		m_ClientSockets.Clear();*/
+		Close();
+
+		if (m_hThread != INVALID_HANDLE_VALUE)
+			WaitForSingleObject(m_hThread, INFINITE);
+		m_hThread = INVALID_HANDLE_VALUE;
 	}
 
 	BOOL CLdServerSocket::Listen(int port)
@@ -494,6 +331,7 @@ namespace LeadowLib
 
 		return TRUE;
 	}
+/*
 
 	int CLdServerSocket::GetClientCount()
 	{
@@ -504,27 +342,39 @@ namespace LeadowLib
 	{
 		return m_ClientSockets[idx];
 	}
+*/
 
 	BOOL CLdServerSocket::StartSelectThread()
 	{
 		CThread* thread = new CThread(this);
-		return thread->Start(0) != INVALID_HANDLE_VALUE;
+		m_hThread = thread->Start(0);
+		return m_hThread != INVALID_HANDLE_VALUE;
 	}
 
 	void CLdServerSocket::DoAccept()
 	{
-		sockaddr_in ClientAddress;
-		int nClientLength = sizeof(ClientAddress);
+		sockaddr_in addr_in;
+		int nClientLength = sizeof(addr_in);
 
-		SOCKET Socket = accept(m_Socket, (sockaddr*)&ClientAddress, &nClientLength);
+		SOCKET Socket = accept(m_Socket, (sockaddr*)&addr_in, &nClientLength);
 
 		if (INVALID_SOCKET == Socket) {
 			return;
 		}
-		CLdClientSocket* pClient = AddClient(Socket);
+
+		u_long nNoBlock = 1;
+		ioctlsocket(Socket, FIONBIO, &nNoBlock);
+
+		CLdClientSocket* pClient = new CLdClientSocket(Socket);
+		pClient->m_addr = addr_in.sin_addr;
+		pClient->m_port = addr_in.sin_port;
+
 		if (m_Listner && pClient)
 			m_Listner->OnAccept(pClient);
+
+		//pClient->StartSelectThread();
 	}
+/*
 
 	void CLdServerSocket::RemoveClient(CLdClientSocket* pClient)
 	{
@@ -534,14 +384,13 @@ namespace LeadowLib
 		delete pClient;
 
 	}
+*/
 
 	void CLdServerSocket::ThreadBody(CThread* Sender, UINT_PTR Param)
 	{
 		fd_set ReadSet, WriteSet, ExceptSet;
 
-		while (true) {
-			if (m_Socket == INVALID_SOCKET)
-				break;
+		while (m_Socket != INVALID_SOCKET) {
 
 			FD_ZERO(&ReadSet);
 			FD_ZERO(&WriteSet);        //不处理send
@@ -549,16 +398,6 @@ namespace LeadowLib
 
 			FD_SET(m_Socket, &ReadSet);
 			FD_SET(m_Socket, &ExceptSet);
-
-			for (int i = 0; i<m_ClientSockets.GetCount(); i++)
-			{
-				CLdClientSocket* pClient = m_ClientSockets[i];
-				if (!pClient->m_Closed)
-				{
-					FD_SET(pClient->m_Socket, &ReadSet);
-					FD_SET(pClient->m_Socket, &ExceptSet);
-				}
-			}
 
 			if (select(0, &ReadSet, NULL, &ExceptSet, 0) > 0) {
 				if (FD_ISSET(m_Socket, &ReadSet)) {
@@ -568,30 +407,9 @@ namespace LeadowLib
 				if (FD_ISSET(m_Socket, &ExceptSet)) {
 					DoExcept();
 				}
-				for (int i = 0; i<m_ClientSockets.GetCount(); i++)
-				{
-					CLdClientSocket* pClient = m_ClientSockets[i];
-					if (!pClient->m_Closed) {
-						if (FD_ISSET(pClient->m_Socket, &ReadSet)) {
-							pClient->DoRead();
-						}
-
-						if (FD_ISSET(m_Socket, &ExceptSet)) {
-							pClient->DoExcept();
-						}
-					}
-				}
-
-				for (int i = 0; i<m_ClientSockets.GetCount(); i++)
-				{//删除已经断开连接的客户端
-					CLdClientSocket* pClient = m_ClientSockets[i];
-					if (pClient->m_Closed)
-					{
-						RemoveClient(pClient);
-						m_ClientSockets.Delete(i);
-					}
-				}
 			}
+			else
+				break;
 		}
 	}
 
@@ -601,9 +419,10 @@ namespace LeadowLib
 
 	void CLdServerSocket::OnThreadTerminated(CThread* Sender, UINT_PTR Param)
 	{
+		m_hThread = INVALID_HANDLE_VALUE;
 	}
 
-	CLdClientSocket* CLdServerSocket::AddClient(SOCKET s)
+	/*CLdClientSocket* CLdServerSocket::AddClient(SOCKET s)
 	{
 		if (s == INVALID_SOCKET)
 			return nullptr;
@@ -612,7 +431,8 @@ namespace LeadowLib
 		ioctlsocket(s, FIONBIO, &nNoBlock);
 
 		CLdClientSocket* pClient = new CLdClientSocket(s);
+		pClient->SetListener(m_Listner);
 		m_ClientSockets.Add(pClient);
 		return pClient;
-	}
+	}*/
 }
