@@ -18,7 +18,7 @@ protected:
 	void OnError(CSocketBase*, int) override;
 
 private:
-	CLdSocket m_socket;
+	CLdClientSocket m_socket;
 	bool m_Abort;
 };
 

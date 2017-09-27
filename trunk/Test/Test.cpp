@@ -107,23 +107,23 @@ void PrintComError(_com_error &e) {
 class CSocketListenerImpl: public ISocketListener
 {
 public:
-	void OnConnected(CSocketBase*) override
+	void OnConnected(CLdSocket*) override
 	{
 		printf("OnConnected\n");
 	};
-	void OnRecv(CSocketBase* s, PBYTE pData, WORD nLength) override
+	void OnRecv(CLdSocket* s, PBYTE pData, WORD nLength) override
 	{
 		printf("OnRecv %s \n", (char*)pData);
 	};
-	void OnClosed(CSocketBase*) override
+	void OnClosed(CLdSocket*) override
 	{
 		printf("OnClosed\n");
 	};
-	void OnAccept(CSocketBase*) override
+	void OnAccept(CLdSocket*) override
 	{
 		printf("OnAccept\n");
 	};
-	void OnError(CSocketBase*, int code) override
+	void OnError(CLdSocket*, int code) override
 	{
 		printf("OnError %d\n", code);
 	};
@@ -136,12 +136,12 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	
 	CSocketListenerImpl impl;
-	CLdSocket socket;
+	CLdServerSocket socket;
 	socket.SetListener(&impl);
 	socket.Listen();
 	
 	CSocketListenerImpl impl1;
-	CLdSocket socket1;
+	CLdClientSocket socket1;
 	socket1.SetListener(&impl1);
 	socket1.Connect("127.0.0.1");
 
