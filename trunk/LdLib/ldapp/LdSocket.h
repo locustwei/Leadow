@@ -1,5 +1,9 @@
-//
+
 #pragma once
+
+/*
+套接字，用于进程间通信。
+*/
 
 #include <winsock.h>
 #include "../classes/Thread.h"
@@ -21,10 +25,7 @@ namespace LeadowLib
 	class ISocketListener //监听接口，处理Socket事件
 	{
 	public:
-		virtual void OnConnected(CLdSocket*) = 0;
-		virtual void OnRecv(CLdSocket*, PBYTE pData, WORD nLength) = 0;
 		virtual void OnClosed(CLdSocket*) = 0;
-		virtual void OnAccept(CLdSocket*) = 0;
 		virtual void OnError(CLdSocket*, int) = 0;
 	};
 
@@ -82,6 +83,13 @@ namespace LeadowLib
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 	};
 
+	class IClientListener: public ISocketListener //监听接口，处理Socket事件
+	{
+	public:
+		virtual void OnConnected(CLdClientSocket*) = 0;
+		virtual void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) = 0;
+	};
+
 	class CLdServerSocket:
 		public CLdSocket,
 		public IThreadRunable
@@ -102,5 +110,11 @@ namespace LeadowLib
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 		//CLdClientSocket* AddClient(SOCKET s);
+	};
+
+	class IServerListener: public ISocketListener //监听接口，处理Socket事件
+	{
+	public:
+		virtual void OnAccept(CLdServerSocket*, CLdClientSocket*) = 0;
 	};
 };

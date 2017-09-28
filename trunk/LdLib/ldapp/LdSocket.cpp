@@ -192,8 +192,9 @@ namespace LeadowLib
 		} while (nBytes >= RECV_BUFFER_LEN);
 
 		if (nBytes == SOCKET_ERROR)
+		{
 			return SOCKET_ERROR;
-
+		}
 		return nTotal;
 	}
 
@@ -238,7 +239,7 @@ namespace LeadowLib
 			int i = 0;
 			while (i<GetRecvSize())
 			{
-				m_Listner->OnRecv(this, p->data, p->nSize);
+				static_cast<IClientListener*>(m_Listner)->OnRecv(this, p->data, p->nSize);
 				p = (PLDSOCKET_DATA)((char*)p->data + p->nSize);
 				i += p->nSize;
 			}
@@ -287,11 +288,6 @@ namespace LeadowLib
 
 	CLdServerSocket::~CLdServerSocket()
 	{
-		/*for (int i = 0; i<m_ClientSockets.GetCount(); i++)
-		{        //É¾³ý¿Í»§¶Ë
-			RemoveClient(m_ClientSockets[i]);
-		}
-		m_ClientSockets.Clear();*/
 		Close();
 
 		if (m_hThread != INVALID_HANDLE_VALUE)
@@ -331,18 +327,6 @@ namespace LeadowLib
 
 		return TRUE;
 	}
-/*
-
-	int CLdServerSocket::GetClientCount()
-	{
-		return m_ClientSockets.GetCount();
-	}
-
-	CLdClientSocket* CLdServerSocket::GetClient(int idx)
-	{
-		return m_ClientSockets[idx];
-	}
-*/
 
 	BOOL CLdServerSocket::StartSelectThread()
 	{
@@ -362,29 +346,17 @@ namespace LeadowLib
 			return;
 		}
 
-		u_long nNoBlock = 1;
-		ioctlsocket(Socket, FIONBIO, &nNoBlock);
-
 		CLdClientSocket* pClient = new CLdClientSocket(Socket);
 		pClient->m_addr = addr_in.sin_addr;
 		pClient->m_port = addr_in.sin_port;
 
 		if (m_Listner && pClient)
-			m_Listner->OnAccept(pClient);
+			static_cast<IServerListener*>(m_Listner)->OnAccept(this, pClient);
 
-		//pClient->StartSelectThread();
+		u_long nNoBlock = 1;
+		ioctlsocket(Socket, FIONBIO, &nNoBlock);
+		pClient->StartSelectThread();
 	}
-/*
-
-	void CLdServerSocket::RemoveClient(CLdClientSocket* pClient)
-	{
-		if (!pClient)
-			return;
-		m_ClientSockets.Remove(pClient);
-		delete pClient;
-
-	}
-*/
 
 	void CLdServerSocket::ThreadBody(CThread* Sender, UINT_PTR Param)
 	{
@@ -422,17 +394,4 @@ namespace LeadowLib
 		m_hThread = INVALID_HANDLE_VALUE;
 	}
 
-	/*CLdClientSocket* CLdServerSocket::AddClient(SOCKET s)
-	{
-		if (s == INVALID_SOCKET)
-			return nullptr;
-
-		u_long nNoBlock = 1;
-		ioctlsocket(s, FIONBIO, &nNoBlock);
-
-		CLdClientSocket* pClient = new CLdClientSocket(s);
-		pClient->SetListener(m_Listner);
-		m_ClientSockets.Add(pClient);
-		return pClient;
-	}*/
 }

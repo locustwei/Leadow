@@ -104,32 +104,47 @@ void PrintComError(_com_error &e) {
 	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
 }
 
-class CSocketListenerImpl: public ISocketListener
+class CClientImpl: public IClientListener
 {
 public:
-	CLdArray<CLdClientSocket*> Clients;
 
-	void OnConnected(CLdSocket* socket) override
+	void OnConnected(CLdClientSocket* socket) override
 	{
-		printf("OnConnected s=%d\n", socket->GetHandle());
+		printf("OnConnected s=%d\n", (int)socket->GetHandle());
 	};
-	void OnRecv(CLdSocket* s, PBYTE pData, WORD nLength) override
+	void OnRecv(CLdClientSocket* s, PBYTE pData, WORD nLength) override
 	{
-		printf("OnRecv s=%d %s \n", s->GetHandle(), (char*)pData);
+		printf("OnRecv s=%d %s \n", (int)s->GetHandle(), (char*)pData);
 	};
 	void OnClosed(CLdSocket* socket) override
 	{
-		printf("OnCloseds s=%d\n", socket->GetHandle());
+		printf("OnCloseds s=%d\n", (int)socket->GetHandle());
 	};
-	void OnAccept(CLdSocket* socket) override
-	{
-		printf("OnAccepts s=%d\n", socket->GetHandle());
-		Clients.Add(static_cast<CLdClientSocket*>(socket));
-		socket->SetListener(new CSocketListenerImpl);
-	};
+
 	void OnError(CLdSocket* socket, int code) override
 	{
-		printf("OnError s=%d code=s=%d\n", socket->GetHandle(), code);
+		printf("OnError s=%d code=s=%d\n", (int)socket->GetHandle(), code);
+	};
+};
+
+class CServerImpl : public IServerListener
+{
+public:
+	CLdArray<CLdClientSocket*> Clients;
+	void OnClosed(CLdSocket*) override
+	{
+	};
+	void OnError(CLdSocket*, int) override
+	{};
+	void OnAccept(CLdServerSocket* socket, CLdClientSocket* pClient) override
+	{
+		pClient->Send("123456789", 10);
+		if(pClient->Recv() == SOCKET_ERROR)
+			printf("OnAccepts s=%d\n", WSAGetLastError());
+
+		printf("OnAccepts s=%d\n", (int)socket->GetHandle());
+		Clients.Add(pClient);
+		pClient->SetListener(new CClientImpl);
 	};
 };
 
@@ -139,30 +154,31 @@ int _tmain(int argc, _TCHAR* argv[])
 	CoInitialize(nullptr);
 	CLdSocket::InitSocketDll();
 	
-	CSocketListenerImpl impl;
+	CServerImpl impl;
 	CLdServerSocket socket;
 	socket.SetListener(&impl);
 	socket.Listen();
 	
-	CSocketListenerImpl impl1;
+	CClientImpl impl1;
 	CLdClientSocket socket1;
 	socket1.SetListener(&impl1);
 	socket1.Connect();
 	Sleep(100);
-	socket1.Send("ddddddddd", 10);
-	socket1.Send("eeeeeeeee", 10);
-	socket1.Send("fffffffff", 10);
-	socket1.Send("wwwwwwwww", 10);
-	socket1.Send("sssssssss", 10);
+//	socket1.Send("ddddddddd", 10);
+//	socket1.Send("eeeeeeeee", 10);
+//	socket1.Send("fffffffff", 10);
+//	socket1.Send("wwwwwwwww", 10);
+//	socket1.Send("sssssssss", 10);
+	Sleep(100);
 	printf("-------------------------------------\n");
-	impl.Clients[0]->Send("ddddddddd", 10);
-	impl.Clients[0]->Send("eeeeeeeee", 10);
-	impl.Clients[0]->Send("fffffffff", 10);
-	impl.Clients[0]->Send("wwwwwwwww", 10);
-	impl.Clients[0]->Send("sssssssss", 10);
+//	impl.Clients[0]->Send("ddddddddd", 10);
+//	impl.Clients[0]->Send("eeeeeeeee", 10);
+//	impl.Clients[0]->Send("fffffffff", 10);
+//	impl.Clients[0]->Send("wwwwwwwww", 10);
+//	impl.Clients[0]->Send("sssssssss", 10);
 //
-//	socket1.Close();
-
+	Sleep(100);
+	//socket1.Close();
 
 	printf("\npress any key exit");
 	getchar();
