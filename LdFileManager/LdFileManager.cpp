@@ -33,7 +33,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
  
 	MSG msg = { 0 };
 	while (::GetMessage(&msg, NULL, 0, 0)) {
-		if (msg.hwnd == NULL)     //线程消息（同步线程发消息到主线程实现代码同步）
+		if (msg.hwnd == NULL)                                 //线程消息（同步线程发消息到主线程实现代码同步）
 			CLdApp::MainThreadMessage(msg);
 		if (!CPaintManagerUI::TranslateMessage(&msg)) {
 			::TranslateMessage(&msg);

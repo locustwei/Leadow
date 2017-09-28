@@ -33,6 +33,9 @@
     <ClCompile Include="About.cpp">
       <Filter>UI</Filter>
     </ClCompile>
+    <ClCompile Include="MainCommunication.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="About.h">
       <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="MainCommunication.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
