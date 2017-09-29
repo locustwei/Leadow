@@ -26,17 +26,18 @@ typedef struct LDLIB_API _FILE_INFO{
 }FILE_INFO, *PFILE_INFO;
 
 //使用者回掉接口
-typedef struct LDLIB_API IMftReadeHolder{
+__interface IMftReadeHolder
+{
 	//枚举文件回掉
 	virtual BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) = 0;
 	//文件更新回掉
 	//virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param) = 0;
-}*PMftReadeHolder;
+};
 
 class LDLIB_API CMftReader
 {
 public:
-	PMftReadeHolder SetHolder(PMftReadeHolder pHolder); //设置回掉接口
+	IMftReadeHolder* SetHolder(IMftReadeHolder* pHolder); //设置回掉接口
 
 	virtual UINT64 EnumFiles(UINT_PTR Param) = 0;    //读取MFT文件
 	//virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);  //读取文件信息，文件序号
@@ -51,7 +52,7 @@ public:
 	virtual ~CMftReader(void);
 protected:
 	HANDLE m_Handle;
-	PMftReadeHolder m_Holder;
+	IMftReadeHolder* m_Holder;
 	CVolumeInfo * m_Volume;
 	PVOLUME_BPB_DATA m_BpbData;
 

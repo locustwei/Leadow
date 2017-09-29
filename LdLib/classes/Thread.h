@@ -4,8 +4,8 @@ namespace LeadowLib {
 
 	class CThread;
 
-	class IThreadRunable {
-	public:
+	__interface IThreadRunable 
+	{
 		//线程主体函数
 		virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) = 0;
 		//OnThreadInit，线程还没有启动，在主线程内

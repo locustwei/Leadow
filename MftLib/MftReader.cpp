@@ -97,9 +97,9 @@ BOOL CMftReader::IsValid()
 }
 */
 
-PMftReadeHolder CMftReader::SetHolder(PMftReadeHolder pHolder)
+IMftReadeHolder* CMftReader::SetHolder(IMftReadeHolder* pHolder)
 {
-	PMftReadeHolder result = m_Holder;
+	IMftReadeHolder* result = m_Holder;
 	m_Holder = pHolder;
 	return result;
 }

@@ -1,21 +1,20 @@
 #pragma once
 
-class CServerListenerImpl
-	:public IServerListener
-{
-public:
-	void OnClosed(CLdSocket*) override;
-	void OnError(CLdSocket*, int) override;
-	void OnAccept(CLdServerSocket*, CLdClientSocket*) override;
-};
-
 class CMainCommunication
 	:public CLdServerSocket
+	,public IServerListener
+	,public IClientListener
 {
 public:
 	CMainCommunication();
 	~CMainCommunication();
-private:
-	CServerListenerImpl m_Listener;
-};
 
+
+private:
+	CLdArray<CLdClientSocket*> m_Clients;
+	void OnClosed(CLdSocket*) override;
+	void OnError(CLdSocket*, int) override;
+	void OnAccept(CLdServerSocket*, CLdClientSocket*) override;
+	void OnConnected(CLdClientSocket*) override;
+	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
+};

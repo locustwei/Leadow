@@ -22,9 +22,8 @@ namespace LeadowLib
 
 	class CLdSocket;
 
-	class ISocketListener //监听接口，处理Socket事件
+	__interface ISocketListener //监听接口，处理Socket事件
 	{
-	public:
 		virtual void OnClosed(CLdSocket*) = 0;
 		virtual void OnError(CLdSocket*, int) = 0;
 	};
@@ -83,9 +82,8 @@ namespace LeadowLib
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 	};
 
-	class IClientListener: public ISocketListener //监听接口，处理Socket事件
+	__interface IClientListener: public ISocketListener //监听接口，处理Socket事件
 	{
-	public:
 		virtual void OnConnected(CLdClientSocket*) = 0;
 		virtual void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) = 0;
 	};
@@ -112,9 +110,8 @@ namespace LeadowLib
 		//CLdClientSocket* AddClient(SOCKET s);
 	};
 
-	class IServerListener: public ISocketListener //监听接口，处理Socket事件
+	__interface IServerListener: public ISocketListener //监听接口，处理Socket事件
 	{
-	public:
 		virtual void OnAccept(CLdServerSocket*, CLdClientSocket*) = 0;
 	};
 };
