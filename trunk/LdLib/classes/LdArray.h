@@ -2,16 +2,14 @@
 
 namespace LeadowLib {
 	template <typename T >
-	class ISortCompare
+	__interface ISortCompare
 	{
-	public:
 		virtual int ArraySortCompare(T* it1, T* it2) = 0;
 	};
 
 	template <typename T >
-	class IFindCompare
+	__interface IFindCompare
 	{
-	public:
 		virtual int ArrayFindCompare(PVOID key, T* it) = 0;
 	};
 

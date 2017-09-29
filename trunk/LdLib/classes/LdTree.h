@@ -44,8 +44,8 @@ namespace LeadowLib {
 	template <typename T >
 	class CTreeNodes :
 		public CLdArray<CTreeNode<T>*>,
-		IFindCompare<CTreeNode<T>*>,
-		ISortCompare<CTreeNode<T>*>
+		public IFindCompare<CTreeNode<T>*>,
+		public ISortCompare<CTreeNode<T>*>
 	{
 	public:
 		UINT_PTR Tag;

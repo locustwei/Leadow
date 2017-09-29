@@ -43,10 +43,8 @@ namespace LeadowLib {
 	通用回掉函数
 	*/
 	template <typename T>
-	class IGernalCallback
+	__interface IGernalCallback
 	{
-
-	public:
 		virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
 	};
 
