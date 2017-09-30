@@ -4,10 +4,15 @@
 
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN             //  从 Windows 头文件中排除极少使用的信息
 // Windows 头文件:
 #include <windows.h>
-#pragma warning(disable:4996 4091)
+
+#define WIN32_LEAN_AND_MEAN	
+#define _CRT_SECURE_NO_DEPRECATE
+
+#pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
+#pragma warning(disable:4996) //'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. 
+
 // C 运行时头文件
 #include <stdlib.h>
 #include <malloc.h>
