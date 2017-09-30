@@ -3,7 +3,7 @@
 
 class CEraserThreadCallbackImpl:
 	public IEraserThreadCallback
-	, ISocketListener
+	,public ISocketListener
 {
 public:
 	CEraserThreadCallbackImpl();

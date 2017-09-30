@@ -47,6 +47,15 @@ void CMainCommunication::OnRecv(CLdClientSocket* pClient, PBYTE pData, WORD nLen
 {
 	if(nLength < sizeof(RECV_DATA))
 	{
-		pClient->Send()
+		pClient->Close();
+		return;
+	}
+	PRECV_DATA precv = (PRECV_DATA)pData;
+	switch(precv->Id)
+	{
+	case LFI_EARSE_FILE:
+		pClient->SetListener(new CEraseFileClient());
+
+		break;
 	}
 }
