@@ -18,17 +18,18 @@ namespace LeadowLib {
 #endif
 #endif
 
-#define CMD_ERASE_FILE    L"/erasefile"
+//调用进程参数中的第一个参数，指明调用那个函数。
+#define CMD_ERASE_FILE    L"/erasefile"      //
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
 #define CMD_ERASE_VOLUME  L"/erasevolume"
 
+//进程启动后与向主进程建立通信发送函数ID，以确认身份。（ID与参数对应）
 	enum LD_FUNCTION_ID
 	{
-		LFI_NONE,
-		LFI_HIDE_FILE,
-		LFI_DELETE_FILE,
 		LFI_EARSE_FILE
 	};
+
+
 	//调用功能函数的标志。
 	enum LD_FUNCTION_FLAG
 	{
