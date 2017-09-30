@@ -155,6 +155,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="About.cpp" />
+    <ClCompile Include="EraserCommnunication.cpp" />
+    <ClCompile Include="LdProcessCommunication.cpp" />
     <ClCompile Include="LdFileManager.cpp" />
     <ClCompile Include="Library.cpp" />
     <ClCompile Include="MainCommunication.cpp" />
@@ -165,6 +167,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="About.h" />
+    <ClInclude Include="EraserCommnunication.h" />
+    <ClInclude Include="LdProcessCommunication.h" />
     <ClInclude Include="Library.h" />
     <ClInclude Include="MainCommunication.h" />
     <ClInclude Include="MainWnd.h" />

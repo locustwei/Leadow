@@ -36,6 +36,12 @@
     <ClCompile Include="MainCommunication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="LdProcessCommunication.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="EraserCommnunication.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -51,6 +57,12 @@
       <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="MainCommunication.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LdProcessCommunication.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="EraserCommnunication.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

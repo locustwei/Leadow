@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MainCommunication.h"
+#include "LdProcessCommunication.h"
 
 #pragma pack(push, 1)
 
@@ -16,7 +17,7 @@ CMainCommunication::CMainCommunication()
 	:CLdServerSocket()
 	,m_Clients()
 {
-	SetListener(dynamic_cast<IServerListener *>(this));
+	SetListener(this);
 	Listen();
 }
 
@@ -35,27 +36,26 @@ void CMainCommunication::OnError(CLdSocket*, int)
 
 void CMainCommunication::OnAccept(CLdServerSocket*, CLdClientSocket* pClient)
 {
-	pClient->SetListener(dynamic_cast<IClientListener *>(this));
-	m_Clients.Add(pClient);
-}
-
-void CMainCommunication::OnConnected(CLdClientSocket*)
-{
-}
-
-void CMainCommunication::OnRecv(CLdClientSocket* pClient, PBYTE pData, WORD nLength)
-{
-	if(nLength < sizeof(RECV_DATA))
+	pClient->Recv();
+	PLDSOCKET_DATA pData = pClient->GetRecvData();
+	if(!pData || pData->nSize == 0)
 	{
-		pClient->Close();
+		delete pClient;
 		return;
 	}
-	PRECV_DATA precv = (PRECV_DATA)pData;
-	switch(precv->Id)
+	PRECV_DATA precv = (PRECV_DATA)pData->data;
+	switch (precv->Id)
 	{
 	case LFI_EARSE_FILE:
-		pClient->SetListener(new CEraseFileClient());
-
+		pClient->SetListener(new CLdProcessCommunication());
 		break;
+	default:
+		delete pClient;
+		return;
 	}
+
+	pClient->SetListener(dynamic_cast<IClientListener *>(this));
+	pClient->StartSelectThread();
+
+	m_Clients.Add(pClient);
 }

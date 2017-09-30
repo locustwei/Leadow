@@ -25,6 +25,8 @@
 #endif
 #endif
 
+#pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
+
 #include <windows.h>
 #include <objbase.h>
 #include <zmouse.h>

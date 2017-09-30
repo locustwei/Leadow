@@ -36,6 +36,8 @@ namespace LeadowLib
 	void CLdSocket::SetListener(ISocketListener * listener)
 	{
 		m_Listner = listener;
+		if (m_Listner)
+			m_Listner->SetSocket(this);
 	}
 
 	ISocketListener * CLdSocket::GetListener()
@@ -220,6 +222,10 @@ namespace LeadowLib
 
 	BOOL CLdClientSocket::StartSelectThread()
 	{
+		u_long nNoBlock = 1;
+		if (ioctlsocket(m_Socket, FIONBIO, &nNoBlock) != 0)
+			return FALSE;
+
 		CThread* thread = new CThread(this);
 		m_hThread = thread->Start(0);
 		return m_hThread != INVALID_HANDLE_VALUE;
@@ -353,9 +359,7 @@ namespace LeadowLib
 		if (m_Listner && pClient)
 			static_cast<IServerListener*>(m_Listner)->OnAccept(this, pClient);
 
-		u_long nNoBlock = 1;
-		ioctlsocket(Socket, FIONBIO, &nNoBlock);
-		pClient->StartSelectThread();
+		//pClient->StartSelectThread();
 	}
 
 	void CLdServerSocket::ThreadBody(CThread* Sender, UINT_PTR Param)

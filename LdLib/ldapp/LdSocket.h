@@ -22,10 +22,11 @@ namespace LeadowLib
 
 	class CLdSocket;
 
-	__interface ISocketListener //监听接口，处理Socket事件
+	interface ISocketListener //监听接口，处理Socket事件
 	{
 		virtual void OnClosed(CLdSocket*) = 0;
 		virtual void OnError(CLdSocket*, int) = 0;
+		virtual void SetSocket(CLdSocket*) = 0;
 	};
 
 	class CLdSocket
@@ -69,20 +70,20 @@ namespace LeadowLib
 		int Recv();
 		PLDSOCKET_DATA GetRecvData() const;
 		int GetRecvSize() const;
+		BOOL StartSelectThread();
 	private:
 		CLdClientSocket(SOCKET s);
 		HANDLE m_hThread;
 		PBYTE m_Buffer;
 		int m_RecvSize;
 
-		BOOL StartSelectThread();
 		void DoRead();
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 	};
 
-	__interface IClientListener: public ISocketListener //监听接口，处理Socket事件
+	interface IClientListener: public ISocketListener //监听接口，处理Socket事件
 	{
 		virtual void OnConnected(CLdClientSocket*) = 0;
 		virtual void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) = 0;
@@ -96,21 +97,17 @@ namespace LeadowLib
 		CLdServerSocket();
 		~CLdServerSocket();
 		BOOL Listen(int port = SOCKET_PORT);                              //使用TCP协议监听端口（服务端）
-		//int GetClientCount();
-		//CLdClientSocket* GetClient(int idx);
+	protected:
+		void DoAccept();
 	private:
-		//CLdArray<CLdClientSocket*> m_ClientSockets;
 		HANDLE m_hThread;
 		BOOL StartSelectThread();
-		void DoAccept();
-		//void RemoveClient(CLdClientSocket* pClient);
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
-		//CLdClientSocket* AddClient(SOCKET s);
 	};
 
-	__interface IServerListener: public ISocketListener //监听接口，处理Socket事件
+	interface IServerListener: public ISocketListener //监听接口，处理Socket事件
 	{
 		virtual void OnAccept(CLdServerSocket*, CLdClientSocket*) = 0;
 	};

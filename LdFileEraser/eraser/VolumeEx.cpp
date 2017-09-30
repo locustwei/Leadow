@@ -98,8 +98,8 @@ UINT CVolumeEx::TestWriteSpeed()
 	CLdString fileName = m_TempPath + _T("speedtest.data");
 
 	DWORD dwTick = GetTickCount();
-
-	FILE* f = _wfopen(fileName, _T("w+"));
+	FILE* f = nullptr;
+	_wfopen_s(&f, fileName, _T("w+"));
 	if (f)
 	{
 		//m_Tmpfiles.Add(fileName);
