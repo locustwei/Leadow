@@ -24,7 +24,7 @@ typedef VOID(*Library_UnInit)();
 
 IErasureLibrary * CLdLibray::LoadErasureLibrary()
 {
-	IErasureLibrary * result = (IErasureLibrary*)InitLib(FILE_ERASURE_DLL, CLdApp::ThisApp);
+	IErasureLibrary * result = (IErasureLibrary*)InitLib(FILE_ERASURE_DLL, ThisApp);
 	
 	return result;
 }

@@ -34,7 +34,7 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THRE
 		break;
 	case eto_finished:
 		delete this;
-		PostThreadMessage(CLdApp::ThisApp->GetMainThreadId(), WM_QUIT, 0, 0);
+		PostThreadMessage(ThisApp->GetMainThreadId(), WM_QUIT, 0, 0);
 		break;
 	default:
 		break;
