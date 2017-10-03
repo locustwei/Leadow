@@ -2,7 +2,7 @@
 #include "Library.h"
 
 #ifdef _DEBUG
-#ifdef _X64
+#ifdef WIN64
 #define FILE_ERASURE_DLL _T("RdErasure_d64.dll")
 #define FILE_PROTECT_DLL _T("LdFileProtect_d64.dll")
 #else
@@ -25,18 +25,7 @@ typedef VOID(*Library_UnInit)();
 IErasureLibrary * CLdLibray::LoadErasureLibrary()
 {
 	IErasureLibrary * result = (IErasureLibrary*)InitLib(FILE_ERASURE_DLL, CLdApp::ThisApp);
-
-/*
-	if(result)
-	{
-		CControlUI* lui = CLdLibray::BuildXml(result->UIResorce());
-		if (lui)
-		{
-			result->SetUI(lui);
-		}
-	}
-*/
-
+	
 	return result;
 }
 
@@ -44,21 +33,6 @@ void CLdLibray::FreeErasureLibrary()
 {
 	FreeLib(FILE_ERASURE_DLL);
 }
-
-/*
-CControlUI * CLdLibray::BuildXml(TCHAR * skinXml)
-{
-	if (skinXml == nullptr || _tcslen(skinXml) == 0)
-		return nullptr;
-
-	CDialogBuilder builder;
-	CPaintManagerUI pm_ui;
-	CControlUI * pControl = builder.Create(skinXml, nullptr, NULL, &pm_ui);
-	_ASSERTE(pControl);
-
-	return pControl;
-}
-*/
 
 
 PVOID CLdLibray::InitLib(TCHAR * pLibFile, CLdApp* ThisApp)

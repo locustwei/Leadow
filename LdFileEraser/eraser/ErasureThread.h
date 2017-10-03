@@ -26,7 +26,8 @@ class CEreaserThrads :
 	public IThreadRunable
 {
 public:
-	CEreaserThrads(IEraserThreadCallback* callback);
+	CEreaserThrads();
+	//CEreaserThrads(IEraserThreadCallback* callback);
 	~CEreaserThrads();
 
 	void StopThreads();                                      //ÖÕÖ¹²Á³ý
@@ -34,6 +35,7 @@ public:
 	DWORD StartEreasure(UINT nMaxCount);            //¿ªÊ¼²Á³ý
 	DWORD StartAnalysis(UINT nMaxCount);            //¿ªÊ¼²Á³ý
 	PERASER_OPTIONS GetOptions();
+	void SetCallback(IEraserThreadCallback* callback);
 protected:
 	void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;

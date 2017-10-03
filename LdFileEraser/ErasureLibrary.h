@@ -1,9 +1,5 @@
 #pragma once
 
-#define EPN_MOTHED L"mothed"
-#define EPN_FILE L"file"
-#define EPN_UNDELFOLDER L"undelfolder"
-
 //文件擦除状态
 enum E_FILE_STATE
 {
@@ -44,18 +40,18 @@ class LDLIB_API IErasureLibrary
 public:
 	/*窗口资源ID
 	*用于builer窗口*/
-	virtual TCHAR* UIResorce() = 0;
+	//virtual TCHAR* UIResorce() = 0;
 	/*
 	窗口Build 完成后回传给Library(在动态库中Build窗口，貌似不太稳定)
 	*/
-	virtual void SetUI(CControlUI*) = 0;
-	virtual CControlUI* GetUI() = 0;
+	//virtual void SetUI(CControlUI*) = 0;
+	//virtual CControlUI* GetUI() = 0;
 	/*
 	获取窗口消息处理对象（窗口Build好后，添加消息处理对象）
 	*/
-	virtual CFramNotifyPump* GetNotifyPump() = 0;
+	//virtual CFramNotifyPump* GetNotifyPump() = 0;
 
-	virtual DWORD EraseFile(CLdConfig Param, IEraserThreadCallback * callback) = 0;
+	virtual DWORD EraseFile(CLdConfig& Param, IEraserThreadCallback * callback) = 0;
 protected:
 	//virtual ~IErasureLibrary() {};
 };

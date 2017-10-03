@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "Library.h"
 #include "About.h"
 
 

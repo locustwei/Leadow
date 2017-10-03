@@ -2,7 +2,6 @@
 主窗口
 */
 #include "stdafx.h"
-#include "Library.h"
 #include "MainWnd.h"
 #include "About.h"
 
@@ -17,16 +16,16 @@ CMainWnd::CMainWnd(TCHAR* xmlSkin)
 	:WindowImplBase()
 {
 	m_Skin = xmlSkin;
-	m_ErasureLib = NULL;
+//	m_ErasureLib = NULL;
 }
 
 CMainWnd::~CMainWnd()
 {
-	if (m_ErasureLib)
+	/*if (m_ErasureLib)
 	{
 		CLdLibray::FreeErasureLibrary();
 		m_ErasureLib = nullptr;
-	}
+	}*/
 
 }
 
@@ -76,6 +75,19 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 	return __super::OnClick(msg);
 }
 
+CControlUI * BuildXml(TCHAR * skinXml)
+{
+	if (skinXml == nullptr || _tcslen(skinXml) == 0)
+		return nullptr;
+
+	CDialogBuilder builder;
+	CPaintManagerUI pm_ui;
+	CControlUI * pControl = builder.Create(skinXml, nullptr, NULL, &pm_ui);
+	_ASSERTE(pControl);
+
+	return pControl;
+}
+
 void CMainWnd::InitWindow()
 {
 
@@ -83,7 +95,14 @@ void CMainWnd::InitWindow()
 	if (!pControl)
 		return;
 	//嵌入文件擦除模块窗口
-	m_ErasureLib = CLdLibray::LoadErasureLibrary();
+	m_EraserUI = new CErasureMainWnd();
+	CControlUI* control = BuildXml(_T("erasure/erasuremain.xml"));
+	m_EraserUI->AttanchControl(control);
+	AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
+	pControl->Add(control);
+	pControl->SelectItem(control);
+
+		/*m_ErasureLib = CLdLibray::LoadErasureLibrary();
 	if (m_ErasureLib)
 	{
 		CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
@@ -95,7 +114,7 @@ void CMainWnd::InitWindow()
 	else
 		return;
 	pControl->Add(m_ErasureLib->GetUI());
-	pControl->SelectItem(m_ErasureLib->GetUI());
+	pControl->SelectItem(m_ErasureLib->GetUI());*/
 
 	m_btnLogo = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("logo")));
 }

@@ -55,6 +55,14 @@ namespace LeadowLib {
 		}
 	}
 
+	BOOL CLdConfig::PrepareStr(TCHAR* szJson)
+	{
+		CLdStringA s = szJson;
+
+		m_Config.loadFromString(s.GetData());
+		return TRUE;
+	}
+
 	void CLdConfig::operator=(CLdConfig & source)
 	{
 		m_Config = source.m_Config;
@@ -106,7 +114,7 @@ namespace LeadowLib {
 		JsonBox::Value val = GetConfigObject(Path, index);
 		CLdString result;
 		result = val.getString().c_str();
-		if (result.IsEmpty())
+		if (result.IsEmpty() && !def)
 			result = def;
 		return result;
 	}
@@ -120,72 +128,77 @@ namespace LeadowLib {
 	{
 		int len = string.GetLength();
 		char* p = string.GetData();
-		JsonBox::Value parent = m_Config;
-		JsonBox::Value value = JsonBox::Value::NULL_VALUE;
+		JsonBox::Value * parent = &m_Config;
+		JsonBox::Value * value = nullptr; // JsonBox::Value::NULL_VALUE;
 
 		for (int i = 0; i < len; i++)
 		{
 			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
 			{
 				string.GetData()[i] = '\0';
-				value = parent[p];
-				if (value.isNull())
+				value = &(*parent)[p];
+				if (value->isNull())
 					break;
 				parent = value;
 				p = string.GetData() + i + 1;
 			}
 		}
-		value = parent[p];
+		value = &(*parent)[p];
 		if (index != -1)
 		{ //数组下标
-			if (value.isArray())
-				value = value[index];
+			if (value->isArray())
+				value = &(*value)[index];
 			else
-				value = JsonBox::Value::NULL_VALUE;
+				value = nullptr;// JsonBox::Value::NULL_VALUE;
 		}
-
-		return value;
+		if (!value)
+			return JsonBox::Value::NULL_VALUE;
+		else
+			return *value;
 	}
 
 	void CLdConfig::AddConfigObject(CLdStringA string, JsonBox::Value value, int index)
 	{
 		int len = string.GetLength();
-		CLdMap<char*, JsonBox::Value> objs;
+		//CLdMap<char*, JsonBox::Value> objs;
 		char* p = string.GetData();
-		JsonBox::Value parent = m_Config;
+		JsonBox::Value* parent = &m_Config;
 
 		for (int i = 0; i < len; i++)
 		{
 			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
 			{
 				string.GetData()[i] = '\0';
-				value = parent[p];
+				
+				if((*parent)[p].isNull())
+					(*parent)[p] = JsonBox::Object();
+				parent = &(*parent)[p];
 				//需要添加不存在的对象,把路径保存下来.以便后面依次向上赋值
-				objs.Put(p, parent);
+				//objs.Put(p, parent);
 
-				parent = value;
+				//parent = value;
 				p = string.GetData() + i + 1;
 			}
 		}
-		objs.Put(p, parent);
-		JsonBox::Value v = parent[p];
+		//objs.Put(p, parent);
+		JsonBox::Value* v = &(*parent)[p];
 
 		if (index != -1)
 		{ //数组下标
-			v[index] = value;
+			(*v)[index] = value;
 		}
 		else
-			v = value;
+			*v = value;
 
-		JsonBox::Value *pItem = nullptr;
-		for (int i = objs.GetCount() - 1; i >= 0; i--)
-		{
-			char** pkey = objs.GetAt(i, &pItem);
-			(*pItem)[*pkey] = v;
-			v = *pItem;
-		}
-		if (pItem)
-			m_Config = *pItem;
+//		JsonBox::Value *pItem = nullptr;
+//		for (int i = objs.GetCount() - 1; i >= 0; i--)
+//		{
+//			char** pkey = objs.GetAt(i, &pItem);
+//			(*pItem)[*pkey] = v;
+//			v = *pItem;
+//		}
+//		if (pItem)
+//			m_Config = *pItem;
 	}
 
 	CLdStringW CLdConfig::ToString()

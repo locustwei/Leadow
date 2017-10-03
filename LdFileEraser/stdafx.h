@@ -7,7 +7,7 @@
 // Windows 头文件:
 #include <windows.h>
 
-#define WIN32_LEAN_AND_MEAN	
+//#define WIN32_LEAN_AND_MEAN	
 #define _CRT_SECURE_NO_DEPRECATE
 
 #pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
@@ -30,11 +30,12 @@ using namespace LeadowLib;
 using namespace JsonBox;
 
 #ifdef _DEBUG
-#ifdef _X64
+#ifdef WIN64
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
 #pragma comment(lib,"MftLib_d64.lib")
 #pragma comment(lib,"JsonLib_d64.lib")
+#pragma comment(lib,"Communications_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")

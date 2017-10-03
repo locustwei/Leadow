@@ -61,7 +61,7 @@ namespace LeadowLib {
 		if (m_Runer)
 			m_Runer->OnThreadInit(this, m_Param);
 
-		HANDLE hThread = CreateThread(nullptr, 0, &ThreadProcedure, this, CREATE_SUSPENDED, &m_ThreadId);
+		HANDLE hThread = CreateThread(nullptr, 0, &ThreadProcedure, (LPVOID)this, CREATE_SUSPENDED, &m_ThreadId);
 		m_hThread = hThread;  //这么啰嗦防止线程过早结束this无效
 		if (hThread != 0)
 			ResumeThread(hThread);

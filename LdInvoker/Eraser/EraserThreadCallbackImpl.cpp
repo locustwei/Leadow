@@ -1,27 +1,28 @@
 #include "stdafx.h"
-#include  "EraserThreadCallbackImpl.h"
+#include "EraserThreadCallbackImpl.h"
 
 CEraserThreadCallbackImpl::CEraserThreadCallbackImpl()
-	:m_socket()
-	,m_Abort(false)
+	//:m_socket()
+	//,m_Abort(false)
 {
-	m_socket.SetListener(this);
-	m_socket.Connect("127.0.0.1");
+	
 }
 
 CEraserThreadCallbackImpl::~CEraserThreadCallbackImpl()
 {
-	m_socket.Close();
+
 }
 
 bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
-	if (m_socket.IsClosed())
-		return true;
+	//if (m_Socket.IsClosed())
+		//return true;
+	m_Socket.SendData(op, &dwValue, sizeof(DWORD));
+
 	switch (op)
 	{
 	case eto_start:  //总进度开始
-		m_socket.Send(&op, sizeof(op));
+		//m_Socket.Send(&op, sizeof(op));
 		break;
 	case eto_begin:
 		break;
@@ -33,7 +34,7 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THRE
 
 		break;
 	case eto_finished:
-
+		delete this;
 		break;
 	default:
 		break;
@@ -41,25 +42,4 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THRE
 	return !m_Abort;
 }
 
-void CEraserThreadCallbackImpl::OnConnected(CSocketBase *)
-{
 
-}
-
-void CEraserThreadCallbackImpl::OnRecv(CSocketBase*, PBYTE pData, WORD nLength)
-{
-	PVOID buffer = m_socket.GetRecvData();
-
-}
-
-void CEraserThreadCallbackImpl::OnClosed(CSocketBase *)
-{
-}
-
-void CEraserThreadCallbackImpl::OnAccept(CSocketBase *)
-{
-}
-
-void CEraserThreadCallbackImpl::OnError(CSocketBase *, int)
-{
-}

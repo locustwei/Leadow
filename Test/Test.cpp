@@ -107,6 +107,9 @@ void PrintComError(_com_error &e) {
 class CClientImpl: public IClientListener
 {
 public:
+	void SetSocket(CLdSocket*) override
+	{
+	};
 
 	void OnConnected(CLdClientSocket* socket) override
 	{
@@ -131,6 +134,10 @@ class CServerImpl : public IServerListener
 {
 public:
 	CLdArray<CLdClientSocket*> Clients;
+
+	void SetSocket(CLdSocket*) override
+	{
+	};
 	void OnClosed(CLdSocket*) override
 	{
 	};
@@ -152,24 +159,25 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
-	CLdSocket::InitSocketDll();
-	
-	CServerImpl impl;
-	CLdServerSocket socket;
-	socket.SetListener(&impl);
-	socket.Listen();
-	
-	CClientImpl impl1;
-	CLdClientSocket socket1;
-	socket1.SetListener(&impl1);
-	socket1.Connect();
-	Sleep(100);
+
+//	CLdSocket::InitSocketDll();
+//	
+//	CServerImpl impl;
+//	CLdServerSocket socket;
+//	socket.SetListener(&impl);
+//	socket.Listen();
+//	
+//	CClientImpl impl1;
+//	CLdClientSocket socket1;
+//	socket1.SetListener(&impl1);
+//	socket1.Connect();
+//	Sleep(100);
 //	socket1.Send("ddddddddd", 10);
 //	socket1.Send("eeeeeeeee", 10);
 //	socket1.Send("fffffffff", 10);
 //	socket1.Send("wwwwwwwww", 10);
 //	socket1.Send("sssssssss", 10);
-	Sleep(100);
+//	Sleep(100);
 	printf("-------------------------------------\n");
 //	impl.Clients[0]->Send("ddddddddd", 10);
 //	impl.Clients[0]->Send("eeeeeeeee", 10);
@@ -177,8 +185,17 @@ int _tmain(int argc, _TCHAR* argv[])
 //	impl.Clients[0]->Send("wwwwwwwww", 10);
 //	impl.Clients[0]->Send("sssssssss", 10);
 //
-	Sleep(100);
+//	Sleep(100);
 	//socket1.Close();
+
+	CLdConfig c;
+	c.AddArrayValue("abc", "c:\\dddd\\ss gdss\\sss.txt");
+	c.AddArrayValue("abc", "d:\\sssss\\ssss dddd\\ee.exe");
+	c.AddConfigObject("sss\\ss", 123);
+	c.AddConfigObject("www", "ssss");
+
+
+	printf("%d %S\n",10, c.ToString().GetData());
 
 	printf("\npress any key exit");
 	getchar();

@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -106,7 +106,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\LdLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -164,7 +164,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="eraser\Erasure.cpp" />
-    <ClCompile Include="eraser\ErasureConfig.cpp" />
     <ClCompile Include="eraser\ErasureMethod.cpp" />
     <ClCompile Include="eraser\ErasureThread.cpp" />
     <ClCompile Include="eraser\VolumeEx.cpp" />
@@ -174,16 +173,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="ui\ErasureFileUI.cpp" />
-    <ClCompile Include="ui\ErasureMainWnd.cpp" />
-    <ClCompile Include="ui\ErasureOptions.cpp" />
-    <ClCompile Include="ui\ErasureRecycleUI.cpp" />
-    <ClCompile Include="ui\ErasureVolumeUI.cpp" />
-    <ClCompile Include="ui\ShFileView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="eraser\Erasure.h" />
-    <ClInclude Include="eraser\ErasureConfig.h" />
     <ClInclude Include="eraser\ErasureMethod.h" />
     <ClInclude Include="eraser\ErasureThread.h" />
     <ClInclude Include="eraser\VolumeEx.h" />
@@ -192,12 +184,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="ui\ErasureFileUI.h" />
-    <ClInclude Include="ui\ErasureMainWnd.h" />
-    <ClInclude Include="ui\ErasureOptions.h" />
-    <ClInclude Include="ui\ErasureRecycleUI.h" />
-    <ClInclude Include="ui\ErasureVolumeUI.h" />
-    <ClInclude Include="ui\ShFileView.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Erasure.def" />

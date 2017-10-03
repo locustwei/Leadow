@@ -16,22 +16,11 @@ namespace LeadowLib {
 
 		BOOL LoadConfig();        //加载配置文件
 		BOOL SaveConfig();        //写入配置文件
-
+		BOOL PrepareStr(TCHAR* szJson);
 		void operator = (CLdConfig& source);    //Copy配置文件（内容不包含文件路径）
-		/*
-			STRING,
-			INTEGER,
-			DOUBLE,
-			OBJECT,
-			ARRAY,
-			BOOLEAN,
-			NULL_VALUE,
-			UNKNOWN
-		*/
-		int GetDataType(CLdStringA Path);
 
+		int GetDataType(CLdStringA Path); //类型参见JsonBox::Value::Type
 		int GetArrayCount(CLdStringA Path);
-
 		BOOL GetBoolean(CLdStringA Path, BOOL def = FALSE, int index = -1);
 		double GetDouble(CLdStringA Path, double def = 0.0, int index = -1);
 		float GetFloat(CLdStringA Path, float def = 0.0, int index = -1);

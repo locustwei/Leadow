@@ -7,6 +7,8 @@ namespace LeadowLib
 {
 #define RECV_BUFFER_LEN 1024
 
+	int CLdSocket::initsocket = CLdSocket::InitSocketDll();
+
 	CLdSocket::CLdSocket(): m_port(0), m_Listner(nullptr), m_tag(0)
 	{
 		m_Socket = INVALID_SOCKET;
@@ -57,6 +59,17 @@ namespace LeadowLib
 	SOCKET CLdSocket::GetHandle()
 	{
 		return m_Socket;
+	}
+
+	CLdSocket& CLdSocket::operator=(CLdSocket& source)
+	{
+		m_Socket = source.m_Socket;
+		m_addr = source.m_addr;
+		m_port = source.m_port;
+		m_Listner = source.m_Listner;
+		m_Closed = source.m_Closed;
+		m_tag = source.m_tag;
+		return *this;
 	}
 
 	int CLdSocket::InitSocketDll()
@@ -127,7 +140,7 @@ namespace LeadowLib
 			Close();
 			result = WSAGetLastError();
 		}
-		
+
 		if(result==0)
 		{
 			if (!StartSelectThread())
@@ -138,6 +151,7 @@ namespace LeadowLib
 
 			m_addr = address.sin_addr;
 			m_port = address.sin_port;
+			m_Closed = false;
 		}
 		return result;
 	}

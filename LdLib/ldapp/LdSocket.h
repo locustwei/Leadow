@@ -43,7 +43,7 @@ namespace LeadowLib
 		ISocketListener* GetListener();
 		void Close();
 		SOCKET GetHandle();
-		static int InitSocketDll();
+		CLdSocket& operator = (CLdSocket& source);
 	protected:
 		SOCKET m_Socket;
 		IN_ADDR m_addr;
@@ -54,6 +54,9 @@ namespace LeadowLib
 		UINT_PTR m_tag;   //使用者自定义数据
 		void DoExcept();
 		void DoClose();
+	private:
+		static int InitSocketDll();
+		static int initsocket;   //是为了初始化Socket 动态库.
 	};
 
 	class CLdClientSocket :
@@ -72,10 +75,11 @@ namespace LeadowLib
 		int GetRecvSize() const;
 		BOOL StartSelectThread();
 	private:
-		CLdClientSocket(SOCKET s);
 		HANDLE m_hThread;
 		PBYTE m_Buffer;
 		int m_RecvSize;
+		
+		CLdClientSocket(SOCKET s);
 
 		void DoRead();
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
