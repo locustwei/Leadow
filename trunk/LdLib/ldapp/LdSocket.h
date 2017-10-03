@@ -31,7 +31,7 @@ namespace LeadowLib
 
 	class CLdSocket
 	{
-		friend class CLdServerSocket;
+		//friend class CLdServerSocket;
 	public:
 		CLdSocket();
 		virtual ~CLdSocket();
@@ -43,7 +43,6 @@ namespace LeadowLib
 		ISocketListener* GetListener();
 		void Close();
 		SOCKET GetHandle();
-		CLdSocket& operator = (CLdSocket& source);
 	protected:
 		SOCKET m_Socket;
 		IN_ADDR m_addr;
@@ -63,7 +62,7 @@ namespace LeadowLib
 		public CLdSocket,
 		public IThreadRunable
 	{
-		friend class CLdServerSocket;
+		//friend class CLdServerSocket;
 	public:
 		CLdClientSocket(void);
 		~CLdClientSocket(void);
@@ -79,8 +78,6 @@ namespace LeadowLib
 		PBYTE m_Buffer;
 		int m_RecvSize;
 		
-		CLdClientSocket(SOCKET s);
-
 		void DoRead();
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -113,6 +110,6 @@ namespace LeadowLib
 
 	interface IServerListener: public ISocketListener //监听接口，处理Socket事件
 	{
-		virtual void OnAccept(CLdServerSocket*, CLdClientSocket*) = 0;
+		virtual void OnAccept(CLdServerSocket*, SOCKET) = 0;
 	};
 };

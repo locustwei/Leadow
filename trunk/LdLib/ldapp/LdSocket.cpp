@@ -60,17 +60,17 @@ namespace LeadowLib
 	{
 		return m_Socket;
 	}
-
-	CLdSocket& CLdSocket::operator=(CLdSocket& source)
-	{
-		m_Socket = source.m_Socket;
-		m_addr = source.m_addr;
-		m_port = source.m_port;
-		m_Listner = source.m_Listner;
-		m_Closed = source.m_Closed;
-		m_tag = source.m_tag;
-		return *this;
-	}
+	
+	//	CLdSocket& CLdSocket::operator=(CLdSocket& source)
+//	{
+//		m_Socket = source.m_Socket;
+//		m_addr = source.m_addr;
+//		m_port = source.m_port;
+//		m_Listner = source.m_Listner;
+//		m_Closed = source.m_Closed;
+//		m_tag = source.m_tag;
+//		return *this;
+//	}
 
 	int CLdSocket::InitSocketDll()
 	{
@@ -143,15 +143,11 @@ namespace LeadowLib
 
 		if(result==0)
 		{
-			if (!StartSelectThread())
-			{
-				result = GetLastError();
-				Close();
-			}
-
 			m_addr = address.sin_addr;
 			m_port = address.sin_port;
 			m_Closed = false;
+			if (m_Listner)
+				static_cast<IClientListener*>(m_Listner)->OnConnected(this);
 		}
 		return result;
 	}
@@ -224,7 +220,7 @@ namespace LeadowLib
 		return m_RecvSize;
 	}
 
-	CLdClientSocket::CLdClientSocket(SOCKET s)
+	/*CLdClientSocket::CLdClientSocket(SOCKET s)
 		:CLdSocket()
 		, m_hThread(INVALID_HANDLE_VALUE)
 		, m_Buffer(nullptr)
@@ -232,7 +228,7 @@ namespace LeadowLib
 	{
 		m_Socket = s;
 		m_Closed = m_Socket == INVALID_SOCKET;
-	}
+	}*/
 
 	BOOL CLdClientSocket::StartSelectThread()
 	{
@@ -366,12 +362,12 @@ namespace LeadowLib
 			return;
 		}
 
-		CLdClientSocket* pClient = new CLdClientSocket(Socket);
-		pClient->m_addr = addr_in.sin_addr;
-		pClient->m_port = addr_in.sin_port;
+//		CLdClientSocket* pClient = new CLdClientSocket(Socket);
+//		pClient->m_addr = addr_in.sin_addr;
+//		pClient->m_port = addr_in.sin_port;
 
-		if (m_Listner && pClient)
-			static_cast<IServerListener*>(m_Listner)->OnAccept(this, pClient);
+		if (m_Listner)
+			static_cast<IServerListener*>(m_Listner)->OnAccept(this, Socket);
 
 		//pClient->StartSelectThread();
 	}

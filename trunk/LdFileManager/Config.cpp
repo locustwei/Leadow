@@ -6,7 +6,7 @@ CConfig* AppConfig = nullptr;
 
 CConfig::CConfig():CLdConfig()
 {
-	CLdString& appPath = CLdApp::ThisApp->GetAppDataPath();
+	CLdString& appPath = ThisApp->GetAppDataPath();
 	m_ConfigFileName = appPath;
 	m_ConfigFileName += "dydot.cng";
 }

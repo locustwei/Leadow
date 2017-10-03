@@ -161,7 +161,6 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 		col->NeedUpdate();
 	}
 }
-/*
 
 bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
@@ -241,11 +240,10 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 	}
 	return true;
 }
-*/
 
 void CErasureFileUI::StatErase()
 {
-	ExecuteFileErase(m_ErasureFile.GetFiles());
+	ExecuteFileErase(this, m_ErasureFile.GetFiles());
 	//m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
 	//m_EreaserThreads.StartEreasure(10);
 }

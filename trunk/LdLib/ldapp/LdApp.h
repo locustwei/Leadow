@@ -17,7 +17,7 @@ namespace LeadowLib {
 		HINSTANCE GetInstance();
 		DWORD GetMainThreadId();
 
-		static CLdApp* ThisApp;         //
+		//static CLdApp* ThisApp;         //
 
 		static BOOL Initialize(HINSTANCE hInstance);  //初始化，程序启动时调用
 		static void MainThreadMessage(MSG& msg);      //消息循环过滤主线程消息  
@@ -32,4 +32,5 @@ namespace LeadowLib {
 
 	void DebugOutput(LPCTSTR pstrFormat, ...);
 
+	extern CLdApp* ThisApp;
 };

@@ -52,7 +52,7 @@ namespace LeadowLib {
 		union
 		{
 			LD_FUNCTION_ID fId;
-			WORD cId;
+			DWORD cId;
 		};
 		WORD nLength;
 		BYTE Data[1];
