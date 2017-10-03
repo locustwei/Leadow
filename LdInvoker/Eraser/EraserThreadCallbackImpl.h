@@ -4,6 +4,7 @@
 
 class CEraserThreadCallbackImpl:
 	public IEraserThreadCallback
+	,public CEraserCComm
 {
 public:
 	CEraserThreadCallbackImpl();
@@ -12,13 +13,12 @@ protected:
 	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 
 //	void SetSocket(CLdSocket*) override;
-//	void OnClosed(CLdSocket*) override;
+	void OnClosed(CLdSocket*) override;
 //	void OnError(CLdSocket*, int) override;
 //	void OnConnected(CLdClientSocket*) override;
-//	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
+	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
 
 private:
-	CEraserCComm m_Socket;
 	bool m_Abort;
 };
 

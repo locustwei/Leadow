@@ -7,7 +7,7 @@ class CLdProcessCommunication
 public:
 	CLdProcessCommunication();
 	~CLdProcessCommunication();
-	bool SendData(DWORD id, PVOID pData, WORD Length);
+	BOOL SendData(DWORD id, PVOID pData, WORD Length);
 protected:
 	void OnClosed(CLdSocket*) override;
 	void OnError(CLdSocket*, int) override;

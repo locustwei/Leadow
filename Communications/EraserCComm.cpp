@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include  "EraserCComm.h"
+#include  "EraserSComm.h"
+#include <tchar.h>
 
 CEraserCComm::CEraserCComm()
-	//:m_socket()
-	//,m_Abort(false)
 {
 	
 }
@@ -26,4 +26,20 @@ BOOL CEraserCComm::Connect()
 	if (precv->fId != LFI_EARSE_FILE)
 		return false;
 	return StartSelectThread();
+}
+
+BOOL CEraserCComm::SendEraseStatus(TCHAR* fileName, E_THREAD_OPTION op, DWORD value)
+{
+	int len = sizeof(COMM_ERASE_DATA);
+	if (fileName)
+		len += _tcslen(fileName) * sizeof(TCHAR);
+	PCOMM_ERASE_DATA pCommData = (PCOMM_ERASE_DATA)new BYTE[len];
+	ZeroMemory(pCommData, len);
+	pCommData->op = op;
+	pCommData->dwValue = value;
+	if (fileName)
+		_tcscpy(pCommData->FileName, fileName);
+	BOOL result = SendData(LFI_EARSE_FILE, pCommData, len);
+	delete pCommData;
+	return result;
 }

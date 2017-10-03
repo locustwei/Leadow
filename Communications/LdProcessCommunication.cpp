@@ -13,7 +13,7 @@ CLdProcessCommunication::~CLdProcessCommunication()
 {
 }
 
-bool CLdProcessCommunication::SendData(DWORD id, PVOID pData, WORD Length)
+BOOL CLdProcessCommunication::SendData(DWORD id, PVOID pData, WORD Length)
 {
 	if (IsClosed())
 		return false;

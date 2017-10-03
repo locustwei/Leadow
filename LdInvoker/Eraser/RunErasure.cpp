@@ -61,11 +61,16 @@ DWORD RunEraseFile(LPWSTR* lpParams, int nParamCount)
 		return 1;
 	}
 
-	//CEraserThreadCallbackImpl impl;
+	CEraserThreadCallbackImpl* impl = new CEraserThreadCallbackImpl();
+	if(!impl->Connect())
+	{
+		delete impl;
+		return 2;
+	}
 
 	IErasureLibrary* Eraser = CLdLibray::LoadErasureLibrary();
 	if (!Eraser)
 		return 2;
 
-	return Eraser->EraseFile(Param, new CEraserThreadCallbackImpl());
+	return Eraser->EraseFile(Param, impl);
 }
