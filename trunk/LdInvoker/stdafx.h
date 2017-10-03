@@ -26,6 +26,7 @@ using namespace DuiLib;
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"jsonlib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")
+#pragma comment(lib,"Communications_d32.lib")
 #endif
 #else
 #ifdef WIN64

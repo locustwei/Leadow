@@ -1,5 +1,12 @@
 #pragma once
 
+
+#ifdef _DLL
+#define LDLIB_API __declspec(dllexport)
+#else
+#define LDLIB_API
+#endif
+
 #include "classes/LdString.h"
 #include "classes/Thread.h"
 #include "classes/LdList.h"
@@ -26,8 +33,6 @@
 #include "utils/FormatSettings.h"
 #include "utils/SHFolders.h"
 
-
-#define LDLIB_API __declspec(dllexport)
 
 #define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
 

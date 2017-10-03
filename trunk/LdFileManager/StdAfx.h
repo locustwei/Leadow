@@ -17,9 +17,10 @@
 #pragma comment(lib,"MftLib_d32.lib")
 #pragma comment(lib,"ReErasureUI_d32.lib")
 #pragma comment(lib,"Jsonlib_d32.lib")
+#pragma comment(lib,"Communications_d32.lib")
 #endif
 #else
-#ifdef _X64
+#ifdef WIN64
 #pragma comment(lib,"LdLib.lib")
 #pragma comment(lib,"DuiLib.lib")
 #pragma comment(lib,"MftLib.lib")

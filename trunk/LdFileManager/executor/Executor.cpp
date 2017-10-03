@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "Executor.h"
 #include "../Config.h"
+#include "../LdFileEraser/ErasureLibrary.h"
+#include "Executor.h"
 
 IEraserThreadCallback* g_callback = nullptr;
 
