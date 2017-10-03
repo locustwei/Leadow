@@ -46,16 +46,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			//goto help
 			return 0;
 		}
-		if(!RunEraseFile(&lpParamStrs[1], ParamCount - 1) != 0)
+		if(RunEraseFile(&lpParamStrs[1], ParamCount - 1) != 0)
 		{
 			//goto help;
-			return 0;
+			//return 0;
 		}
-	}
-
-	for(int i=0; i<ParamCount;i++)
-	{
-		MessageBox(0, lpParamStrs[i], nullptr, 0);
 	}
 
 	LocalFree(lpParamStrs);

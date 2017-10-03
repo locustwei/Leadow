@@ -18,10 +18,15 @@ namespace LeadowLib {
 #endif
 #endif
 
-//调用进程参数中的第一个参数，指明调用那个函数。
-#define CMD_ERASE_FILE    L"/erasefile"      //
+//调用进程命令行参数中的第一个参数，指明调用那个函数。
+#define CMD_ERASE_FILE    L"/erasefile"      //文件擦除
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
 #define CMD_ERASE_VOLUME  L"/erasevolume"
+
+//调用"文件擦除"进程命令行参数名。
+#define EPN_MOTHED        L"mothed"
+#define EPN_FILE          L"file"
+#define EPN_UNDELFOLDER   L"undelfolder"
 
 //进程启动后与向主进程建立通信发送函数ID，以确认身份。（ID与参数对应）
 	enum LD_FUNCTION_ID
@@ -39,6 +44,21 @@ namespace LeadowLib {
 		LFF_AS_ADMIN = 0x80000000,
 	};
 
+
+#pragma pack(push, 1)
+	//进程间通信传递的数据格式。
+	typedef struct COMMUINCATION_DATA
+	{
+		union
+		{
+			LD_FUNCTION_ID fId;
+			WORD cId;
+		};
+		WORD nLength;
+		BYTE Data[1];
+	}*PCOMMUINCATION_DATA;
+
+#pragma pack(pop)
 
 	/*
 	通用回掉函数

@@ -7,8 +7,6 @@
 
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             //  从 Windows 头文件中排除极少使用的信息
-
 #include <windows.h>
 
 #include <LdLib.h>
@@ -16,11 +14,14 @@ using namespace LeadowLib;
 #include <UIlib.h>
 using namespace DuiLib;
 
+#include "Communications.h"
+
 #ifdef _DEBUG
 #ifdef WIN64
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"jsonlib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
+#pragma comment(lib,"Communications_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"jsonlib_d32.lib")

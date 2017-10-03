@@ -4,14 +4,19 @@
 
 #include "stdafx.h"
 #include "MainWnd.h"
+#include "MainCommunication.h"
+#include "Config.h"
 
 #define APP_TITLE _T("DYDOT File Manager")
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)
 {
+	HRESULT Hr = ::CoInitialize(NULL);
+	if (FAILED(Hr)) return 0;
+
 	if (!CLdApp::Initialize(hInstance))
 		return 0;
-	
+	CConfig::LoadConfig();
 	CPaintManagerUI::SetInstance(hInstance);
 #ifdef _DEBUG
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));
@@ -19,9 +24,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath());
 	CPaintManagerUI::SetResourceZip(_T("UIResource.zip"), true, "dydot1234");
 #endif
-
-	HRESULT Hr = ::CoInitialize(NULL);
-	if( FAILED(Hr) ) return 0;
 	CDialogBuilder builder;
 	CPaintManagerUI paint;
 	
@@ -30,6 +32,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	MainWnd.Create(NULL, APP_TITLE, UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW);
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);
+
+	CMainCommunication mc;
+	mc.Listen();
  
 	MSG msg = { 0 };
 	while (::GetMessage(&msg, NULL, 0, 0)) {
@@ -40,7 +45,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 			::DispatchMessage(&msg);
 		}
 	}
+
 	::CoUninitialize();
+
 	return 0;
 }
 

@@ -41,7 +41,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v140_xp</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -104,11 +104,11 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_DEBUG;_X64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\duilib;..\LdLib</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_DEBUG;WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\duilib;..\ReErasureUI;..\LdLib;..\Communications</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,22 +155,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="About.cpp" />
-    <ClCompile Include="EraserCommnunication.cpp" />
-    <ClCompile Include="LdProcessCommunication.cpp" />
+    <ClCompile Include="Config.cpp" />
+    <ClCompile Include="executor\Executor.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="LdFileManager.cpp" />
-    <ClCompile Include="Library.cpp" />
-    <ClCompile Include="MainCommunication.cpp" />
     <ClCompile Include="MainWnd.cpp" />
     <ClCompile Include="StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="About.h" />
-    <ClInclude Include="EraserCommnunication.h" />
-    <ClInclude Include="LdProcessCommunication.h" />
-    <ClInclude Include="Library.h" />
-    <ClInclude Include="MainCommunication.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="executor\Executor.h" />
     <ClInclude Include="MainWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

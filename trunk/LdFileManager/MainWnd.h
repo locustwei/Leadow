@@ -4,8 +4,6 @@
 程序主窗口，框架窗口嵌入功能模块窗口。
 */
 
-#include "Library.h"
-
 class CMainWnd : public WindowImplBase
 {
 public:
@@ -24,8 +22,9 @@ protected:
 	void InitWindow() override;
 private:
 	TCHAR* m_Skin;
-	IErasureLibrary* m_ErasureLib;  //文件擦除模块
+	//IErasureLibrary* m_ErasureLib;  //文件擦除模块
 	CButtonUI* m_btnLogo;
+	CFramNotifyPump* m_EraserUI;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);

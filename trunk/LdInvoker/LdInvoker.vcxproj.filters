@@ -33,10 +33,10 @@
     <ClInclude Include="Library.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Eraser\EraserThreadCallbackImpl.h">
+    <ClInclude Include="Eraser\RunErasure.h">
       <Filter>eraser</Filter>
     </ClInclude>
-    <ClInclude Include="Eraser\RunErasure.h">
+    <ClInclude Include="Eraser\EraserThreadCallbackImpl.h">
       <Filter>eraser</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClCompile Include="Library.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Eraser\EraserThreadCallbackImpl.cpp">
+    <ClCompile Include="Eraser\RunErasure.cpp">
       <Filter>eraser</Filter>
     </ClCompile>
-    <ClCompile Include="Eraser\RunErasure.cpp">
+    <ClCompile Include="Eraser\EraserThreadCallbackImpl.cpp">
       <Filter>eraser</Filter>
     </ClCompile>
   </ItemGroup>

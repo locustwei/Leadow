@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="UI">
-      <UniqueIdentifier>{1f9ae493-063b-483f-a26a-c387e27781e3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Erasure">
       <UniqueIdentifier>{680577ba-be5e-44cf-838c-7c48ccd49837}</UniqueIdentifier>
     </Filter>
@@ -36,29 +33,8 @@
     <ClCompile Include="eraser\ErasureThread.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ErasureMainWnd.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ErasureRecycleUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ErasureVolumeUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ShFileView.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
     <ClCompile Include="eraser\VolumeEx.cpp">
       <Filter>Erasure</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ErasureFileUI.cpp">
-      <Filter>UI</Filter>
-    </ClCompile>
-    <ClCompile Include="eraser\ErasureConfig.cpp">
-      <Filter>Erasure</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ErasureOptions.cpp">
-      <Filter>UI</Filter>
     </ClCompile>
     <ClCompile Include="ErasureImpl.cpp">
       <Filter>源文件</Filter>
@@ -83,32 +59,11 @@
     <ClInclude Include="eraser\ErasureMethod.h">
       <Filter>Erasure</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ShFileView.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ErasureMainWnd.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ErasureRecycleUI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ErasureVolumeUI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="eraser\VolumeEx.h">
       <Filter>Erasure</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ErasureFileUI.h">
-      <Filter>UI</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="eraser\ErasureConfig.h">
-      <Filter>Erasure</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ErasureOptions.h">
-      <Filter>UI</Filter>
     </ClInclude>
     <ClInclude Include="ErasureImpl.h">
       <Filter>头文件</Filter>

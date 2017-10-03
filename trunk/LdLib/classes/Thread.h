@@ -4,7 +4,7 @@ namespace LeadowLib {
 
 	class CThread;
 
-	__interface IThreadRunable 
+	interface IThreadRunable 
 	{
 		//线程主体函数
 		virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) = 0;
@@ -54,6 +54,7 @@ namespace LeadowLib {
 		VOID Wakeup(HANDLE hEvent) const;
 		void SetTag(UINT_PTR nTag);
 		UINT_PTR GetTag();
+		IThreadRunable* GetRunner() { return m_Runer; };
 	protected:
 		virtual int	ThreadRun();
 		virtual void ThreadInit();

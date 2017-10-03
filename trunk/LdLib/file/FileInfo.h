@@ -109,7 +109,6 @@ namespace LeadowLib {
 		//查找文件，bSub:在子文件中查找，bPath：比较路径
 		CFileInfo* Find(TCHAR* pName, bool bSub = false, bool bPath = false);
 		void Sort();
-
 		VF_FILE_TYPE GetFileType() override { return vft_folder; };
 	private:
 		CLdArray<CVirtualFile*> m_Files;

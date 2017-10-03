@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 #include "VolumeEx.h"
-#include "../ErasureImpl.h"
 
-CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
+CEreaserThrads::CEreaserThrads()
 {
-	m_callback = callback;
+	//m_callback = callback;
 	m_Abort = false;
 	m_hEvent = nullptr;
 	m_MaxThreadCount = 1;
@@ -15,12 +14,12 @@ CEreaserThrads::CEreaserThrads(IEraserThreadCallback* callback)
 	m_VolumeMothed = nullptr;
 	m_ThreadCount = 0;
 	ZeroMemory(&m_Options, sizeof(ERASER_OPTIONS));
-	m_Options.bRemoveFolder = ThisLibrary->GetConfig()->IsRemoveFolder();
-	m_Options.bSkipSpace = ThisLibrary->GetConfig()->IsSkipSpace();
-	m_Options.bSkipTrack = ThisLibrary->GetConfig()->IsSkipTrack();
-	m_Options.bFreeFileSpace = ThisLibrary->GetConfig()->IsErasureFreeFileSpace();
-	m_Options.FileMothed = ThisLibrary->GetConfig()->GetFileErasureMothed();
-	m_Options.VolumeMothed = ThisLibrary->GetConfig()->GetVolumeErasureMethed();
+	m_Options.bRemoveFolder = true;
+	m_Options.bSkipSpace = false;
+	m_Options.bSkipTrack = false;
+	m_Options.bFreeFileSpace = false;
+	m_Options.FileMothed = em_DoD_E;
+	m_Options.VolumeMothed = em_Pseudorandom;
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -282,6 +281,11 @@ int CEreaserThrads::WaitForThread(/*HANDLE* threads*/)
 PERASER_OPTIONS CEreaserThrads::GetOptions()
 {
 	return &m_Options;
+}
+
+void CEreaserThrads::SetCallback(IEraserThreadCallback* callback)
+{
+	m_callback = callback;
 }
 
 CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CVirtualFile* pFile)
