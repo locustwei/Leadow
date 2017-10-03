@@ -2,8 +2,12 @@
 #include "Executor.h"
 #include "../Config.h"
 
-DWORD ExecuteFileErase(CLdArray<CVirtualFile*>* files)
+IEraserThreadCallback* g_callback = nullptr;
+
+DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>* files)
 {
+	g_callback = callback;
+
 	CLdString param = CMD_ERASE_FILE;
 	param.Format(
 		_T("%s %s:%d %s:%d"),
@@ -22,7 +26,12 @@ DWORD ExecuteFileErase(CLdArray<CVirtualFile*>* files)
 		param += '\"';
 	}
 
-	CLdApp::ThisApp->RunInvoker(param, 0, 0);
+	ThisApp->RunInvoker(param, 0, 0);
 
 	return 0;
+}
+
+bool EraserThreadCallback(CLdString fileName, E_THREAD_OPTION op, DWORD dwValue)
+{
+	return g_callback->EraserThreadCallback(nullptr, op, dwValue);
 }

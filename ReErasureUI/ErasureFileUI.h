@@ -6,9 +6,10 @@
 
 //#include "../eraser/ErasureThread.h"
 #include "ShFileView.h"
+#include "../LdFileEraser/ErasureLibrary.h"
 
 class CErasureFileUI : 
-	//IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	public CShFileViewUI
 {
 public:
@@ -29,7 +30,7 @@ protected:
 
 	typedef struct FILE_ERASURE_DATA
 	{
-		//E_FILE_STATE nStatus;             //擦除状态
+		E_FILE_STATE nStatus;             //擦除状态
 		DWORD        nErrorCode;          //错误代码（如果错误）
 		CControlUI* ui;                   //listView 行
 		DWORD nCount;                     //文件夹下的总的文件数
@@ -46,6 +47,6 @@ protected:
 	void AttanchControl(CControlUI* pCtrl) override;                   
 	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);                       //删除已经被擦除完成的记录。
 	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent);            //更新擦除信息（显示在ListUI中）
-	//bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
+	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
 };

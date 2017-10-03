@@ -3,13 +3,13 @@
 
 CEraserThreadCallbackImpl::CEraserThreadCallbackImpl()
 	:m_Abort(false)
+	, m_Socket()
 {
-	
+	m_Socket.Connect();
 }
 
 CEraserThreadCallbackImpl::~CEraserThreadCallbackImpl()
 {
-
 }
 
 bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)

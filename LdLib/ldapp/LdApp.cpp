@@ -23,7 +23,7 @@ namespace LeadowLib {
 	}
 
 
-	CLdApp* CLdApp::ThisApp = nullptr;
+	CLdApp* ThisApp = nullptr;
 
 
 	CLdApp::CLdApp() 

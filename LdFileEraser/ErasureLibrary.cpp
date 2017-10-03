@@ -6,7 +6,7 @@
 /*动态链接库导出函数，获取函数接口*/
 IErasureLibrary LDLIB_API * API_Init(CLdApp* pThisApp)
 {
-	CLdApp::ThisApp = pThisApp;
+	ThisApp = pThisApp;
 	if (!ThisLibrary)
 	{
 		ThisLibrary = new CErasureImpl();
