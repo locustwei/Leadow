@@ -2,8 +2,7 @@
 #include "EraserThreadCallbackImpl.h"
 
 CEraserThreadCallbackImpl::CEraserThreadCallbackImpl()
-	//:m_socket()
-	//,m_Abort(false)
+	:m_Abort(false)
 {
 	
 }
@@ -35,6 +34,7 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THRE
 		break;
 	case eto_finished:
 		delete this;
+		PostThreadMessage(CLdApp::ThisApp->GetMainThreadId(), WM_QUIT, 0, 0);
 		break;
 	default:
 		break;

@@ -62,7 +62,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			CLdApp::MainThreadMessage(msg);
 	}
 
-	PostQuitMessage(0);
+	
 
 	return (int) 0;
 }
