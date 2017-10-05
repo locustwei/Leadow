@@ -43,3 +43,17 @@ BOOL CEraserCComm::SendEraseStatus(TCHAR* fileName, E_THREAD_OPTION op, DWORD va
 	delete pCommData;
 	return result;
 }
+
+void CEraserCComm::OnClosed(CLdSocket*)
+{
+	
+}
+
+void CEraserCComm::OnError(CLdSocket*, int)
+{
+
+}
+
+void CEraserCComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
+{
+}
