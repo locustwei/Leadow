@@ -17,7 +17,8 @@ BOOL CEraserCComm::Connect()
 {
 	if (CLdProcessCommunication::Connect() != 0)
 		return false;
-	if (!SendData(LFI_EARSE_FILE, nullptr, 0))
+	DWORD pid = GetCurrentProcessId();
+	if (!SendData(LFI_EARSE_FILE, &pid, sizeof(pid)))
 		return false;
 	int len = Recv();
 	if (len < sizeof(COMMUINCATION_DATA))
