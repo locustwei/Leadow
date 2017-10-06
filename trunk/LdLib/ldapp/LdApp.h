@@ -5,6 +5,7 @@
 */
 #include "../classes/LdString.h"
 #include "../utils/HandleUitls.h"
+#include "../classes/LdMap.h"
 
 namespace LeadowLib {
 
@@ -22,12 +23,14 @@ namespace LeadowLib {
 		static BOOL Initialize(HINSTANCE hInstance);  //初始化，程序启动时调用
 		static void MainThreadMessage(MSG& msg);      //消息循环过滤主线程消息  
 		static BOOL Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param); //发送消息到主线程，并执行回掉函数
-		BOOL RunInvoker(TCHAR* Param, DWORD Flag, UINT nPort);
+		DWORD RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext);
+		PVOID GetJobContext(DWORD pid);
 	private:
 		HINSTANCE m_Instance;
 		DWORD m_ThreadID;
 		CLdString m_InstallPath;
 		CLdString m_AppDataPath;
+		CLdMap<DWORD, PVOID> m_Job;
 	};
 
 	void DebugOutput(LPCTSTR pstrFormat, ...);

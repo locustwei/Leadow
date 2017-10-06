@@ -31,6 +31,7 @@ namespace LeadowLib {
 		, m_ThreadID(0)
 		, m_InstallPath()
 		, m_AppDataPath()
+		, m_Job()
 	{
 	}
 
@@ -89,10 +90,24 @@ namespace LeadowLib {
 		return PostThreadMessage(ThisApp->m_ThreadID, MM_CALLBACKMSG, (WPARAM)callback, Param);
 	}
 
-	BOOL CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, UINT nPort)
+	DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 	{
 		CLdString invoker = GetInstallPath() + INVOKER_EXE;
+		PROCESS_INFORMATION info = { 0 };
+		STARTUPINFO si = { 0 };
+		si.cb = sizeof(STARTUPINFO);
+		if (CreateProcess(invoker, Param, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
+		{
+			m_Job.Put(info.dwProcessId, pContext);
+			return info.dwProcessId;
+		}
+		else
+			return 0;
+		//return ShellExecute(NULL, NULL, invoker, Param, NULL, SW_SHOWNORMAL) != NULL;
+	}
 
-		return ShellExecute(NULL, NULL, invoker, Param, NULL, SW_SHOWNORMAL) != NULL;
+	PVOID CLdApp::GetJobContext(DWORD pid)
+	{
+		return m_Job[pid];
 	}
 }
