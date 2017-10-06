@@ -44,7 +44,7 @@ void CEreaserThrads::StopThreads()
 		SetEvent(m_hEvent);
 }
 
-void CEreaserThrads::SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles)
+void CEreaserThrads::SetEreaureFiles(CLdArray<CLdString*> * pFiles)
 {
 	m_Files = pFiles;
 }
