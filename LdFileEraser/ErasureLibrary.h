@@ -24,10 +24,10 @@ enum E_THREAD_OPTION
 };
 
 //擦除线程回掉函数
-class LDLIB_API IEraserThreadCallback
+interface LDLIB_API IEraserThreadCallback
 {
-public:
-	virtual bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) = 0;
+//public:
+	virtual bool EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
 };
 
 /*
@@ -35,9 +35,9 @@ public:
 调用API_Init获取这个接口。
 
 */
-class LDLIB_API IErasureLibrary
+interface LDLIB_API IErasureLibrary
 {
-public:
+//public:
 	/*窗口资源ID
 	*用于builer窗口*/
 	//virtual TCHAR* UIResorce() = 0;
@@ -52,6 +52,6 @@ public:
 	//virtual CFramNotifyPump* GetNotifyPump() = 0;
 
 	virtual DWORD EraseFile(CLdConfig& Param, IEraserThreadCallback * callback) = 0;
-protected:
+//protected:
 	//virtual ~IErasureLibrary() {};
 };

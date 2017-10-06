@@ -17,16 +17,11 @@ CErasureImpl::CErasureImpl()
 
 CErasureImpl::~CErasureImpl()
 {
-//	if (m_MainWnd)
-//	{
-//		delete m_MainWnd;
-//		m_MainWnd = nullptr;
-//	}
-//	if(m_Config)
-//	{
-//		m_Config->SaveConfig();
-//		delete m_Config;
-//	}
+	for(int i=0; i<m_Files.GetCount();i++)
+	{
+		delete m_Files[i];
+		m_Files.Clear();
+	}
 
 	ThisLibrary = nullptr;
 }
@@ -83,7 +78,8 @@ DWORD CErasureImpl::EraseFile(CLdConfig& Param, IEraserThreadCallback* callback)
 		CLdString s = Param.GetString(EPN_FILE, nullptr, i);
 		if (s.IsEmpty())
 			continue;
-		CFileInfo* info;
+
+		/*CFileInfo* info;
 		if (CFileUtils::IsDirectoryExists(s))
 		{
 			info = new CFolderInfo();
@@ -95,8 +91,8 @@ DWORD CErasureImpl::EraseFile(CLdConfig& Param, IEraserThreadCallback* callback)
 			info = new CFileInfo();
 			info->SetFileName(s);
 		}
-
-		m_Files.Add(info);
+*/
+		m_Files.Add(new CLdString(s.GetData()));
 	}
 
 	m_EraseThread.SetCallback(callback);
