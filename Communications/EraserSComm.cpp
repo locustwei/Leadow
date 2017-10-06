@@ -20,10 +20,10 @@ void CEraserSComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
 	case eto_analied: break;
 	default: break;
 	}
-	EraserThreadCallback(pEraseData->FileName, pEraseData->op, pEraseData->dwValue);
+	m_callback->EraserThreadCallback(pEraseData->FileName, pEraseData->op, pEraseData->dwValue);
 }
 
-CEraserSComm::CEraserSComm()
+CEraserSComm::CEraserSComm(): m_callback(nullptr)
 {
 
 }
@@ -41,4 +41,9 @@ CEraserSComm::CEraserSComm(SOCKET s)
 
 CEraserSComm::~CEraserSComm()
 {
+}
+
+void CEraserSComm::SetContext(PVOID pContext)
+{
+	m_callback = (IEraserThreadCallback*)pContext;
 }

@@ -3,12 +3,9 @@
 #include "../LdFileEraser/ErasureLibrary.h"
 #include "Executor.h"
 
-IEraserThreadCallback* g_callback = nullptr;
 
 DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>* files)
 {
-	g_callback = callback;
-
 	CLdString param = CMD_ERASE_FILE;
 	param.Format(
 		_T("%s %s:%d %s:%d"),
@@ -27,12 +24,10 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>*
 		param += '\"';
 	}
 
-	ThisApp->RunInvoker(param, 0, 0);
-
-	return 0;
+	return ThisApp->RunInvoker(param, 0, (PVOID)callback);
 }
 
 bool EraserThreadCallback(CLdString fileName, E_THREAD_OPTION op, DWORD dwValue)
 {
-	return g_callback->EraserThreadCallback(nullptr, op, dwValue);
+	return false;// g_callback->EraserThreadCallback(nullptr, op, dwValue);
 }

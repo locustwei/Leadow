@@ -8,6 +8,7 @@ public:
 	CLdProcessCommunication();
 	~CLdProcessCommunication();
 	BOOL SendData(DWORD id, PVOID pData, WORD Length);
+	virtual void SetContext(PVOID) = 0;
 protected:
 	void OnClosed(CLdSocket*) override;
 	void OnError(CLdSocket*, int) override;

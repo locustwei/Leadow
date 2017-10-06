@@ -45,9 +45,9 @@ void CMainCommunication::OnAccept(CLdServerSocket*, SOCKET socket)
 	switch (precv->fId)
 	{
 	case LFI_EARSE_FILE:
-		//pClient->SetListener(new CEraserSComm());
 		pComm = new CEraserSComm(socket);
 		pComm->SendData(LFI_EARSE_FILE, nullptr, 0);
+		ThisApp->GetJobContext(*(PWORD)precv->Data);
 		break;
 	default:
 		closesocket(socket);
