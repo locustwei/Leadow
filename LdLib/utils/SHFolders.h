@@ -1,6 +1,5 @@
 #pragma once
 #include <Shlobj.h>
-#include "../ldapp/LdStructs.h"
 #include "../classes/LdString.h"
 #include "../classes/ldArray.h"
 #include "../classes/LdMap.h"

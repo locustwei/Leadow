@@ -10,7 +10,7 @@ public:
 	CEraserThreadCallbackImpl();
 	~CEraserThreadCallbackImpl();
 protected:
-	bool EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
+	bool EraserThreadCallback(TCHAR* pFile, E_THREAD_OPTION op, DWORD dwValue) override;
 
 //	void SetSocket(CLdSocket*) override;
 	void OnClosed(CLdSocket*) override;

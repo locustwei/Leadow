@@ -22,11 +22,13 @@ using namespace DuiLib;
 #pragma comment(lib,"jsonlib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
 #pragma comment(lib,"Communications_d64.lib")
+#pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"jsonlib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")
 #pragma comment(lib,"Communications_d32.lib")
+#pragma comment(lib,"LdApp_d32.lib")
 #endif
 #else
 #ifdef WIN64

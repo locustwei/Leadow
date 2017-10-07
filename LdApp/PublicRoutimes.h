@@ -2,7 +2,6 @@
 
 #include <winternl.h>
 #include "LdStructs.h"
-#include "../classes/LdString.h"
 
 namespace LeadowLib {
 	enum WIN_OS_TYPE

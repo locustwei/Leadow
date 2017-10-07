@@ -10,12 +10,12 @@ CEraserThreadCallbackImpl::~CEraserThreadCallbackImpl()
 {
 }
 
-bool CEraserThreadCallbackImpl::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
+bool CEraserThreadCallbackImpl::EraserThreadCallback(TCHAR* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	//if (m_Socket.IsClosed())
 		//return true;
 	if (pFile)
-		SendEraseStatus(pFile->GetFullName(), op, dwValue);
+		SendEraseStatus(pFile, op, dwValue);
 	else
 		SendEraseStatus(nullptr, op, dwValue);
 

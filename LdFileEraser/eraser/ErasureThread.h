@@ -31,7 +31,7 @@ public:
 	~CEreaserThrads();
 
 	void StopThreads();                                      //终止擦除
-	void SetEreaureFiles(CLdArray<CLdString*> * pFiles);  //添加擦除文件
+	void SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles);  //添加擦除文件
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 	DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
 	PERASER_OPTIONS GetOptions();
@@ -50,7 +50,7 @@ private:
 	CErasureMothed* m_VolumeMothed;
 
 	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
-	CLdArray<CLdString*>* m_Files;   //待擦除的文件
+	CLdArray<CVirtualFile*>* m_Files;   //待擦除的文件
 	LONG volatile m_ThreadCount;        //当前正在运行的线程数量
 
 	int WaitForThread();                //当擦除线程达到最大线程数时等待其中一个线程结束

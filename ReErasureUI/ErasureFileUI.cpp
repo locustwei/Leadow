@@ -162,7 +162,7 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 	}
 }
 
-bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
+bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
 	CVirtualFile* p;
@@ -177,7 +177,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 		break;
 	case eto_completed: //单个文件擦除完成
 						//设置擦除状态
-
+/*
 		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
 		if (dwValue == 0)
 		{
@@ -228,7 +228,7 @@ bool CErasureFileUI::EraserThreadCallback(CVirtualFile* pFile, E_THREAD_OPTION o
 				break;
 			}
 		}
-		break;
+		break;*/
 	case eto_finished:
 		DeleteErasuredFile(m_ErasureFile.GetFiles());
 		btnOk->SetTag(0);

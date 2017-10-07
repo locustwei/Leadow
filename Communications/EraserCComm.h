@@ -16,6 +16,7 @@ protected:
 	void OnClosed(CLdSocket*) override;
 	void OnError(CLdSocket*, int) override;
 	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
+	void SetContext(PVOID) override;
 
 private:
 };

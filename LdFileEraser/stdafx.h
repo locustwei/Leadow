@@ -35,12 +35,13 @@ using namespace JsonBox;
 #pragma comment(lib,"DuiLib_d64.lib")
 #pragma comment(lib,"MftLib_d64.lib")
 #pragma comment(lib,"JsonLib_d64.lib")
-#pragma comment(lib,"Communications_d64.lib")
+#pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")
 #pragma comment(lib,"MftLib_d32.lib")
 #pragma comment(lib,"JsonLib_d32.lib")
+#pragma comment(lib,"LdApp_d32.lib")
 #endif
 #else
 #ifdef _X64

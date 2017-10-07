@@ -11,6 +11,7 @@
 #pragma comment(lib,"ReErasureUI_d64.lib")
 #pragma comment(lib,"Jsonlib_d64.lib")
 #pragma comment(lib,"Communications_d64.lib")
+#pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"DuiLib_d32.lib")
 #pragma comment(lib,"LdLib_d32.lib")
@@ -18,6 +19,7 @@
 #pragma comment(lib,"ReErasureUI_d32.lib")
 #pragma comment(lib,"Jsonlib_d32.lib")
 #pragma comment(lib,"Communications_d32.lib")
+#pragma comment(lib,"LdApp_d32.lib")
 #endif
 #else
 #ifdef WIN64

@@ -7,6 +7,20 @@
 #define LDLIB_API
 #endif
 
+#ifndef __IGernalCallback
+
+#pragma warning(disable:4996 4091)
+/*
+通用回掉函数
+*/
+template <typename T>
+interface IGernalCallback
+{
+	virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
+};
+
+#endif
+
 #include "classes/LdString.h"
 #include "classes/Thread.h"
 #include "classes/LdList.h"
@@ -14,12 +28,13 @@
 #include "classes/LdMap.h"
 #include "classes/LdTree.h"
 
+/*
 #include "ldapp/LdStructs.h"
 #include "ldapp/PublicRoutimes.h"
-#include "ldapp/LdNamedPipe.h"
 #include "ldapp/LdApp.h"
 #include "ldapp/LdConfig.h"
 #include "ldapp/LdSocket.h"
+*/
 
 #include "file/FileInfo.h"
 #include "file/FileUtils.h"
@@ -35,5 +50,3 @@
 
 
 #define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
-
-void DebugOutput(LPCTSTR pstrFormat, ...);

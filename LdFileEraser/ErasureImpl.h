@@ -33,7 +33,7 @@ private:
 	//CErasureConfig* m_Config;
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
-	CLdArray<CLdString*> m_Files;
+	CLdArray<CVirtualFile*> m_Files;
 };
 
 extern CErasureImpl* ThisLibrary;
