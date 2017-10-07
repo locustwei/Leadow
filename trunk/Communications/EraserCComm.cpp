@@ -58,3 +58,7 @@ void CEraserCComm::OnError(CLdSocket*, int)
 void CEraserCComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
 {
 }
+
+void CEraserCComm::SetContext(PVOID)
+{
+}

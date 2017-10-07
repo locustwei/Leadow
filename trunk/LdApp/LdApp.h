@@ -1,11 +1,9 @@
 #pragma once
+
 /*
 应用程序全局设置、数据。
 
 */
-#include "../classes/LdString.h"
-#include "../utils/HandleUitls.h"
-#include "../classes/LdMap.h"
 
 namespace LeadowLib {
 

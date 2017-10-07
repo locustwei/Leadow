@@ -6,7 +6,6 @@
 */
 
 #include <winsock.h>
-#include "../classes/Thread.h"
 
 #define SOCKET_PORT 0x5389
 

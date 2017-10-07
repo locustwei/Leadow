@@ -44,7 +44,7 @@ void CEreaserThrads::StopThreads()
 		SetEvent(m_hEvent);
 }
 
-void CEreaserThrads::SetEreaureFiles(CLdArray<CLdString*> * pFiles)
+void CEreaserThrads::SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles)
 {
 	m_Files = pFiles;
 }
@@ -204,11 +204,11 @@ void CEreaserThrads::AnalyThreadRung(CVolumeEx* pVolume)
 		return;
 
 	DWORD error;
-	if (!m_callback->EraserThreadCallback(pVolume, eto_analy, 0))
+	if (!m_callback->EraserThreadCallback(pVolume->GetFullName(), eto_analy, 0))
 		error = ERROR_CANCELED;
 	else
 		error = pVolume->StatisticsFileStatus();
-	m_callback->EraserThreadCallback(pVolume, eto_analied, error);
+	m_callback->EraserThreadCallback(pVolume->GetFullName(), eto_analied, error);
 
 }
 
@@ -301,7 +301,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
-	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_begin, 0))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_begin, 0))
 		return false;
 
 	if (m_Control->m_Abort)
@@ -311,7 +311,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
-	if (!m_Control->m_callback->EraserThreadCallback(m_File, eto_completed, dwErroCode))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_completed, dwErroCode))
 		return false;
 
 	if (m_Control->m_Abort)
@@ -347,7 +347,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 		break;
 	}
 
-	if (!m_Control->m_callback->EraserThreadCallback(m_File, option, (DWORD)ceil(nCurent * 100 / nMaxCount )))
+	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), option, (DWORD)ceil(nCurent * 100 / nMaxCount )))
 		return false;
 	return true;
 }

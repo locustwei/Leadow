@@ -79,7 +79,7 @@ DWORD CErasureImpl::EraseFile(CLdConfig& Param, IEraserThreadCallback* callback)
 		if (s.IsEmpty())
 			continue;
 
-		/*CFileInfo* info;
+		CFileInfo* info;
 		if (CFileUtils::IsDirectoryExists(s))
 		{
 			info = new CFolderInfo();
@@ -91,8 +91,8 @@ DWORD CErasureImpl::EraseFile(CLdConfig& Param, IEraserThreadCallback* callback)
 			info = new CFileInfo();
 			info->SetFileName(s);
 		}
-*/
-		m_Files.Add(new CLdString(s.GetData()));
+
+		m_Files.Add(info);
 	}
 
 	m_EraseThread.SetCallback(callback);

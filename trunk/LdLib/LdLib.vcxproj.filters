@@ -20,12 +20,6 @@
     <ClCompile Include="utils\SHFolders.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="ldapp\LdNamedPipe.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
-    <ClCompile Include="ldapp\PulicRoutimes.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
     <ClCompile Include="classes\LdDriver.cpp">
       <Filter>classes</Filter>
     </ClCompile>
@@ -46,15 +40,6 @@
     </ClCompile>
     <ClCompile Include="volume\VolumeUtils.cpp">
       <Filter>volume</Filter>
-    </ClCompile>
-    <ClCompile Include="ldapp\LdApp.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
-    <ClCompile Include="ldapp\LdConfig.cpp">
-      <Filter>ldapp</Filter>
-    </ClCompile>
-    <ClCompile Include="ldapp\LdSocket.cpp">
-      <Filter>ldapp</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,15 +63,6 @@
     </ClInclude>
     <ClInclude Include="utils\SHFolders.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\LdNamedPipe.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\LdStructs.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\PublicRoutimes.h">
-      <Filter>ldapp</Filter>
     </ClInclude>
     <ClInclude Include="classes\LdArray.h">
       <Filter>classes</Filter>
@@ -127,15 +103,6 @@
     <ClInclude Include="volume\VolumeUtils.h">
       <Filter>volume</Filter>
     </ClInclude>
-    <ClInclude Include="ldapp\LdApp.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\LdConfig.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
-    <ClInclude Include="ldapp\LdSocket.h">
-      <Filter>ldapp</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="files">
@@ -143,9 +110,6 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{ee9693b2-74c6-4e59-941a-2bfb6330c538}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ldapp">
-      <UniqueIdentifier>{9084f05a-c897-4594-a3df-c53ebeb4be6d}</UniqueIdentifier>
     </Filter>
     <Filter Include="classes">
       <UniqueIdentifier>{98ff1b42-62d1-4062-9914-259d35faff37}</UniqueIdentifier>

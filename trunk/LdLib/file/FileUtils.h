@@ -5,7 +5,6 @@
 */
 
 #include <shellapi.h>
-#include "../ldapp/LdStructs.h"
 #include "../classes/LdString.h"
 #include "../classes/LdArray.h"
 

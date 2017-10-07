@@ -4,8 +4,7 @@
 配置文件读写基类（JSON格式），各功能模块配置文件从此继承
 */
 
-#include "../../Jsonlib/JsonBox.h"
-#include "../classes/LdString.h"
+#include "../Jsonlib/JsonBox.h"
 
 namespace LeadowLib {
 	class CLdConfig

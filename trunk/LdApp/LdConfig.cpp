@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "LdConfig.h"
-#include "../file/FileUtils.h"
 #include <Shlwapi.h>
-#include "../classes/LdMap.h"
 #include <sstream>
 
 #pragma warning(disable:4018)

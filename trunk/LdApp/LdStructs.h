@@ -1,5 +1,11 @@
 #pragma once
 
+
+#include "LdConfig.h"
+#include "LdSocket.h"
+#include "PublicRoutimes.h"
+#include "LdApp.h"
+
 namespace LeadowLib {
 	//功能函数ID
 	//
@@ -59,14 +65,5 @@ namespace LeadowLib {
 	}*PCOMMUINCATION_DATA;
 
 #pragma pack(pop)
-
-	/*
-	通用回掉函数
-	*/
-	template <typename T>
-	interface IGernalCallback
-	{
-		virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
-	};
 
 };
