@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include <shellapi.h>
 #include "Eraser/RunErasure.h"
+#include "../LdApp/LdApp.h"
 
 #pragma warning(disable:4996)
 

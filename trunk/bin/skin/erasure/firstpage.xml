@@ -1,27 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <Window size="1812,580">
-	<VerticalLayout inset="13,10,13,13">
+	<VerticalLayout inset="13,10,13,13" childpadding="5">
 		<Text font="2" text="由系统的原因，删除文件即使是彻底删除文件，系统也不会把文件内容从物理上去除，系统所做的仅仅是打上已删除标志。所以反删除软件都随处可得。使用本软件可帮助您删除文件并把存留在磁盘上的文件内容擦除干净以保护您的数据安全，也可以清除您已经删除了文件，但还留存在磁盘上的文件内容。" />
 		<Control height="10"/>
 		<Text font="3" text="说明"/>
-		<Control height="5"/>
 		<Text font="2" text="1、《文件擦除》删除文件（或整个文件夹）并擦除。" />
-		<Control height="5"/>
 		<Text font="2" text="2、《清理回收站》擦除资源管理器“回收站”中的文件。" />
-		<Control height="5"/>
 		<Text font="2" text="3、《磁盘擦除》擦除磁盘的空闲空间，以清除已删除但还存留的文件内容。这个功能支持NTFS、FAT32文件系统" />
 		<Control height="10"/>
 		<Text font="3" text="注：" />
-		<Control height="5"/>
 		<Text font="2" text="一、擦除前请确保有读取、写入、删除文件的权限，并且文件没有被占用。" />
-		<Control height="5"/>
 		<Text font="2" text="二、擦除一经开始就无法撤销，虽可以中途停止但已逝去的就再也回不来了。" />
-		<Control height="5"/>
 		<Text font="2" text="三、虽我们已经进行了无数次的测试，但依然不能保证没有Bug。" />
-		<Control height="5"/>
 		<Text font="2" text="四、世界上存在一些数据恢复软件能够恢复进行过擦除的文件，幸好这种工具软件并不常见。尽管如此本软件提供了一些特殊的擦除方式以对抗这些数据恢复软件。" />
 		<Control height="10"/>
-		<Control height="5"/>
 		<Text font="3" text="最后，感谢您的使用！如果您有什么疑问或建议请查看《关于》和我们取得联系" />
 	</VerticalLayout >
 </Window>

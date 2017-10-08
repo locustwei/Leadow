@@ -68,7 +68,7 @@ HMODULE CErasureImpl::GetModuleHandleW()
 //	return m_Ctrl;
 //}
 
-DWORD CErasureImpl::EraseFile(CLdConfig& Param, IEraserThreadCallback* callback)
+DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserThreadCallback* callback)
 {
 	int mothed = Param.GetInteger(EPN_MOTHED, 3);
 	BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);

@@ -3,7 +3,7 @@
 #include "../classes/LdMap.h"
 #include "DlgGetFileName.h"
 #include <shlobj.h>
-#include "../LdLib.h"
+#include "../PublicRoutimes.h"
 
 #pragma comment (lib, "Shlwapi.lib")
 

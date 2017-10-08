@@ -4,7 +4,7 @@
 动态库导出接口实现，并动态库全局设置和变量。(ThisLibrary 变量当前动态库的全局数据）
 */
 
-#include "ErasureLibrary.h"
+#include "../LdApp/LdStructs.h"
 #include "eraser/ErasureThread.h"
 
 //#include "ui/ErasureMainWnd.h"
@@ -26,7 +26,7 @@ protected:
 	//void SetUI(CControlUI* pCtrl) override;
 	//CControlUI* GetUI() override;
 
-	DWORD EraseFile(CLdConfig& Param, IEraserThreadCallback* callback) override;
+	DWORD EraseFile(CDynObject& Param, IEraserThreadCallback* callback) override;
 private:
 	//CErasureMainWnd* m_MainWnd;
 	//CControlUI* m_Ctrl;

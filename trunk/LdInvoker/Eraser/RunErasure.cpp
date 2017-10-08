@@ -1,12 +1,11 @@
 #include "stdafx.h"
 #include "RunErasure.h"
-#include "../LdFileEraser/ErasureLibrary.h"
 #include "../Library.h"
 #include "EraserThreadCallbackImpl.h"
 
 #pragma warning(disable:4996)
 
-bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CLdConfig& Params)
+bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CDynObject& Params)
 {
 	int mothed;
 	for (int i = 0; i<nParamCount; i++)
@@ -53,7 +52,7 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CLdConfig& Params)
 
 DWORD RunEraseFile(LPWSTR* lpParams, int nParamCount)
 {
-	CLdConfig Param;
+	CDynObject Param;
 
 	if (!AnalEraseFileParam(lpParams, nParamCount, Param))
 	{

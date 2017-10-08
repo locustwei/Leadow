@@ -6,7 +6,7 @@
 
 #pragma once
 #include "Erasure.h"
-#include "../ErasureLibrary.h"
+#include "../LdApp/LdStructs.h"
 
 class CVolumeEx;
 

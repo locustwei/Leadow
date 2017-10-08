@@ -1,6 +1,7 @@
 #include "stdafx.h"
-#include "ErasureLibrary.h"
 #include "ErasureImpl.h"
+#include "../LdApp/LdStructs.h"
+#include "../LdApp/LdApp.h"
 
 
 /*动态链接库导出函数，获取函数接口*/

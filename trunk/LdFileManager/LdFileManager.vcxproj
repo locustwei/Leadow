@@ -155,7 +155,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="About.cpp" />
-    <ClCompile Include="Config.cpp" />
     <ClCompile Include="executor\Executor.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
     </ClCompile>

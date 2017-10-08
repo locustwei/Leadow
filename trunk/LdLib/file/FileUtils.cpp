@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "FileUtils.h"
 #include "../classes/ldstring.h"
-#include "../LdLib.h"
+#include "../PublicRoutimes.h"
 
 namespace LeadowLib {
 	BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
@@ -201,8 +201,8 @@ namespace LeadowLib {
 		fo.fFlags = (FILEOP_FLAGS)dwFlag;
 		fo.wFunc = FO_DELETE;
 		int result = SHFileOperation(&fo);
-		if (result != 0)
-			DebugOutput(L"delete error %d", result);
+		//if (result != 0)
+			//DebugOutput(L"delete error %d", result);
 		return result;
 	}
 

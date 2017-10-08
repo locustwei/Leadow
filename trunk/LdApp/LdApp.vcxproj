@@ -130,19 +130,15 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Config.h" />
     <ClInclude Include="LdApp.h" />
-    <ClInclude Include="LdConfig.h" />
-    <ClInclude Include="LdSocket.h" />
     <ClInclude Include="LdStructs.h" />
-    <ClInclude Include="PublicRoutimes.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="LdApp.cpp" />
-    <ClCompile Include="LdConfig.cpp" />
-    <ClCompile Include="LdSocket.cpp" />
-    <ClCompile Include="PulicRoutimes.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

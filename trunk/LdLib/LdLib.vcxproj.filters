@@ -41,6 +41,13 @@
     <ClCompile Include="volume\VolumeUtils.cpp">
       <Filter>volume</Filter>
     </ClCompile>
+    <ClCompile Include="classes\DynObject.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
+    <ClCompile Include="PulicRoutimes.cpp" />
+    <ClCompile Include="classes\LdSocket.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -102,6 +109,13 @@
     </ClInclude>
     <ClInclude Include="volume\VolumeUtils.h">
       <Filter>volume</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\DynObject.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="PublicRoutimes.h" />
+    <ClInclude Include="classes\LdSocket.h">
+      <Filter>classes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

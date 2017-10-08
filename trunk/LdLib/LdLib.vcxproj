@@ -148,15 +148,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="classes\LdArray.h" />
+    <ClInclude Include="classes\DynObject.h" />
     <ClInclude Include="classes\LdDriver.h" />
     <ClInclude Include="classes\LdList.h" />
     <ClInclude Include="classes\LdMap.h" />
+    <ClInclude Include="classes\LdSocket.h" />
     <ClInclude Include="classes\LdString.h" />
     <ClInclude Include="classes\LdTree.h" />
     <ClInclude Include="classes\Thread.h" />
     <ClInclude Include="file\FileInfo.h" />
     <ClInclude Include="file\FileUtils.h" />
     <ClInclude Include="LdLib.h" />
+    <ClInclude Include="PublicRoutimes.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="utils\DateTimeUtils.h" />
@@ -171,11 +174,14 @@
     <ClInclude Include="volume\VolumeUtils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="classes\DynObject.cpp" />
     <ClCompile Include="classes\LdDriver.cpp" />
+    <ClCompile Include="classes\LdSocket.cpp" />
     <ClCompile Include="classes\LdString.cpp" />
     <ClCompile Include="classes\Thread.cpp" />
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />
+    <ClCompile Include="PulicRoutimes.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

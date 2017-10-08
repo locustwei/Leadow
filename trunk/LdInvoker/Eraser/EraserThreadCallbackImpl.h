@@ -1,6 +1,5 @@
 #pragma once
 #include "EraserCComm.h"
-#include "../../LdFileEraser/ErasureLibrary.h"
 
 class CEraserThreadCallbackImpl:
 	public IEraserThreadCallback

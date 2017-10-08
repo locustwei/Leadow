@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "../Config.h"
-#include "../LdFileEraser/ErasureLibrary.h"
+#include "../LdApp/LdStructs.h"
 #include "Executor.h"
+#include "../../LdApp/LdApp.h"
 
 
 DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>* files)
@@ -10,9 +10,9 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>*
 	param.Format(
 		_T("%s %s:%d %s:%d"),
 		CMD_ERASE_FILE, EPN_MOTHED,
-		AppConfig->GetFileErasureMothed(),
+		ThisApp->GetConfig()->GetFileErasureMothed(),
 		EPN_UNDELFOLDER,
-		AppConfig->IsRemoveFolder() ? 1 : 0);
+		ThisApp->GetConfig()->IsRemoveFolder() ? 1 : 0);
 
 	for (int i = 0; i < files->GetCount();i++)
 	{
