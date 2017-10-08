@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../LdLib.h"
 #include "VolumeUtils.h"
 
 namespace LeadowLib {

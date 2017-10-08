@@ -1,9 +1,12 @@
 #pragma once
 
 #include <winternl.h>
-#include "LdStructs.h"
+#include "classes/LdString.h"
 
 namespace LeadowLib {
+
+#define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
+
 	enum WIN_OS_TYPE
 	{
 		Windows_2000,

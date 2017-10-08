@@ -4,8 +4,7 @@
 功能模块动态库管理单元。
 */
 
-#include "../LdFileEraser/ErasureLibrary.h"
-#include "../LdFileProtect/ProtectLibrary.h"
+#include "../LdApp/LdApp.h"
 
 class CLdLibray
 {

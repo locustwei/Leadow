@@ -1,14 +1,8 @@
 #include "stdafx.h"
 #include "Config.h"
 
-CConfig* AppConfig = nullptr;
-
-
-CConfig::CConfig():CLdConfig()
+CConfig::CConfig():CDynObject()
 {
-	CLdString& appPath = ThisApp->GetAppDataPath();
-	m_ConfigFileName = appPath;
-	m_ConfigFileName += "dydot.cng";
 }
 
 
@@ -84,12 +78,4 @@ void CConfig::SetErasureFreeFileSpace(BOOL value)
 void CConfig::SetShutDown(BOOL value)
 {
 	AddConfigObject("erasure/volume/shutdown", value);
-}
-
-void CConfig::LoadConfig()
-{
-	if (AppConfig)
-		return;
-	AppConfig = new CConfig;
-	AppConfig->LoadConfig();
 }

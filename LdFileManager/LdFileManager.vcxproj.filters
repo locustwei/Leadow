@@ -36,9 +36,6 @@
     <ClCompile Include="executor\Executor.cpp">
       <Filter>Executor</Filter>
     </ClCompile>
-    <ClCompile Include="Config.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">

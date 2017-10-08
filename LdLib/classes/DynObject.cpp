@@ -1,7 +1,8 @@
 #include "stdafx.h"
-#include "LdConfig.h"
+#include "DynObject.h"
 #include <Shlwapi.h>
 #include <sstream>
+#include "../file/FileUtils.h"
 
 #pragma warning(disable:4018)
 #pragma comment(lib,"Shlwapi.lib")
@@ -10,30 +11,30 @@ using namespace std;
 
 namespace LeadowLib {
 
-	CLdConfig::CLdConfig()
+	CDynObject::CDynObject()
 		:m_Config()
-		, m_ConfigFileName()
 	{
 
 	}
 
 
-	CLdConfig::~CLdConfig()
+	CDynObject::~CDynObject()
 	{
 	}
 
-	BOOL CLdConfig::LoadConfig()
+	BOOL CDynObject::LoadFromFile(TCHAR* FileName)
 	{
 		try {
-			if(!PathFileExistsA(m_ConfigFileName))
+			if(!PathFileExists(FileName))
 			{
-				CLdString tmp = (char*)m_ConfigFileName;
+				CLdString tmp = FileName;
 				CLdString path((UINT)MAX_PATH);
 				CFileUtils::ExtractFilePath(tmp, path.GetData());
 				if (CFileUtils::ForceDirectories(path) != 0)
 					return FALSE;
 			}
-			m_Config.loadFromFile(m_ConfigFileName);
+			CLdStringA string = FileName;
+			m_Config.loadFromFile(string);
 			return TRUE;
 		}catch(...)
 		{
@@ -41,10 +42,11 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CLdConfig::SaveConfig()
+	BOOL CDynObject::SaveToFile(TCHAR* FileName)
 	{
 		try {
-			m_Config.writeToFile(m_ConfigFileName);
+			CLdStringA string = FileName;
+			m_Config.writeToFile(string);
 			return TRUE;
 		}
 		catch (...)
@@ -53,7 +55,7 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CLdConfig::PrepareStr(TCHAR* szJson)
+	BOOL CDynObject::PrepareStr(TCHAR* szJson)
 	{
 		CLdStringA s = szJson;
 
@@ -61,20 +63,20 @@ namespace LeadowLib {
 		return TRUE;
 	}
 
-	void CLdConfig::operator=(CLdConfig & source)
+	void CDynObject::operator=(CDynObject & source)
 	{
 		m_Config = source.m_Config;
 	}
 
-	int CLdConfig::GetDataType(CLdStringA Path)
+	int CDynObject::GetDataType(CLdStringA Path)
 	{
-		JsonBox::Value val = GetConfigObject(Path);
+		CDynObjectValue val = GetConfigObject(Path);
 		return val.getType();
 	}
 
-	int CLdConfig::GetArrayCount(CLdStringA Path)
+	int CDynObject::GetArrayCount(CLdStringA Path)
 	{
-		JsonBox::Value val = GetConfigObject(Path);
+		CDynObjectValue val = GetConfigObject(Path);
 		if (val.getType() != JsonBox::Value::ARRAY)
 			return 0;
 		else
@@ -83,51 +85,51 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CLdConfig::GetBoolean(CLdStringA Path, BOOL def, int index)
+	BOOL CDynObject::GetBoolean(CLdStringA Path, BOOL def, int index)
 	{
-		JsonBox::Value val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetConfigObject(Path, index);
 		return val.tryGetBoolean(def == TRUE);
 	}
 
-	double CLdConfig::GetDouble(CLdStringA Path, double def, int index)
+	double CDynObject::GetDouble(CLdStringA Path, double def, int index)
 	{
-		JsonBox::Value val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetConfigObject(Path, index);
 		return val.tryGetDouble(def);
 	}
 
-	float CLdConfig::GetFloat(CLdStringA Path, float def, int index)
+	float CDynObject::GetFloat(CLdStringA Path, float def, int index)
 	{
-		JsonBox::Value val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetConfigObject(Path, index);
 		return val.tryGetFloat(def);
 	}
 
-	int CLdConfig::GetInteger(CLdStringA Path, int def, int index)
+	int CDynObject::GetInteger(CLdStringA Path, int def, int index)
 	{
-		JsonBox::Value val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetConfigObject(Path, index);
 		return val.tryGetInteger(def);
 	}
 
-	CLdString CLdConfig::GetString(CLdStringA Path, TCHAR* def, int index)
+	CLdString CDynObject::GetString(CLdStringA Path, TCHAR* def, int index)
 	{
-		JsonBox::Value val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetConfigObject(Path, index);
 		CLdString result;
 		result = val.getString().c_str();
 		if (result.IsEmpty() && !def)
 			result = def;
 		return result;
 	}
-	void CLdConfig::AddArrayValue(CLdStringA Path, JsonBox::Value value)
+	void CDynObject::AddArrayValue(CLdStringA Path, CDynObjectValue value)
 	{
 		int k = GetArrayCount(Path);
 		AddConfigObject(Path, value, k);
 	}
 
-	JsonBox::Value CLdConfig::GetConfigObject(CLdStringA string, int index)
+	CDynObjectValue CDynObject::GetConfigObject(CLdStringA string, int index)
 	{
 		int len = string.GetLength();
 		char* p = string.GetData();
-		JsonBox::Value * parent = &m_Config;
-		JsonBox::Value * value = nullptr; // JsonBox::Value::NULL_VALUE;
+		CDynObjectValue * parent = &m_Config;
+		CDynObjectValue * value = nullptr; // JsonBox::Value::NULL_VALUE;
 
 		for (int i = 0; i < len; i++)
 		{
@@ -155,12 +157,12 @@ namespace LeadowLib {
 			return *value;
 	}
 
-	void CLdConfig::AddConfigObject(CLdStringA string, JsonBox::Value value, int index)
+	void CDynObject::AddConfigObject(CLdStringA string, CDynObjectValue value, int index)
 	{
 		int len = string.GetLength();
 		//CLdMap<char*, JsonBox::Value> objs;
 		char* p = string.GetData();
-		JsonBox::Value* parent = &m_Config;
+		CDynObjectValue* parent = &m_Config;
 
 		for (int i = 0; i < len; i++)
 		{
@@ -179,7 +181,7 @@ namespace LeadowLib {
 			}
 		}
 		//objs.Put(p, parent);
-		JsonBox::Value* v = &(*parent)[p];
+		CDynObjectValue* v = &(*parent)[p];
 
 		if (index != -1)
 		{ //数组下标
@@ -199,7 +201,7 @@ namespace LeadowLib {
 //			m_Config = *pItem;
 	}
 
-	CLdStringW CLdConfig::ToString()
+	CLdStringW CDynObject::ToString()
 	{
 		std::ostringstream stream;
 		m_Config.writeToStream(stream, false, false);

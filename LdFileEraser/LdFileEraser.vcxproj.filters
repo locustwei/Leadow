@@ -47,9 +47,6 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ErasureLibrary.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="eraser\ErasureThread.h">
       <Filter>Erasure</Filter>
     </ClInclude>

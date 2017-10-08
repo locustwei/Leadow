@@ -24,19 +24,13 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LdSocket.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="LdStructs.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="PublicRoutimes.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LdApp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="LdConfig.h">
+    <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,16 +38,10 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LdSocket.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="PulicRoutimes.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="LdApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LdConfig.cpp">
+    <ClCompile Include="Config.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "LdProcessCommunication.h"
-
+#include "../LdApp/LdStructs.h"
 
 
 CLdProcessCommunication::CLdProcessCommunication()

@@ -5,7 +5,7 @@
 #include "stdafx.h"
 #include "MainWnd.h"
 #include "MainCommunication.h"
-#include "Config.h"
+#include "../LdApp/LdApp.h"
 
 #define APP_TITLE _T("DYDOT File Manager")
 
@@ -16,7 +16,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 
 	if (!CLdApp::Initialize(hInstance))
 		return 0;
-	CConfig::LoadConfig();
 	CPaintManagerUI::SetInstance(hInstance);
 #ifdef _DEBUG
 	CPaintManagerUI::SetResourcePath(CPaintManagerUI::GetInstancePath() + _T("skin"));

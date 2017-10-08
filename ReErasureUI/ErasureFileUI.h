@@ -6,7 +6,7 @@
 
 //#include "../eraser/ErasureThread.h"
 #include "ShFileView.h"
-#include "../LdFileEraser/ErasureLibrary.h"
+#include "../LdApp/LdStructs.h"
 
 class CErasureFileUI : 
 	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。

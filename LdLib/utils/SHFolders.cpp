@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "SHFolders.h"
 #include <Shlwapi.h>
-#include <cstdio>
 
 #pragma comment(lib,"Shlwapi.lib")
 

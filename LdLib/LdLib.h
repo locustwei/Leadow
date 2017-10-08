@@ -19,6 +19,7 @@ interface IGernalCallback
 	virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
 };
 
+
 #endif
 
 #include "classes/LdString.h"
@@ -27,14 +28,8 @@ interface IGernalCallback
 #include "classes/LdArray.h"
 #include "classes/LdMap.h"
 #include "classes/LdTree.h"
-
-/*
-#include "ldapp/LdStructs.h"
-#include "ldapp/PublicRoutimes.h"
-#include "ldapp/LdApp.h"
-#include "ldapp/LdConfig.h"
-#include "ldapp/LdSocket.h"
-*/
+#include "classes/DynObject.h"
+#include "classes/LdSocket.h"
 
 #include "file/FileInfo.h"
 #include "file/FileUtils.h"
@@ -44,9 +39,7 @@ interface IGernalCallback
 
 #include "utils/DateTimeUtils.h"
 #include "utils/DlgGetFileName.h"
-#include "utils/HandleUitls.h"
 #include "utils/FormatSettings.h"
 #include "utils/SHFolders.h"
 
-
-#define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
+#include "PublicRoutimes.h"

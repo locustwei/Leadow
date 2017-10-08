@@ -6,7 +6,7 @@
 
 
 class CConfig
-	:public CLdConfig
+	:public CDynObject
 {
 public:
 	CConfig();
@@ -27,9 +27,7 @@ public:
 	void SetErasureFreeFileSpace(BOOL value);
 	void SetShutDown(BOOL value);
 	//--------------------------------------------------------------
-	static void LoadConfig();
+	//static void LoadConfig();
 private:
 	
 };
-
-extern CConfig* AppConfig;

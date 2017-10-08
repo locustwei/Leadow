@@ -1,6 +1,6 @@
 #pragma once
 #include "LdProcessCommunication.h"
-#include "../LdFileEraser/ErasureLibrary.h"
+#include "../LdApp/LdStructs.h"
 
 typedef struct COMM_ERASE_DATA
 {

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "EraserSComm.h"
-#include "../LdFileEraser/ErasureLibrary.h"
 #include "Communications.h"
 
 void CEraserSComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
