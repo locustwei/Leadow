@@ -21,9 +21,8 @@ namespace LeadowLib {
 			m_Folder = nullptr;
 		};
 
-		virtual TCHAR* GetFullName();;
-
-		virtual TCHAR* GetFileName();;
+		virtual TCHAR* GetFullName();
+		virtual TCHAR* GetFileName();
 		virtual INT64 GetDataSize() = 0;
 		virtual DWORD GetAttributes() = 0;
 		virtual VF_FILE_TYPE GetFileType() = 0;

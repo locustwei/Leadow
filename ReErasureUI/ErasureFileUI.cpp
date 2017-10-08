@@ -3,7 +3,7 @@
 #include "EraserUI.h"
 
 CErasureFileUI::CErasureFileUI() :
-	m_ErasureFile()
+	m_file_map()
 {
 	btnOpenFile = nullptr;
 	btnOk = nullptr;
@@ -15,14 +15,14 @@ CErasureFileUI::CErasureFileUI() :
 CErasureFileUI::~CErasureFileUI()
 {
 	//m_EreaserThreads.StopThreads();
-	FreeEraseFiles(m_ErasureFile.GetFiles());
+	FreeEraseFiles(nullptr);
 }
 
 void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 {
 	for (int i = 0; i<files->GetCount(); i++)
 	{
-		CVirtualFile * file = files->Get(i);
+		/*CVirtualFile * file = files->Get(i);
 		if (file)
 		{
 			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
@@ -33,7 +33,8 @@ void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 			file->SetTag(0);
 			if (file->GetFileType() == vft_folder)
 				FreeEraseFiles(file->GetFiles());
-		}
+		}*/
+
 	}
 }
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
@@ -41,7 +42,7 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 {
 	DWORD nCount = 1;
 
-	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+	/*PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
 	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
 	pFile->SetTag((UINT_PTR)p);
 	p->ui = ui;
@@ -55,7 +56,7 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 		}
 	}
 
-	p->nCount = nCount ;
+	p->nCount = nCount ;*/
 
 	return nCount;
 }
@@ -76,7 +77,7 @@ bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 {
 	CFileInfo* info;
-	if (CFileUtils::IsDirectoryExists(file_name))
+	/*if (CFileUtils::IsDirectoryExists(file_name))
 	{
 		info = new CFolderInfo();
 		info->SetFileName(file_name);
@@ -89,7 +90,8 @@ CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 	}
 	SetFolderFilesData(info, nullptr);
 
-	m_ErasureFile.AddFile(info);
+	m_ErasureFile.AddFile(info);*/
+	m_file_map.Put(new CLdString(file_name), nullptr);
 	return info;
 }
 
@@ -109,10 +111,10 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 
 void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 {
-	for (int i = files->GetCount() - 1; i >= 0; i--)
+	/*for (int i = files->GetCount() - 1; i >= 0; i--)
 	{
 		CVirtualFile* file = files->Get(i);
-		PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
+		//PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
 		/*
 		if (pData && pData->nStatus == efs_erasured)
 		{
@@ -125,8 +127,8 @@ void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 			}
 			files->Delete(i);
 			delete file;
-		}*/
-	}
+		}#1#
+	}*/
 }
 
 void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent)
@@ -163,7 +165,6 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI
 
 bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
-	PFILE_ERASURE_DATA pEraserData;
 	CVirtualFile* p;
 
 	switch (op)
@@ -176,45 +177,12 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		break;
 	case eto_completed: //单个文件擦除完成
 						//设置擦除状态
-		/*
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue == 0)
-		{
-			pEraserData->nStatus = efs_erasured;
-		}
-		else
-		{
-			pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-			pEraserData->nStatus = efs_error;
-			pEraserData->nErrorCode = dwValue;
-			//DebugOutput(L"finished error = %d %s\n", dwValue, pFile->GetFullName());
-		}
-		for (p = pFile; p != nullptr; p = p->GetFolder())
-		{
-			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
-			if (pEraserData)
-				InterlockedIncrement(&pEraserData->nErasued);
-			//更新所属文件夹进度
-			if (pEraserData && pEraserData->ui)
-			{
-				int percent;
+		
 
-				if (pEraserData->nCount == 0 || pEraserData->nErasued > pEraserData->nCount)
-					percent = 100;
-				else
-					percent = pEraserData->nErasued * 100 / pEraserData->nCount;
 			
 				UpdateEraseProgressMsg(pEraserData, pEraserData->ui, percent);
-				break;
-			}
-		}
 		break;
 	case eto_progress: //单个文件进度
-		for (p = pFile; p != nullptr; p = p->GetFolder())
-		{
-			pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
-			if (pEraserData && pEraserData->ui)
-			{
 				CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 				if (col)
 				{
@@ -224,13 +192,10 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 						col->SetTag(0);
 					col->NeedUpdate();
 				}
-				break;
-			}
-		}
 		break;
-		*/
+		
 	case eto_finished:
-		DeleteErasuredFile(m_ErasureFile.GetFiles());
+		DeleteErasuredFile(nullptr);
 		btnOk->SetTag(0);
 		btnOk->SetEnabled(true);
 		btnOk->SetText(L"执行");
@@ -243,7 +208,7 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 
 void CErasureFileUI::StatErase()
 {
-	ExecuteFileErase(this, m_ErasureFile.GetFiles());
+	ExecuteFileErase(this, m_file_map.GetKeyArrary());
 	//m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
 	//m_EreaserThreads.StartEreasure(10);
 }
@@ -254,7 +219,7 @@ DUI_END_MESSAGE_MAP()
 
 void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData)
 {
-	PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
+	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
 	
 	if(pColumeData)
 		p->ui = (CControlUI*)AddRecord(pColumeData);

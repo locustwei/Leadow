@@ -70,13 +70,13 @@ namespace LeadowLib {
 
 	int CDynObject::GetDataType(CLdStringA Path)
 	{
-		CDynObjectValue val = GetConfigObject(Path);
+		CDynObjectValue val = GetDynObject(Path);
 		return val.getType();
 	}
 
 	int CDynObject::GetArrayCount(CLdStringA Path)
 	{
-		CDynObjectValue val = GetConfigObject(Path);
+		CDynObjectValue val = GetDynObject(Path);
 		if (val.getType() != JsonBox::Value::ARRAY)
 			return 0;
 		else
@@ -87,31 +87,31 @@ namespace LeadowLib {
 
 	BOOL CDynObject::GetBoolean(CLdStringA Path, BOOL def, int index)
 	{
-		CDynObjectValue val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetBoolean(def == TRUE);
 	}
 
 	double CDynObject::GetDouble(CLdStringA Path, double def, int index)
 	{
-		CDynObjectValue val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetDouble(def);
 	}
 
 	float CDynObject::GetFloat(CLdStringA Path, float def, int index)
 	{
-		CDynObjectValue val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetFloat(def);
 	}
 
 	int CDynObject::GetInteger(CLdStringA Path, int def, int index)
 	{
-		CDynObjectValue val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetInteger(def);
 	}
 
 	CLdString CDynObject::GetString(CLdStringA Path, TCHAR* def, int index)
 	{
-		CDynObjectValue val = GetConfigObject(Path, index);
+		CDynObjectValue val = GetDynObject(Path, index);
 		CLdString result;
 		result = val.getString().c_str();
 		if (result.IsEmpty() && !def)
@@ -121,10 +121,10 @@ namespace LeadowLib {
 	void CDynObject::AddArrayValue(CLdStringA Path, CDynObjectValue value)
 	{
 		int k = GetArrayCount(Path);
-		AddConfigObject(Path, value, k);
+		AddObjectAttribute(Path, value, k);
 	}
 
-	CDynObjectValue CDynObject::GetConfigObject(CLdStringA string, int index)
+	CDynObjectValue CDynObject::GetDynObject(CLdStringA string, int index)
 	{
 		int len = string.GetLength();
 		char* p = string.GetData();
@@ -157,7 +157,7 @@ namespace LeadowLib {
 			return *value;
 	}
 
-	void CDynObject::AddConfigObject(CLdStringA string, CDynObjectValue value, int index)
+	void CDynObject::AddObjectAttribute(CLdStringA string, CDynObjectValue value, int index)
 	{
 		int len = string.GetLength();
 		//CLdMap<char*, JsonBox::Value> objs;

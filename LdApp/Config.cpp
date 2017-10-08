@@ -47,35 +47,35 @@ BOOL CConfig::IsShutDown()
 
 void CConfig::SetFileErasureMothed(int Mothed)
 {
-	AddConfigObject("erasure/file/mothed", Mothed);
+	AddObjectAttribute("erasure/file/mothed", Mothed);
 }
 
 void CConfig::SetRemoveFolder(BOOL value)
 {
-	AddConfigObject("erasure/file/removefolder", value);
+	AddObjectAttribute("erasure/file/removefolder", value);
 }
 
 void CConfig::SetVolumeErasureMethed(int Mothed)
 {
-	AddConfigObject("erasure/volume/mothed", Mothed);
+	AddObjectAttribute("erasure/volume/mothed", Mothed);
 }
 
 void CConfig::SetSkipSpace(BOOL value)
 {
-	AddConfigObject("erasure/volume/skipspace", value);
+	AddObjectAttribute("erasure/volume/skipspace", value);
 }
 
 void CConfig::SetSkipTrack(BOOL value)
 {
-	AddConfigObject("erasure/volume/skiptrack", value);
+	AddObjectAttribute("erasure/volume/skiptrack", value);
 }
 
 void CConfig::SetErasureFreeFileSpace(BOOL value)
 {
-	AddConfigObject("erasure/volume/filefree", value);
+	AddObjectAttribute("erasure/volume/filefree", value);
 }
 
 void CConfig::SetShutDown(BOOL value)
 {
-	AddConfigObject("erasure/volume/shutdown", value);
+	AddObjectAttribute("erasure/volume/shutdown", value);
 }

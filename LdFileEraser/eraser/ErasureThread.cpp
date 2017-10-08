@@ -4,7 +4,7 @@
 
 CEreaserThrads::CEreaserThrads()
 {
-	//m_callback = callback;
+	m_callback = nullptr;
 	m_Abort = false;
 	m_hEvent = nullptr;
 	m_MaxThreadCount = 1;
@@ -301,6 +301,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
+
 	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_begin, 0))
 		return false;
 
@@ -311,11 +312,41 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
-	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_completed, dwErroCode))
-		return false;
+
+	CVirtualFile* p = m_File;
+	while(p != nullptr)
+		p = p->GetFolder();
+	if(p==m_File)
+	{
+		if (!m_Control->m_callback->EraserThreadCallback(p->GetFullName(), eto_completed, dwErroCode))
+			return false;
+	}else if(dwErroCode != 0)
+	{
+		if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_error, dwErroCode))
+			return false;
+	}
+	else
+	{
+
+		PFILE_ERASURE_DATA pEraserData = (PFILE_ERASURE_DATA)(m_File->GetTag());
+		if (pEraserData && dwErroCode == 0)
+			InterlockedIncrement(&pEraserData->nErasued);
+
+		int percent = 100;
+
+		//更新所属文件夹进度
+		if (p->GetFolder() == nullptr && pEraserData->nErasued < pEraserData->nCount)
+		{
+			percent = ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
+		}
+
+		if (!m_Control->m_callback->EraserThreadCallback(p->GetFullName(), eto_progress, percent))
+			return false;
+	}
 
 	if (m_Control->m_Abort)
 		return false;
+
 	return true;
 }
 

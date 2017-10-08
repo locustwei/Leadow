@@ -1,9 +1,9 @@
+
+#pragma once
 /*******************************************************
 擦除文件、目录窗口
 添加需擦除文件和文件夹。
 ********************************************************/
-#pragma once
-
 //#include "../eraser/ErasureThread.h"
 #include "ShFileView.h"
 #include "../LdApp/LdStructs.h"
@@ -28,17 +28,9 @@ private:
 	DWORD SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui);     //给文件附加数据，记录文件擦除状态等信息
 protected:
 
-	typedef struct FILE_ERASURE_DATA
-	{
-		E_FILE_STATE nStatus;             //擦除状态
-		DWORD        nErrorCode;          //错误代码（如果错误）
-		CControlUI* ui;                   //listView 行
-		DWORD nCount;                     //文件夹下的总的文件数
-		DWORD nErasued;                   //已经被擦除的文件数
-	}*PFILE_ERASURE_DATA;
-
 	CButtonUI* btnOk;
-	CFolderInfo m_ErasureFile;                     //要擦除的文件放在这里
+	//CFolderInfo m_ErasureFile;                     //要擦除的文件放在这里
+	CLdMap<CLdString*, CControlUI*> m_file_map;
 	CVirtualFile* AddEraseFile(TCHAR* file_name);  //添加待擦除的文件
 	void AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData = nullptr);  //在文件信息显示在ListUI中
 	bool GetViewHeader() override;                                                 //ListUI添加列头（取Windows资源管理器的列信息）

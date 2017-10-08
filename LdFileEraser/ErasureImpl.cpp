@@ -6,9 +6,6 @@
 CErasureImpl* ThisLibrary = nullptr;
 
 CErasureImpl::CErasureImpl()
-	//: m_MainWnd(nullptr)
-	//, m_Ctrl(nullptr)
-	//, m_Config(nullptr)
 	: m_hModule(nullptr)
 	, m_EraseThread()
 	, m_Files()
@@ -17,61 +14,63 @@ CErasureImpl::CErasureImpl()
 
 CErasureImpl::~CErasureImpl()
 {
-	for(int i=0; i<m_Files.GetCount();i++)
-	{
-		delete m_Files[i];
-		m_Files.Clear();
-	}
+	FreeEraseFiles(&m_Files);
 
 	ThisLibrary = nullptr;
 }
 
-//CErasureConfig* CErasureImpl::GetConfig()
-//{
-//	if(!m_Config)
-//	{
-//		m_Config = new CErasureConfig();
-//		m_Config->LoadConfig();
-//	}
-//	return m_Config;
-//}
+void CErasureImpl::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
+{
+	for (int i = 0; i<files->GetCount(); i++)
+	{
+		CVirtualFile * file = files->Get(i);
+		if (file)
+		{
+			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
+			if (pData)
+			{
+				delete pData;
+			}
+			file->SetTag(0);
+			if (file->GetFileType() == vft_folder)
+				FreeEraseFiles(file->GetFiles());
+			//delete file;
+		}
+	}
+}
 
-HMODULE CErasureImpl::GetModuleHandleW()
+HMODULE CErasureImpl::GetModuleHandle()
 {
 	return m_hModule;
 }
 
-//CFramNotifyPump* CErasureImpl::GetNotifyPump()
-//{
-//	if (!m_MainWnd)
-//	{
-//		m_MainWnd = new CErasureMainWnd();
-//	}
-//	assert(m_MainWnd);
-//
-//	return m_MainWnd;
-//}
-//
-//TCHAR* CErasureImpl::UIResorce()
-//{
-//	return _T("erasure/erasuremain.xml");
-//}
-//
-//void CErasureImpl::SetUI(CControlUI* pCtrl)
-//{
-//	m_Ctrl = pCtrl;
-//	GetNotifyPump()->AttanchControl(m_Ctrl);
-//}
-//
-//CControlUI* CErasureImpl::GetUI()
-//{
-//	return m_Ctrl;
-//}
+//设置文件的目录指向，擦除时更新隶属文件夹的进度
+DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
+{
+	DWORD nCount = 1;
+
+	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
+	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
+	pFile->SetTag((UINT_PTR)p);
+	if (pFile->GetFileType() == vft_folder)
+	{
+		//nCount = pFile->GetFiles()->GetCount();
+		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
+		{
+			CVirtualFile* file = pFile->GetFiles()->Get(i);
+			nCount += SetFolderFilesData(file);
+		}
+	}
+
+	p->nCount = nCount;
+
+	return nCount;
+}
 
 DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserThreadCallback* callback)
 {
-	int mothed = Param.GetInteger(EPN_MOTHED, 3);
-	BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
+	//int mothed = Param.GetInteger(EPN_MOTHED, 3);
+	//BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
 	int k = Param.GetArrayCount(EPN_FILE);
 	for(int i=0; i<k; i++)
 	{
@@ -93,9 +92,13 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserThreadCallback* callback
 		}
 
 		m_Files.Add(info);
+
+		SetFolderFilesData(info);
 	}
 
 	m_EraseThread.SetCallback(callback);
+	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
+	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
 	m_EraseThread.StartEreasure(10);
 

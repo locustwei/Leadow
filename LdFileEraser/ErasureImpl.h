@@ -7,8 +7,6 @@
 #include "../LdApp/LdStructs.h"
 #include "eraser/ErasureThread.h"
 
-//#include "ui/ErasureMainWnd.h"
-//#include "eraser/ErasureConfig.h"
 
 class CErasureImpl
 	:public IErasureLibrary
@@ -18,22 +16,17 @@ private:
 public:
 	CErasureImpl();
 	~CErasureImpl();
-	//CErasureConfig* GetConfig();
 	HMODULE GetModuleHandle();
 protected:
-	//CFramNotifyPump* GetNotifyPump() override;
-	//TCHAR* UIResorce() override;
-	//void SetUI(CControlUI* pCtrl) override;
-	//CControlUI* GetUI() override;
+
 
 	DWORD EraseFile(CDynObject& Param, IEraserThreadCallback* callback) override;
 private:
-	//CErasureMainWnd* m_MainWnd;
-	//CControlUI* m_Ctrl;
-	//CErasureConfig* m_Config;
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
 	CLdArray<CVirtualFile*> m_Files;
+	DWORD SetFolderFilesData(CVirtualFile * pFile);
+	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 };
 
 extern CErasureImpl* ThisLibrary;

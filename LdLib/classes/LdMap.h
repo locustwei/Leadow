@@ -9,7 +9,7 @@ namespace LeadowLib {
 	class CLdMap
 	{
 	public:
-		CLdMap() :m_Array()
+		CLdMap() :m_ArrayKey(),m_ArrayValue()
 		{
 		};
 		~CLdMap()
@@ -19,73 +19,77 @@ namespace LeadowLib {
 
 		void Clear()
 		{
-			m_Array.Clear();
+			m_ArrayKey.Clear();
+			m_ArrayValue.Clear();
+		};
+
+		CLdArray<T1>* GetKeyArrary()
+		{
+			return &m_ArrayKey; 
+		};
+
+		CLdArray<T2>* GetValueArray()
+		{
+			return &m_ArrayValue;
 		};
 
 		T2* Find(T1 key, int* pIndex = NULL)
 		{
-			for (int i = 0; i < m_Array.GetCount(); i++)
+			int k = m_ArrayKey.IndexOf(key);
+			if (k == -1)
+				return nullptr;
+			else
 			{
-				if (((MAP_ITEM*)m_Array)[i].key == key)
-				{
-					if (pIndex)
-						*pIndex = i;
-					return &((MAP_ITEM*)m_Array)[i].value;
-				}
+				if (pIndex)
+					*pIndex = k;
+				return &m_ArrayValue[k];
 			}
-			if (pIndex)
-				*pIndex = -1;
-			return NULL;
 		};
 
 		int Put(T1 key, T2 value, bool replease = false)
 		{
-			int index = -1;
-			Find(key, &index);
+			int index = m_ArrayKey.IndexOf(key);
+
 			if (index != -1)
 			{
 				if (!replease)
 					return -1;
+				m_ArrayValue.Put(index, value);
+			}else
+			{
+				m_ArrayKey.Add(key);
+				m_ArrayValue.Add(value);
 			}
 
-			MAP_ITEM Item = { key, value };
-			if (index != -1)
-			{
-				m_Array.Put(index, Item);
-				return index;
-			}
-			else
-				return m_Array.Add(Item);
+			return index;
 		};
 
 		bool Remove(T1 key)
 		{
-			int index;
-			if (Find(key, &index))
+			int index = m_ArrayKey.IndexOf(key);
+			if (index != -1)
 			{
-				m_Array.Delete(index);
+				m_ArrayKey.Delete(index);
+				m_ArrayValue.Delete(index);
 				return true;
 			}
 			else
-			{
 				return false;
-			}
-
 		};
 
 		int GetCount()
 		{
-			return m_Array.GetCount();
+			return m_ArrayKey.GetCount();
 		};
 
 		T1* GetAt(int index, T2** pValue = NULL)
 		{
-			if (index < 0 || index >= m_Array.GetCount())
+			if (index < 0 || index >= m_ArrayKey.GetCount())
 				return nullptr;
 
 			if (pValue)
-				*pValue = &m_Array[index].value;
-			return &m_Array[index].key;
+				*pValue = &m_ArrayValue[index];
+			return &m_ArrayKey[index];
 		};
 
 		T2* operator[](T1 key)
@@ -95,46 +99,33 @@ namespace LeadowLib {
 
 		int IndexOfKey(T1 key)
 		{
-			for (int i = 0; i < m_Array.GetCount(); i++)
-			{
-				if (((MAP_ITEM*)m_Array)[i].key == key)
-				{
-					return i;
-				}
-			}
-			return -1;
+			return m_ArrayKey.IndexOf(key);
 		};
 
 		int IndexOfValue(T2 value)
 		{
-			for (int i = 0; i < m_Array.GetCount(); i++)
-			{
-				if (((MAP_ITEM*)m_Array)[i].value == value)
-				{
-					return i;
-				}
-			}
-			return -1;
+			return m_ArrayValue.IndexOf(value);
 		};
 
 		T1& KeyOf(int index)
 		{
-			return ((MAP_ITEM*)m_Array)[index].key;
+			return m_ArrayKey[index];
 		};
 
 		T2& ValueOf(int index)
 		{
-			return ((MAP_ITEM*)m_Array)[index].value;
+			return m_ArrayValue[index];
 		};
 
 	protected:
-		struct MAP_ITEM
-		{
-			T1 key;
-			T2 value;
-		};
+//		struct MAP_ITEM
+//		{
+//			T1 key;
+//			T2 value;
+//		};
 
-		CLdArray<MAP_ITEM> m_Array;
+		CLdArray<T1> m_ArrayKey;
+		CLdArray<T2> m_ArrayValue;
 	};
 
 	template <typename T>
