@@ -1,14 +1,21 @@
-/**************************************************
-文件、磁盘擦除线程管理调度。
-这个单元负责多线程同步问题处理，以及擦除对象与界面的
-联系。
-***************************************************/
 
 #pragma once
+
+/**************************************************
+文件、磁盘擦除线程管理调度。
+这个单元负责多线程同步问题处理，以及擦除对象与界面的联系。
+***************************************************/
+
 #include "Erasure.h"
 #include "../LdApp/LdStructs.h"
 
-class CVolumeEx;
+typedef struct FILE_ERASURE_DATA
+{
+	E_FILE_STATE nStatus;             //擦除状态
+	DWORD        nErrorCode;          //错误代码（如果错误）
+	DWORD nCount;                     //文件夹下的总的文件数
+	DWORD nErasued;                   //已经被擦除的文件数
+}*PFILE_ERASURE_DATA;
 
 //擦除选项。
 typedef struct ERASER_OPTIONS

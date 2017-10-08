@@ -19,7 +19,7 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CDynObject& Params)
 			mothed = CLdStringW::Try2Int(p, -1);
 			if (mothed == -1)
 				return false;
-			Params.AddConfigObject(EPN_MOTHED, mothed);
+			Params.AddObjectAttribute(EPN_MOTHED, mothed);
 		}
 		else if (wcsnicmp(lpParams[i], EPN_FILE, wcslen(EPN_FILE)) == 0)
 		{
@@ -42,11 +42,15 @@ bool AnalEraseFileParam(LPWSTR* lpParams, int nParamCount, CDynObject& Params)
 		}
 		else if (wcsnicmp(lpParams[i], EPN_UNDELFOLDER, wcslen(EPN_UNDELFOLDER)) == 0)
 		{
-			Params.AddConfigObject(EPN_UNDELFOLDER, true);
+			Params.AddObjectAttribute(EPN_UNDELFOLDER, true);
 		}
 		else
 			return false;
 	}
+	if (Params.GetDataType(EPN_MOTHED) == 6)
+		Params.AddObjectAttribute(EPN_MOTHED, ThisApp->GetConfig()->GetFileErasureMothed());
+	if (Params.GetDataType(EPN_UNDELFOLDER) == 6)
+		Params.AddObjectAttribute(EPN_UNDELFOLDER, ThisApp->GetConfig()->IsRemoveFolder());
 	return true;
 }
 

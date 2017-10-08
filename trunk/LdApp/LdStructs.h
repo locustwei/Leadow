@@ -2,39 +2,37 @@
 
 
 //进程启动后与向主进程建立通信发送函数ID，以确认身份。（ID与参数对应）
-	enum LD_FUNCTION_ID
-	{
-		LFI_EARSE_FILE
-	};
+enum LD_FUNCTION_ID
+{
+	LFI_EARSE_FILE
+};
 
-
-	//调用功能函数的标志。
-	enum LD_FUNCTION_FLAG
-	{
-		LFF_NONE = 0x0,
-		LFF_NEW_PROCESS = 0x00000001,
-		LFF_NEW_WINDOW = 0x00000002,
-		LFF_AS_ADMIN = 0x80000000,
-	};
-
+//调用功能函数的标志。
+enum LD_FUNCTION_FLAG
+{
+	LFF_NONE = 0x0,
+	LFF_NEW_PROCESS = 0x00000001,
+	LFF_NEW_WINDOW = 0x00000002,
+	LFF_AS_ADMIN = 0x80000000,
+};
 
 #pragma pack(push, 1)
-	//进程间通信传递的数据格式。
-	typedef struct COMMUINCATION_DATA
+//进程间通信传递的数据格式。
+typedef struct COMMUINCATION_DATA
+{
+	union
 	{
-		union
-		{
-			LD_FUNCTION_ID fId;
-			DWORD cId;
-		};
-		WORD nLength;
-		BYTE Data[1];
-	}*PCOMMUINCATION_DATA;
+		LD_FUNCTION_ID fId;
+		DWORD cId;
+	};
+	WORD nLength;
+	BYTE Data[1];
+}*PCOMMUINCATION_DATA;
 
 #pragma pack(pop)
 
 
-
+#pragma region 文件擦除
 	//调用进程命令行参数中的第一个参数，指明调用那个函数。
 #define CMD_ERASE_FILE    L"/erasefile"      //文件擦除
 #define CMD_ERASE_RECYCLE L"/eraserecycle"
@@ -65,7 +63,8 @@ enum E_THREAD_OPTION
 	eto_track,      //删除的文件痕迹
 	eto_finished,   //全部擦除完成
 	eto_analy,      //磁盘分析
-	eto_analied     //磁盘分析完成
+	eto_analied,    //磁盘分析完成
+	eto_error
 };
 
 //擦除线程回掉函数
@@ -84,3 +83,5 @@ interface LDLIB_API IErasureLibrary
 {
 	virtual DWORD EraseFile(CDynObject& Param, IEraserThreadCallback * callback) = 0;
 };
+
+#pragma endregion  

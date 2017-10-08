@@ -33,7 +33,7 @@ namespace LeadowLib {
 			CLdStringA Path, 
 			CDynObjectValue value
 		);
-		void AddConfigObject(                                       //添加属性值
+		void AddObjectAttribute(                                       //添加属性值
 			CLdStringA string,                                      //路径
 			CDynObjectValue value,                                   //值
 			int index = -1                                          //数组下标：-1不是数组。
@@ -44,7 +44,7 @@ namespace LeadowLib {
 //		CLdStringA m_ConfigFileName;
 
 	private:
-		CDynObjectValue GetConfigObject(                             //获取指定路径下的对象
+		CDynObjectValue GetDynObject(                             //获取指定路径下的对象
 			CLdStringA string,                                      //路径
 			int index = -1                                          //如果对象是数组，这是数组下标
 //			JsonBox::Value::Type type= JsonBox::Value::NULL_VALUE,  //数据类如果不为null_value,则当对象不存在时创建一个
