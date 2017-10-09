@@ -3,7 +3,8 @@
 #include "EraserUI.h"
 
 CErasureFileUI::CErasureFileUI() :
-	m_file_map()
+	//m_file_map()
+	m_ErasureFile()
 {
 	btnOpenFile = nullptr;
 	btnOk = nullptr;
@@ -15,50 +16,28 @@ CErasureFileUI::CErasureFileUI() :
 CErasureFileUI::~CErasureFileUI()
 {
 	//m_EreaserThreads.StopThreads();
-	FreeEraseFiles(nullptr);
+	FreeEraseFiles(m_ErasureFile.GetFiles());
 }
 
 void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 {
 	for (int i = 0; i<files->GetCount(); i++)
 	{
-		/*CVirtualFile * file = files->Get(i);
+		CVirtualFile * file = files->Get(i);
 		if (file)
 		{
-			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
-			if (pData)
-			{
-				delete pData;
-			}
 			file->SetTag(0);
 			if (file->GetFileType() == vft_folder)
 				FreeEraseFiles(file->GetFiles());
-		}*/
+		}
 
 	}
 }
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
 DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 {
-	DWORD nCount = 1;
-
-	/*PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
-	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
-	pFile->SetTag((UINT_PTR)p);
-	p->ui = ui;
-	if (pFile->GetFileType() == vft_folder)
-	{
-		//nCount = pFile->GetFiles()->GetCount();
-		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
-		{
-			CVirtualFile* file = pFile->GetFiles()->Get(i);
-			nCount += SetFolderFilesData(file, ui);
-		}
-	}
-
-	p->nCount = nCount ;*/
-
-	return nCount;
+	pFile->SetTag((UINT_PTR)ui);
+	return 0;
 }
 
 bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
@@ -77,7 +56,7 @@ bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 {
 	CFileInfo* info;
-	/*if (CFileUtils::IsDirectoryExists(file_name))
+	if (CFileUtils::IsDirectoryExists(file_name))
 	{
 		info = new CFolderInfo();
 		info->SetFileName(file_name);
@@ -87,11 +66,11 @@ CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 	{
 		info = new CFileInfo();
 		info->SetFileName(file_name);
+		
 	}
 	SetFolderFilesData(info, nullptr);
 
-	m_ErasureFile.AddFile(info);*/
-	m_file_map.Put(new CLdString(file_name), nullptr);
+	m_ErasureFile.AddFile(info);
 	return info;
 }
 
@@ -111,27 +90,10 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 
 void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 {
-	/*for (int i = files->GetCount() - 1; i >= 0; i--)
-	{
-		CVirtualFile* file = files->Get(i);
-		//PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
-		/*
-		if (pData && pData->nStatus == efs_erasured)
-		{
-			if (file->GetFileType() == vft_folder)
-				DeleteErasuredFile(file->GetFiles());
-			if (file->GetTag())
-			{
-				delete (PFILE_ERASURE_DATA)file->GetTag();
-				file->SetTag(0);
-			}
-			files->Delete(i);
-			delete file;
-		}#1#
-	}*/
+	
 }
 
-void CErasureFileUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent)
+void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 {
 	CDuiString str;
 
@@ -180,18 +142,18 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		
 
 			
-				UpdateEraseProgressMsg(pEraserData, pEraserData->ui, percent);
+				//UpdateEraseProgressMsg(pEraserData->ui, percent);
 		break;
 	case eto_progress: //单个文件进度
-				CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-				if (col)
-				{
-					if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
-						col->SetTag(dwValue);
-					if (col->GetTag() >= 100)
-						col->SetTag(0);
-					col->NeedUpdate();
-				}
+//				CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+//				if (col)
+//				{
+//					if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
+//						col->SetTag(dwValue);
+//					if (col->GetTag() >= 100)
+//						col->SetTag(0);
+//					col->NeedUpdate();
+//				}
 		break;
 		
 	case eto_finished:
@@ -208,7 +170,7 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 
 void CErasureFileUI::StatErase()
 {
-	ExecuteFileErase(this, m_file_map.GetKeyArrary());
+	//ExecuteFileErase(this, m_file_map.GetKeyArrary());
 	//m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
 	//m_EreaserThreads.StartEreasure(10);
 }
