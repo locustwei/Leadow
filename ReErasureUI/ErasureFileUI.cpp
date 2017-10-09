@@ -21,17 +21,17 @@ CErasureFileUI::~CErasureFileUI()
 
 void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 {
-	for (int i = 0; i<files->GetCount(); i++)
-	{
-		CVirtualFile * file = files->Get(i);
-		if (file)
-		{
-			file->SetTag(0);
-			if (file->GetFileType() == vft_folder)
-				FreeEraseFiles(file->GetFiles());
-		}
-
-	}
+//	for (int i = 0; i<files->GetCount(); i++)
+//	{
+//		CVirtualFile * file = files->Get(i);
+//		if (file)
+//		{
+//			file->SetTag(0);
+//			if (file->GetFileType() == vft_folder)
+//				FreeEraseFiles(file->GetFiles());
+//		}
+//
+//	}
 }
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
 DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
@@ -65,8 +65,7 @@ CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 	else
 	{
 		info = new CFileInfo();
-		info->SetFileName(file_name);
-		
+		info->SetFileName(file_name);		
 	}
 	SetFolderFilesData(info, nullptr);
 
@@ -182,13 +181,13 @@ DUI_END_MESSAGE_MAP()
 void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
-	
+	CControlUI* ui;
 	if(pColumeData)
-		p->ui = (CControlUI*)AddRecord(pColumeData);
+		ui = (CControlUI*)AddRecord(pColumeData);
 	else
-		p->ui = AddFile(pFile->GetFullName());
+		ui = AddFile(pFile->GetFullName());
 
-	CControlUI* col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
 	{
 		col->SetTag(0);
@@ -201,7 +200,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeDat
 			desc->SetText(s);
 		}
 	}
-	col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
+	col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
 	if (col)
 	{
 		col->SetTag(0);
@@ -213,12 +212,12 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeDat
 			if (pFile->GetFileType() == vft_folder)
 			{
 				CFileUtils::FormatFileSize(pFile->GetDataSize(), strSize);
-				s.Format(_T("包含数%d个文件（文件夹），合计%s"), p->nCount, strSize);
+				s.Format(_T("包含数%d个文件（文件夹），合计%s"), ((CFolderInfo*)pFile)->GetFilesCount(true), strSize);
 				desc->SetText(s);
 			}
 			else
 			{
-				CLdArray<CVirtualFile*>* streams = pFile->GetFiles();
+				CLdArray<CVirtualFile*>* streams = ((CFileInfo*)pFile)->GetADStreams();
 				if (streams && streams->GetCount()>0)
 				{
 					INT64 nSize = 0;
