@@ -28,6 +28,8 @@ namespace LeadowLib {
 				CFolderInfo* pFile = (CFolderInfo*)pFolder->m_Files[k];
 				pFile->FindFiles(bTree);
 				pFolder->m_AttributeData.nFileSize += pFile->GetDataSize();
+				pFolder->m_AttributeData.nFileCount += pFile->m_AttributeData.nFileCount;
+				pFolder->m_AttributeData.nFolderCount += pFile->m_AttributeData.nFolderCount;
 			}
 
 			return true;
@@ -82,7 +84,7 @@ namespace LeadowLib {
 	CFileInfo::~CFileInfo()
 	{
 		if (m_Folder)
-			m_Folder->GetFiles()->Remove(this);
+			((CFolderInfo*)m_Folder)->GetFiles()->Remove(this);
 		if(m_Streams)
 		{
 			for (int i = 0; i < m_Streams->GetCount(); i++)
@@ -165,7 +167,7 @@ namespace LeadowLib {
 		return true;
 	}
 
-	CLdArray<CVirtualFile*>* CFileInfo::GetFiles()
+	CLdArray<CVirtualFile*>* CFileInfo::GetADStreams()
 	{
 		if (m_FileName.IsEmpty())
 			return nullptr;
@@ -193,7 +195,7 @@ namespace LeadowLib {
 
 	void CFileInfo::ClearValue()
 	{
-		ZeroMemory(&m_AttributeData, sizeof(WIN32_FILE_ATTRIBUTE_DATA));
+		ZeroMemory(&m_AttributeData, sizeof(FILE_ATTRIBUTE_DATA));
 		m_AttributeData.nFileSize = -1;  //标志没数据
 		m_FileName.Empty();
 	}
@@ -257,9 +259,12 @@ namespace LeadowLib {
 		m_Files.Sort(&impl);
 	}
 
-	UINT CFolderInfo::GetFilesCount() const
+	UINT CFolderInfo::GetFilesCount(bool bTree) const
 	{
-		return m_Files.GetCount();
+		if (!bTree)
+			return m_Files.GetCount();
+		else
+			return m_AttributeData.nFileCount;
 	}
 
 	CFolderInfo::CFolderInfo() :
@@ -291,6 +296,10 @@ namespace LeadowLib {
 		pFile->m_Folder = this;
 		GetFileBasicInfo();
 		m_AttributeData.nFileSize += pFile->GetDataSize();
+		m_AttributeData.nFolderCount++;
+		if (pFile->GetFileType() == vft_file)
+			m_AttributeData.nFileCount++;
+
 		return m_Files.Add(pFile);
 	}
 
