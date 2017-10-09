@@ -64,7 +64,7 @@ namespace LeadowLib {
 		//更改对象指向文件文件
 		virtual bool SetFileName(TCHAR* pFileName);
 		bool SetFindData(const TCHAR* pPath, PWIN32_FIND_DATA pData);
-		//目录下的文件
+		//ADS文件交换数据流
 		CLdArray<CVirtualFile*>* GetFiles() override ;
 
 		//文件属性-----------------------------------------------------------------------------
