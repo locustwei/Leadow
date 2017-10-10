@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "SHFolders.h"
 #include <Shlwapi.h>
+#include <propkey.h>
 
 #pragma comment(lib,"Shlwapi.lib")
 
@@ -29,12 +30,23 @@ namespace LeadowLib {
 		LPITEMIDLIST pidl = nullptr;
 
 		PCUITEMID_CHILD pidl2 = nullptr;
-
-		hr = GetFileItemid(lpFullName, &pidl);
-		if (SUCCEEDED(hr))
+		
+		TCHAR* lpName = _tcsrchr(lpFullName, '\\');
+		if (lpName == nullptr || _tcslen(lpName) == 1)
 		{
+			hr = GetFileItemid(lpFullName, &pidl);
 			hr = SHBindToParent(pidl, IID_IShellFolder2, (void**)&pFolder, &pidl2);
 		}
+		else
+		{
+			CLdString str = lpFullName;
+			str.Delete(lpName - lpFullName, 260);
+			hr = GetShellFolder(str, (IShellFolder2**)&pFolder, nullptr);
+			ULONG eaten;
+			hr = pFolder->ParseDisplayName(nullptr, nullptr, ++lpName, &eaten, &pidl, nullptr);
+			pidl2 = pidl;
+		}
+
 		if (SUCCEEDED(hr))
 		{
 			//values->Add((TCHAR*)pidl);
@@ -50,7 +62,7 @@ namespace LeadowLib {
 					break;
 
 				TCHAR* szTemp = nullptr;
-				StrRetToStr(&sd.str, pidl2, &szTemp);
+				StrRetToStr(&sd.str, pidl, &szTemp);
 				TCHAR* sz = new TCHAR[_tcslen(szTemp) + 1];
 				_tcscpy(sz, szTemp);
 				values->Add(sz);
@@ -94,6 +106,7 @@ namespace LeadowLib {
 	{
 		HRESULT       hr;
 		LPITEMIDLIST pidl = nullptr;
+		LPSHELLFOLDER	pDesktop = NULL;
 		//PCUITEMID_CHILD pidl2 = nullptr;
 
 		hr = GetFileItemid(lpFullName, &pidl);
@@ -101,8 +114,15 @@ namespace LeadowLib {
 		{
 			if (pidlist)
 				*pidlist = pidl;
-			hr = SHBindToObject(nullptr, pidl, nullptr, IID_IShellFolder2, (void**)pFolder);
+			//hr = SHBindToObject(nullptr, pidl, nullptr, IID_IShellFolder2, (void**)pFolder);
+			hr = SHGetDesktopFolder(&pDesktop);
+			if (SUCCEEDED(hr))
+			{
+				hr = pDesktop->BindToObject(pidl, nullptr, IID_IShellFolder2, (LPVOID *)pFolder);
+			}
 
+			if (pDesktop)
+				pDesktop->Release();
 			if (!pidlist)
 				CoTaskMemFree(pidl);
 		}
