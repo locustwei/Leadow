@@ -130,6 +130,7 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 	if (!p)
 		return false;
 	CControlUI* ui = (CControlUI*)p->GetTag();
+	CControlUI* col;
 	switch (op)
 	{
 	case eto_start:  //总进度开始
@@ -142,7 +143,7 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		UpdateEraseProgressMsg(ui, 0);
 		break;
 	case eto_progress: //单个文件进度
-		CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+		col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 		if (col)
 		{
 			if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。

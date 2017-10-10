@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include "../Jsonlib/JsonBox.h"
 #include <sqlext.h>
+#include <Propkey.h>
 
 #import "C:\\Program Files (x86)\\Common Files\\System\\ado\\msado15.dll" no_namespace rename("EOF", "ADOEOF")
 
@@ -133,6 +134,9 @@ public:
 class CServerImpl : public IServerListener
 {
 public:
+	void OnAccept(CLdServerSocket*, SOCKET) override
+	{
+	};
 	CLdArray<CLdClientSocket*> Clients;
 
 	void SetSocket(CLdSocket*) override
@@ -143,16 +147,6 @@ public:
 	};
 	void OnError(CLdSocket*, int) override
 	{};
-	void OnAccept(CLdServerSocket* socket, CLdClientSocket* pClient) override
-	{
-		pClient->Send("123456789", 10);
-		if(pClient->Recv() == SOCKET_ERROR)
-			printf("OnAccepts s=%d\n", WSAGetLastError());
-
-		printf("OnAccepts s=%d\n", (int)socket->GetHandle());
-		Clients.Add(pClient);
-		pClient->SetListener(new CClientImpl);
-	};
 };
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -188,14 +182,14 @@ int _tmain(int argc, _TCHAR* argv[])
 //	Sleep(100);
 	//socket1.Close();
 
-	CLdConfig c;
-	c.AddArrayValue("abc", "c:\\dddd\\ss gdss\\sss.txt");
-	c.AddArrayValue("abc", "d:\\sssss\\ssss dddd\\ee.exe");
-	c.AddConfigObject("sss\\ss", 123);
-	c.AddConfigObject("www", "ssss");
+	CLdArray<TCHAR*> values;
 
-
-	printf("%d %S\n",10, c.ToString().GetData());
+	CSHFolders::GetFileAttributeValue(L"I:\\workspace", &values);
+	for(int I=0; I<values.GetCount(); I++)
+	{
+		printf("%S\n", values[I]);
+		delete values[I];
+	}
 
 	printf("\npress any key exit");
 	getchar();
