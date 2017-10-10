@@ -126,8 +126,10 @@ void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 
 bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
-	CVirtualFile* p;
-
+	CVirtualFile* p = m_ErasureFile.Find(FileName);
+	if (!p)
+		return false;
+	CControlUI* ui = (CControlUI*)p->GetTag();
 	switch (op)
 	{
 	case eto_start:  //总进度开始
@@ -136,25 +138,22 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		break;
 	case eto_begin:  
 		break;
-	case eto_completed: //单个文件擦除完成
-						//设置擦除状态
-		
-
-			
-				//UpdateEraseProgressMsg(pEraserData->ui, percent);
+	case eto_completed: //单个文件擦除完成 //设置擦除状态
+		UpdateEraseProgressMsg(ui, 0);
 		break;
 	case eto_progress: //单个文件进度
-//				CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-//				if (col)
-//				{
-//					if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
-//						col->SetTag(dwValue);
-//					if (col->GetTag() >= 100)
-//						col->SetTag(0);
-//					col->NeedUpdate();
-//				}
+		CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+		if (col)
+		{
+			if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
+				col->SetTag(dwValue);
+			if (col->GetTag() >= 100)
+				col->SetTag(0);
+			col->NeedUpdate();
+		}
 		break;
-		
+	case eto_error:
+		break;
 	case eto_finished:
 		DeleteErasuredFile(nullptr);
 		btnOk->SetTag(0);
@@ -170,22 +169,16 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 void CErasureFileUI::StatErase()
 {
 	//ExecuteFileErase(this, m_file_map.GetKeyArrary());
-	//m_EreaserThreads.SetEreaureFiles(m_ErasureFile.GetFiles());
-	//m_EreaserThreads.StartEreasure(10);
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
-void CErasureFileUI::AddFileUI(CVirtualFile* pFile, CLdArray<TCHAR*>* pColumeData)
+void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
-	CControlUI* ui;
-	if(pColumeData)
-		ui = (CControlUI*)AddRecord(pColumeData);
-	else
-		ui = AddFile(pFile->GetFullName());
+	CControlUI* ui = AddFile(pFile->GetFullName());
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
