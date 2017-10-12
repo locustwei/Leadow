@@ -169,7 +169,15 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 
 void CErasureFileUI::StatErase()
 {
-	//ExecuteFileErase(this, m_file_map.GetKeyArrary());
+	if (m_ErasureFile.GetFilesCount() == 0)
+		return;
+
+	CLdArray<TCHAR*> files;
+	for(int i=0; i<m_ErasureFile.GetFilesCount(); i++)
+	{
+		files.Add(m_ErasureFile.GetFiles()->Get(i)->GetFullName());
+	}
+	ExecuteFileErase(this, &files);
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)

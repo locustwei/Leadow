@@ -4,4 +4,4 @@
 #include "ErasureMainWnd.h"
 #include "ErasureOptions.h"
 
-DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CLdString*>* files);
+DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files);

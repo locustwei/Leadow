@@ -4,7 +4,7 @@
 #include "../../LdApp/LdApp.h"
 
 
-DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>* files)
+DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files)
 {
 	CLdString param = CMD_ERASE_FILE;
 	param.Format(
@@ -20,7 +20,7 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<CVirtualFile*>*
 		param += EPN_FILE;
 		param += ':';
 		param += '\"';
-		param += files->Get(i)->GetFullName();
+		param += files[i];
 		param += '\"';
 	}
 
