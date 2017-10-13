@@ -20,7 +20,7 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files)
 		param += EPN_FILE;
 		param += ':';
 		param += '\"';
-		param += files[i];
+		param += files->Get(i);
 		param += '\"';
 	}
 

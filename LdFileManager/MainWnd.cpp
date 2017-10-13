@@ -66,10 +66,8 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 {
 	if (msg.pSender == m_btnLogo)
 	{
-		CAbout About(_T("filemanager/about.xml"));
-		About.Create(m_hWnd, _T("About"), UI_WNDSTYLE_FRAME, NULL);
-		About.CenterWindow();
-		About.ShowModal();
+		//About();
+		CMessageDlg::MessageBox(_T("abcd"), _T("1234565677676"), MB_OK, 0, m_hWnd);
 		return;
 	}
 	return __super::OnClick(msg);
@@ -102,21 +100,15 @@ void CMainWnd::InitWindow()
 	pControl->Add(control);
 	pControl->SelectItem(control);
 
-		/*m_ErasureLib = CLdLibray::LoadErasureLibrary();
-	if (m_ErasureLib)
-	{
-		CFramNotifyPump* frame = m_ErasureLib->GetNotifyPump();
-		if (frame)
-		{
-			AddVirtualWnd(frame->GetName(), frame);
-		}
-	}
-	else
-		return;
-	pControl->Add(m_ErasureLib->GetUI());
-	pControl->SelectItem(m_ErasureLib->GetUI());*/
-
 	m_btnLogo = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("logo")));
+}
+
+void CMainWnd::About()
+{
+	CAbout About(_T("filemanager/about.xml"));
+	About.Create(m_hWnd, _T("About"), UI_WNDSTYLE_FRAME, NULL);
+	About.CenterWindow();
+	About.ShowModal();
 }
 
 void CMainWnd::OnSelectChanged(TNotifyUI & msg)

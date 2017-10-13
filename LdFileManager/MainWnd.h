@@ -25,6 +25,7 @@ private:
 	//IErasureLibrary* m_ErasureLib;  //ÎÄ¼þ²Á³ýÄ£¿é
 	CButtonUI* m_btnLogo;
 	CFramNotifyPump* m_EraserUI;
+	void About();
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);

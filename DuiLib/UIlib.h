@@ -113,3 +113,4 @@
 
 #include "LeadowUI/DuiUtils.h"
 #include "LeadowUI/FramNotifyPump.h"
+#include "LeadowUI/MessageDlg.h"
