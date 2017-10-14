@@ -108,7 +108,7 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 		if (file->GetFileType()==vft_folder)
 		{
 			//目录，先递归擦除子目录文件
-			if (!ReEresareFile(file->GetFiles()/*, pThreadCount, bWait, threads*/))
+			if (!ReEresareFile(((CFolderInfo*)file)->GetFiles()/*, pThreadCount, bWait, threads*/))
 				return false;
 		}
 		
@@ -337,7 +337,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 		//更新所属文件夹进度
 		if (p->GetFolder() == nullptr && pEraserData->nErasued < pEraserData->nCount)
 		{
-			percent = ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
+			percent = (int)ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
 		}
 
 		if (!m_Control->m_callback->EraserThreadCallback(p->GetFullName(), eto_progress, percent))

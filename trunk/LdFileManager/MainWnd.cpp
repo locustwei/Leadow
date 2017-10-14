@@ -66,8 +66,7 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 {
 	if (msg.pSender == m_btnLogo)
 	{
-		//About();
-		CMessageDlg::MessageBox(_T("abcd"), _T("1234565677676"), MB_OK, 0, m_hWnd);
+		About();
 		return;
 	}
 	return __super::OnClick(msg);

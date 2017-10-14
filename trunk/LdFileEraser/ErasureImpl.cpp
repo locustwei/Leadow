@@ -33,7 +33,7 @@ void CErasureImpl::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 			}
 			file->SetTag(0);
 			if (file->GetFileType() == vft_folder)
-				FreeEraseFiles(file->GetFiles());
+				FreeEraseFiles(((CFolderInfo*)file)->GetFiles());
 			//delete file;
 		}
 	}
@@ -55,9 +55,9 @@ DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
 	if (pFile->GetFileType() == vft_folder)
 	{
 		//nCount = pFile->GetFiles()->GetCount();
-		for (int i = 0; i < pFile->GetFiles()->GetCount(); i++)
+		for (int i = 0; i < ((CFolderInfo*)pFile)->GetFiles()->GetCount(); i++)
 		{
-			CVirtualFile* file = pFile->GetFiles()->Get(i);
+			CVirtualFile* file = ((CFolderInfo*)pFile)->GetFiles()->Get(i);
 			nCount += SetFolderFilesData(file);
 		}
 	}

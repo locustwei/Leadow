@@ -20,6 +20,8 @@ namespace DuiLib {
 		dlg.m_nType = nType;
 		dlg.m_nIcon = nIcon;
 		dlg.Create(hParent, nullptr, UI_WNDSTYLE_DIALOG, 0);
+		dlg.CenterWindow();
+
 		dlg.ShowModal();
 		return 0;
 	}
@@ -63,7 +65,12 @@ namespace DuiLib {
 		//提示标题
 		CHorizontalLayoutUI* pCaption = new CHorizontalLayoutUI;
 		pCaption->SetFixedHeight(30);
+		pCaption->SetChildVAlign(DT_VCENTER);
 		pRoot->Add(pCaption);
+
+		CControlUI* logo = new CControlUI;
+		logo->SetAttributeList(m_PaintManager.GetStyleAttributeList(_T("btn_logo")));
+		pCaption->Add(logo);
 
 		CLabelUI* pTitleLabel = new CLabelUI;
 		pTitleLabel->SetFixedHeight(30);
@@ -90,11 +97,13 @@ namespace DuiLib {
 		CHorizontalLayoutUI* pBtnHor = new CHorizontalLayoutUI;
 		pBtnHor->SetFixedHeight(40);
 		pBtnHor->Add(new CControlUI);
+		pRoot->Add(pBtnHor);
 
 		CButtonUI* btn;
 
-		if(m_nType == MB_OK)
+		switch(m_nType)
 		{
+		case MB_OK:
 			btn = new CButtonUI;
 			btn->SetName(_T("okbtn"));
 			btn->SetText(_T("确定"));
@@ -102,9 +111,8 @@ namespace DuiLib {
 			btn->SetFixedWidth(60);
 			btn->SetFixedHeight(30);
 			pBtnHor->Add(btn);
-		}
-		if(m_nType & MB_YESNO)
-		{
+			break;
+		case MB_YESNO:
 			btn = new CButtonUI;
 			btn->SetName(_T("yesbtn"));
 			btn->SetText(_T("确定"));
@@ -120,9 +128,8 @@ namespace DuiLib {
 			btn->SetFixedWidth(60);
 			btn->SetFixedHeight(30);
 			pBtnHor->Add(btn);
-		}
-		if(m_nType & MB_RETRYCANCEL)
-		{
+			break;
+		case MB_RETRYCANCEL:
 			btn = new CButtonUI;
 			btn->SetName(_T("retrybtn"));
 			btn->SetText(_T("确定"));
@@ -138,10 +145,9 @@ namespace DuiLib {
 			btn->SetFixedWidth(60);
 			btn->SetFixedHeight(30);
 			pBtnHor->Add(btn);
-		}
+			break;
 
-		if(m_nType & MB_OKCANCEL)
-		{
+		case MB_OKCANCEL:
 			btn = new CButtonUI;
 			btn->SetName(_T("okbtn"));
 			btn->SetText(_T("确定"));
@@ -157,12 +163,12 @@ namespace DuiLib {
 			btn->SetFixedWidth(60);
 			btn->SetFixedHeight(30);
 			pBtnHor->Add(btn);
+			break;
 		}
 
 
 		m_PaintManager.AttachDialog(pRoot);
 		m_PaintManager.AddNotifier(this);
-		//m_PaintManager.SetBackgroundTransparent(TRUE);
 		
 		return 0;
 
