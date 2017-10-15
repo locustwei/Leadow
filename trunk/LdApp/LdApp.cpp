@@ -24,9 +24,13 @@ void DebugOutput(LPCTSTR pstrFormat, ...)
 	int nLen;
 	va_start(argList, pstrFormat);
 	nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
-	szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
-	ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
-	_vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+	szSprintf = (TCHAR*)malloc((nLen + 5) * sizeof(TCHAR));
+	ZeroMemory(szSprintf, (nLen + 5) * sizeof(TCHAR));
+	_vsntprintf(szSprintf+4, nLen + 1, pstrFormat, argList);
+	szSprintf[0] = '_';
+	szSprintf[1] = '_';
+	szSprintf[2] = 'L';
+	szSprintf[3] = 'D';
 	va_end(argList);
 	::OutputDebugString(szSprintf);
 	free(szSprintf);
@@ -124,7 +128,11 @@ DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 
 PVOID CLdApp::GetJobContext(DWORD pid)
 {
-	return m_Job[pid];
+	PVOID* result = m_Job[pid];
+	if (result)
+		return *result;
+	else
+		return nullptr;
 }
 
 CConfig* CLdApp::GetConfig()

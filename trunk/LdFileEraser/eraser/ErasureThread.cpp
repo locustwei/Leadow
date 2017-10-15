@@ -314,7 +314,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
 
 	CVirtualFile* p = m_File;
-	while(p != nullptr)
+	while(p->GetFolder() != nullptr)
 		p = p->GetFolder();
 	if(p==m_File)
 	{
