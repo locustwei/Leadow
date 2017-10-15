@@ -19,6 +19,8 @@
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
+	
+	DebugOutput(L"%S", lpCmdLine);
 
 	CLdStringW cmdLine = lpCmdLine;
 	cmdLine.Trim();
@@ -56,6 +58,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	LocalFree(lpParamStrs);
 
+	DebugOutput(L"exit");
 
 	MSG msg = { 0 };
 	while (::GetMessage(&msg, NULL, 0, 0)) {

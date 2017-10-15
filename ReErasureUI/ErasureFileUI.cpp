@@ -126,10 +126,11 @@ void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 
 bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
-	CVirtualFile* p = m_ErasureFile.Find(FileName);
-	if (!p)
-		return false;
-	CControlUI* ui = (CControlUI*)p->GetTag();
+	CVirtualFile* p = m_ErasureFile.Find(FileName, false, true);
+	
+	CControlUI* ui = nullptr;
+	if(p)
+		ui = (CControlUI*)p->GetTag();
 	CControlUI* col;
 	switch (op)
 	{

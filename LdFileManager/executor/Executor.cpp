@@ -8,7 +8,7 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files)
 {
 	CLdString param = CMD_ERASE_FILE;
 	param.Format(
-		_T("%s %s:%d %s:%d"),
+		_T(" %s %s:%d %s:%d"),
 		CMD_ERASE_FILE, EPN_MOTHED,
 		ThisApp->GetConfig()->GetFileErasureMothed(),
 		EPN_UNDELFOLDER,
@@ -25,9 +25,4 @@ DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files)
 	}
 
 	return ThisApp->RunInvoker(param, 0, (PVOID)callback);
-}
-
-bool EraserThreadCallback(CLdString fileName, E_THREAD_OPTION op, DWORD dwValue)
-{
-	return false;// g_callback->EraserThreadCallback(nullptr, op, dwValue);
 }

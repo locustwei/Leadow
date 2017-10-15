@@ -14,6 +14,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	HRESULT Hr = ::CoInitialize(NULL);
 	if (FAILED(Hr)) return 0;
 
+	DebugOutput(L"dddddd");
 	if (!CLdApp::Initialize(hInstance))
 		return 0;
 	CPaintManagerUI::SetInstance(hInstance);
