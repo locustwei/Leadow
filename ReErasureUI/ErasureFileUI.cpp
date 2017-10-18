@@ -189,7 +189,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
 	CControlUI* ui = AddFile(pFile->GetFullName());
-
+	pFile->SetTag((UINT_PTR)ui);
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
 	{
