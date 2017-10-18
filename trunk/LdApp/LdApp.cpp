@@ -128,7 +128,8 @@ DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 
 PVOID CLdApp::GetJobContext(DWORD pid)
 {
-	PVOID* result = m_Job[pid];
+	PVOID* result;
+	m_Job.GetAt(0, &result); //m_Job[pid];
 	if (result)
 		return *result;
 	else
