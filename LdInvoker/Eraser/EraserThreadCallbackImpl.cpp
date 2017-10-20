@@ -14,10 +14,10 @@ bool CEraserThreadCallbackImpl::EraserThreadCallback(TCHAR* pFile, E_THREAD_OPTI
 {
 	//if (m_Socket.IsClosed())
 		//return true;
-	if (pFile)
-		SendEraseStatus(pFile, op, dwValue);
-	else
-		SendEraseStatus(nullptr, op, dwValue);
+	SendEraseStatus(pFile, op, dwValue);
+
+	if (op == eto_finished)
+		PostQuitMessage(0);
 
 	return !m_Abort;
 }
