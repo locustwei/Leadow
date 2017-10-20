@@ -112,6 +112,11 @@ BOOL CLdApp::Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param)
 
 DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 {
+	/*
+	m_Job.Put(0, pContext);
+	return 1;
+	*/
+	
 	CLdString invoker = GetInstallPath() + INVOKER_EXE;
 	PROCESS_INFORMATION info = { 0 };
 	STARTUPINFO si = { 0 };
@@ -123,7 +128,7 @@ DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 	}
 	else
 		return 0;
-	//return ShellExecute(NULL, NULL, invoker, Param, NULL, SW_SHOWNORMAL) != NULL;
+	
 }
 
 PVOID CLdApp::GetJobContext(DWORD pid)

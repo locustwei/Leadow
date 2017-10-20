@@ -94,6 +94,9 @@ void CErasureFileUI::DeleteErasuredFile(CLdArray<CVirtualFile*>* files)
 
 void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 {
+	if (!ui)
+		return;
+
 	CDuiString str;
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
