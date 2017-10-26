@@ -129,12 +129,10 @@ void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 
 bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
-	CVirtualFile* p = m_ErasureFile.Find(FileName, false, true);
-	
+	CVirtualFile* p;	
 	CControlUI* ui = nullptr;
-	if(p)
-		ui = (CControlUI*)p->GetTag();
 	CControlUI* col;
+
 	switch (op)
 	{
 	case eto_start:  //总进度开始
@@ -147,6 +145,10 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		UpdateEraseProgressMsg(ui, 0);
 		break;
 	case eto_progress: //单个文件进度
+		p = m_ErasureFile.Find(FileName, false, true);
+		if (!p || p->GetTag() == 0)
+			break;
+		ui = (CControlUI*)p->GetTag();
 		col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 		if (col)
 		{
