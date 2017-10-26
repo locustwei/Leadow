@@ -19,7 +19,8 @@ void CEraserSComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
 	case eto_analied: break;
 	default: break;
 	}
-	m_callback->EraserThreadCallback(pEraseData->FileName, pEraseData->op, pEraseData->dwValue);
+	if(m_callback)
+		m_callback->EraserThreadCallback(pEraseData->FileName, pEraseData->op, pEraseData->dwValue);
 }
 
 CEraserSComm::CEraserSComm(): m_callback(nullptr)
