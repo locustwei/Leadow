@@ -124,6 +124,12 @@ namespace LeadowLib {
 		AddObjectAttribute(Path, value, k);
 	}
 
+	void CDynObject::AddArrayValue(CLdStringA Path, wchar_t* value)
+	{
+		CLdStringA s = value;
+		AddArrayValue(Path, s.GetData());
+	}
+
 	CDynObjectValue CDynObject::GetDynObject(CLdStringA string, int index)
 	{
 		int len = string.GetLength();
@@ -157,18 +163,18 @@ namespace LeadowLib {
 			return *value;
 	}
 
-	void CDynObject::AddObjectAttribute(CLdStringA string, CDynObjectValue value, int index)
+	void CDynObject::AddObjectAttribute(CLdStringA path, CDynObjectValue value, int index)
 	{
-		int len = string.GetLength();
+		int len = path.GetLength();
 		//CLdMap<char*, JsonBox::Value> objs;
-		char* p = string.GetData();
+		char* p = path.GetData();
 		CDynObjectValue* parent = &m_Config;
 
 		for (int i = 0; i < len; i++)
 		{
-			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
+			if (path.GetData()[i] == '\\' || path.GetData()[i] == '/')
 			{
-				string.GetData()[i] = '\0';
+				path.GetData()[i] = '\0';
 				
 				if((*parent)[p].isNull())
 					(*parent)[p] = JsonBox::Object();
@@ -177,7 +183,7 @@ namespace LeadowLib {
 				//objs.Put(p, parent);
 
 				//parent = value;
-				p = string.GetData() + i + 1;
+				p = path.GetData() + i + 1;
 			}
 		}
 		//objs.Put(p, parent);
@@ -199,6 +205,12 @@ namespace LeadowLib {
 //		}
 //		if (pItem)
 //			m_Config = *pItem;
+	}
+
+	void CDynObject::AddObjectAttribute(CLdStringA path, wchar_t* value, int index)
+	{
+		CLdStringA s = value;
+		AddObjectAttribute(path, s.GetData(), index);
 	}
 
 	CLdStringW CDynObject::ToString()

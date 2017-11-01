@@ -179,7 +179,7 @@ void CErasureFileUI::StatErase()
 		return;
 
 	CLdArray<TCHAR*> files;
-	for(int i=0; i<m_ErasureFile.GetFilesCount(); i++)
+	for(UINT i=0; i<m_ErasureFile.GetFilesCount(); i++)
 	{
 		files.Add(m_ErasureFile.GetFiles()->Get(i)->GetFullName());
 	}
@@ -212,7 +212,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 	if (col)
 	{
 		col->SetTag(0);
-		col->OnAfterPaint += MakeDelegate(this, &CErasureFileUI::OnAfterColumePaint);
+		//col->OnAfterPaint += MakeDelegate(this, &CErasureFileUI::OnAfterColumePaint);
 		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		if (desc)
 		{
