@@ -555,7 +555,7 @@ namespace LeadowLib {
 
 	void CLdStringA::Assign(wchar_t* pstr, int nLength)
 	{
-		SetLength((UINT)wcslen(pstr) + 1);
+		SetLength(((UINT)wcslen(pstr) + 1)*sizeof(wchar_t));
 		WideCharToMultiByte(CP_ACP, NULL, pstr, -1, m_pstr, (int)wcslen(pstr) * sizeof(TCHAR), NULL, FALSE);
 	}
 

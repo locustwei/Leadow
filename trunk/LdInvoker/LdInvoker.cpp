@@ -20,10 +20,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	
-	DebugOutput(L"%S", lpCmdLine);
 
 	CLdStringW cmdLine = lpCmdLine;
 	cmdLine.Trim();
+
+	DebugOutput(cmdLine.GetData());
+
 	if(cmdLine.IsEmpty())
 	{
 		//goto help

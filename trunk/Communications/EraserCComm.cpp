@@ -34,6 +34,8 @@ BOOL CEraserCComm::SendEraseStatus(TCHAR* fileName, E_THREAD_OPTION op, DWORD va
 	int len = sizeof(COMM_ERASE_DATA);
 	if (fileName)
 		len += _tcslen(fileName) * sizeof(TCHAR);
+
+
 	PCOMM_ERASE_DATA pCommData = (PCOMM_ERASE_DATA)new BYTE[len];
 	ZeroMemory(pCommData, len);
 	pCommData->op = op;

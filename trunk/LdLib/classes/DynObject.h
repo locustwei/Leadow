@@ -33,11 +33,24 @@ namespace LeadowLib {
 			CLdStringA Path, 
 			CDynObjectValue value
 		);
+
+		VOID AddArrayValue(                                         //添加数组项目
+			CLdStringA Path,
+			wchar_t* value
+		);
+
 		void AddObjectAttribute(                                       //添加属性值
-			CLdStringA string,                                      //路径
+			CLdStringA path,                                      //路径
 			CDynObjectValue value,                                   //值
 			int index = -1                                          //数组下标：-1不是数组。
 		);
+
+		void AddObjectAttribute(                                       //添加属性值
+			CLdStringA path,                                      //路径
+			wchar_t* value,                                   //值
+			int index = -1                                          //数组下标：-1不是数组。
+		);
+
 		CLdString ToString();
 	protected:
 		CDynObjectValue m_Config;
