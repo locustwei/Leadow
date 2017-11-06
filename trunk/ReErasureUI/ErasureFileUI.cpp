@@ -2,6 +2,11 @@
 #include "ErasureFileUI.h"
 #include "EraserUI.h"
 
+typedef struct _FILE_EX_DATA
+{
+	
+}FILE_EX_DATA, *PFILE_EX_DATA;
+
 CErasureFileUI::CErasureFileUI() :
 	//m_file_map()
 	m_ErasureFile()
@@ -127,6 +132,15 @@ void CErasureFileUI::UpdateEraseProgressMsg(CControlUI* ui, int Percent)
 	}
 }
 
+CControlUI* CErasureFileUI::FindFileUI(CVirtualFile* pFile)
+{
+	if (!pFile)
+		return nullptr;
+	while (pFile->GetFolder() != nullptr)
+		pFile = pFile->GetFolder();
+	return (CControlUI*)pFile->GetTag();
+}
+
 bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
 	CVirtualFile* p;	
@@ -142,17 +156,25 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 	case eto_begin:  
 		break;
 	case eto_completed: //单个文件擦除完成 //设置擦除状态
+		p = m_ErasureFile.Find(FileName, false, true);
+		ui = FindFileUI(p);
+
+		if (!p || ui == nullptr)
+			break;
+
 		UpdateEraseProgressMsg(ui, 0);
 		break;
 	case eto_progress: //单个文件进度
 		p = m_ErasureFile.Find(FileName, false, true);
-		if (!p || p->GetTag() == 0)
+		ui = FindFileUI(p);
+
+		if (!p || ui==nullptr)
 			break;
-		ui = (CControlUI*)p->GetTag();
+
 		col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 		if (col)
 		{
-			if(dwValue > col->GetTag()) //多个线程更新当前进度，保留进度最大的那个。
+			if(dwValue > col->GetTag()) //(文件夹下有多个文件)多个线程更新当前进度，保留进度最大的那个。
 				col->SetTag(dwValue);
 			if (col->GetTag() >= 100)
 				col->SetTag(0);
@@ -194,6 +216,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
 	CControlUI* ui = AddFile(pFile->GetFullName());
+
 	pFile->SetTag((UINT_PTR)ui);
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
@@ -221,23 +244,22 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 			{
 				CFileUtils::FormatFileSize(pFile->GetDataSize(), strSize);
 				s.Format(_T("包含数%d个文件（文件夹），合计%s"), ((CFolderInfo*)pFile)->GetFilesCount(true), strSize);
-				desc->SetText(s);
+				//desc->SetText(s);
 			}
-			else
+			CLdArray<CVirtualFile*>* streams = ((CFileInfo*)pFile)->GetADStreams();
+			if (streams && streams->GetCount()>0)
 			{
-				CLdArray<CVirtualFile*>* streams = ((CFileInfo*)pFile)->GetADStreams();
-				if (streams && streams->GetCount()>0)
+				INT64 nSize = 0;
+				for(int i=0; i<streams->GetCount();i++)
 				{
-					INT64 nSize = 0;
-					for(int i=0; i<streams->GetCount();i++)
-					{
-						nSize += streams->Get(i)->GetDataSize();
-					}
-					CFileUtils::FormatFileSize(nSize, strSize);
-					s.Format(_T("文件有%d个交换数据流，合计%s"), streams->GetCount(), strSize);
-					desc->SetText(s);
-				};
-			}
+					nSize += streams->Get(i)->GetDataSize();
+				}
+				CFileUtils::FormatFileSize(nSize, strSize);
+				CLdString s1;
+				s1.Format(_T("\n文件有%d个交换数据流，合计%s"), streams->GetCount(), strSize);
+				s += s1;
+			};
+			desc->SetText(s);
 		}
 	}
 }
