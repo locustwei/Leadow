@@ -38,7 +38,9 @@ protected:
 	bool OnAfterColumePaint(PVOID Param);                                          //处理列Paint事件，把列当进度条用
 	void AttanchControl(CControlUI* pCtrl) override;                   
 	void DeleteErasuredFile(CLdArray<CVirtualFile*>* files);                       //删除已经被擦除完成的记录。
-	void UpdateEraseProgressMsg(CControlUI* ui, int Percent);            //更新擦除信息（显示在ListUI中）
+	void UpdateEraseProgressMsg(CControlUI* ui, int Percent);
+	CControlUI* FindFileUI(CVirtualFile* pFile);
+	//更新擦除信息（显示在ListUI中）
 	bool EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
 };

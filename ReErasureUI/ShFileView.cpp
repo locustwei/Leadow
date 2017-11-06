@@ -55,7 +55,7 @@ CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
 CControlUI* CShFileViewUI::AddFile(TCHAR* lpFullName)
 {	
 	CLdArray<TCHAR*> values;
-	values.Add(nullptr);
+	values.Add(nullptr);  //加一个null，第0项备用不显示。
 
 	CSHFolders::GetFileAttributeValue(lpFullName, &values);
 	CControlUI* ui = AddRecord(&values);

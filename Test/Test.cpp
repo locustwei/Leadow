@@ -149,6 +149,15 @@ public:
 	{};
 };
 
+void set_locale()
+{
+	/* Set UTF16 for unicode console print on windows*/
+	if (_setmode(_fileno(stdout), _O_U16TEXT) == -1)
+	{
+		_tprintf(_T("Failed setting the unicode translation mode\n"));
+	}
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
