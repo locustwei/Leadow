@@ -23,6 +23,8 @@ namespace LeadowLib {
 	class CVirtualFile
 	{
 	public:
+		virtual ~CVirtualFile();
+
 		CVirtualFile():m_FileName()
 		{
 			m_Tag = 0;
@@ -71,7 +73,7 @@ namespace LeadowLib {
 		friend class CFolderInfo;
 	public:
 		CFileInfo();
-		virtual ~CFileInfo();
+		~CFileInfo() override;
 
 		//更改对象指向文件名
 		virtual bool SetFileName(TCHAR* pFileName);
@@ -121,6 +123,7 @@ namespace LeadowLib {
 		UINT GetFilesCount(bool bTree = false) const;
 		//查找文件，bSub:在子文件中查找，bPath：比较路径
 		CFileInfo* Find(TCHAR* pName, bool bSub = false, bool bPath = false);
+		void Remove(CFileInfo* file);
 		void Sort();
 		VF_FILE_TYPE GetFileType() override { return vft_folder; };
 	private:
