@@ -44,7 +44,10 @@ namespace LeadowLib {
 		};
 	};
 
-#pragma region CFile
+	CVirtualFile::~CVirtualFile()
+	{
+
+	}
 
 	TCHAR* CVirtualFile::GetFullName()
 	{
@@ -76,6 +79,8 @@ namespace LeadowLib {
 		return ++s;
 	}
 
+#pragma region CFile
+
 	CFileInfo::CFileInfo():m_Streams(nullptr)
 	{
 		ClearValue();
@@ -84,7 +89,7 @@ namespace LeadowLib {
 	CFileInfo::~CFileInfo()
 	{
 		if (m_Folder)
-			((CFolderInfo*)m_Folder)->GetFiles()->Remove(this);
+			((CFolderInfo*)m_Folder)->Remove(this);
 		if(m_Streams)
 		{
 			for (int i = 0; i < m_Streams->GetCount(); i++)
@@ -253,6 +258,19 @@ namespace LeadowLib {
 		return nullptr;
 	}
 
+	void CFolderInfo::Remove(CFileInfo* file)
+	{
+		if (!file || file->m_Folder != this)
+			return;
+		m_Files.Remove(file);
+		m_AttributeData.nFileSize -= file->GetDataSize();
+		if (file->GetFileType() == vft_file)
+			m_AttributeData.nFileCount--;
+		else
+			m_AttributeData.nFolderCount--;
+		file->m_Folder = nullptr;
+	}
+
 	void CFolderInfo::Sort()
 	{
 		CFindFileCallbackImpl impl;
@@ -296,9 +314,10 @@ namespace LeadowLib {
 		pFile->m_Folder = this;
 		GetFileBasicInfo();
 		m_AttributeData.nFileSize += pFile->GetDataSize();
-		m_AttributeData.nFolderCount++;
 		if (pFile->GetFileType() == vft_file)
 			m_AttributeData.nFileCount++;
+		else
+			m_AttributeData.nFolderCount++;
 
 		return m_Files.Add(pFile);
 	}
