@@ -17,10 +17,11 @@ public:
 	CEraserSComm(SOCKET s);
 	~CEraserSComm();
 	void SetContext(PVOID pContext) override;
+	BOOL SendEraseStatus(E_THREAD_OPTION op, DWORD value);
 protected:
 	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
 private:
 	//DWORD m_PID;
-	IEraserThreadCallback* m_callback;
+	IEraserListen* m_callback;
 };
 

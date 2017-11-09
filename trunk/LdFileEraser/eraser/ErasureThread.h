@@ -34,7 +34,7 @@ class CEreaserThrads :
 {
 public:
 	CEreaserThrads();
-	//CEreaserThrads(IEraserThreadCallback* callback);
+	//CEreaserThrads(IEraserListen* callback);
 	~CEreaserThrads();
 
 	void StopThreads();                                      //终止擦除
@@ -42,7 +42,7 @@ public:
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
 	DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
 	PERASER_OPTIONS GetOptions();
-	void SetCallback(IEraserThreadCallback* callback);
+	void SetCallback(IEraserListen* callback);
 protected:
 	void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -56,7 +56,7 @@ private:
 	CErasureMothed* m_FileMothed;
 	CErasureMothed* m_VolumeMothed;
 
-	IEraserThreadCallback* m_callback;  //擦除过程回掉函数，用于调用者界面操作
+	IEraserListen* m_callback;  //擦除过程回掉函数，用于调用者界面操作
 	CLdArray<CVirtualFile*>* m_Files;   //待擦除的文件
 	LONG volatile m_ThreadCount;        //当前正在运行的线程数量
 

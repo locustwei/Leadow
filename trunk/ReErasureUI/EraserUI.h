@@ -4,4 +4,5 @@
 #include "ErasureMainWnd.h"
 #include "ErasureOptions.h"
 
-DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files);
+//函数不在静态库中实现，因为这是一个界面库。
+DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files);

@@ -64,14 +64,15 @@ enum E_THREAD_OPTION
 	eto_finished,   //全部擦除完成
 	eto_analy,      //磁盘分析
 	eto_analied,    //磁盘分析完成
-	eto_error
+	eto_error,
+	eto_abort
 };
 
 //擦除线程回掉函数
-interface LDLIB_API IEraserThreadCallback
+interface LDLIB_API IEraserListen
 {
 	//public:
-	virtual bool EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
 };
 
 /*
@@ -81,7 +82,7 @@ interface LDLIB_API IEraserThreadCallback
 */
 interface LDLIB_API IErasureLibrary
 {
-	virtual DWORD EraseFile(CDynObject& Param, IEraserThreadCallback * callback) = 0;
+	virtual DWORD EraseFile(CDynObject& Param, IEraserListen * callback) = 0;
 };
 
 #pragma endregion  

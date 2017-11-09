@@ -9,6 +9,7 @@ CErasureFileUI::CErasureFileUI() :
 	btnOpenFile = nullptr;
 	btnOk = nullptr;
 	lstFile = nullptr;
+	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
 }
@@ -26,11 +27,12 @@ void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
 		CVirtualFile * file = files->Get(i);
 		if (file)
 		{
+			if (file->GetFileType() == vft_folder)
+				FreeEraseFiles(((CFolderInfo*)file)->GetFiles());
+
 			if (file->GetTag() != 0)
 				delete (PFILE_EX_DATA)file->GetTag();
 			file->SetTag(0);
-			if (file->GetFileType() == vft_folder)
-				FreeEraseFiles(((CFolderInfo*)file)->GetFiles());
 			delete file;
 		}
 
@@ -50,7 +52,7 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 	pFile->SetTag((UINT_PTR)pData);
 	return 0;
 }
-
+//把行当进度条
 bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 {
 	PUI_PAINT_PARAM pPaint = (PUI_PAINT_PARAM)Param;
@@ -63,7 +65,7 @@ bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x8008E0E0);
 	return true;
 }
-
+//添加一个待擦除文件
 CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
 {
 	CFileInfo* info;
@@ -101,16 +103,20 @@ void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
 {
 	if (!pFile)
 		return;
-
+	if (pFile->GetFileType() == vft_folder)
+		FreeEraseFiles(((CFolderInfo*)pFile)->GetFiles());
+	if (pFile->GetTag() != 0)
+		delete (PFILE_EX_DATA)pFile->GetTag();
+	delete pFile;
 }
-
-void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData)
+//擦除过程更新文件擦除状态信息
+void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
 {
 	if (!pData)
 		return;
 
 	CDuiString str;
-	int Percent = pData->nErased / pData->nFileCount * 100;
+	//int Percent = pData->nErased / pData->nFileCount * 100;
 
 	CControlUI* col = pData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
 	if (col)
@@ -118,7 +124,7 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData)
 		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		if (desc)
 		{
-			if (Percent < 100)
+			if (!bRoot)
 			{
 				str.Format(_T("已擦除%d个文件"), pData->nErased);
 			}
@@ -138,21 +144,21 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData)
 
 			desc->SetText(str);
 		}
-		col->SetTag(Percent);
+		//col->SetTag(Percent);
 		col->NeedUpdate();
 	}
 }
-
+//查找擦除文件顶层文件夹（文件）统计信息
 CErasureFileUI::PFILE_EX_DATA CErasureFileUI::GetFileData(CVirtualFile* pFile)
 {
 	if (!pFile)
 		return nullptr;
-	while (pFile->GetFolder() != nullptr)
+	while (pFile->GetFolder() != &m_ErasureFile && pFile->GetFolder() != nullptr)
 		pFile = pFile->GetFolder();
 	return (PFILE_EX_DATA)pFile->GetTag();
 }
-
-bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
+//擦除过程回掉函数
+bool CErasureFileUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
 	CVirtualFile* pFile;	
 	PFILE_EX_DATA pData;
@@ -167,14 +173,13 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 	case eto_begin:  
 		break;
 	case eto_completed: //单个文件擦除完成 //设置擦除状态
-		pFile = m_ErasureFile.Find(FileName, false, true);
+		pFile = m_ErasureFile.Find(FileName, true, true);
 		pData = GetFileData(pFile);
 
 		if (!pFile || pData == nullptr)
 			break;
 		pData->nErased++;
-
-		UpdateEraseProgressMsg(pData);
+		UpdateEraseProgressMsg(pData, pFile->GetFolder()==&m_ErasureFile);
 		DeleteErasuredFile(pFile);
 		break;
 	case eto_progress: //单个文件进度
@@ -187,15 +192,12 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 		col = pData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 		if (col)
 		{
-			if(dwValue > col->GetTag()) //(文件夹下有多个文件)多个线程更新当前进度，保留进度最大的那个。
-				col->SetTag(dwValue);
-			if (col->GetTag() >= 100)
-				col->SetTag(0);
+			col->SetTag(dwValue);
 			col->NeedUpdate();
 		}
 		break;
 	case eto_error:
-		pFile = m_ErasureFile.Find(FileName, false, true);
+		pFile = m_ErasureFile.Find(FileName, true, true);
 		pData = GetFileData(pFile);
 		if (pData)
 		{
@@ -211,14 +213,14 @@ bool CErasureFileUI::EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, D
 	default:
 		break;
 	}
-	return true;
+	return !m_Abort;
 }
 
 void CErasureFileUI::StatErase()
 {
 	if (m_ErasureFile.GetFilesCount() == 0)
 		return;
-
+	m_Abort = false;
 	CLdArray<TCHAR*> files;
 	for(UINT i=0; i<m_ErasureFile.GetFilesCount(); i++)
 	{
@@ -282,9 +284,9 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 		}
 	}
 }
-
+//随便找个路径为模板，取得资源管理器的列信息
 bool CErasureFileUI::GetViewHeader()
-{//随便找个路径为模板，取得资源管理器的列信息
+{
 	TCHAR Path[MAX_PATH] = { 0 };
 	GetSystemDirectory(Path, MAX_PATH);
 	return CSHFolders::EnumFolderColumes(Path, this, 0) == 0;
@@ -317,6 +319,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 		{//擦除没有结束，取消当前任务
 			//m_EreaserThreads.StopThreads();
 			btnOk->SetEnabled(false);
+			m_Abort = true;
 		}
 	}
 }

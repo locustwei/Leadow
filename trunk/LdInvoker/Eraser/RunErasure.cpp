@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "RunErasure.h"
 #include "../Library.h"
-#include "EraserThreadCallbackImpl.h"
+#include "EraserLinstenImpl.h"
 
 #pragma warning(disable:4996)
 
@@ -64,7 +64,7 @@ DWORD RunEraseFile(LPWSTR* lpParams, int nParamCount)
 		return 1;
 	}
 
-	CEraserThreadCallbackImpl* impl = new CEraserThreadCallbackImpl();
+	CEraserListenImpl* impl = new CEraserListenImpl();
 	if(!impl->Connect())
 	{
 		delete impl;

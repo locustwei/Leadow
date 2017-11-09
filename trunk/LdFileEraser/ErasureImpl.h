@@ -20,7 +20,7 @@ public:
 protected:
 
 
-	DWORD EraseFile(CDynObject& Param, IEraserThreadCallback* callback) override;
+	DWORD EraseFile(CDynObject& Param, IEraserListen* callback) override;
 private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;

@@ -143,7 +143,7 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 {
 	m_ThreadCount = 0;
-	m_callback->EraserThreadCallback(nullptr, eto_start, 0);
+	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
 	if (Param == 0)
 	{
 		ReEresareFile(m_Files);
@@ -168,7 +168,7 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 	{
 		Sleep(20);
 	}
-	m_callback->EraserThreadCallback(nullptr, eto_finished, 0);
+	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
 }
 //单个文件擦除
 void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
@@ -204,11 +204,11 @@ void CEreaserThrads::AnalyThreadRung(CVolumeEx* pVolume)
 		return;
 
 	DWORD error;
-	if (!m_callback->EraserThreadCallback(pVolume->GetFullName(), eto_analy, 0))
+	if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
 		error = ERROR_CANCELED;
 	else
 		error = pVolume->StatisticsFileStatus();
-	m_callback->EraserThreadCallback(pVolume->GetFullName(), eto_analied, error);
+	m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
 
 }
 
@@ -283,7 +283,7 @@ PERASER_OPTIONS CEreaserThrads::GetOptions()
 	return &m_Options;
 }
 
-void CEreaserThrads::SetCallback(IEraserThreadCallback* callback)
+void CEreaserThrads::SetCallback(IEraserListen* callback)
 {
 	m_callback = callback;
 }
@@ -302,7 +302,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
 
-	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_begin, 0))
+	if (!m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_begin, 0))
 		return false;
 
 	if (m_Control->m_Abort)
@@ -312,51 +312,43 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
-
-	CVirtualFile* p = m_File;
-	while(p->GetFolder() != nullptr)
-		p = p->GetFolder();
-	if(p==m_File)
+	if (dwErroCode == 0)
 	{
-		if (!m_Control->m_callback->EraserThreadCallback(p->GetFullName(), eto_completed, dwErroCode))
-			return false;
-	}else if(dwErroCode != 0)
-	{
-		if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), eto_error, dwErroCode))
-			return false;
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_completed, dwErroCode);
 	}
 	else
 	{
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_error, dwErroCode);
+	}
 
-		PFILE_ERASURE_DATA pEraserData = (PFILE_ERASURE_DATA)(m_File->GetTag());
+	if (m_File->GetFolder() != nullptr)  //文件夹下的文件，更新顶层文件夹的进度
+	{
+		CVirtualFile* p = m_File;
+		while (p->GetFolder() != nullptr)
+			p = p->GetFolder();
+
+		PFILE_ERASURE_DATA pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
 		if (pEraserData && dwErroCode == 0)
 			InterlockedIncrement(&pEraserData->nErasued);
 
 		int percent = 100;
 
 		//更新所属文件夹进度
-		if (p->GetFolder() == nullptr && pEraserData->nErasued < pEraserData->nCount)
+		if (pEraserData->nErasued < pEraserData->nCount)
 		{
 			percent = (int)ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
 		}
 
-		if (!m_Control->m_callback->EraserThreadCallback(p->GetFullName(), eto_progress, percent))
-			return false;
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(p->GetFullName(), eto_progress, percent);
 	}
 
-	if (m_Control->m_Abort)
-		return false;
-
-	return true;
+	return m_Control->m_Abort;
 }
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UINT64 nMaxCount, UINT64 nCurent)
 {
 	if (nMaxCount <= 0)   //空文件，或文件夹
 		return FALSE;
-
-	if (m_Control->m_Abort)
-		return false;
 
 	E_THREAD_OPTION option;
 
@@ -378,7 +370,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 		break;
 	}
 
-	if (!m_Control->m_callback->EraserThreadCallback(m_File->GetFullName(), option, (DWORD)ceil(nCurent * 100 / nMaxCount )))
-		return false;
-	return true;
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), option, (DWORD)ceil(nCurent * 100 / nMaxCount));
+
+	return m_Control->m_Abort;
 }

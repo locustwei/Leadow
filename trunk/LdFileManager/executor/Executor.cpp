@@ -4,7 +4,7 @@
 #include "../../LdApp/LdApp.h"
 
 
-DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files)
+DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files)
 {
 	CLdString param = CMD_ERASE_FILE;
 	param.Format(

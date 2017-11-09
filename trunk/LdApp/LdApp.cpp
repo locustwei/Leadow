@@ -24,13 +24,15 @@ void DebugOutput(LPCTSTR pstrFormat, ...)
 	int nLen;
 	va_start(argList, pstrFormat);
 	nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
-	szSprintf = (TCHAR*)malloc((nLen + 5) * sizeof(TCHAR));
-	ZeroMemory(szSprintf, (nLen + 5) * sizeof(TCHAR));
-	_vsntprintf(szSprintf+4, nLen + 1, pstrFormat, argList);
+	szSprintf = (TCHAR*)malloc((nLen + 7) * sizeof(TCHAR));
+	ZeroMemory(szSprintf, (nLen + 7) * sizeof(TCHAR));
+	_vsntprintf(szSprintf+6, nLen + 1, pstrFormat, argList);
 	szSprintf[0] = '_';
 	szSprintf[1] = '_';
 	szSprintf[2] = 'L';
 	szSprintf[3] = 'D';
+	szSprintf[4] = ' ';
+	szSprintf[5] = ' ';
 	va_end(argList);
 	::OutputDebugString(szSprintf);
 	free(szSprintf);

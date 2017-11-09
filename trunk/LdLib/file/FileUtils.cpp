@@ -262,11 +262,12 @@ namespace LeadowLib {
 			return GetLastError();
 		
 		PUCHAR p = new UCHAR[1024*10]; //GetFileInformationByHandleEx Ö§³ÖVista
+		ZeroMemory(p, 1024 * 10);
 		NTSTATUS status = NtQueryInformationFile(hFile, p, 1024 * 10, FileStreamInformation);
 		if(NT_SUCCESS(status))
 		{
 			PFILE_STREAM_INFO information = (PFILE_STREAM_INFO)p;
-			while (information)
+			do
 			{
 				PFILE_ADS_INFO adsInfo = (PFILE_ADS_INFO)new UCHAR[sizeof(FILE_ADS_INFO) + information->StreamNameLength + sizeof(TCHAR)];
 				ZeroMemory(adsInfo, sizeof(FILE_ADS_INFO) + information->StreamNameLength + sizeof(TCHAR));
@@ -288,11 +289,8 @@ namespace LeadowLib {
 						result->Add(adsInfo);
 				}
 
-				if (information->NextEntryOffset == 0)
-					information = nullptr;
-				else
-					information = (PFILE_STREAM_INFO)((PUCHAR)information + information->NextEntryOffset);
-			}
+				information = (PFILE_STREAM_INFO)((PUCHAR)information + information->NextEntryOffset);
+			} while (information->NextEntryOffset);
 		}
 
 		CloseHandle(hFile);
