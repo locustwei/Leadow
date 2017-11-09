@@ -324,8 +324,8 @@ DWORD CErasure::WriteFileContent(HANDLE hFile, UINT64 nStartPos, UINT64 nFileSiz
 			return ERROR_CANCELED;
 	}
 
-	if (callbck)
-		callbck->ErasureProgress(ERASER_FILE, nFileSize - nStartPos, nFileSize - nStartPos);
+	//if (callbck)
+		//callbck->ErasureProgress(ERASER_FILE, nFileSize - nStartPos, nFileSize - nStartPos);
 
 	return result;
 }

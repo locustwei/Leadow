@@ -9,7 +9,7 @@
 #include "../LdApp/LdStructs.h"
 
 class CErasureFileUI : 
-	IEraserThreadCallback,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	public CShFileViewUI
 {
 public:
@@ -21,6 +21,7 @@ public:
 private:
 
 	CButtonUI* btnOpenFile;
+	bool m_Abort;
 	//CEreaserThrads m_EreaserThreads;                                    //擦除调度线程
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
@@ -45,9 +46,9 @@ protected:
 	bool OnAfterColumePaint(PVOID Param);                                          //处理列Paint事件，把列当进度条用
 	void AttanchControl(CControlUI* pCtrl) override;                   
 	void DeleteErasuredFile(CVirtualFile* pFile);                       //删除已经被擦除完成的记录。
-	void UpdateEraseProgressMsg(PFILE_EX_DATA pData);
+	void UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot);
 	PFILE_EX_DATA GetFileData(CVirtualFile* pFile);
 	//更新擦除信息（显示在ListUI中）
-	bool EraserThreadCallback(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
+	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
 };

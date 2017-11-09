@@ -4,4 +4,4 @@
 #include "EraserCComm.h"
 #include "EraserSComm.h"
 
-bool EraserThreadCallback(CLdString fileName, E_THREAD_OPTION op, DWORD dwValue);
+bool EraserReprotStatus(CLdString fileName, E_THREAD_OPTION op, DWORD dwValue);

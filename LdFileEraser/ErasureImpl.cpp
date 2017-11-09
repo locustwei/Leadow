@@ -67,7 +67,7 @@ DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
 	return nCount;
 }
 
-DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserThreadCallback* callback)
+DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 {
 	//int mothed = Param.GetInteger(EPN_MOTHED, 3);
 	//BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
@@ -100,7 +100,7 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserThreadCallback* callback
 	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
 	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
-	m_EraseThread.StartEreasure(10);
+	m_EraseThread.StartEreasure(1);
 
 	return 0;
 }

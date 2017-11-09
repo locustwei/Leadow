@@ -8,6 +8,8 @@
 #include <winsock.h>
 #include "Thread.h"
 
+#pragma warning(disable: 4200)
+
 #define SOCKET_PORT 0x5389
 
 namespace LeadowLib
@@ -16,7 +18,7 @@ namespace LeadowLib
 	typedef struct LDSOCKET_DATA
 	{
 		WORD nSize;
-		BYTE data[1];
+		BYTE data[0];
 	}*PLDSOCKET_DATA;
 #pragma pack(pop)
 

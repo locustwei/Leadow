@@ -5,4 +5,4 @@
 
 */
 
-DWORD ExecuteFileErase(IEraserThreadCallback* callback, CLdArray<TCHAR*>* files);
+DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files);

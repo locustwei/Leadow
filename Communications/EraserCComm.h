@@ -3,7 +3,7 @@
 #include "../LdApp/LdStructs.h"
 
 class CEraserCComm:
-	//public IEraserThreadCallback
+	//public IEraserListen
 	public CLdProcessCommunication
 {
 public:
@@ -12,12 +12,5 @@ public:
 
 	BOOL Connect();
 	BOOL SendEraseStatus(TCHAR* fileName, E_THREAD_OPTION op, DWORD value);
-protected:
-	void OnClosed(CLdSocket*) override;
-	void OnError(CLdSocket*, int) override;
-	void OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength) override;
-	void SetContext(PVOID) override;
-
-private:
 };
 

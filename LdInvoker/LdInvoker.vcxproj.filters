@@ -36,7 +36,7 @@
     <ClInclude Include="Eraser\RunErasure.h">
       <Filter>eraser</Filter>
     </ClInclude>
-    <ClInclude Include="Eraser\EraserThreadCallbackImpl.h">
+    <ClInclude Include="Eraser\EraserLinstenImpl.h">
       <Filter>eraser</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClCompile Include="Eraser\RunErasure.cpp">
       <Filter>eraser</Filter>
     </ClCompile>
-    <ClCompile Include="Eraser\EraserThreadCallbackImpl.cpp">
+    <ClCompile Include="Eraser\EraserLinstenImpl.cpp">
       <Filter>eraser</Filter>
     </ClCompile>
   </ItemGroup>

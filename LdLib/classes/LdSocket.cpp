@@ -157,10 +157,10 @@ namespace LeadowLib
 		if (m_Socket == INVALID_SOCKET || !buffer || nSize == 0)
 			return SOCKET_ERROR;
 
-		PBYTE p = new BYTE[sizeof(WORD) + nSize];
+		PBYTE p = new BYTE[sizeof(LDSOCKET_DATA) + nSize];
 		((PLDSOCKET_DATA)p)->nSize = nSize;
 		memcpy(((PLDSOCKET_DATA)p)->data, buffer, nSize);
-		nSize += sizeof(WORD);
+		nSize += sizeof(LDSOCKET_DATA);
 		int nCount;
 		PBYTE p1 = p;
 		do
@@ -253,11 +253,11 @@ namespace LeadowLib
 		{
 			PLDSOCKET_DATA p = GetRecvData();
 			int i = 0;
-			while (i<GetRecvSize())
+			while (i<n)
 			{
 				static_cast<IClientListener*>(m_Listner)->OnRecv(this, p->data, p->nSize);
+				i += p->nSize + sizeof(LDSOCKET_DATA);
 				p = (PLDSOCKET_DATA)((char*)p->data + p->nSize);
-				i += p->nSize;
 			}
 
 		}

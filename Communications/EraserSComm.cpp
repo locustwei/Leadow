@@ -6,21 +6,27 @@ void CEraserSComm::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
 {
 	PCOMMUINCATION_DATA data = (PCOMMUINCATION_DATA)pData;
 	PCOMM_ERASE_DATA pEraseData = (PCOMM_ERASE_DATA)data->Data;
-	switch(pEraseData->op)
+
+	DebugOutput(L"RecvEraseStatus %d, %3d %s\n", pEraseData->op, pEraseData->dwValue, pEraseData->FileName);
+
+	if (m_callback)
 	{
-	case eto_start: break;
-	case eto_begin: break;
-	case eto_completed: break;
-	case eto_progress: break;
-	case eto_freespace: break;
-	case eto_track: break;
-	case eto_finished: break;
-	case eto_analy: break;
-	case eto_analied: break;
-	default: break;
+		if (!m_callback->EraserReprotStatus(pEraseData->FileName, pEraseData->op, pEraseData->dwValue))
+			SendEraseStatus(eto_abort, 0);
 	}
-	if(m_callback)
-		m_callback->EraserThreadCallback(pEraseData->FileName, pEraseData->op, pEraseData->dwValue);
+}
+
+BOOL CEraserSComm::SendEraseStatus(E_THREAD_OPTION op, DWORD value)
+{
+	int len = sizeof(COMM_ERASE_DATA);
+	PCOMM_ERASE_DATA pCommData = (PCOMM_ERASE_DATA)new BYTE[len];
+	ZeroMemory(pCommData, len);
+	pCommData->op = op;
+	pCommData->dwValue = value;
+	BOOL result = SendData(LFI_EARSE_FILE, pCommData, len);
+	delete pCommData;
+
+	return result;
 }
 
 CEraserSComm::CEraserSComm(): m_callback(nullptr)
@@ -45,5 +51,5 @@ CEraserSComm::~CEraserSComm()
 
 void CEraserSComm::SetContext(PVOID pContext)
 {
-	m_callback = (IEraserThreadCallback*)pContext;
+	m_callback = (IEraserListen*)pContext;
 }
