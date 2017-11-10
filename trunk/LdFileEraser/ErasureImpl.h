@@ -18,8 +18,6 @@ public:
 	~CErasureImpl();
 	HMODULE GetModuleHandle();
 protected:
-
-
 	DWORD EraseFile(CDynObject& Param, IEraserListen* callback) override;
 private:
 	HMODULE m_hModule;
@@ -29,4 +27,4 @@ private:
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 };
 
-extern CErasureImpl* ThisLibrary;
+extern CErasureImpl* ErasureImpl;

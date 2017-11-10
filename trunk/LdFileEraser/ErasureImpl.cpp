@@ -3,7 +3,7 @@
 #include "eraser/ErasureThread.h"
 
 
-CErasureImpl* ThisLibrary = nullptr;
+CErasureImpl* ErasureImpl = nullptr;
 
 CErasureImpl::CErasureImpl()
 	: m_hModule(nullptr)
@@ -16,7 +16,7 @@ CErasureImpl::~CErasureImpl()
 {
 	FreeEraseFiles(&m_Files);
 
-	ThisLibrary = nullptr;
+	ErasureImpl = nullptr;
 }
 
 void CErasureImpl::FreeEraseFiles(CLdArray<CVirtualFile*>* files)

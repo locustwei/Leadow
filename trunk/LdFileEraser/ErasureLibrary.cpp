@@ -8,18 +8,18 @@
 IErasureLibrary LDLIB_API * API_Init(CLdApp* pThisApp)
 {
 	ThisApp = pThisApp;
-	if (!ThisLibrary)
+	if (!ErasureImpl)
 	{
-		ThisLibrary = new CErasureImpl();
+		ErasureImpl = new CErasureImpl();
 	}
-	return ThisLibrary;
+	return ErasureImpl;
 }
 
 VOID LDLIB_API API_UnInit()
 {
-	if (ThisLibrary)
+	if (ErasureImpl)
 	{
-		delete ThisLibrary;
+		delete ErasureImpl;
 	}
 }
 
@@ -30,8 +30,8 @@ BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/)
 		API_UnInit();
 		break;
 	case DLL_PROCESS_ATTACH:
-		ThisLibrary = new CErasureImpl();
-		ThisLibrary->m_hModule = (HMODULE)hModule;
+		ErasureImpl = new CErasureImpl();
+		ErasureImpl->m_hModule = (HMODULE)hModule;
 		::DisableThreadLibraryCalls((HMODULE)hModule);
 		break;
 	case DLL_THREAD_ATTACH:
