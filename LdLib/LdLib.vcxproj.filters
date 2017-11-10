@@ -20,9 +20,6 @@
     <ClCompile Include="utils\SHFolders.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="classes\LdDriver.cpp">
-      <Filter>classes</Filter>
-    </ClCompile>
     <ClCompile Include="classes\LdString.cpp">
       <Filter>classes</Filter>
     </ClCompile>
@@ -72,9 +69,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="classes\LdArray.h">
-      <Filter>classes</Filter>
-    </ClInclude>
-    <ClInclude Include="classes\LdDriver.h">
       <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="classes\LdList.h">
@@ -131,5 +125,8 @@
     <Filter Include="volume">
       <UniqueIdentifier>{2dba6579-275d-404d-9b5b-c71c4814df11}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

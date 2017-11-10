@@ -149,7 +149,6 @@
   <ItemGroup>
     <ClInclude Include="classes\LdArray.h" />
     <ClInclude Include="classes\DynObject.h" />
-    <ClInclude Include="classes\LdDriver.h" />
     <ClInclude Include="classes\LdList.h" />
     <ClInclude Include="classes\LdMap.h" />
     <ClInclude Include="classes\LdSocket.h" />
@@ -175,7 +174,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="classes\DynObject.cpp" />
-    <ClCompile Include="classes\LdDriver.cpp" />
     <ClCompile Include="classes\LdSocket.cpp" />
     <ClCompile Include="classes\LdString.cpp" />
     <ClCompile Include="classes\Thread.cpp" />
@@ -196,6 +194,9 @@
     <ClCompile Include="volume\NtfsUtils.cpp" />
     <ClCompile Include="volume\VolumeInfo.cpp" />
     <ClCompile Include="volume\VolumeUtils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
