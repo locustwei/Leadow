@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "EraserLinstenImpl.h"
+#include "../LdApp/LdApp.h"
 
 CEraserListenImpl::CEraserListenImpl()
 	:m_Abort(false)
@@ -17,7 +18,7 @@ bool CEraserListenImpl::EraserReprotStatus(TCHAR* pFile, E_THREAD_OPTION op, DWO
 	SendEraseStatus(pFile, op, dwValue);
 
 	if (op == eto_finished)
-		PostQuitMessage(0);
+		PostThreadMessage(ThisApp->GetMainThreadId(), WM_QUIT, 0, 0);
 
 	return !m_Abort;
 }

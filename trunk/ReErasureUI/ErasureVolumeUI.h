@@ -1,10 +1,11 @@
 #pragma once
 #include "ShFileView.h"
+#include "../LdApp/LdStructs.h"
 
 
 class CErasureVolumeUI : 
 	public CShFileViewUI,
-	//IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
 {
 public:
@@ -16,7 +17,7 @@ public:
 private:
 	typedef struct FILE_ERASURE_DATA
 	{
-		//E_FILE_STATE nStatus;             //擦除状态
+		E_FILE_STATE nStatus;             //擦除状态
 		DWORD        nErrorCode;          //错误代码（如果错误）
 		DWORD        FreespaceTime;       //擦除空闲空间所花的时间
 		DWORD        TrackTime;           //擦除痕迹所花的的时间
@@ -40,7 +41,7 @@ protected:
 	//FindFirstVolume 枚举磁盘（按卷路径）
 	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override;
 	//擦除线程回掉，同步擦除状态
-	//bool EraserReprotStatus(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue) ;
+	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue);
 	bool GetViewHeader() override;
 };
 

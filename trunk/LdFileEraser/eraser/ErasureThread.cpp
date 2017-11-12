@@ -302,12 +302,8 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
 
-	if (!m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_begin, 0))
-		return false;
-
-	if (m_Control->m_Abort)
-		return false;
-	return true;
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_begin, 0);
+	return !m_Control->m_Abort;
 }
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
@@ -342,7 +338,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(p->GetFullName(), eto_progress, percent);
 	}
 
-	return m_Control->m_Abort;
+	return !m_Control->m_Abort;
 }
 
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UINT64 nMaxCount, UINT64 nCurent)
@@ -372,5 +368,5 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 
 	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), option, (DWORD)ceil(nCurent * 100 / nMaxCount));
 
-	return m_Control->m_Abort;
+	return !m_Control->m_Abort;
 }

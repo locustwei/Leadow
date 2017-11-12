@@ -100,7 +100,7 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
 	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
-	m_EraseThread.StartEreasure(1);
+	m_EraseThread.StartEreasure(10);
 
 	return 0;
 }
