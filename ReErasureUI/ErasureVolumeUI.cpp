@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureVolumeUI.h"
+#include "EraserUI.h"
 //#include "../LdFileEraser/ErasureLibrary.h"
 
 //#include "../eraser/VolumeEx.h"
@@ -154,12 +155,11 @@ BOOL CErasureVolumeUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
 	m_Volumes.Add(volume);
 	return TRUE;
 }
-/*
 
-bool CErasureVolumeUI::EraserReprotStatus(CVirtualFile* pFile, E_THREAD_OPTION op, DWORD dwValue)
+bool CErasureVolumeUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
 	PFILE_ERASURE_DATA pEraserData;
-
+	CVirtualFile* pFile = nullptr;
 	switch (op)
 	{
 	case eto_start:  //总进度开始
@@ -243,7 +243,6 @@ bool CErasureVolumeUI::EraserReprotStatus(CVirtualFile* pFile, E_THREAD_OPTION o
 	}
 	return true;
 }
-*/
 
 bool CErasureVolumeUI::GetViewHeader()
 {
@@ -308,14 +307,22 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 
 void CErasureVolumeUI::StatAnalysis()
 {
-	//m_EreaserThreads.SetEreaureFiles(&m_Volumes);
-	//m_EreaserThreads.StartAnalysis(4);
+	CLdArray<TCHAR*> files;
+	for(int i=0; i<m_Volumes.GetCount();i++)
+	{
+		files.Add(m_Volumes.Get(i)->GetFullName());
+	}
+	ExecuteFileAnalysis(this, &files);
 }
 
 void CErasureVolumeUI::StatErase()
 {
-	//m_EreaserThreads.SetEreaureFiles(&m_Volumes);
-	//m_EreaserThreads.StartEreasure(4);
+	CLdArray<TCHAR*> files;
+	for (int i = 0; i<m_Volumes.GetCount(); i++)
+	{
+		files.Add(m_Volumes.Get(i)->GetFullName());
+	}
+	ExecuteFileErase(this, &files);
 }
 
 void CErasureVolumeUI::OnClick(TNotifyUI& msg)

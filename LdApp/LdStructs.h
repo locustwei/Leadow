@@ -34,14 +34,16 @@ typedef struct COMMUINCATION_DATA
 
 #pragma region 文件擦除
 	//调用进程命令行参数中的第一个参数，指明调用那个函数。
-#define CMD_ERASE_FILE    L"/erasefile"      //文件擦除
-#define CMD_ERASE_RECYCLE L"/eraserecycle"
-#define CMD_ERASE_VOLUME  L"/erasevolume"
+#define CMD_ERASE_FILE    TEXT("/erasefile")      //文件擦除
+#define CMD_ERASE_RECYCLE TEXT("/eraserecycle")
+#define CMD_ERASE_VOLUME  TEXT("/erasevolume")
+#define CMD_ERASE_ANALY   TEXT("/eraseanaly")
 
 	//调用"文件擦除"进程命令行参数名。
-#define EPN_MOTHED        L"mothed"
-#define EPN_FILE          L"file"
-#define EPN_UNDELFOLDER   L"undelfolder"
+#define EPN_AC            TEXT("ac")
+#define EPN_MOTHED        TEXT("mothed")
+#define EPN_FILE          TEXT("file")
+#define EPN_UNDELFOLDER   TEXT("undelfolder")
 
 //文件擦除状态
 enum E_FILE_STATE
@@ -83,6 +85,8 @@ interface LDLIB_API IEraserListen
 interface LDLIB_API IErasureLibrary
 {
 	virtual DWORD EraseFile(CDynObject& Param, IEraserListen * callback) = 0;
+	virtual DWORD EraseVolume(CDynObject& Param, IEraserListen * callback) = 0;
+	virtual DWORD EraseAnaly(CDynObject& Param, IEraserListen * callback) = 0;
 };
 
 #pragma endregion  

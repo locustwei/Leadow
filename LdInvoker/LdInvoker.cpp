@@ -66,6 +66,8 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	while (::GetMessage(&msg, NULL, 0, 0)) {
 		if (msg.hwnd == NULL) 
 			CLdApp::MainThreadMessage(msg);
+		::TranslateMessage(&msg);
+		::DispatchMessage(&msg);
 	}
 
 	

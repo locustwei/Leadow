@@ -74,6 +74,5 @@ DWORD RunEraseFile(LPWSTR* lpParams, int nParamCount)
 	IErasureLibrary* Eraser = CLdLibray::LoadErasureLibrary();
 	if (!Eraser)
 		return 2;
-
 	return Eraser->EraseFile(Param, impl);
 }
