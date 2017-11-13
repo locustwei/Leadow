@@ -20,14 +20,6 @@ CErasureVolumeUI::~CErasureVolumeUI()
 	//m_EreaserThreads.StopThreads();
 }
 
-void CErasureVolumeUI::OnSelectChanged(TNotifyUI & msg)
-{
-}
-
-void CErasureVolumeUI::OnItemClick(TNotifyUI & msg)
-{
-}
-
 void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)
 {
 	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
@@ -143,8 +135,6 @@ bool CErasureVolumeUI::OnAfterColumePaint(PVOID Param)
 
 DUI_BEGIN_MESSAGE_MAP(CErasureVolumeUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
 //枚举盘符暂存用于查找每个盘下的回收站文件

@@ -14,18 +14,14 @@ DUI_END_MESSAGE_MAP()
 
 CMainWnd::CMainWnd(TCHAR* xmlSkin)
 	:WindowImplBase()
+	, m_btnLogo(nullptr)
+	, m_EraserUI(nullptr)
 {
 	m_Skin = xmlSkin;
-//	m_ErasureLib = NULL;
 }
 
 CMainWnd::~CMainWnd()
 {
-	/*if (m_ErasureLib)
-	{
-		CLdLibray::FreeErasureLibrary();
-		m_ErasureLib = nullptr;
-	}*/
 
 }
 

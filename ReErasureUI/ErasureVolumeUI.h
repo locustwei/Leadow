@@ -31,8 +31,6 @@ private:
 	void StatAnalysis();  //磁盘数据分析
 	void StatErase();     //磁盘擦除  
 	void OnClick(TNotifyUI& msg);
-	void OnSelectChanged(TNotifyUI &msg) override;
-	void OnItemClick(TNotifyUI &msg) override;
 	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time);  //
 	void ShowAnalysisResult(CVolumeInfo* pVolume, CControlUI* ui); //分析数据在列表中显示
 	bool OnAfterColumePaint(PVOID Param);
