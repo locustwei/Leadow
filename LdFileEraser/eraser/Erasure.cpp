@@ -56,7 +56,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMothed* method, IE
 	} while (false);
 	
 	DeleteTempFiles(callback);
-	RemoveDirectory(m_tmpDir);
+	CFileUtils::RemoveDirectory(m_tmpDir);
 
 	callback->ErasureCompleted(result);
 
@@ -75,13 +75,13 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 	DWORD dwAttr = GetFileAttributes(lpFileName);
 	SetFileAttributes(lpFileName, FILE_ATTRIBUTE_NORMAL);
 
-	HANDLE hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+	HANDLE hFile = CFileUtils::CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, OPEN_EXISTING, 0);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		result = GetLastError();
 		if (result == ERROR_ACCESS_DENIED) //ÖØÊÔÒ»´Î
 			ClearFileSecurity(lpFileName);
-		hFile = CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		hFile = CFileUtils::CreateFile(lpFileName, GENERIC_WRITE | GENERIC_READ, 0, OPEN_EXISTING, 0);
 		if (hFile == INVALID_HANDLE_VALUE)
 			result = GetLastError();
 	}
@@ -108,7 +108,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 		{
 			CLdString fileName = lpFileName;
 			fileName += fileStreamNames[i]->StreamName;
-			HANDLE hStream = CreateFile(fileName, GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+			HANDLE hStream = CFileUtils::CreateFile(fileName, GENERIC_WRITE | GENERIC_READ, 0, OPEN_EXISTING, 0);
 			if (hStream != INVALID_HANDLE_VALUE)
 			{
 				LARGE_INTEGER StreamSize;
@@ -134,7 +134,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 		CLdString* path;
 		if(result == 0)
 		{
-			path = new CLdString((UINT)MAX_PATH);
+			path = new CLdString((UINT)_tcslen(lpFileName));
 			CFileUtils::ExtractFilePath(lpFileName, path->GetData());
 			if (!path->IsEmpty() && path->GetData()[path->GetLength() - 1] != '\\')
 				*path += '\\';
@@ -171,7 +171,7 @@ DWORD CErasure::DirectoryErasure(TCHAR * lpDirName, IErasureCallback * callbck)
 	CLdString* path;
 	if (result == 0)
 	{
-		path = new CLdString((UINT)MAX_PATH);
+		path = new CLdString((UINT)_tcslen(lpDirName));
 		CFileUtils::ExtractFilePath(lpDirName, path->GetData());
 		if (!path->IsEmpty() && path->GetData()[path->GetLength() - 1] != '\\')
 			*path += '\\';
@@ -184,7 +184,7 @@ DWORD CErasure::DirectoryErasure(TCHAR * lpDirName, IErasureCallback * callbck)
 		result = 0;
 	}
 
-	if (!RemoveDirectory(path->GetData()))
+	if (!CFileUtils::RemoveDirectory(path->GetData()))
 		result = GetLastError();
 	delete path;
 
@@ -402,7 +402,7 @@ DWORD CErasure::CreateTempFile(UINT64 nFileSize, HANDLE* pOut, int nFileNameLeng
 	CFileUtils::GenerateRandomFileName(nFileNameLength, tmpName);
 
 	*tmpName = m_tmpDir + *tmpName;
-	HANDLE hFile = CreateFile(*tmpName, GENERIC_READ | GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CFileUtils::CreateFile(*tmpName, GENERIC_READ | GENERIC_WRITE, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return GetLastError();
 	if(pOut)
@@ -477,7 +477,7 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 
 	for (int i = 0; i < m_Tmpfiles.GetCount(); i++)
 	{
-		HANDLE hFile = CreateFile(*m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		HANDLE hFile = CFileUtils::CreateFile(*m_Tmpfiles[i], GENERIC_WRITE | GENERIC_READ, 0, OPEN_EXISTING, 0);
 		if(hFile != INVALID_HANDLE_VALUE)
 		{
 			SetEndOfFile(hFile);
@@ -488,7 +488,7 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 			result = GetLastError();
 		}
 		
-		if (!DeleteFile(*m_Tmpfiles[i]))
+		if (!CFileUtils::DeleteFile(*m_Tmpfiles[i]))
 			result = GetLastError();
 		delete m_Tmpfiles[i];
 //		result = CFileUtils::ShDeleteFile(m_Tmpfiles[i]);

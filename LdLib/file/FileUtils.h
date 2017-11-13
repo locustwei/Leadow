@@ -51,7 +51,6 @@ namespace LeadowLib {
 		删除文件（SHFileOperation）
 		*/
 		static int ShDeleteFile(TCHAR* lpFileName, DWORD dwFlag = FOF_NO_UI);
-		static DWORD DeleteFile(TCHAR* lpFileName);
 		//文件大小输出字符串
 		static void FormatFileSize(INT64 nSize, CLdString& result);
 		//随机文件名
@@ -59,6 +58,15 @@ namespace LeadowLib {
 		//获取文件备用数据流名称（Alternate Data Streams ）
 		static DWORD GetFileADSNames(TCHAR* lpFileName, CLdArray<PFILE_ADS_INFO>* result);
 		static DWORD RenameFile(TCHAR* lpFrom, TCHAR* lpTo);
+		//WinAPI 简单包装，对超长文件名加上"\\?\"
+		static HANDLE CreateFile(TCHAR* lpFileName,
+			DWORD dwDesiredAccess,
+			DWORD dwShareMode,
+			DWORD dwCreationDisposition,
+			DWORD dwFlagsAndAttributes
+			);
+		static BOOL DeleteFile(TCHAR* lpFileName);
+		static BOOL RemoveDirectory(TCHAR* lpPathName);
 	};
 
 };

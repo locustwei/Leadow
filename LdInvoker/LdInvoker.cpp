@@ -44,7 +44,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CLdApp::Initialize(hInstance);
 
-	if(wcsicmp(lpParamStrs[0], CMD_ERASE_FILE) == 0)
+	if(wcsicmp(lpParamStrs[0], CMD_ERASE) == 0)
 	{
 		if(ParamCount < 2)
 		{

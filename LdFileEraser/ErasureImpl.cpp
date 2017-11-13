@@ -71,10 +71,10 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 {
 	//int mothed = Param.GetInteger(EPN_MOTHED, 3);
 	//BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
-	int k = Param.GetArrayCount(EPN_FILE);
+	int k = Param.GetArrayCount(EPN_NAME);
 	for(int i=0; i<k; i++)
 	{
-		CLdString s = Param.GetString(EPN_FILE, nullptr, i);
+		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
 		if (s.IsEmpty())
 			continue;
 
@@ -101,6 +101,56 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
 	m_EraseThread.StartEreasure(10);
+
+	return 0;
+}
+
+DWORD CErasureImpl::EraseVolume(CDynObject& Param, IEraserListen* callback)
+{
+	int k = Param.GetArrayCount(EPN_NAME);
+	for (int i = 0; i<k; i++)
+	{
+		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
+		if (s.IsEmpty())
+			continue;
+
+		CVolumeInfo* info = new CVolumeInfo();
+		info->SetFileName(s);
+
+	}
+
+	m_EraseThread.SetCallback(callback);
+	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
+	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
+	m_EraseThread.SetEreaureFiles(&m_Files);
+	m_EraseThread.StartEreasure(k);
+
+	return 0;
+
+}
+
+DWORD CErasureImpl::AnaFile(CDynObject& Param, IEraserListen* callback)
+{
+	return 0;
+}
+
+DWORD CErasureImpl::AnaVolume(CDynObject& Param, IEraserListen* callback)
+{
+	int k = Param.GetArrayCount(EPN_NAME);
+	for (int i = 0; i<k; i++)
+	{
+		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
+		if (s.IsEmpty())
+			continue;
+
+		CVolumeInfo* info = new CVolumeInfo();
+		info->SetFileName(s);
+
+	}
+
+	m_EraseThread.SetCallback(callback);
+	m_EraseThread.SetEreaureFiles(&m_Files);
+	m_EraseThread.StartAnalysis(k);
 
 	return 0;
 }

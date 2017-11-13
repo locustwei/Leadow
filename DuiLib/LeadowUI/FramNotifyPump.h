@@ -5,10 +5,10 @@ namespace DuiLib {
 
 	interface DUILIB_API IFrameListener
 	{
-		virtual void OnAttanch(CControlUI* pCtrl);
-		virtual void OnClick(TNotifyUI& msg);
-		virtual void OnSelectChanged(TNotifyUI &msg);
-		virtual void OnItemClick(TNotifyUI &msg);
+		virtual void OnAttanch(CControlUI* pCtrl) = 0;
+		virtual void OnClick(TNotifyUI& msg) = 0;
+		virtual void OnSelectChanged(TNotifyUI &msg) = 0;
+		virtual void OnItemClick(TNotifyUI &msg) = 0;
 	};
 
 	class DUILIB_API CFramNotifyPump 

@@ -33,9 +33,8 @@ enum ERASE_STEP
 /*!
 回掉函数，用于中断处理、报告进度
  */
-class IErasureCallback
+interface IErasureCallback
 {
-public:
 	virtual BOOL ErasureStart() = 0;    //开始擦除
 	virtual BOOL ErasureCompleted(DWORD dwErroCode) = 0;  //擦除完。
 	//************************************

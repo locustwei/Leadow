@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 #include "VolumeEx.h"
+#include "../../LdApp/LdApp.h"
 
 CEreaserThrads::CEreaserThrads()
 {
@@ -337,6 +338,8 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 
 		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(p->GetFullName(), eto_progress, percent);
 	}
+
+	DebugOutput(L"ErasureCompleted %s %d", m_File->GetFileName(), dwErroCode);
 
 	return !m_Control->m_Abort;
 }

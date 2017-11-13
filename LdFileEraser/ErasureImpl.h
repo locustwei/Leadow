@@ -11,7 +11,6 @@
 class CErasureImpl
 	:public IErasureLibrary
 {
-private:
 	friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/);
 public:
 	CErasureImpl();
@@ -19,6 +18,9 @@ public:
 	HMODULE GetModuleHandle();
 protected:
 	DWORD EraseFile(CDynObject& Param, IEraserListen* callback) override;
+	DWORD EraseVolume(CDynObject& Param, IEraserListen* callback) override;
+	DWORD AnaFile(CDynObject& Param, IEraserListen* callback) override;
+	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback) override;
 private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
