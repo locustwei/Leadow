@@ -26,14 +26,11 @@ private:
 
 	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView СаЭЗ
 
-	virtual void OnSelectChanged(TNotifyUI &msg);
-	virtual void OnItemClick(TNotifyUI &msg);
-
 protected:
 	CListUI* lstFile;
 	TCHAR* m_ItemSkin;
 
-	void AttanchControl(CControlUI* pCtrl);
+	void AttanchControl(CControlUI* pCtrl) override;
 
 	virtual bool GetViewHeader() = 0;
 	void AddLstViewHeader(int ncount);

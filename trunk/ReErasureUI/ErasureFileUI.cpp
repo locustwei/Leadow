@@ -3,7 +3,6 @@
 #include "EraserUI.h"
 
 CErasureFileUI::CErasureFileUI() :
-	//m_file_map()
 	m_ErasureFile()
 {
 	btnOpenFile = nullptr;

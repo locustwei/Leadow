@@ -77,18 +77,7 @@ DWORD CShFileViewUI::AddFolder(int nFolderCSIDL)
 	return 0;
 }
 
-void CShFileViewUI::OnSelectChanged(TNotifyUI & msg)
-{
-}
-
-void CShFileViewUI::OnItemClick(TNotifyUI & msg)
-{
-	
-}
-
 DUI_BEGIN_MESSAGE_MAP(CShFileViewUI, CFramNotifyPump)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_SELECTCHANGED, OnSelectChanged)
-DUI_ON_MSGTYPE(DUI_MSGTYPE_ITEMCLICK, OnItemClick)
 DUI_END_MESSAGE_MAP()
 
 //lstFileÃÌº”¡–Õ∑
