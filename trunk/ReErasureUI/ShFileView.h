@@ -8,7 +8,7 @@ class CShFileViewUI :
 {
 public:
 	CShFileViewUI();
-	virtual ~CShFileViewUI() override;
+	~CShFileViewUI() override;
 
 	//º”“ª––
 	CControlUI* AddRecord(CLdArray<TCHAR*>* values);

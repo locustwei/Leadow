@@ -4,6 +4,9 @@
 #include "../PublicRoutimes.h"
 
 namespace LeadowLib {
+
+#define DOS_L_NAME TEXT("\\\\?\\")
+
 	BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
 	{
 		size_t len;
@@ -136,7 +139,7 @@ namespace LeadowLib {
 		DWORD bytesReturned = 0;
 
 		HANDLE handle = CreateFile(lpFullName, GENERIC_READ,
-			FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+			FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
 		if (handle == INVALID_HANDLE_VALUE)
 			return GetLastError();
 
@@ -152,7 +155,7 @@ namespace LeadowLib {
 		DWORD compressionStatus = bCompress ? COMPRESSION_FORMAT_DEFAULT : COMPRESSION_FORMAT_NONE;
 		DWORD bytesReturned = 0;
 
-		HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+		HANDLE handle = CreateFile(lpFullName, GENERIC_READ | GENERIC_WRITE, 0, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
 		if (handle == INVALID_HANDLE_VALUE)
 			return Result;
 		Result = DeviceIoControl(handle, FSCTL_SET_COMPRESSION, &compressionStatus, sizeof(DWORD), NULL, 0, &bytesReturned, NULL);
@@ -171,11 +174,18 @@ namespace LeadowLib {
 		{
 			path += '\\';
 		}
+		path += lpFilter;
 
 		WIN32_FIND_DATA Data = { 0 };
-		HANDLE hFind = FindFirstFile(path + lpFilter, &Data);
+		HANDLE hFind = FindFirstFile(path, &Data);
 		if (hFind == INVALID_HANDLE_VALUE)
-			return GetLastError();
+		{
+			if (path.Find(DOS_L_NAME) != 0)
+				path.Insert(0, DOS_L_NAME);
+			hFind = FindFirstFile(path, &Data);
+			if (hFind == INVALID_HANDLE_VALUE)
+				return GetLastError();
+		}
 		do
 		{
 			if ((Data.cFileName[0] == '.' && Data.cFileName[1] == '\0') ||
@@ -204,22 +214,6 @@ namespace LeadowLib {
 		//if (result != 0)
 			//DebugOutput(L"delete error %d", result);
 		return result;
-	}
-
-	DWORD CFileUtils::DeleteFile(TCHAR * lpFileName)
-	{
-		SetFileAttributes(lpFileName, FILE_ATTRIBUTE_NORMAL);
-		if (!::DeleteFile(lpFileName))
-			return GetLastError();
-
-		/*
-			OBJECT_ATTRIBUTES ObjectAttributes;
-			UNICODE_STRING UnicodeString;
-			RtlInitUnicodeString(&UnicodeString, lpFileName);
-			InitializeObjectAttributes(&ObjectAttributes, &UnicodeString, 0x40, 0, nullptr, nullptr);
-		*/
-
-		return 0;
 	}
 
 	void CFileUtils::FormatFileSize(INT64 nSize, CLdString& result)
@@ -257,7 +251,7 @@ namespace LeadowLib {
 
 	DWORD CFileUtils::GetFileADSNames(TCHAR* lpFileName, CLdArray<PFILE_ADS_INFO>* result)
 	{
-		HANDLE hFile = ::CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+		HANDLE hFile = CreateFile(lpFileName, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS);
 		if (hFile == INVALID_HANDLE_VALUE)
 			return GetLastError();
 		
@@ -302,24 +296,67 @@ namespace LeadowLib {
 
 	DWORD CFileUtils::RenameFile(TCHAR* lpFrom, TCHAR* lpTo)
 	{
+		CLdString from, to;
 		TCHAR* p = _tcsrchr(lpTo, '\\');
 		if(p == nullptr)  //没有包含路径
 		{
 			p = _tcsrchr(lpFrom, '\\');
 			if (!p)
 				return (DWORD)-1;
-			CLdString s((UINT)(p - lpFrom)+2);
-			CFileUtils::ExtractFilePath(lpFrom, s.GetData());
-			s.GetData()[s.GetLength()] = '\\';
-			s += lpTo;
-			if (!::MoveFile(lpFrom, s))
-				return GetLastError();
+			to.SetLength((UINT)(p - lpFrom) + 2);
+
+			CFileUtils::ExtractFilePath(lpFrom, to.GetData());
+			to.GetData()[to.GetLength()] = '\\';
+			to += lpTo;
 		}
-		else
-		{
-			if (!::MoveFile(lpFrom, lpTo))
-				return GetLastError();
-		}
+		from.Assign(lpFrom);
+		from.Insert(0, DOS_L_NAME);
+		to.Insert(0, DOS_L_NAME);
+		if(!::MoveFile(from, to))
+			return GetLastError();
+
 		return 0;
+	}
+
+	HANDLE CFileUtils::CreateFile(TCHAR* lpFileName, DWORD dwDesiredAccess, DWORD dwShareMode, DWORD dwCreationDisposition, DWORD dwFlagsAndAttributes)
+	{
+		if (lpFileName == nullptr)
+			return INVALID_HANDLE_VALUE;
+
+		HANDLE hFile = ::CreateFile(lpFileName, dwDesiredAccess, dwShareMode, nullptr, dwCreationDisposition, dwFlagsAndAttributes, nullptr);
+		if(hFile == INVALID_HANDLE_VALUE)
+		{
+			if(_tcslen(lpFileName)>=MAX_PATH)
+			{
+				CLdString s = DOS_L_NAME;
+				s += lpFileName;
+				hFile = ::CreateFile(s.GetData(), dwDesiredAccess, dwShareMode, nullptr, dwCreationDisposition, dwFlagsAndAttributes, nullptr);
+			}
+		}
+		return hFile;
+	}
+
+	BOOL CFileUtils::DeleteFile(TCHAR* lpFileName)
+	{
+		BOOL result = ::DeleteFile(lpFileName);
+		if(!result && (GetLastError() == ERROR_PATH_NOT_FOUND || GetLastError()== ERROR_FILE_NOT_FOUND))
+		{
+			CLdString file = DOS_L_NAME;
+			file += lpFileName;
+			result = ::DeleteFile(file);
+		}
+		return result;
+	}
+
+	BOOL CFileUtils::RemoveDirectory(TCHAR* lpPathName)
+	{
+		BOOL result = ::RemoveDirectory(lpPathName);
+		if (!result && (GetLastError() == ERROR_PATH_NOT_FOUND))
+		{
+			CLdString file = DOS_L_NAME;
+			file += lpPathName;
+			result = ::RemoveDirectory(file);
+		}
+		return result;
 	}
 }

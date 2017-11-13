@@ -7,8 +7,8 @@ DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files)
 {
 	CLdString param;
 	param.Format(
-		_T(" %s %s:%d %s:%d"),
-		CMD_ERASE_FILE, EPN_MOTHED,
+		_T(" ") CMD_ERASE _T(" ") EPN_ERASE_FILES _T(" %s:%d %s:%d"),
+		EPN_MOTHED,
 		ThisApp->GetConfig()->GetFileErasureMothed(),
 		EPN_UNDELFOLDER,
 		ThisApp->GetConfig()->IsRemoveFolder() ? 1 : 0);
@@ -16,7 +16,7 @@ DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files)
 	for (int i = 0; i < files->GetCount();i++)
 	{
 		param += ' ';
-		param += EPN_FILE;
+		param += EPN_NAME;
 		param += ':';
 		param += '\"';
 		param += files->Get(i);
@@ -28,21 +28,32 @@ DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files)
 
 DWORD ExecuteFileAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* files)
 {
-	CLdString param;
-	param.Format(
-		_T(" %s %s:%d %s:%d"),
-		CMD_ERASE_ANALY, EPN_MOTHED,
-		ThisApp->GetConfig()->GetFileErasureMothed(),
-		EPN_UNDELFOLDER,
-		ThisApp->GetConfig()->IsRemoveFolder() ? 1 : 0);
+	CLdString param = _T(" ") CMD_ERASE _T(" ") CMD_ANALY_FILES;
 
 	for (int i = 0; i < files->GetCount(); i++)
 	{
 		param += ' ';
-		param += EPN_FILE;
+		param += EPN_NAME;
 		param += ':';
 		param += '\"';
 		param += files->Get(i);
+		param += '\"';
+	}
+
+	return ThisApp->RunInvoker(param, 0, (PVOID)callback);
+}
+
+DWORD ExecuteVolumeAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* volumes)
+{
+	CLdString param = _T(" ") CMD_ERASE _T(" ") CMD_ANALY_VOLUMES;
+
+	for (int i = 0; i < volumes->GetCount(); i++)
+	{
+		param += ' ';
+		param += EPN_NAME;
+		param += ':';
+		param += '\"';
+		param += volumes->Get(i);
 		param += '\"';
 	}
 
