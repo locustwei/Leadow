@@ -75,6 +75,7 @@ interface LDLIB_API IEraserListen
 {
 	//public:
 	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
 };
 
 /*

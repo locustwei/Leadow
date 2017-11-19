@@ -282,5 +282,27 @@ namespace LeadowLib {
 		return fpNtSetInformationFile(FileHandle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
 	}
 
+	typedef NTSTATUS (WINAPI *NtQueryInformationProcess_)(
+		_In_ HANDLE ProcessHandle,
+		_In_ PROCESSINFOCLASS ProcessInformationClass,
+		_Out_ PVOID ProcessInformation,
+		_In_ ULONG ProcessInformationLength,
+		_Out_opt_ PULONG ReturnLength
+	);
+
+	NTSTATUS NtQueryInformationProcess(
+		_In_ HANDLE ProcessHandle,
+		_Out_ PVOID ProcessInformation,
+		_In_ ULONG ProcessInformationLength)
+	{
+		static NtQueryInformationProcess_ fpNtQueryInformationProcess =
+			(NtQueryInformationProcess_)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryInformationProcess");
+		if (fpNtQueryInformationProcess == NULL)
+			return (NTSTATUS)-1;
+
+		DWORD out;
+
+		return fpNtQueryInformationProcess(ProcessHandle, ProcessBasicInformation, ProcessInformation, ProcessInformationLength, &out);
+	}
 #pragma endregion
 }

@@ -45,6 +45,5 @@ BOOL CEraserCComm::SendEraseStatus(TCHAR* fileName, E_THREAD_OPTION op, DWORD va
 	BOOL result = SendData(LFI_EARSE_FILE, pCommData, len);
 	delete pCommData;
 
-	DebugOutput(L"SendEraseStatus %d, %3d %s", op, value, fileName);
 	return result;
 }

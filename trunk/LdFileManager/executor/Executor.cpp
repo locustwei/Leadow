@@ -52,10 +52,8 @@ DWORD ExecuteVolumeAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* volumes)
 		param += ' ';
 		param += EPN_NAME;
 		param += ':';
-		param += '\"';
 		param += volumes->Get(i);
-		param += '\"';
 	}
 
-	return ThisApp->RunInvoker(param, 0, (PVOID)callback);
+	return ThisApp->RunInvoker(param, RUN_FLAG_ASADMINI, (PVOID)callback);
 }
