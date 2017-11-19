@@ -6,6 +6,8 @@
 
 */
 
+#define RUN_FLAG_ASADMINI 0x0010
+
 class CLdApp
 {
 public:

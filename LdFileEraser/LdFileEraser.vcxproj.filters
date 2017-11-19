@@ -33,11 +33,11 @@
     <ClCompile Include="eraser\ErasureThread.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
-    <ClCompile Include="eraser\VolumeEx.cpp">
-      <Filter>Erasure</Filter>
-    </ClCompile>
     <ClCompile Include="ErasureImpl.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="eraser\EarseTest.cpp">
+      <Filter>Erasure</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,14 +56,14 @@
     <ClInclude Include="eraser\ErasureMethod.h">
       <Filter>Erasure</Filter>
     </ClInclude>
-    <ClInclude Include="eraser\VolumeEx.h">
-      <Filter>Erasure</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="ErasureImpl.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="eraser\EarseTest.h">
+      <Filter>Erasure</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

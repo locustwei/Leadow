@@ -316,6 +316,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 	else
 	{
 		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_error, dwErroCode);
+		DebugOutput(L"ErasureCompleted %s %d", m_File->GetFileName(), dwErroCode);
 	}
 
 	if (m_File->GetFolder() != nullptr)  //文件夹下的文件，更新顶层文件夹的进度
@@ -338,8 +339,6 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 
 		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(p->GetFullName(), eto_progress, percent);
 	}
-
-	DebugOutput(L"ErasureCompleted %s %d", m_File->GetFileName(), dwErroCode);
 
 	return !m_Control->m_Abort;
 }

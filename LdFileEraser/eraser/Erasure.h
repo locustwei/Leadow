@@ -16,7 +16,6 @@
 
 */
 #include "ErasureMethod.h"
-#include "VolumeEx.h"
 
 //#define ERASE_UNUSED_SPACE 0xF1
 #define ERROR_CANCELED 0xC0000001
@@ -54,7 +53,7 @@ public:
 
 	// Qualifier: 擦除磁盘空闲空间，所有已删除文件记录
 	DWORD UnuseSpaceErasure(
-		CVolumeEx* pvolume,          //待擦除磁盘
+		CVolumeInfo* pvolume,          //待擦除磁盘
 		CErasureMothed* method,      //擦除算法
 		IErasureCallback* callback,  //擦除过程回掉函数
 		BOOL bSkipSpace,             //是否跳过未使用空间擦除(不擦除磁盘空闲空间)
@@ -75,7 +74,7 @@ public:
 		IErasureCallback* callbck //擦除过程回掉函数
 	);
 private:
-	CVolumeEx* m_Volume;
+	CVolumeInfo* m_Volume;
 	CLdString m_tmpDir;               //历史文件目录名
 	//IErasureCallback* m_callback;
 	CErasureMothed* m_method;         //擦除方法

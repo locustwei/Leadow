@@ -163,10 +163,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="eraser\EarseTest.cpp" />
     <ClCompile Include="eraser\Erasure.cpp" />
     <ClCompile Include="eraser\ErasureMethod.cpp" />
     <ClCompile Include="eraser\ErasureThread.cpp" />
-    <ClCompile Include="eraser\VolumeEx.cpp" />
     <ClCompile Include="ErasureImpl.cpp" />
     <ClCompile Include="ErasureLibrary.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -175,10 +175,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="eraser\EarseTest.h" />
     <ClInclude Include="eraser\Erasure.h" />
     <ClInclude Include="eraser\ErasureMethod.h" />
     <ClInclude Include="eraser\ErasureThread.h" />
-    <ClInclude Include="eraser\VolumeEx.h" />
     <ClInclude Include="ErasureImpl.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />

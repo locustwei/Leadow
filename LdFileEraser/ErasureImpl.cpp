@@ -143,9 +143,9 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param, IEraserListen* callback)
 		if (s.IsEmpty())
 			continue;
 
-		CVolumeInfo* info = new CVolumeInfo();
+		CVolumeEx* info = new CVolumeEx();
 		info->SetFileName(s);
-
+		m_Files.Add(info);
 	}
 
 	m_EraseThread.SetCallback(callback);

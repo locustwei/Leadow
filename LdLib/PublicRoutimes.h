@@ -163,5 +163,11 @@ namespace LeadowLib {
 		ULONG Length,
 		FILE_INFORMATION_CLASS FileInformationClass);
 
+	NTSTATUS NtQueryInformationProcess(
+		_In_ HANDLE ProcessHandle,
+		_Out_ PVOID ProcessInformation,
+		_In_ ULONG ProcessInformationLength
+	);
+
 #pragma endregion
 };

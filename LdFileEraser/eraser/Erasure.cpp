@@ -20,7 +20,7 @@ CErasure::~CErasure()
 {
 }
 
-DWORD CErasure::UnuseSpaceErasure(CVolumeEx* pvolume, CErasureMothed* method, IErasureCallback* callback, BOOL bSkipSpace, BOOL bSkipTrack)
+DWORD CErasure::UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMothed* method, IErasureCallback* callback, BOOL bSkipSpace, BOOL bSkipTrack)
 {
 	//检查是否有管理员权限（错误）
 	//检查是否有系统还原点（警告）
