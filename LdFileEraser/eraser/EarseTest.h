@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Erasure.h"
+#include "../../MftLib/FatMftReader.h"
 
 typedef struct ERASE_VOLUME_INFO {
 	UINT64 FileCount;        //ÎÄ¼þÊý

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
-#include "VolumeEx.h"
 #include "../../LdApp/LdApp.h"
 
 CEreaserThrads::CEreaserThrads()
@@ -192,14 +191,14 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 			erasure.DirectoryErasure(pFile->GetFullName(), &impl);
 		break;
 	case vft_volume:
-		erasure.UnuseSpaceErasure((CVolumeEx*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);
+		erasure.UnuseSpaceErasure((CVolumeInfo*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);
 		break;
 	default:
 		break;
 	}
 }
 
-void CEreaserThrads::AnalyThreadRung(CVolumeEx* pVolume)
+void CEreaserThrads::AnalyThreadRung(CVolumeInfo* pVolume)
 {
 	if (m_Abort)
 		return;

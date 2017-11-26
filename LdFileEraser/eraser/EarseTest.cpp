@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "EarseTest.h"
-#include "../../MftLib/FatMftReader.h"
 
 #define TEST_temp_path _T("___Leadow_Test_tmp\\")
 
