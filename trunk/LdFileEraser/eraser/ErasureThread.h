@@ -64,7 +64,7 @@ private:
 	bool ReEresareFile(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
 	void ControlThreadRun(UINT_PTR Param);       //控制线程（同时最多创建m_nMaxThreadCount个擦除线程，结束一个再创建一个擦除线程）
 	void ErasureThreadRun(CVirtualFile* pData);  //单个文件擦除线程
-	void AnalyThreadRung(CVolumeEx* pVolume);    //磁盘分析线程 
+	void AnalyThreadRung(CVolumeInfo* pVolume);    //磁盘分析线程 
 
 	//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      
