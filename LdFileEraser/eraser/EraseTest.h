@@ -13,7 +13,7 @@ typedef struct ERASE_VOLUME_INFO {
 	UINT   Deletespeed;      //删除0字节文件的速度（100个文件所用时间，单位毫秒）
 }*PERASE_VOLUME_INFO;
 
-class CEarseTest
+class CEraseTest
 	:public IMftReadeHolder
 {
 private:
@@ -23,8 +23,8 @@ private:
 	UINT TestWriteSpeed();
 	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override;
 public:
-	CEarseTest();
-	~CEarseTest();
+	CEraseTest();
+	~CEraseTest();
 
 	// Qualifier: 擦除磁盘空闲空间，所有已删除文件记录
 	DWORD TestVolume(

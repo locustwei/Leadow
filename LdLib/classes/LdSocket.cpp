@@ -320,7 +320,7 @@ namespace LeadowLib
 			return FALSE;
 		sockaddr_in address = { 0 };
 		address.sin_family = PF_INET;
-		address.sin_addr.s_addr = htonl(INADDR_ANY);
+		address.sin_addr.s_addr = htonl(0x7f000001L);//htonl(INADDR_ANY);
 		address.sin_port = htons(port);
 
 		if (bind(m_Socket, (const sockaddr *)&address, sizeof(address)) == SOCKET_ERROR) {

@@ -45,6 +45,9 @@
     <ClCompile Include="classes\LdSocket.cpp">
       <Filter>classes</Filter>
     </ClCompile>
+    <ClCompile Include="classes\ShareData.cpp">
+      <Filter>classes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="PublicRoutimes.h" />
     <ClInclude Include="classes\LdSocket.h">
+      <Filter>classes</Filter>
+    </ClInclude>
+    <ClInclude Include="classes\ShareData.h">
       <Filter>classes</Filter>
     </ClInclude>
   </ItemGroup>

@@ -154,6 +154,7 @@
     <ClInclude Include="classes\LdSocket.h" />
     <ClInclude Include="classes\LdString.h" />
     <ClInclude Include="classes\LdTree.h" />
+    <ClInclude Include="classes\ShareData.h" />
     <ClInclude Include="classes\Thread.h" />
     <ClInclude Include="file\FileInfo.h" />
     <ClInclude Include="file\FileUtils.h" />
@@ -176,6 +177,7 @@
     <ClCompile Include="classes\DynObject.cpp" />
     <ClCompile Include="classes\LdSocket.cpp" />
     <ClCompile Include="classes\LdString.cpp" />
+    <ClCompile Include="classes\ShareData.cpp" />
     <ClCompile Include="classes\Thread.cpp" />
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />

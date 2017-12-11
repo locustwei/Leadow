@@ -143,7 +143,7 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param, IEraserListen* callback)
 		if (s.IsEmpty())
 			continue;
 
-		CVolumeEx* info = new CVolumeEx();
+		CVolumeInfo* info = new CVolumeInfo();
 		info->SetFileName(s);
 		m_Files.Add(info);
 	}

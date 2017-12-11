@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "EarseTest.h"
+#include "EraseTest.h"
 
 #define TEST_temp_path _T("___Leadow_Test_tmp\\")
 
-DWORD CEarseTest::CountVolumeFiles(CVolumeInfo * pVolume)
+DWORD CEraseTest::CountVolumeFiles(CVolumeInfo * pVolume)
 {
 	DWORD result = 0;
 	CMftReader* reader = CMftReader::CreateReader(pVolume);
@@ -16,7 +16,7 @@ DWORD CEarseTest::CountVolumeFiles(CVolumeInfo * pVolume)
 	return result;
 }
 
-BOOL CEarseTest::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
+BOOL CEraseTest::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
 {
 	if (pFileInfo)
 	{
@@ -39,16 +39,16 @@ BOOL CEarseTest::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInf
 
 }
 
-CEarseTest::CEarseTest()
+CEraseTest::CEraseTest()
 {
 }
 
 
-CEarseTest::~CEarseTest()
+CEraseTest::~CEraseTest()
 {
 }
 
-DWORD CEarseTest::TestVolume(TCHAR* VolumePath, IErasureCallback* callback)
+DWORD CEraseTest::TestVolume(TCHAR* VolumePath, IErasureCallback* callback)
 {
 	DWORD result;
 	ERASE_VOLUME_INFO info = { 0 };
