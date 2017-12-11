@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
+#include "EraseTest.h"
 #include "../../LdApp/LdApp.h"
 
 CEreaserThrads::CEreaserThrads()
@@ -207,7 +208,11 @@ void CEreaserThrads::AnalyThreadRung(CVolumeInfo* pVolume)
 	if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
 		error = ERROR_CANCELED;
 	else
-		error = pVolume->StatisticsFileStatus();
+	{
+		CEraseTest Test;
+		error = Test.TestVolume(pVolume->GetFullName(), nullptr);
+		//error = pVolume->StatisticsFileStatus();
+	}
 	m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
 
 }
@@ -226,7 +231,7 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 			ErasureThreadRun((CVirtualFile*)Param);
 		}else
 		{ //这是磁盘分析线程
-			AnalyThreadRung((CVolumeEx*)Param);
+			AnalyThreadRung((CVolumeInfo*)Param);
 		}
 	}
 }

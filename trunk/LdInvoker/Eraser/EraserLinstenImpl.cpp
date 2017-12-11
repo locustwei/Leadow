@@ -11,6 +11,11 @@ CEraserListenImpl::~CEraserListenImpl()
 {
 }
 
+bool CEraserListenImpl::AnalyResult(TCHAR* FileName, PVOID pData)
+{
+	return true;
+}
+
 bool CEraserListenImpl::EraserReprotStatus(TCHAR* pFile, E_THREAD_OPTION op, DWORD dwValue)
 {
 	//if (m_Socket.IsClosed())
@@ -39,6 +44,10 @@ void CEraserListenImpl::OnRecv(CLdClientSocket*, PBYTE pData, WORD nLength)
 		m_Abort = true;
 		break;
 	}
+}
+
+void CEraserListenImpl::SetSocket(CLdSocket*)
+{
 }
 
 void CEraserListenImpl::SetContext(PVOID)

@@ -36,7 +36,7 @@
     <ClCompile Include="ErasureImpl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="eraser\EarseTest.cpp">
+    <ClCompile Include="eraser\EraseTest.cpp">
       <Filter>Erasure</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClInclude Include="ErasureImpl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="eraser\EarseTest.h">
+    <ClInclude Include="eraser\EraseTest.h">
       <Filter>Erasure</Filter>
     </ClInclude>
   </ItemGroup>
