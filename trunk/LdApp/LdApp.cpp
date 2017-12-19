@@ -46,16 +46,16 @@ CLdApp* ThisApp = nullptr;
 CLdApp::CLdApp() 
 	: m_Instance(nullptr)
 	, m_ThreadID(0)
-	, m_InstallPath()
+	, m_AppPath()
 	, m_AppDataPath()
 	, m_Job()
-	, m_Config()
+	//, m_Config()
 {
 }
 
-CLdString& CLdApp::GetInstallPath()
+CLdString& CLdApp::GetAppPath()
 {
-	return m_InstallPath;
+	return m_AppPath;
 }
 
 CLdString& CLdApp::GetAppDataPath()
@@ -83,18 +83,17 @@ BOOL CLdApp::Initialize(HINSTANCE hInstance)
 
 	TCHAR tszModule[MAX_PATH + 1] = { 0 };
 	::GetModuleFileName(hInstance, tszModule, MAX_PATH);
-	ThisApp->m_InstallPath = tszModule;
-	int pos = ThisApp->m_InstallPath.ReverseFind(_T('\\'));
-	if (pos >= 0) ThisApp->m_InstallPath = ThisApp->m_InstallPath.Left(pos + 1);
+	ThisApp->m_AppPath = tszModule;
+	int pos = ThisApp->m_AppPath.ReverseFind(_T('\\'));
+	if (pos >= 0) ThisApp->m_AppPath = ThisApp->m_AppPath.Left(pos + 1);
 
 	ExpandEnvironmentStrings(_T("%APPDATA%"), tszModule, MAX_PATH);
-	ThisApp->m_AppDataPath = tszModule;
-	ThisApp->m_AppDataPath += _T("\\DYDOT\\");
+	ThisApp->m_AppDataPath.Format(_T("%s\\%s\\%s\\"), tszModule, COMPANY_NAME, APPLICATION_NAME);
 
-	CLdString FileName = ThisApp->GetAppDataPath();
-	FileName += "dydot.cng";
-
-	ThisApp->m_Config.LoadFromFile(FileName);
+//	CLdString FileName = ThisApp->GetAppDataPath();
+//	FileName += "dydot.cng";
+//
+//	ThisApp->m_Config.LoadFromFile(FileName);
 	return true;
 }
 
@@ -114,7 +113,7 @@ BOOL CLdApp::Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param)
 
 DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
 {
-	CLdString invoker = GetInstallPath() + INVOKER_EXE;
+	CLdString invoker = GetAppPath() + INVOKER_EXE;
 
 	if (Flag & RUN_FLAG_ASADMINI)
 	{
@@ -160,7 +159,7 @@ PVOID CLdApp::GetJobContext(DWORD pid)
 		return nullptr;
 }
 
-CConfig* CLdApp::GetConfig()
-{
-	return &m_Config;
-}
+//CConfig* CLdApp::GetConfig()
+//{
+//	return &m_Config;
+//}

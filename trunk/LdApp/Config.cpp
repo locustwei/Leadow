@@ -1,81 +1,89 @@
 #include "stdafx.h"
 #include "Config.h"
 
-CConfig::CConfig():CDynObject()
+CAppConfig::CAppConfig():CDynObject()
 {
 }
 
 
-CConfig::~CConfig()
+CAppConfig::~CAppConfig()
 {
 }
 
-int CConfig::GetFileErasureMothed()
+CErasureConfig::CErasureConfig():CDynObject()
+{
+}
+
+CErasureConfig::~CErasureConfig()
+{
+}
+
+int CErasureConfig::GetFileErasureMothed()
 {
 	return GetInteger("erasure/file/mothed", 3);
 }
 
-BOOL CConfig::IsRemoveFolder()
+BOOL CErasureConfig::IsRemoveFolder()
 {
 	return GetBoolean("erasure/file/removefolder", true);
 }
 
-int CConfig::GetVolumeErasureMethed()
+int CErasureConfig::GetVolumeErasureMethed()
 {
 	return GetInteger("erasure/volume/mothed", 0);
 }
 
-BOOL CConfig::IsSkipSpace()
+BOOL CErasureConfig::IsSkipSpace()
 {
 	return GetBoolean("erasure/volume/skipspace", false);;
 }
 
-BOOL CConfig::IsSkipTrack()
+BOOL CErasureConfig::IsSkipTrack()
 {
 	return GetBoolean("erasure/volume/skiptrack", false);;
 }
 
-BOOL CConfig::IsErasureFreeFileSpace()
+BOOL CErasureConfig::IsErasureFreeFileSpace()
 {
 	return GetBoolean("erasure/volume/filefree", false);;
 }
 
-BOOL CConfig::IsShutDown()
+BOOL CErasureConfig::IsShutDown()
 {
 	return GetBoolean("erasure/volume/shutdown", false);;
 }
 
-void CConfig::SetFileErasureMothed(int Mothed)
+void CErasureConfig::SetFileErasureMothed(int Mothed)
 {
 	AddObjectAttribute("erasure/file/mothed", Mothed);
 }
 
-void CConfig::SetRemoveFolder(BOOL value)
+void CErasureConfig::SetRemoveFolder(BOOL value)
 {
 	AddObjectAttribute("erasure/file/removefolder", value);
 }
 
-void CConfig::SetVolumeErasureMethed(int Mothed)
+void CErasureConfig::SetVolumeErasureMethed(int Mothed)
 {
 	AddObjectAttribute("erasure/volume/mothed", Mothed);
 }
 
-void CConfig::SetSkipSpace(BOOL value)
+void CErasureConfig::SetSkipSpace(BOOL value)
 {
 	AddObjectAttribute("erasure/volume/skipspace", value);
 }
 
-void CConfig::SetSkipTrack(BOOL value)
+void CErasureConfig::SetSkipTrack(BOOL value)
 {
 	AddObjectAttribute("erasure/volume/skiptrack", value);
 }
 
-void CConfig::SetErasureFreeFileSpace(BOOL value)
+void CErasureConfig::SetErasureFreeFileSpace(BOOL value)
 {
 	AddObjectAttribute("erasure/volume/filefree", value);
 }
 
-void CConfig::SetShutDown(BOOL value)
+void CErasureConfig::SetShutDown(BOOL value)
 {
 	AddObjectAttribute("erasure/volume/shutdown", value);
 }
