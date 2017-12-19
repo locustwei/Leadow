@@ -14,7 +14,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	HRESULT Hr = ::CoInitialize(NULL);
 	if (FAILED(Hr)) return 0;
 
-	DebugOutput(L"dddddd");
 	if (!CLdApp::Initialize(hInstance))
 		return 0;
 	CPaintManagerUI::SetInstance(hInstance);
@@ -32,7 +31,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	MainWnd.Create(NULL, APP_TITLE, UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW);
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);
-
+	//进程通信监听
 	CMainCommunication mc;
 	mc.Listen();
  
@@ -45,7 +44,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 			::DispatchMessage(&msg);
 		}
 	}
-
+	mc.Close();
 	::CoUninitialize();
 
 	return 0;

@@ -1,8 +1,7 @@
 #pragma once
 
-
 /*
 
 */
 
-DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files);
+DWORD ExecuteFileErase(IEraserListen* callback, LeadowLib::CLdArray<TCHAR*>* files);
