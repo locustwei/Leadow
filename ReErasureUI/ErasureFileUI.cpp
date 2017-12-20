@@ -228,6 +228,11 @@ void CErasureFileUI::StatErase()
 	ExecuteFileErase(this, &files);
 }
 
+bool CErasureFileUI::AnalyResult(TCHAR* FileName, PVOID pData)
+{
+	return false;
+}
+
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
