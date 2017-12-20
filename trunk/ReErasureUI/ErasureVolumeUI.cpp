@@ -237,7 +237,12 @@ bool CErasureVolumeUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, D
 bool CErasureVolumeUI::GetViewHeader()
 {
 	return CSHFolders::EnumFolderColumes(CSIDL_DRIVES, this, 0) == 0;
-};
+}
+
+bool CErasureVolumeUI::AnalyResult(TCHAR* FileName, PVOID pData)
+{
+	return false;
+}
 
 void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 {
