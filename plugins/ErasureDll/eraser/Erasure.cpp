@@ -362,7 +362,7 @@ DWORD CErasure::EraseNtfsFreeSpace(IErasureCallback* callback)
 	UINT64 nMaxFileCount;
 	do 
 	{
-		nMaxFileCount = max(1,/* m_Volume->GetRemoveableCount()*/0);
+		nMaxFileCount = max(1, 0/*m_Volume->GetRemoveableCount()*/);
 		
 		if (callback && !callback->ErasureProgress(ERASER_MFT_FREE, nMaxFileCount, 0))
 			return ERROR_CANCELED;
@@ -515,7 +515,7 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 {
 	DWORD result;
 	UINT64 nMftSize, nCount=0;
-	UINT64 totalFiles = 2 * (UINT64)max(1L, /*m_Volume->GetTrackCount()*/0);
+	UINT64 totalFiles = 2 * (UINT64)max(1L, 0/*m_Volume->GetTrackCount()*/);
 
 	PVOLUME_BPB_DATA pBpb = m_Volume->GetBpbData(&result);
 	do
