@@ -24,6 +24,7 @@
 #include "../../DuiLib/Uilib.h"
 #include "../../Jsonlib/JsonBox.h"
 
+#define UI_CLASS_NAME CFramNotifyPump
 
 using namespace DuiLib;
 using namespace LeadowLib;

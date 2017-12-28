@@ -5,8 +5,9 @@
 */
 
 class CErasureImpl
-	:public IPluginInterface
+	:public IErasure
 {
+private:
 	friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/);
 public:
 	CErasureImpl();
@@ -17,6 +18,8 @@ protected:
 	DWORD EraseVolume(CDynObject& Param, IEraserListen* callback) override;
 	DWORD AnaFile(CDynObject& Param, IEraserListen* callback) override;
 	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback) override;
+	CFramNotifyPump* CreateUI() override;
+	TCHAR* GetPropertys(PLUGIN_PROPERTYS nproperty) override;
 private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
