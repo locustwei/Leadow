@@ -4,6 +4,7 @@
 #include "eraser/ErasureThread.h"
 #include "define.h"
 #include "ErasureImpl.h"
+#include "../../ReErasureUI/ErasureMainWnd.h"
 
 CErasureImpl* ErasureImpl = nullptr;
 
@@ -168,4 +169,14 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param, IEraserListen* callback)
 	m_EraseThread.StartAnalysis(k);
 
 	return 0;
+}
+
+CFramNotifyPump* CErasureImpl::CreateUI()
+{
+	return new CErasureMainWnd;
+}
+
+TCHAR* CErasureImpl::GetPropertys(PLUGIN_PROPERTYS nproperty)
+{
+	return nullptr;
 }

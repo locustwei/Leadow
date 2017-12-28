@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "../plugin.h"
 
 //调用进程命令行参数中的第一个参数，指明调用那个函数。
 #define CMD_ERASE    TEXT("/erase")      //文件擦除
@@ -47,7 +48,7 @@ interface LDLIB_API IEraserListen
 	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
 };
 
-interface LDLIB_API IPluginInterface
+interface LDLIB_API IErasure: IPluginInterface
 {
 	virtual DWORD EraseFile(CDynObject& Param, IEraserListen * callback) = 0;
 	virtual DWORD EraseVolume(CDynObject& Param, IEraserListen * callback) = 0;
