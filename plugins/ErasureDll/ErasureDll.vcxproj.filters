@@ -19,6 +19,9 @@
     <Filter Include="UI">
       <UniqueIdentifier>{70049fda-4eaa-4428-97c2-0a4ac444027c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPC">
+      <UniqueIdentifier>{bb8abefb-662b-441d-9444-ce739aa15d10}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -62,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="..\dllmain.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IPC\FilePipeFlow.cpp">
+      <Filter>IPC</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="define.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IPC\FilePipeFlow.h">
+      <Filter>IPC</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
