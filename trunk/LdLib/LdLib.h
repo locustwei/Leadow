@@ -30,6 +30,7 @@ interface IGernalCallback
 #include "classes/LdTree.h"
 #include "classes/DynObject.h"
 #include "classes/LdSocket.h"
+#include "classes/ShareData.h"
 
 #include "file/FileInfo.h"
 #include "file/FileUtils.h"

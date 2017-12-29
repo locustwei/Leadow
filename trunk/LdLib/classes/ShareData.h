@@ -31,24 +31,24 @@ namespace LeadowLib
 		bool m_TermateReadThread;  //结束读取线程。
 		bool m_IsMaster;           //是否为Master
 		UINT m_nTimeOut;
-		CShareData(TCHAR* pName);
 	protected:
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 	public:
+		CShareData(TCHAR* pName, WORD nSize);
 		~CShareData();
 		//写数据
-		DWORD Write(PVOID pData, UINT nLength);
+		virtual DWORD Write(PVOID pData, UINT nLength);
 		//读取数据（在没有读取数据线程时适用）
-		DWORD Read(PVOID pData, UINT nLength);  
+		virtual DWORD Read(PVOID pData, UINT nLength);  
 		//线程等待读取数据
-		DWORD StartReadThread(IGernalCallback<PVOID>* ReadCallback);
+		virtual DWORD StartReadThread(IGernalCallback<PVOID>* ReadCallback);
 		//停止读取数据线程
 		void StopReadThread();
 
 		void SetWaitTimeOut(UINT nTime);
-		static CShareData* Create(TCHAR* pName, UINT nSize);
+//		static CShareData* Create(TCHAR* pName, UINT nSize);
 	};
 
 }

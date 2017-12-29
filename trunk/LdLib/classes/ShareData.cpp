@@ -4,7 +4,7 @@
 
 namespace LeadowLib
 {
-	CShareData::CShareData(TCHAR* pName)
+	CShareData::CShareData(TCHAR* pName, WORD nSize)
 		: m_hFile(nullptr)
 		, m_pFileHeader(nullptr)
 		, m_Size(0)
@@ -12,9 +12,19 @@ namespace LeadowLib
 		, m_TermateReadThread(true)
 		, m_nTimeOut(INFINITE)
 	{
+		nSize += sizeof(struct MAP_DATA);
+		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
+		
+		if (hMap == nullptr)
+			return;
+	
+		m_IsMaster = GetLastError() == 0;// ERROR_ALREADY_EXISTS;
+		m_hFile = hMap;
+		m_pFileHeader = (struct MAP_DATA*)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
+		m_Size = nSize;
+
 		m_Name = pName;
 		m_hSemaphore = CreateSemaphore(nullptr, 0, 1, pName);
-		m_IsMaster = GetLastError() == 0;// ERROR_ALREADY_EXISTS;
 	
 		CLdString s = pName;
 		s += _T("master");
@@ -125,17 +135,17 @@ namespace LeadowLib
 		m_nTimeOut = nTime;
 	}
 
-	CShareData* CShareData::Create(TCHAR* pName, UINT nSize)
-	{
-		nSize += sizeof(struct MAP_DATA);
-
-		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
-		if (hMap == nullptr)
-			return nullptr;
-		CShareData* result = new CShareData(pName);
-		result->m_hFile = hMap;
-		result->m_pFileHeader = (struct MAP_DATA*)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
-		result->m_Size = nSize;
-		return result;
-	}
+//	CShareData* CShareData::Create(TCHAR* pName, UINT nSize)
+//	{
+//		nSize += sizeof(struct MAP_DATA);
+//
+//		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
+//		if (hMap == nullptr)
+//			return nullptr;
+//		CShareData* result = new CShareData(pName);
+//		result->m_hFile = hMap;
+//		result->m_pFileHeader = (struct MAP_DATA*)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
+//		result->m_Size = nSize;
+//		return result;
+//	}
 }
