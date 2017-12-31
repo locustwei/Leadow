@@ -111,42 +111,16 @@ BOOL CLdApp::Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param)
 	return PostThreadMessage(ThisApp->m_ThreadID, MM_CALLBACKMSG, (WPARAM)callback, Param);
 }
 
-DWORD CLdApp::RunInvoker(TCHAR* Param, DWORD Flag, PVOID pContext)
+DWORD CLdApp::RunPlugin(TCHAR* Param, RUN_PROCESS_FLAG Flag, PVOID pContext)
 {
 	CLdString invoker = GetAppPath() + INVOKER_EXE;
+	PROCESS_INFORMATION info = { 0 };
+	if (!RunProcess(invoker, Param, Flag, &info))
+		return GetLastError();
 
-	if (Flag & RUN_FLAG_ASADMINI)
-	{
-		SHELLEXECUTEINFO info = { 0 };
-		info.cbSize = sizeof(SHELLEXECUTEINFO);
-		info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_DEFAULT;
-		info.lpVerb = TEXT("runas");
-		info.lpFile = invoker;
-		info.lpParameters = Param;
-
-		if (!ShellExecuteEx(&info))
-			return 0;
-		PROCESS_BASIC_INFORMATION information;
-		NTSTATUS ret = NtQueryInformationProcess(info.hProcess, &information, sizeof(PROCESS_BASIC_INFORMATION));
-		if (!NT_SUCCESS(ret))
-			return 0;
-		CloseHandle(info.hProcess);
-		m_Job.Put(information.UniqueProcessId, pContext);
-		return information.UniqueProcessId;
-	}
-	else
-	{
-		PROCESS_INFORMATION info = { 0 };
-		STARTUPINFO si = { 0 };
-		si.cb = sizeof(STARTUPINFO);
-		if (CreateProcess(invoker, Param, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
-		{
-			m_Job.Put(info.dwProcessId, pContext);
-			return info.dwProcessId;
-		}
-		else
-			return 0;
-	}
+//		PROCESS_BASIC_INFORMATION information;
+//		NTSTATUS ret = NtQueryInformationProcess(info.hProcess, &information, sizeof(PROCESS_BASIC_INFORMATION));
+	return 0;
 }
 
 PVOID CLdApp::GetJobContext(DWORD pid)
