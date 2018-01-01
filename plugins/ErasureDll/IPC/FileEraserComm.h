@@ -6,8 +6,8 @@ public:
 	CFileEraserComm();
 	~CFileEraserComm();
 
-
+	DWORD LoadHost(IGernalCallback<PVOID>* HostExit);
 private:
-	CShareData m_Data;
+	CShareData* m_Data;
 };
 

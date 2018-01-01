@@ -53,6 +53,10 @@ CLdApp::CLdApp()
 {
 }
 
+CLdApp::~CLdApp()
+{
+}
+
 CLdString& CLdApp::GetAppPath()
 {
 	return m_AppPath;

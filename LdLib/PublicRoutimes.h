@@ -3,9 +3,16 @@
 #include <winternl.h>
 #include "classes/LdString.h"
 
-namespace LeadowLib {
+enum RUN_PROCESS_FLAG
+{
+	RS_NONE     = 0,
+	RS_ASADMINI = 0x0010
+};
 
 #define MAKEINT64(low, hi)      ((UINT64)low & 0xffffffff) | (((UINT64)hi & 0xffffffff) << 32)
+
+namespace LeadowLib {
+
 
 	enum WIN_OS_TYPE
 	{
@@ -29,8 +36,12 @@ namespace LeadowLib {
 	BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
 	//ShllExecute 打开文件、网页等
 	BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
+	//获取当前用户的SID
 	DWORD GetCurrentUserSID(CLdString& sidStr);
+	//清除磁盘文件权限。
 	DWORD ClearFileSecurity(TCHAR* pFileName);
+	//运行外部程序（外部命令）
+	DWORD RunProcess(TCHAR* cmd, TCHAR* param, RUN_PROCESS_FLAG dwFlag, PPROCESS_INFORMATION out);
 #pragma region Window 版本
 	WIN_OS_TYPE GetOsType();
 	BOOL RtlGetVersion(PRTL_OSVERSIONINFOW pOsvi);
