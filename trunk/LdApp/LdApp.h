@@ -12,6 +12,7 @@ class CLdApp
 {
 public:
 	CLdApp();
+	~CLdApp();
 	CLdString& GetAppPath();        //应用程序路径
 	CLdString& GetAppDataPath();    //应用程序配置文件路径
 	HINSTANCE GetInstance();

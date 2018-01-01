@@ -40,7 +40,6 @@ namespace LeadowLib {
 		return 0;
 	}
 
-
 	CLdString SysErrorMsg(DWORD dwErrorCode)
 	{
 		LPTSTR pMsg = NULL;
@@ -75,7 +74,6 @@ namespace LeadowLib {
 		pOsvi->dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOW);
 		return RtlGetVersion(pOsvi) == 0;
 	}
-
 
 	BOOL IsWindow64() //判断是否是64位机
 	{
@@ -180,6 +178,44 @@ namespace LeadowLib {
 		SetFileAttributes(pFileName, FILE_ATTRIBUTE_NORMAL);
 		//return DeleteFile(pFileName);
 		return 0;
+	}
+
+	DWORD RunProcess(TCHAR* cmd, TCHAR* param, RUN_PROCESS_FLAG dwFlag, PPROCESS_INFORMATION out)
+	{
+		CLdString invoker = cmd;
+
+		if (dwFlag & RS_ASADMINI)
+		{
+			SHELLEXECUTEINFO info = { 0 };
+			info.cbSize = sizeof(SHELLEXECUTEINFO);
+			info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_DEFAULT;
+			info.lpVerb = TEXT("runas");
+			info.lpFile = invoker;
+			info.lpParameters = param;
+
+			if (!ShellExecuteEx(&info))
+				return 0;
+			if(out)
+			{
+				out->hProcess = info.hProcess;
+				out->dwProcessId = 0;
+				out->dwThreadId = 0;
+				out->hThread = nullptr;
+			}
+		}
+		else
+		{
+			PROCESS_INFORMATION info = { 0 };
+			STARTUPINFO si = { 0 };
+			si.cb = sizeof(STARTUPINFO);
+			if (CreateProcess(invoker, param, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
+				return 0;
+			if (out)
+			{
+				*out = info;
+			}
+		}
+		return 1;
 	}
 #pragma region 未公开API
 

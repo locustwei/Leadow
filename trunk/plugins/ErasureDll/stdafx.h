@@ -23,6 +23,7 @@
 #include "../../LdLib/LdLib.h"
 #include "../../DuiLib/Uilib.h"
 #include "../../Jsonlib/JsonBox.h"
+//#include "../../LdApp/LdApp.h"
 
 #define UI_CLASS_NAME CFramNotifyPump
 
