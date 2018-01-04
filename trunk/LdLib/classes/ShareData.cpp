@@ -33,25 +33,24 @@ namespace LeadowLib
 		s += _T("client");
 		HANDLE hClient = CreateEvent(nullptr, TRUE, TRUE, s);
 		
-		m_hWaitEvent = m_IsMaster ? hClient : hMaster;
-		m_hSetEvent = m_IsMaster ? hMaster : hClient;
+		m_hReadEvent = m_IsMaster ? hClient : hMaster;
+		m_hWriteEvent = m_IsMaster ? hMaster : hClient;
 	}
 
 	void CShareData::ThreadBody(CThread* Sender, UINT_PTR Param)
 	{
 		m_TermateReadThread = false;
 		IGernalCallback<PVOID>* ReadCallback = (IGernalCallback<PVOID>*)Param;
-		while (!m_TermateReadThread)
+		while (ReadCallback && !m_TermateReadThread)
 		{
-			DWORD k = WaitForSingleObject(m_hWaitEvent, INFINITE);
+			DWORD k = WaitForSingleObject(m_hReadEvent, INFINITE);
 			
 			if (k == WAIT_OBJECT_0)
 			{
-				WORD nSize = m_pFileHeader->nSize;
-				BYTE* Data = new BYTE[nSize];
-				Read(Data, nSize);
-				if (ReadCallback)
-					ReadCallback->GernalCallback_Callback(Data, nSize);
+				WORD nSize;
+				BYTE* Data;
+				Read((PVOID*)&Data, &nSize);
+				ReadCallback->GernalCallback_Callback(Data, nSize);
 				delete[] Data;
 			}
 			else
@@ -76,10 +75,10 @@ namespace LeadowLib
 			CloseHandle(m_hFile);
 		if (m_hSemaphore)
 			CloseHandle(m_hSemaphore);
-		if (m_hWaitEvent)
-			CloseHandle(m_hWaitEvent);
-		if (m_hSetEvent)
-			CloseHandle(m_hSetEvent);
+		if (m_hReadEvent)
+			CloseHandle(m_hReadEvent);
+		if (m_hWriteEvent)
+			CloseHandle(m_hWriteEvent);
 	}
 
 	DWORD CShareData::Write(PVOID pData, UINT nLength)
@@ -87,27 +86,52 @@ namespace LeadowLib
 		if (!m_hFile || !m_pFileHeader || nLength > m_Size)
 			return DWORD(-1);
 		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
-			return DWORD(-1);
+			return GetLastError();
 		m_pFileHeader->nSign = 0;
 		m_pFileHeader->nSize = nLength;
 		MoveMemory(m_pFileHeader->Data, pData, nLength);
 		FlushViewOfFile(m_pFileHeader, m_Size);
 		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
-		::PulseEvent(m_hSetEvent);
+		::PulseEvent(m_hWriteEvent);
 		return 0;
 	}
 
-	DWORD CShareData::Read(PVOID pData, UINT nLength)
+	DWORD CShareData::Read(PVOID pData, WORD nLength)
 	{
 		if (!m_hFile || !m_pFileHeader ||  nLength > m_Size)
 			return DWORD(-1);
 		//等写入数据
-		if(WaitForSingleObject(m_hWaitEvent, m_nTimeOut) != WAIT_OBJECT_0)
-			return (DWORD)-1;
+		if(WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
+			return GetLastError();
 		//进临界区
 		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
-			return (DWORD)-1;
-		MoveMemory(pData, m_pFileHeader->Data, nLength);
+			return GetLastError();
+		if (m_pFileHeader->nSize && nLength > m_pFileHeader->nSize)
+			MoveMemory(pData, m_pFileHeader->Data, nLength);
+		m_pFileHeader->nSize = 0;
+		m_pFileHeader->nSign = 1;
+		FlushViewOfFile(m_pFileHeader, sizeof(struct MAP_DATA));
+		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+		return 0;
+	}
+
+	DWORD CShareData::Read(PVOID* pData, WORD* nLength)
+	{
+		if (!m_hFile || !m_pFileHeader || !nLength || !pData)
+			return DWORD(-1);
+		//等写入数据
+		if (WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
+			return GetLastError();
+		//进临界区
+		if (WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
+			return GetLastError();
+		if (m_pFileHeader->nSize)
+		{
+			*nLength = m_pFileHeader->nSize;
+			*pData = (PVOID)new BYTE[m_pFileHeader->nSize];
+			MoveMemory(*pData, m_pFileHeader->Data, *nLength);
+		}
+		m_pFileHeader->nSize = 0;
 		m_pFileHeader->nSign = 1;
 		FlushViewOfFile(m_pFileHeader, sizeof(struct MAP_DATA));
 		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
@@ -126,7 +150,7 @@ namespace LeadowLib
 		if (!m_TermateReadThread)
 		{
 			m_TermateReadThread = true;
-			ResetEvent(m_hWaitEvent);
+			ResetEvent(m_hReadEvent);
 		}
 	}
 

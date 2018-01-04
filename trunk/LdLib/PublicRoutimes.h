@@ -14,6 +14,20 @@ enum RUN_PROCESS_FLAG
 namespace LeadowLib {
 
 
+	CLdString SysErrorMsg(DWORD dwErrorCode);         //系统错误消息
+	//打开（关闭）程序令牌
+	BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
+	//ShllExecute 打开文件、网页等
+	BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
+	//获取当前用户的SID
+	DWORD GetCurrentUserSID(CLdString& sidStr);
+	//清除磁盘文件权限。
+	DWORD ClearFileSecurity(TCHAR* pFileName);
+	//运行外部程序（外部命令）
+	DWORD RunProcess(TCHAR* cmd, TCHAR* param, RUN_PROCESS_FLAG dwFlag, PPROCESS_INFORMATION out);
+
+	CLdString NewGuidString();
+#pragma region Window 版本
 	enum WIN_OS_TYPE
 	{
 		Windows_2000,
@@ -30,19 +44,6 @@ namespace LeadowLib {
 		Windows_8_1,
 		Windows_10
 	};
-
-	CLdString SysErrorMsg(DWORD dwErrorCode);         //系统错误消息
-	//打开（关闭）程序令牌
-	BOOL EnableTokenPrivilege(LPCTSTR pszPrivilege, BOOL bEnable = TRUE);
-	//ShllExecute 打开文件、网页等
-	BOOL OpenURL(LPCTSTR lpCmd, LPCTSTR lpParam = NULL);
-	//获取当前用户的SID
-	DWORD GetCurrentUserSID(CLdString& sidStr);
-	//清除磁盘文件权限。
-	DWORD ClearFileSecurity(TCHAR* pFileName);
-	//运行外部程序（外部命令）
-	DWORD RunProcess(TCHAR* cmd, TCHAR* param, RUN_PROCESS_FLAG dwFlag, PPROCESS_INFORMATION out);
-#pragma region Window 版本
 	WIN_OS_TYPE GetOsType();
 	BOOL RtlGetVersion(PRTL_OSVERSIONINFOW pOsvi);
 	BOOL IsWindow64();
