@@ -217,6 +217,19 @@ namespace LeadowLib {
 		}
 		return 1;
 	}
+
+	CLdString NewGuidString()
+	{
+		GUID guid;
+		if(!SUCCEEDED(CoCreateGuid(&guid)))
+			return _T("");
+		LPOLESTR p;
+		if(!SUCCEEDED(StringFromCLSID(guid, &p)))
+			return _T("");
+		CLdString result = (TCHAR*)p;
+		CoTaskMemFree(p);
+		return result;
+	}
 #pragma region Î´¹«¿ªAPI
 
 	//SYSTEM_INFORMATION_CLASS SystemHandleInformation = (SYSTEM_INFORMATION_CLASS)16;
