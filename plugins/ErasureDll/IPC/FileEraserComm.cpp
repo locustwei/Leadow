@@ -54,7 +54,7 @@ bool CFileEraserComm::Call(DWORD dwId, PVOID Param, WORD nParamSize, PVOID* resu
 	call_param.id = dwId;
 	data_name.CopyTo(call_param.Param_data_name);
 	m_Data->Write(&call_param, sizeof(data_name));
-	PVOID p = nullptr;
+	PBYTE p = nullptr;
 	WORD n;
 	ParamData.Read(&p, &n);
 	if (result)

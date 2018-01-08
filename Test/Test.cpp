@@ -105,50 +105,6 @@ void PrintComError(_com_error &e) {
 	printf("\tDescription = %s\n", (LPCSTR)bstrDescription);
 }
 
-class CClientImpl: public IClientListener
-{
-public:
-	void SetSocket(CLdSocket*) override
-	{
-	};
-
-	void OnConnected(CLdClientSocket* socket) override
-	{
-		printf("OnConnected s=%d\n", (int)socket->GetHandle());
-	};
-	void OnRecv(CLdClientSocket* s, PBYTE pData, WORD nLength) override
-	{
-		printf("OnRecv s=%d %s \n", (int)s->GetHandle(), (char*)pData);
-	};
-	void OnClosed(CLdSocket* socket) override
-	{
-		printf("OnCloseds s=%d\n", (int)socket->GetHandle());
-	};
-
-	void OnError(CLdSocket* socket, int code) override
-	{
-		printf("OnError s=%d code=s=%d\n", (int)socket->GetHandle(), code);
-	};
-};
-
-class CServerImpl : public IServerListener
-{
-public:
-	void OnAccept(CLdServerSocket*, SOCKET) override
-	{
-	};
-	CLdArray<CLdClientSocket*> Clients;
-
-	void SetSocket(CLdSocket*) override
-	{
-	};
-	void OnClosed(CLdSocket*) override
-	{
-	};
-	void OnError(CLdSocket*, int) override
-	{};
-};
-
 void set_locale()
 {
 	/* Set UTF16 for unicode console print on windows*/
@@ -158,47 +114,30 @@ void set_locale()
 	}
 }
 
+class CTest
+{
+public:
+	bool fun1(CTest* self, void* param)
+	{
+		PWORD p = (PWORD)param;
+		printf("%d\n", *p);
+		return true;
+	}
+};
+
+
+
 int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
+	
+	CTest Test;
 
-//	CLdSocket::InitSocketDll();
-//	
-//	CServerImpl impl;
-//	CLdServerSocket socket;
-//	socket.SetListener(&impl);
-//	socket.Listen();
-//	
-//	CClientImpl impl1;
-//	CLdClientSocket socket1;
-//	socket1.SetListener(&impl1);
-//	socket1.Connect();
-//	Sleep(100);
-//	socket1.Send("ddddddddd", 10);
-//	socket1.Send("eeeeeeeee", 10);
-//	socket1.Send("fffffffff", 10);
-//	socket1.Send("wwwwwwwww", 10);
-//	socket1.Send("sssssssss", 10);
-//	Sleep(100);
-	printf("-------------------------------------\n");
-//	impl.Clients[0]->Send("ddddddddd", 10);
-//	impl.Clients[0]->Send("eeeeeeeee", 10);
-//	impl.Clients[0]->Send("fffffffff", 10);
-//	impl.Clients[0]->Send("wwwwwwwww", 10);
-//	impl.Clients[0]->Send("sssssssss", 10);
-//
-//	Sleep(100);
-	//socket1.Close();
+	CDelegateBase de = MakeDelegate(&Test, &CTest::fun1);
+	DWORD dw = 1234;
 
-	CLdArray<TCHAR*> values;
-
-	CSHFolders::GetFileAttributeValue(L"I:\\workspace", &values);
-	for(int I=0; I<values.GetCount(); I++)
-	{
-		printf("%S\n", values[I]);
-		delete values[I];
-	}
+	bool b = InvokeDelegate(&Test, &de, (void*)&dw);
 
 	printf("\npress any key exit");
 	getchar();

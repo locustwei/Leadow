@@ -8,6 +8,7 @@
 
 #include "../classes/LdString.h"
 #include "../classes/LdArray.h"
+#include "../LdDelegate.h"
 
 namespace LeadowLib {
 	enum VOLUME_FILE_SYSTEM

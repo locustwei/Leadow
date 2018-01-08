@@ -48,6 +48,7 @@
     <ClCompile Include="classes\ShareData.cpp">
       <Filter>classes</Filter>
     </ClCompile>
+    <ClCompile Include="LdDelegate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="LdLib.h" />
@@ -117,6 +118,7 @@
     <ClInclude Include="classes\ShareData.h">
       <Filter>classes</Filter>
     </ClInclude>
+    <ClInclude Include="LdDelegate.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="files">

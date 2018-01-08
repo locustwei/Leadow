@@ -49,7 +49,7 @@ namespace LeadowLib
 			{
 				WORD nSize;
 				BYTE* Data;
-				Read((PVOID*)&Data, &nSize);
+				Read(&Data, &nSize);
 				ReadCallback->GernalCallback_Callback(Data, nSize);
 				delete[] Data;
 			}
@@ -115,7 +115,7 @@ namespace LeadowLib
 		return 0;
 	}
 
-	DWORD CShareData::Read(PVOID* pData, WORD* nLength)
+	DWORD CShareData::Read(PBYTE* pData, WORD* nLength)
 	{
 		if (!m_hFile || !m_pFileHeader || !nLength || !pData)
 			return DWORD(-1);
@@ -128,7 +128,7 @@ namespace LeadowLib
 		if (m_pFileHeader->nSize)
 		{
 			*nLength = m_pFileHeader->nSize;
-			*pData = (PVOID)new BYTE[m_pFileHeader->nSize];
+			*pData = new BYTE[m_pFileHeader->nSize];
 			MoveMemory(*pData, m_pFileHeader->Data, *nLength);
 		}
 		m_pFileHeader->nSize = 0;

@@ -14,12 +14,12 @@
 
 /*
 通用回掉函数
-*/
+
 #define __IGernalCallback
 template <typename T>
 interface IGernalCallback
 {
 	virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
 };
-
+*/
 // TODO: 在此处引用程序需要的其他头文件
