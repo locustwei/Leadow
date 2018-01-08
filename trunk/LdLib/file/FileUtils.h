@@ -7,6 +7,7 @@
 #include <shellapi.h>
 #include "../classes/LdString.h"
 #include "../classes/LdArray.h"
+#include "../LdDelegate.h"
 
 namespace LeadowLib {
 

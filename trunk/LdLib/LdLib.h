@@ -7,21 +7,12 @@
 #define LDLIB_API
 #endif
 
-#ifndef __IGernalCallback
-
 #pragma warning(disable:4996 4091)
-/*
-通用回掉函数
-*/
-template <typename T>
-interface IGernalCallback
-{
-	virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
-};
 
+//#ifndef __IGernalCallback
 
-#endif
-
+//#endif
+#include "LdDelegate.h"
 #include "classes/LdString.h"
 #include "classes/Thread.h"
 #include "classes/LdList.h"

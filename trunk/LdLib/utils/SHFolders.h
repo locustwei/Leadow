@@ -2,7 +2,7 @@
 #include <Shlobj.h>
 #include "../classes/LdString.h"
 #include "../classes/ldArray.h"
-#include "../classes/LdMap.h"
+#include "../LdDelegate.h"
 
 namespace LeadowLib {
 	typedef struct _SH_HEAD_INFO

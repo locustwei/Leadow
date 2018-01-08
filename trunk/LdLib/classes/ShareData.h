@@ -1,5 +1,6 @@
 #pragma once
 #include "Thread.h"
+#include "../LdDelegate.h"
 
 namespace LeadowLib
 {
@@ -42,7 +43,7 @@ namespace LeadowLib
 		virtual DWORD Write(PVOID pData, UINT nLength);
 		//读取数据（在没有读取数据线程时适用）
 		virtual DWORD Read(PVOID pData, WORD nLength); 
-		virtual DWORD Read(PVOID* pData, WORD* nLength);
+		virtual DWORD Read(PBYTE* pData, WORD* nLength);
 		//线程等待读取数据
 		virtual DWORD StartReadThread(IGernalCallback<PVOID>* ReadCallback);
 		//停止读取数据线程
