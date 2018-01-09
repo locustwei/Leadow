@@ -117,15 +117,24 @@ void set_locale()
 class CTest
 {
 public:
-	bool fun1(CTest* self, void* param)
+	bool fun1(UINT_PTR param)
 	{
-		PWORD p = (PWORD)param;
-		printf("%d\n", *p);
+		printf("%d\n", param);
 		return true;
 	}
 };
 
+bool fun1(UINT_PTR param)
+{
+	printf("%d\n", param+1234);
+	return true;
+}
 
+void dodelegate(CMethodDelegate de)
+{
+	DWORD dw = 1234;
+	de(dw);
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -134,10 +143,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	CTest Test;
 
-	CDelegateBase de = MakeDelegate(&Test, &CTest::fun1);
-	DWORD dw = 1234;
+	dodelegate(CMethodDelegate::MakeDelegate(&Test, &CTest::fun1));
+	//dodelegate(MakeDelegate(&fun1));
 
-	bool b = InvokeDelegate(&Test, &de, (void*)&dw);
+//	CEventSource de;
+//	
+//	de = MakeDelegate(&Test, &CTest::fun1);
+//	DWORD dw = 1234;
+//
+//	de(&dw);
+//
+//	de = MakeDelegate(&fun1);
+//
+//	de(&dw);
 
 	printf("\npress any key exit");
 	getchar();
