@@ -180,11 +180,11 @@ namespace LeadowLib {
 		return 0;
 	}
 
-	DWORD RunProcess(TCHAR* cmd, TCHAR* param, RUN_PROCESS_FLAG dwFlag, PPROCESS_INFORMATION out)
+	DWORD RunProcess(TCHAR* cmd, TCHAR* param, bool admin, PPROCESS_INFORMATION out)
 	{
 		CLdString invoker = cmd;
 
-		if (dwFlag & RS_ASADMINI)
+		if (admin)
 		{
 			SHELLEXECUTEINFO info = { 0 };
 			info.cbSize = sizeof(SHELLEXECUTEINFO);
@@ -194,7 +194,7 @@ namespace LeadowLib {
 			info.lpParameters = param;
 
 			if (!ShellExecuteEx(&info))
-				return 0;
+				return GetLastError();
 			if(out)
 			{
 				out->hProcess = info.hProcess;
@@ -209,13 +209,13 @@ namespace LeadowLib {
 			STARTUPINFO si = { 0 };
 			si.cb = sizeof(STARTUPINFO);
 			if (CreateProcess(invoker, param, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
-				return 0;
+				return GetLastError();
 			if (out)
 			{
 				*out = info;
 			}
 		}
-		return 1;
+		return 0;
 	}
 
 	CLdString NewGuidString()

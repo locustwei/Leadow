@@ -23,7 +23,7 @@ DWORD ExecuteFileErase(IEraserListen* callback, CLdArray<TCHAR*>* files)
 		param += '\"';
 	}
 
-	return ThisApp->RunPlugin(param, 0, (PVOID)callback);
+	return ThisApp->RunPluginHost(param, 0, (PVOID)callback);
 }
 
 DWORD ExecuteFileAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* files)
@@ -40,7 +40,7 @@ DWORD ExecuteFileAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* files)
 		param += '\"';
 	}
 
-	return ThisApp->RunPlugin(param, 0, (PVOID)callback);
+	return ThisApp->RunPluginHost(param, 0, (PVOID)callback);
 }
 
 DWORD ExecuteVolumeAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* volumes)
@@ -55,5 +55,5 @@ DWORD ExecuteVolumeAnalysis(IEraserListen* callback, CLdArray<TCHAR*>* volumes)
 		param += volumes->Get(i);
 	}
 
-	return ThisApp->RunPlugin(param, RUN_FLAG_ASADMINI, (PVOID)callback);
+	return ThisApp->RunPluginHost(param, RUN_FLAG_ASADMINI, (PVOID)callback);
 }

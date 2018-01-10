@@ -182,7 +182,6 @@
     <ClCompile Include="classes\Thread.cpp" />
     <ClCompile Include="file\FileInfo.cpp" />
     <ClCompile Include="file\FileUtils.cpp" />
-    <ClCompile Include="LdDelegate.cpp" />
     <ClCompile Include="PulicRoutimes.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

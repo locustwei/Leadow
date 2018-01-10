@@ -8,9 +8,17 @@ public:
 
 	DWORD LoadHost(IGernalCallback<PVOID>* HostExit);
 	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
-private:
+protected:
 	CShareData* m_Data;
-	bool Call(DWORD dwId, PVOID Param, WORD nParamSize, PVOID* result);
-	bool CallProgress(DWORD dwId, PVOID Param, WORD nParamSize, PVOID* result);
+	/*
+	调用外部进程方法
+	*/
+	bool CallMethod(
+		DWORD dwId,       //方法ID
+		PVOID Param,      //参数指针
+	 	WORD nParamSize,  //参数字节数
+		PVOID* result,    //函数返回值（null，不需要返回）
+		IGernalCallback<PVOID>* progress = nullptr  //需要过程数据（如：进度状态）
+	);
 };
 

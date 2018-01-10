@@ -26,12 +26,13 @@ namespace LeadowLib
 		UINT m_Size;               //文件大小
 		HANDLE m_hSemaphore;       //信号量，同步读写内存映像文件
 		HANDLE m_hReadEvent;       //等待数据写入事件。
-		HANDLE m_hWriteEvent;        //发送数据写入。
+		HANDLE m_hWriteEvent;      //发送数据写入。
 
 		CLdString m_Name;          //内存映像文件名
 		bool m_TermateReadThread;  //结束读取线程。
 		bool m_IsMaster;           //是否为Master
 		UINT m_nTimeOut;           //WaitFor写入、读取等待超时
+		bool m_FreeOnTerminate;    //读取线程结束时删除自己
 	protected:
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
@@ -45,7 +46,9 @@ namespace LeadowLib
 		virtual DWORD Read(PVOID pData, WORD nLength); 
 		virtual DWORD Read(PBYTE* pData, WORD* nLength);
 		//线程等待读取数据
-		virtual DWORD StartReadThread(IGernalCallback<PVOID>* ReadCallback);
+		virtual DWORD StartReadThread(
+			IGernalCallback<PVOID>* ReadCallback, //读到数据回掉
+			bool FreeOnTerminate = false);        //停止读取时删除自己
 		//停止读取数据线程
 		void StopReadThread();
 
