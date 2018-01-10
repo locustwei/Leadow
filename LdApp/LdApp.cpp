@@ -11,9 +11,7 @@
 #define INVOKER_EXE _T("LdInvoker_d32.exe")
 #endif
 #else
-#ifdef WIN64
-#else
-#endif
+#define INVOKER_EXE _T("LdInvoker.exe")
 #endif
 
 void DebugOutput(LPCTSTR pstrFormat, ...)
@@ -48,7 +46,7 @@ CLdApp::CLdApp()
 	, m_ThreadID(0)
 	, m_AppPath()
 	, m_AppDataPath()
-	, m_Job()
+	//, m_Job()
 	//, m_Config()
 {
 }
@@ -112,30 +110,30 @@ void CLdApp::MainThreadMessage(MSG & msg)
 
 BOOL CLdApp::Send2MainThread(IGernalCallback<LPVOID>* callback, UINT_PTR Param)
 {
-	return PostThreadMessage(ThisApp->m_ThreadID, MM_CALLBACKMSG, (WPARAM)callback, Param);
+	return PostThreadMessage(m_ThreadID, MM_CALLBACKMSG, (WPARAM)callback, Param);
 }
 
-DWORD CLdApp::RunPlugin(TCHAR* Param, RUN_PROCESS_FLAG Flag, PVOID pContext)
+DWORD CLdApp::RunPluginHost(TCHAR* Param, bool admin, HANDLE* hProcess)
 {
 	CLdString invoker = GetAppPath() + INVOKER_EXE;
 	PROCESS_INFORMATION info = { 0 };
-	if (!RunProcess(invoker, Param, Flag, &info))
-		return GetLastError();
-
+	DWORD result = RunProcess(invoker, Param, admin, &info);
+	if (result == 0 && hProcess)
+		*hProcess = info.hProcess;
 //		PROCESS_BASIC_INFORMATION information;
 //		NTSTATUS ret = NtQueryInformationProcess(info.hProcess, &information, sizeof(PROCESS_BASIC_INFORMATION));
-	return 0;
+	return result;
 }
 
-PVOID CLdApp::GetJobContext(DWORD pid)
-{
-	PVOID* result = nullptr;
-	m_Job.GetAt(0, &result); //m_Job[pid];
-	if (result)
-		return *result;
-	else
-		return nullptr;
-}
+//PVOID CLdApp::GetJobContext(DWORD pid)
+//{
+//	PVOID* result = nullptr;
+//	m_Job.GetAt(0, &result); //m_Job[pid];
+//	if (result)
+//		return *result;
+//	else
+//		return nullptr;
+//}
 
 //CConfig* CLdApp::GetConfig()
 //{

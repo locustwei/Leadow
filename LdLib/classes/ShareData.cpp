@@ -11,6 +11,7 @@ namespace LeadowLib
 		, m_Name()
 		, m_TermateReadThread(true)
 		, m_nTimeOut(INFINITE)
+		, m_FreeOnTerminate(false)
 	{
 		nSize += sizeof(struct MAP_DATA);
 		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
@@ -50,7 +51,7 @@ namespace LeadowLib
 				WORD nSize;
 				BYTE* Data;
 				Read(&Data, &nSize);
-				ReadCallback->GernalCallback_Callback(Data, nSize);
+				m_TermateReadThread = !ReadCallback->GernalCallback_Callback(Data, nSize);
 				delete[] Data;
 			}
 			else
@@ -65,6 +66,8 @@ namespace LeadowLib
 
 	void CShareData::OnThreadTerminated(CThread* Sender, UINT_PTR Param)
 	{
+		if (m_FreeOnTerminate)
+			delete this;
 	}
 
 	CShareData::~CShareData()
@@ -138,8 +141,9 @@ namespace LeadowLib
 		return 0;
 	}
 
-	DWORD CShareData::StartReadThread(IGernalCallback<PVOID>* ReadCallback)
+	DWORD CShareData::StartReadThread(IGernalCallback<PVOID>* ReadCallback, bool FreeOnTerminate)
 	{
+		m_FreeOnTerminate = FreeOnTerminate;
 		CThread* thread = new CThread(this);
 		thread->Start((UINT_PTR)ReadCallback);
 		return 0;

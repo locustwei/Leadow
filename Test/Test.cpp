@@ -117,20 +117,20 @@ void set_locale()
 class CTest
 {
 public:
-	bool fun1(UINT_PTR param)
+	INT_PTR fun1(UINT_PTR param)
 	{
 		printf("%d\n", param);
-		return true;
+		return 0;
 	}
 };
 
-bool fun1(UINT_PTR param)
+INT_PTR fun1(UINT_PTR param)
 {
 	printf("%d\n", param+1234);
-	return true;
+	return 0;
 }
 
-void dodelegate(CMethodDelegate de)
+void dodelegate(CMethodDelegate& de)
 {
 	DWORD dw = 1234;
 	de(dw);
@@ -143,8 +143,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	CTest Test;
 
+	CMethodDelegate md = CMethodDelegate::MakeDelegate(&Test, &CTest::fun1);
+	dodelegate(md);
 	dodelegate(CMethodDelegate::MakeDelegate(&Test, &CTest::fun1));
-	//dodelegate(MakeDelegate(&fun1));
+	dodelegate(CMethodDelegate::MakeDelegate(&fun1));
 
 //	CEventSource de;
 //	
