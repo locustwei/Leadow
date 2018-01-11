@@ -14,6 +14,7 @@ struct CALL_PARAM
 
 CFileEraserComm::CFileEraserComm()
 	: m_Data(nullptr)
+	, m_hProcess(nullptr)
 {
 
 }
@@ -24,31 +25,44 @@ CFileEraserComm::~CFileEraserComm()
 		delete m_Data;
 }
 
+DWORD CFileEraserComm::TerminateHost()
+{
+	if (!m_hProcess)
+		return (DWORD)-1;
+	if(!m_Data)
+		TerminateProcess(m_hProcess, 0);
+	CloseHandle(m_hProcess);
+	m_hProcess = nullptr;
+	return 0;
+}
+
 DWORD CFileEraserComm::LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDestroy)
 {
 	CLdString data_name = NewGuidString();
 	if (data_name.IsEmpty())
 		return false;
-	m_Data = new CShareData(data_name, 1024);
+	//m_Data = new CShareData(data_name, 1024);
 	data_name.Insert(0, HOST_PARAM_PIPENAME);
-	HANDLE hProcess = nullptr;
-	DWORD result = ThisApp->RunPluginHost(data_name, false, &hProcess);
+	//HANDLE hProcess = nullptr;
+	DWORD result = ThisApp->RunPluginHost(data_name, false, &m_hProcess);
 	if(result != 0)
 	{
-		delete m_Data;
+		//delete m_Data;
 		return result;
 	}
 	if(!OnCreated(0))
 	{
-		delete m_Data;
+		//delete m_Data;
+		TerminateHost();
 		return result;
 	}
 
 	if(result)
 	{
-		CThread* thread = new CThread();
-		
+		CThread* thread = new CThread(this);
+		thread->Start(0);
 	}
+	m_Data->StartReadThread();
 	return result;
 }
 
@@ -85,4 +99,19 @@ bool CFileEraserComm::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID
 	if(!progress)
 		delete ParamData;
 	return true;
+}
+
+void CFileEraserComm::ThreadBody(CThread* Sender, UINT_PTR Param)
+{
+	HANDLE hProcess = (HANDLE)Param;
+	WaitForSingleObject(hProcess, INFINITE);
+}
+
+void CFileEraserComm::OnThreadInit(CThread* Sender, UINT_PTR Param)
+{
+}
+
+void CFileEraserComm::OnThreadTerminated(CThread* Sender, UINT_PTR Param)
+{
+
 }
