@@ -59,10 +59,10 @@ DWORD CFileEraserComm::LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDes
 
 	if(result)
 	{
-		CThread* thread = new CThread(this);
-		thread->Start(0);
+		CThread* thread = new CThread();
+		thread->Start(CMethodDelegate::MakeDelegate(this, CFileEraserComm::WaitHost), (HANDLE)m_hProcess);
 	}
-	m_Data->StartReadThread();
+	m_Data->StartReadThread(this);
 	return result;
 }
 
@@ -101,17 +101,13 @@ bool CFileEraserComm::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID
 	return true;
 }
 
-void CFileEraserComm::ThreadBody(CThread* Sender, UINT_PTR Param)
+BOOL CFileEraserComm::GernalCallback_Callback(void* pData, UINT_PTR Param)
+{
+	return true;
+}
+
+void CFileEraserComm::WaitHost(UINT_PTR Param)
 {
 	HANDLE hProcess = (HANDLE)Param;
 	WaitForSingleObject(hProcess, INFINITE);
-}
-
-void CFileEraserComm::OnThreadInit(CThread* Sender, UINT_PTR Param)
-{
-}
-
-void CFileEraserComm::OnThreadTerminated(CThread* Sender, UINT_PTR Param)
-{
-
 }
