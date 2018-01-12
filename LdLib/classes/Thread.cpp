@@ -62,7 +62,24 @@ namespace LeadowLib {
 			m_Runer->OnThreadInit(this, m_Param);
 
 		HANDLE hThread = CreateThread(nullptr, 0, &ThreadProcedure, (LPVOID)this, CREATE_SUSPENDED, &m_ThreadId);
-		m_hThread = hThread;  //这么啰嗦防止线程过早结束this无效
+		m_hThread = hThread;  //线程在return之前可能结束，this被销毁
+		if (hThread != 0)
+			ResumeThread(hThread);
+		return hThread;
+	}
+
+	HANDLE CThread::Start(CMethodDelegate method, UINT_PTR Param)
+	{
+		if (m_hThread != INVALID_HANDLE_VALUE)
+			return INVALID_HANDLE_VALUE;
+
+		m_Param = Param;
+		m_Terminated = false;
+
+		m_Delegate = method;
+
+		HANDLE hThread = CreateThread(nullptr, 0, &ThreadProcedure, (LPVOID)this, CREATE_SUSPENDED, &m_ThreadId);
+		m_hThread = hThread;  //线程在return之前可能结束，this被销毁
 		if (hThread != 0)
 			ResumeThread(hThread);
 		return hThread;
@@ -179,7 +196,8 @@ namespace LeadowLib {
 	{
 		if (m_Runer)
 			m_Runer->ThreadBody(this, m_Param);
-
+		else
+			m_Delegate(m_Param);
 		return 0;
 	}
 

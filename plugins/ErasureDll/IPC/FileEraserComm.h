@@ -1,7 +1,7 @@
 #pragma once
 
 class CFileEraserComm
-	: IThreadRunable
+	:IGernalCallback<PVOID>
 {
 public:
 	CFileEraserComm();
@@ -23,9 +23,8 @@ protected:
 		PVOID* result,    //函数返回值（null，不需要返回）
 		IGernalCallback<PVOID>* progress = nullptr  //需要过程数据（如：进度状态）
 	);
-protected:
-	void ThreadBody(CThread* Sender, UINT_PTR Param) override;
-	void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
-	void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
+private:
+	bool WaitHost(UINT_PTR Param);
+	BOOL GernalCallback_Callback(void* pData, UINT_PTR Param) override;
 };
 

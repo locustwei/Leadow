@@ -1,4 +1,5 @@
 #pragma once
+#include "../LdDelegate.h"
 
 namespace LeadowLib {
 
@@ -40,6 +41,7 @@ namespace LeadowLib {
 		Param 回传到线程回掉函数
 		*/
 		virtual HANDLE Start(UINT_PTR Param);
+		virtual HANDLE Start(CMethodDelegate method, UINT_PTR Param);
 		/*
 		结束线程
 		dwWaitTime 等待线程结束时间，然后强制结束
@@ -66,6 +68,7 @@ namespace LeadowLib {
 		HANDLE m_hThread;
 		DWORD m_ThreadId;
 		IThreadRunable* m_Runer;
+		CMethodDelegate m_Delegate;
 		bool m_FreeOnTerminate;
 		UINT_PTR m_Param;
 		UINT_PTR m_Tag;
