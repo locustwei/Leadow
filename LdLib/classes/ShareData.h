@@ -38,7 +38,7 @@ namespace LeadowLib
 		void OnThreadInit(CThread* Sender, UINT_PTR Param) override;
 		void OnThreadTerminated(CThread* Sender, UINT_PTR Param) override;
 	public:
-		CShareData(TCHAR* pName, WORD nSize);
+		CShareData(TCHAR* pName, WORD nSize = 1024);
 		~CShareData();
 		//Ð´Êý¾Ý
 		virtual DWORD Write(PVOID pData, UINT nLength);

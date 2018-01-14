@@ -20,16 +20,17 @@
 #include <tchar.h>
 
 #include "targetver.h"
-#include "../../LdLib/LdLib.h"
-#include "../../DuiLib/Uilib.h"
-#include "../../Jsonlib/JsonBox.h"
-//#include "../../LdApp/LdApp.h"
-
-#define UI_CLASS_NAME CFramNotifyPump
+#include <LdLib.h>
+#include <Uilib.h>
+#include <JsonBox.h>
+#include <LdMft.h>
+#include <LdApp.h>
 
 using namespace DuiLib;
 using namespace LeadowLib;
 using namespace JsonBox;
+
+#define UI_CLASS_NAME CFramNotifyPump
 
 #ifdef _DEBUG
 #ifdef WIN64

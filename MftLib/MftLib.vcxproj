@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FatMftReader.h" />
+    <ClInclude Include="LdMft.h" />
     <ClInclude Include="MftReader.h" />
     <ClInclude Include="NtfsMtfReader.h" />
     <ClInclude Include="stdafx.h" />

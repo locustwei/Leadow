@@ -131,6 +131,19 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 	//_tcscpy(p->szName, pData->szName); //毛病：这函数不能用
 	m_Columes.Add(p);
 	return true;
+}
+
+bool CShFileViewUI::OnCreate(CFileEraserComm* Sender)
+{
+	return true;
+}
+
+void CShFileViewUI::OnTerminate(CFileEraserComm* Sender)
+{
+}
+
+void CShFileViewUI::OnCommand(CFileEraserComm* Sender)
+{
 };
 
 

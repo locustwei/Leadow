@@ -12,11 +12,19 @@ struct CALL_PARAM
 	TCHAR Param_data_name[30]; 
 };
 
-CFileEraserComm::CFileEraserComm()
+CFileEraserComm::CFileEraserComm(ICommunicationListen* listen)
 	: m_Data(nullptr)
 	, m_hProcess(nullptr)
 {
+	m_Listen = listen;
+}
 
+CFileEraserComm::CFileEraserComm(ICommunicationListen* listen, TCHAR* sharedata)
+	: m_hProcess(nullptr)
+{
+	m_Listen = listen;
+	m_Data = new CShareData(sharedata);
+	m_Data->StartReadThread(this);
 }
 
 CFileEraserComm::~CFileEraserComm()
@@ -36,7 +44,7 @@ DWORD CFileEraserComm::TerminateHost()
 	return 0;
 }
 
-DWORD CFileEraserComm::LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDestroy)
+DWORD CFileEraserComm::LoadHost()
 {
 	CLdString data_name = NewGuidString();
 	if (data_name.IsEmpty())
@@ -50,7 +58,7 @@ DWORD CFileEraserComm::LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDes
 		//delete m_Data;
 		return result;
 	}
-	if(!OnCreated(0))
+	if(!m_Listen->OnCreate(this))
 	{
 		//delete m_Data;
 		TerminateHost();
@@ -60,18 +68,19 @@ DWORD CFileEraserComm::LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDes
 	if(result)
 	{
 		CThread* thread = new CThread();
-		thread->Start(CMethodDelegate::MakeDelegate(this, CFileEraserComm::WaitHost), (HANDLE)m_hProcess);
+		thread->Start(CMethodDelegate::MakeDelegate(this, &CFileEraserComm::WaitHost), (UINT_PTR)m_hProcess);
 	}
+	m_Data = new CShareData(data_name);
 	m_Data->StartReadThread(this);
 	return result;
 }
 
-DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
-{
-	//m_Data->Write()
-	CallMethod(0, nullptr, 0, nullptr);
-	return 0;
-}
+//DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
+//{
+//	//m_Data->Write()
+//	CallMethod(0, nullptr, 0, nullptr);
+//	return 0;
+//}
 
 bool CFileEraserComm::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID* result, IGernalCallback<PVOID>* progress)
 {
@@ -79,7 +88,7 @@ bool CFileEraserComm::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID
 	CLdString data_name = NewGuidString();
 	if (data_name.IsEmpty())
 		return false;
-	CShareData* ParamData = new CShareData(data_name, nParamSize);
+	CShareData* ParamData = new CShareData(data_name);
 	ParamData->Write(Param, nParamSize);
 	struct CALL_PARAM call_param = { 0 };
 	call_param.id = dwId;
@@ -100,14 +109,17 @@ bool CFileEraserComm::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID
 		delete ParamData;
 	return true;
 }
-
+//
 BOOL CFileEraserComm::GernalCallback_Callback(void* pData, UINT_PTR Param)
 {
+	m_Listen->OnCommand(this);
 	return true;
 }
 
-void CFileEraserComm::WaitHost(UINT_PTR Param)
+INT_PTR CFileEraserComm::WaitHost(UINT_PTR Param)
 {
 	HANDLE hProcess = (HANDLE)Param;
 	WaitForSingleObject(hProcess, INFINITE);
+	m_Listen->OnTerminate(this);
+	return 0;
 }

@@ -4,7 +4,7 @@
 namespace DuiLib {
 	CFramNotifyPump::CFramNotifyPump()
 		: m_Ctrl(nullptr)
-		, m_Listener(nullptr)
+//		, m_Listener(nullptr)
 	{
 	}
 
@@ -13,8 +13,8 @@ namespace DuiLib {
 		m_Ctrl = pCtrl;
 		if (m_Ctrl)
 			m_Ctrl->SetVirtualWnd(m_Name);
-		if (m_Listener)
-			m_Listener->OnAttanch(pCtrl);
+//		if (m_Listener)
+//			m_Listener->OnAttanch(pCtrl);
 	}
 
 	DUI_BEGIN_MESSAGE_MAP(CFramNotifyPump, CNotifyPump)

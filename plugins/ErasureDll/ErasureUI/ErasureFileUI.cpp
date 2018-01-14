@@ -11,12 +11,15 @@ CErasureFileUI::CErasureFileUI() :
 	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
+	m_Comm = new CFileEraserComm(this);
 }
 
 CErasureFileUI::~CErasureFileUI()
 {
 	//m_EreaserThreads.StopThreads();
 	FreeEraseFiles(m_ErasureFile.GetFiles());
+	if (m_Comm)
+		delete m_Comm;
 }
 
 void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
@@ -96,6 +99,8 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	CSHFolders::EnumFolderColumes(Path, this, 0);
 
 	AddLstViewHeader(8);
+
+	m_Comm->LoadHost();
 }
 //擦除完成后从m_ErasureFile中删除
 void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
@@ -311,6 +316,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 					continue;
 				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
 				AddFileUI(pFile);
+				
 			}
 			m_ErasureFile.Sort();
 		};
