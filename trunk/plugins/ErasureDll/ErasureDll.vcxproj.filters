@@ -69,6 +69,9 @@
     <ClCompile Include="IPC\FileEraserComm.cpp">
       <Filter>IPC</Filter>
     </ClCompile>
+    <ClCompile Include="IPC\LdCommunication.cpp">
+      <Filter>IPC</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="eraser\EraseTest.h">
@@ -120,6 +123,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="IPC\FileEraserComm.h">
+      <Filter>IPC</Filter>
+    </ClInclude>
+    <ClInclude Include="IPC\LdCommunication.h">
       <Filter>IPC</Filter>
     </ClInclude>
   </ItemGroup>
