@@ -133,16 +133,16 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 	return true;
 }
 
-bool CShFileViewUI::OnCreate(CFileEraserComm* Sender)
+bool CShFileViewUI::OnCreate(CLdCommunication* Sender)
 {
 	return true;
 }
 
-void CShFileViewUI::OnTerminate(CFileEraserComm* Sender)
+void CShFileViewUI::OnTerminate(CLdCommunication* Sender)
 {
 }
 
-void CShFileViewUI::OnCommand(CFileEraserComm* Sender)
+void CShFileViewUI::OnCommand(CLdCommunication* Sender)
 {
 };
 

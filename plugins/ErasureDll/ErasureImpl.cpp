@@ -4,7 +4,7 @@
 #include "eraser/ErasureThread.h"
 #include "define.h"
 #include "ErasureImpl.h"
-#include "../../ReErasureUI/ErasureMainWnd.h"
+#include "ErasureUI/ErasureMainWnd.h"
 
 CErasureImpl* ErasureImpl = nullptr;
 

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
 #include "EraserUI.h"
+#include "../IPC/FileEraserComm.h"
 
 CErasureFileUI::CErasureFileUI() :
 	m_ErasureFile()
