@@ -1,4 +1,5 @@
 #pragma once
+#include "../IPC/FileEraserComm.h"
 
 /*******************************************************
 用Windows资源管理器（Shell）格式，显示文件（文件夹）信息
@@ -6,6 +7,7 @@
 
 class CShFileViewUI : 
 	public CFramNotifyPump, 
+	ICommunicationListen,
 	IGernalCallback<CLdArray<TCHAR*>*>,  	 //CSHFolders::EnumFolderObjects 回掉
 	public IGernalCallback<PSH_HEAD_INFO>           //CSHFolders::EnumFolderColumes 回掉
 {
@@ -41,5 +43,8 @@ protected:
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//枚举ShellView列头信息
 	BOOL GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param) override;
+	bool OnCreate(CFileEraserComm* Sender) override;
+	void OnTerminate(CFileEraserComm* Sender) override;
+	void OnCommand(CFileEraserComm* Sender) override;
 };
 

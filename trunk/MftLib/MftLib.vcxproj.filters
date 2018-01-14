@@ -39,6 +39,9 @@
     <ClInclude Include="NtfsMtfReader.h">
       <Filter>Mft</Filter>
     </ClInclude>
+    <ClInclude Include="LdMft.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

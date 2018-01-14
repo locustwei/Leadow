@@ -18,6 +18,7 @@ public:
 
 	DUI_DECLARE_MESSAGE_MAP()
 private:
+	CFileEraserComm* m_Comm;
 
 	CButtonUI* btnOpenFile;
 	bool m_Abort;

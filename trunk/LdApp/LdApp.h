@@ -5,6 +5,8 @@
 
 */
 
+using namespace LeadowLib;
+
 #define COMPANY_NAME _T("DYDOT")
 #define APPLICATION_NAME _T("Erasure")
 

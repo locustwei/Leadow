@@ -1,15 +1,25 @@
 #pragma once
 
+class CFileEraserComm;
+
+interface ICommunicationListen
+{
+	virtual bool OnCreate(CFileEraserComm* Sender) = 0;
+	virtual void OnTerminate(CFileEraserComm* Sender) = 0;
+	virtual void OnCommand(CFileEraserComm* Sender) = 0;
+};
+
 class CFileEraserComm
 	:IGernalCallback<PVOID>
 {
 public:
-	CFileEraserComm();
+	CFileEraserComm(ICommunicationListen* listen);
+	CFileEraserComm(ICommunicationListen* listen, TCHAR* sharedata);
 	~CFileEraserComm();
 
 	DWORD TerminateHost();
-	DWORD LoadHost(CMethodDelegate OnCreated, CMethodDelegate OnDestroy);
-	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
+	DWORD LoadHost();
+//	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
 protected:
 	CShareData* m_Data;
 	HANDLE m_hProcess;
@@ -24,7 +34,9 @@ protected:
 		IGernalCallback<PVOID>* progress = nullptr  //需要过程数据（如：进度状态）
 	);
 private:
-	bool WaitHost(UINT_PTR Param);
+	ICommunicationListen* m_Listen;
+	INT_PTR WaitHost(UINT_PTR Param);
+	//客户进程共享数据读取回掉
 	BOOL GernalCallback_Callback(void* pData, UINT_PTR Param) override;
 };
 

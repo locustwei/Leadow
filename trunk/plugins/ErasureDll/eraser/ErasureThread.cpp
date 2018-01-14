@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 #include "EraseTest.h"
-#include "../../LdApp/LdApp.h"
 
 CEreaserThrads::CEreaserThrads()
 {
