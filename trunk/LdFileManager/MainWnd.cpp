@@ -88,12 +88,12 @@ void CMainWnd::InitWindow()
 	if (!pControl)
 		return;
 	//嵌入文件擦除模块窗口
-	m_EraserUI = new CErasureMainWnd();
-	CControlUI* control = BuildXml(_T("erasure/erasuremain.xml"));
-	m_EraserUI->AttanchControl(control);
-	AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
-	pControl->Add(control);
-	pControl->SelectItem(control);
+//	m_EraserUI = new CErasureMainWnd();
+//	CControlUI* control = BuildXml(_T("erasure/erasuremain.xml"));
+//	m_EraserUI->AttanchControl(control);
+//	AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
+//	pControl->Add(control);
+//	pControl->SelectItem(control);
 
 	m_btnLogo = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("logo")));
 }

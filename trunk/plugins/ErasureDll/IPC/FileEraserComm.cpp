@@ -21,6 +21,13 @@ CFileEraserComm::~CFileEraserComm()
 {
 }
 
+DWORD CFileEraserComm::LoadHost()
+{
+	DWORD result = CLdCommunication::LoadHost();
+
+	return result;
+}
+
 DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 {
 	//m_Data->Write()
@@ -30,5 +37,5 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 
 BOOL CFileEraserComm::GernalCallback_Callback(void* pData, UINT_PTR Param)
 {
-	return false;
+	return CLdCommunication::GernalCallback_Callback(pData, Param);
 }

@@ -4,6 +4,8 @@
 动态库导出接口实现，并动态库全局设置和变量。(ThisLibrary 变量当前动态库的全局数据）
 */
 
+#define PLUGIN_ID _T("BCBE2CB1-37FC-46c2-A9A2-9B9EEBEC262E")
+
 class CErasureImpl
 	:public IErasure
 {
@@ -19,7 +21,7 @@ protected:
 	DWORD AnaFile(CDynObject& Param, IEraserListen* callback) override;
 	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback) override;
 	CFramNotifyPump* CreateUI() override;
-	TCHAR* GetPropertys(PLUGIN_PROPERTYS nproperty) override;
+//	TCHAR* GetPropertys(PLUGIN_PROPERTYS nproperty) override;
 private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;

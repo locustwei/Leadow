@@ -15,6 +15,7 @@ namespace LeadowLib {
 	{
 		virtual BOOL GernalCallback_Callback(T pData, UINT_PTR Param) = 0;
 	};
+
 	/*
 	函数代理
 	*/
@@ -33,37 +34,37 @@ namespace LeadowLib {
 			{
 
 			};
-			INT_PTR operator() (UINT_PTR param)
+			INT_PTR operator() (PVOID pData, UINT_PTR param)
 			{
-				return Invoke(param);
+				return Invoke(pData, param);
 			}
 		protected:
-			virtual INT_PTR Invoke(UINT_PTR param) = 0;
+			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param) = 0;
 			void* m_pObject;
 			void* m_pFn;
 		};
 		//静态函数代理
 		class CStaticMethodDelegate : public CMethodDelegateBase
 		{
-			typedef INT_PTR(*Fn)(UINT_PTR);
+			typedef INT_PTR(*Fn)(PVOID, UINT_PTR);
 		public:
 			CStaticMethodDelegate(Fn pFn) : CMethodDelegateBase(nullptr, (void*)pFn) { }
 		protected:
-			virtual INT_PTR Invoke(UINT_PTR param)
+			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param)
 			{
 				Fn pFn = (Fn)m_pFn;
-				return (*pFn)(param);
+				return (*pFn)(pData, param);
 			}
 		};
 		//对象函数代理
 		template <class T>
 		class CObjectMethodDelegate : public CMethodDelegateBase
 		{
-			typedef INT_PTR (T::* Fn)(UINT_PTR);
+			typedef INT_PTR (T::* Fn)(PVOID, UINT_PTR);
 		public:
 			CObjectMethodDelegate(T* pObj, Fn pFn) : CMethodDelegateBase(pObj, *(void**)&pFn) { }
 		protected:
-			virtual INT_PTR Invoke(UINT_PTR param)
+			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param)
 			{
 				T* pObject = (T*)m_pObject;
 				union
@@ -71,7 +72,7 @@ namespace LeadowLib {
 					void* ptr;
 					Fn fn;
 				} func = { m_pFn };
-				return (pObject->*func.fn)(param);
+				return (pObject->*func.fn)(pData, param);
 			}
 		};
 
@@ -103,24 +104,24 @@ namespace LeadowLib {
 
 			m_Delegate = d;
 		};
-		INT_PTR operator() (UINT_PTR param)
+		INT_PTR operator() (PVOID pData, UINT_PTR param)
 		{
-			return Invoke(param);
+			return Invoke(pData, param);
 		};
-		INT_PTR Invoke(UINT_PTR param)
+		INT_PTR Invoke(PVOID pData, UINT_PTR param)
 		{
 			if (m_Delegate)
-				return (*m_Delegate)(param);
+				return (*m_Delegate)(pData, param);
 			else
 				return 0;
 		}
 		template <class T>
-		static CMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(UINT_PTR))
+		static CMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(PVOID, UINT_PTR))
 		{
 			return CMethodDelegate(new CObjectMethodDelegate<T>(pObject, pFn));
 		}
 
-		static CMethodDelegate MakeDelegate(INT_PTR(*pFn)(UINT_PTR))
+		static CMethodDelegate MakeDelegate(INT_PTR(*pFn)(PVOID, UINT_PTR))
 		{
 			return CMethodDelegate(new CStaticMethodDelegate(pFn));
 		}
