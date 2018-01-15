@@ -35,6 +35,11 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 	return 0;
 }
 
+void CFileEraserComm::AnalFile(TCHAR* file_name)
+{
+
+}
+
 BOOL CFileEraserComm::GernalCallback_Callback(void* pData, UINT_PTR Param)
 {
 	return CLdCommunication::GernalCallback_Callback(pData, Param);

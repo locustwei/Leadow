@@ -12,6 +12,7 @@ public:
 	DWORD LoadHost() override;
 
 	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
+	void AnalFile(TCHAR* file_name);
 protected:
 	BOOL GernalCallback_Callback(void* pData, UINT_PTR Param) override;
 };
