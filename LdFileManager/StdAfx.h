@@ -8,17 +8,12 @@
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
 #pragma comment(lib,"MftLib_d64.lib")
-#pragma comment(lib,"ReErasureUI_d64.lib")
 #pragma comment(lib,"Jsonlib_d64.lib")
-#pragma comment(lib,"Communications_d64.lib")
 #pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"DuiLib_d32.lib")
 #pragma comment(lib,"LdLib_d32.lib")
-#pragma comment(lib,"MftLib_d32.lib")
-#pragma comment(lib,"ReErasureUI_d32.lib")
 #pragma comment(lib,"Jsonlib_d32.lib")
-#pragma comment(lib,"Communications_d32.lib")
 #pragma comment(lib,"LdApp_d32.lib")
 #endif
 #else
@@ -26,12 +21,10 @@
 #pragma comment(lib,"LdLib.lib")
 #pragma comment(lib,"DuiLib.lib")
 #pragma comment(lib,"MftLib.lib")
-#pragma comment(lib,"ReErasureUI.lib")
 #else
 #pragma comment(lib,"LdLib.lib")
 #pragma comment(lib,"DuiLib.lib")
 #pragma comment(lib,"MftLib.lib")
-#pragma comment(lib,"ReErasureUI.lib")
 #endif
 #endif
 
@@ -45,6 +38,4 @@
 
 using namespace DuiLib;
 using namespace LeadowLib;
-
-#include "EraserUI.h"
 

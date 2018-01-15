@@ -99,7 +99,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 		recyclePath += _T("\\");
 //		m_RecycleFiles.Tag = (UINT_PTR)recyclePath.GetData();
-		CFileUtils::FindFile(recyclePath, L"*.*", this, (UINT_PTR)recyclePath.GetData());
+		CFileUtils::EnumFiles(recyclePath, L"*.*", this, (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}

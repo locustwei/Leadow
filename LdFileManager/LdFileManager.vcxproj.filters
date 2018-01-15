@@ -16,8 +16,8 @@
     <Filter Include="UI">
       <UniqueIdentifier>{a6e4bcfa-96fb-41df-9c65-11a6812b4a4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Executor">
-      <UniqueIdentifier>{8ae85083-350a-4a57-8925-40f15f3af63c}</UniqueIdentifier>
+    <Filter Include="plugins">
+      <UniqueIdentifier>{0077e694-fa13-4e03-b16d-bfd90b9d308f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -33,8 +33,8 @@
     <ClCompile Include="About.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="executor\Executor.cpp">
-      <Filter>Executor</Filter>
+    <ClCompile Include="..\plugins\management.cpp">
+      <Filter>plugins</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -47,11 +47,11 @@
     <ClInclude Include="About.h">
       <Filter>UI</Filter>
     </ClInclude>
-    <ClInclude Include="executor\Executor.h">
-      <Filter>Executor</Filter>
-    </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\plugins\plugin.h">
+      <Filter>plugins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

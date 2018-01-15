@@ -8,6 +8,7 @@
 
 CErasureImpl* ErasureImpl = nullptr;
 
+
 //动态库导出函数---------------------------------------
 #define CreatePluginImpl() new CErasureImpl();
 #define DeletePluginImpl() \
@@ -17,8 +18,15 @@ if(ErasureImpl)            \
 	ErasureImpl = nullptr; \
 }                          \
 
-API_Init()
+PLUGIN_PRPPERTY GetSelfDesc()
+{
+	PLUGIN_PRPPERTY ErasurePrpperty = { 0, PLUGIN_ID };
+	return ErasurePrpperty;
+}
+
+API_Init();
 API_UnInit();
+API_Register();
 //--------------------------------------------------------
 
 CErasureImpl::CErasureImpl()
@@ -176,7 +184,7 @@ CFramNotifyPump* CErasureImpl::CreateUI()
 	return new CErasureMainWnd;
 }
 
-TCHAR* CErasureImpl::GetPropertys(PLUGIN_PROPERTYS nproperty)
-{
-	return nullptr;
-}
+//TCHAR* CErasureImpl::GetPropertys(PLUGIN_PROPERTYS nproperty)
+//{
+//	return nullptr;
+//}

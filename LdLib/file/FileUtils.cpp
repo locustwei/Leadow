@@ -163,7 +163,7 @@ namespace LeadowLib {
 		return Result;
 	}
 
-	DWORD CFileUtils::FindFile(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param)
+	DWORD CFileUtils::EnumFiles(TCHAR* lpFullPath, TCHAR* lpFilter, IGernalCallback<LPWIN32_FIND_DATA>* callback, UINT_PTR Param)
 	{
 		DWORD result = 0;
 		CLdString path = lpFullPath;

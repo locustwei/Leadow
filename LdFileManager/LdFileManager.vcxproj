@@ -91,7 +91,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\duilib;..\LdLib;..\Communications;..\ReErasureUI</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\duilib;..\LdLib</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,10 +154,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="About.cpp" />
-    <ClCompile Include="executor\Executor.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Use</PrecompiledHeader>
+    <ClCompile Include="..\plugins\management.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="About.cpp" />
     <ClCompile Include="LdFileManager.cpp" />
     <ClCompile Include="MainWnd.cpp" />
     <ClCompile Include="StdAfx.cpp">
@@ -166,9 +166,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\plugins\plugin.h" />
     <ClInclude Include="About.h" />
     <ClInclude Include="Config.h" />
-    <ClInclude Include="executor\Executor.h" />
     <ClInclude Include="MainWnd.h" />
     <ClInclude Include="StdAfx.h" />
   </ItemGroup>

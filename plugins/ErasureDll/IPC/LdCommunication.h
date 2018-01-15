@@ -18,7 +18,7 @@ public:
 	~CLdCommunication();
 
 	DWORD TerminateHost();
-	DWORD LoadHost();
+	virtual DWORD LoadHost();
 //	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
 protected:
 	ICommunicationListen* m_Listen;
