@@ -112,7 +112,7 @@ BOOL CLdCommunication::GernalCallback_Callback(void* pData, UINT_PTR Param)
 	return true;
 }
 
-INT_PTR CLdCommunication::WaitHost(UINT_PTR Param)
+INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
 {
 	HANDLE hProcess = (HANDLE)Param;
 	WaitForSingleObject(hProcess, INFINITE);

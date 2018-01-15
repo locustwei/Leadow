@@ -317,7 +317,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 					continue;
 				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
 				AddFileUI(pFile);
-				
+				m_Comm->AnalFile(dlg.GetFileName(i));
 			}
 			m_ErasureFile.Sort();
 		};

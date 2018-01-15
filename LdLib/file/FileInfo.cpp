@@ -7,7 +7,7 @@ namespace LeadowLib {
 	// ReSharper disable once CppPolymorphicClassWithNonVirtualPublicDestructor
 	//回掉函数实现
 	class CFindFileCallbackImpl :
-		public IGernalCallback<LPWIN32_FIND_DATA>,
+		//public IGernalCallback<LPWIN32_FIND_DATA>,
 		public ISortCompare<CVirtualFile*>,
 		public IFindCompare<CVirtualFile*>
 	{
@@ -19,11 +19,11 @@ namespace LeadowLib {
 			return _tcsicmp((*it1)->GetFileName(), (*it2)->GetFileName());
 		};
 		//findfirst 枚举文件夹中文件
-		BOOL GernalCallback_Callback(_WIN32_FIND_DATAW* pData, UINT_PTR Param) override
+		INT_PTR EnumFiles_Callback(PVOID pData, UINT_PTR Param)
 		{
 			CFolderInfo* pFolder = (CFolderInfo*)Param;
-			int k = pFolder->AddFile(pData);
-			if (bTree && (pData->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			int k = pFolder->AddFile((PWIN32_FIND_DATA)pData);
+			if (bTree && (((PWIN32_FIND_DATA)pData)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
 				CFolderInfo* pFile = (CFolderInfo*)pFolder->m_Files[k];
 				pFile->FindFiles(bTree);
@@ -32,7 +32,7 @@ namespace LeadowLib {
 				pFolder->m_AttributeData.nFolderCount += pFile->m_AttributeData.nFolderCount;
 			}
 
-			return true;
+			return TRUE;
 		};
 		//搜索
 		int ArrayFindCompare(PVOID key, CVirtualFile** it) override
@@ -298,7 +298,8 @@ namespace LeadowLib {
 
 		CFindFileCallbackImpl impl;
 		impl.bTree = bTree;
-		DWORD result = CFileUtils::EnumFiles(m_FileName, _T("*.*"), &impl, (UINT_PTR)this);
+		DWORD result = CFileUtils::EnumFiles(m_FileName, _T("*.*"), 
+			CMethodDelegate::MakeDelegate(&impl, &CFindFileCallbackImpl::EnumFiles_Callback), (UINT_PTR)this);
 		if (m_Files.GetCount() > 0)
 			m_Files.Sort(&impl);
 		return result;
