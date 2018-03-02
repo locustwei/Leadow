@@ -14,9 +14,9 @@
 #include "ErasureFileUI.h"
 
 class CErasureRecycleUI : 
-	public CErasureFileUI,
-	IGernalCallback<LPWIN32_FIND_DATA>,  //回收站实际文件
-	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
+	public CErasureFileUI
+	//IGernalCallback<LPWIN32_FIND_DATA>  //回收站实际文件
+	//IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
 {
 public:
 	CErasureRecycleUI();
@@ -32,11 +32,11 @@ protected:
 	void AttanchControl(CControlUI* pCtrl) override;
 	//擦除线程回掉函数
 	//FindFirst 回收站实际文件
-	BOOL GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param) override;
+	BOOL EnumRecycleFile_Callback(PVOID data, UINT_PTR Param);
 	//回收站的文件信息
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//枚举磁盘
-	BOOL GernalCallback_Callback(TCHAR* pData, UINT_PTR Param) override;
+	BOOL EnumVolume_Callback(PVOID pData, UINT_PTR Param);
 	bool GetViewHeader() override;
 
 };

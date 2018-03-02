@@ -33,7 +33,7 @@
     <ClCompile Include="About.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\plugins\management.cpp">
+    <ClCompile Include="..\plugins\plugin.cpp">
       <Filter>plugins</Filter>
     </ClCompile>
   </ItemGroup>

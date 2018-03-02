@@ -2,7 +2,7 @@
 #include "VolumeUtils.h"
 
 namespace LeadowLib {
-	DWORD CVolumeUtils::MountedVolumes(IGernalCallback<TCHAR*>* callback, UINT_PTR Param)
+	DWORD CVolumeUtils::MountedVolumes(CMethodDelegate callback, UINT_PTR Param)
 	{
 		DWORD			dwSize = GetLogicalDriveStrings(0, NULL);
 		dwSize += 2;
@@ -14,7 +14,7 @@ namespace LeadowLib {
 		TCHAR* pstr = pszDrives;
 		while (TCHAR('\0') != *pstr)
 		{
-			if (!callback->GernalCallback_Callback(pstr, Param))
+			if (!callback(pstr, Param))
 				break;
 			pstr += _tcslen(pstr) + 1;
 		}
