@@ -6,9 +6,33 @@
 
 #include <Windows.h>
 
+enum PLUGIN_USAGE
+{
+	PLUGIN_USAGE_UI = 0b0001,
+	PLUGIN_USAGE_BK = 0b0010,
+};
+
+typedef struct PLUGIN_PROPERTY
+{
+	DWORD func;
+	TCHAR id[37];
+}*PPLUGIN_PROPERTY;
+
 #ifndef UI_CLASS_NAME
 #define UI_CLASS_NAME void
 #endif
+
+//模块功能接口。
+interface __declspec(dllexport) IPluginInterface
+{
+	virtual ~IPluginInterface()
+	{
+	}
+
+	virtual UI_CLASS_NAME* CreateUI() = 0;
+};
+
+#ifdef _PLUGIN_
 
 /*获取模块功能接口（IPluginInterface）*/
 #define API_Init()                                      \
@@ -25,25 +49,24 @@ VOID LDLIB_API API_UnInit()                             \
 	DeletePluginImpl();                                 \
 }
 
-typedef struct PLUGIN_PRPPERTY
-{
-	DWORD type;
-	TCHAR* id;
-}*PPLUGIN_PRPPERTY;
-
 /*注册，用于插件自身说明*/
 #define  API_Register()                                 \
-PLUGIN_PRPPERTY LDLIB_API API_Register()               \
+PLUGIN_PRPPERTY LDLIB_API API_Register()                \
 {                                                       \
 	return GetSelfDesc();                               \
 }
 
-//模块功能接口。
-interface IPluginInterface
+extern HANDLE ThisModule;
+#else
+
+typedef PLUGIN_PROPERTY(*_API_Register)();
+typedef IPluginInterface(*API_Init)(PVOID);
+
+class CPluginManager
 {
-	virtual UI_CLASS_NAME* CreateUI() = 0;
+public:
+	static void FindPlugin(const TCHAR* path, PLUGIN_USAGE usage, CLdMap<CLdString, PLUGIN_PROPERTY>* out_result);
+	static IPluginInterface 
 };
 
-#ifdef _PLUGIN_
-extern HANDLE ThisModule;
 #endif

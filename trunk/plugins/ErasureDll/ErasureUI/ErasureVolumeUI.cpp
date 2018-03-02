@@ -138,8 +138,10 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
 //枚举盘符暂存用于查找每个盘下的回收站文件
-BOOL CErasureVolumeUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
+BOOL CErasureVolumeUI::EnumVolume_Callback(PVOID data, UINT_PTR Param)
 {
+	TCHAR* pData = (TCHAR*)data;
+
 	CVolumeInfo* volume = new CVolumeInfo();
 	volume->SetFileName(pData);
 	m_Volumes.Add(volume);
@@ -248,7 +250,7 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 {
 	__super::AttanchControl(pCtrl);
 	btnOk = (CButtonUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0);
-	CVolumeUtils::MountedVolumes(this, 0);
+	CVolumeUtils::MountedVolumes(CMethodDelegate::MakeDelegate(this, &CErasureVolumeUI::EnumVolume_Callback), 0);
 	CLdArray<TCHAR*> atts;
 
 	

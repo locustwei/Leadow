@@ -20,7 +20,7 @@ if(ErasureImpl)            \
 
 PLUGIN_PRPPERTY GetSelfDesc()
 {
-	PLUGIN_PRPPERTY ErasurePrpperty = { 0, PLUGIN_ID };
+	PLUGIN_PRPPERTY ErasurePrpperty = { PLUGIN_USAGE_UI | PLUGIN_USAGE_BK, PLUGIN_ID, nullptr };
 	return ErasurePrpperty;
 }
 

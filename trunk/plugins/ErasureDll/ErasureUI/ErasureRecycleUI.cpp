@@ -19,8 +19,10 @@ DUI_BEGIN_MESSAGE_MAP(CErasureRecycleUI, CErasureFileUI)
 DUI_END_MESSAGE_MAP()
 
 //回收站实际文件
-BOOL CErasureRecycleUI::GernalCallback_Callback(LPWIN32_FIND_DATA pData, UINT_PTR Param)
+BOOL CErasureRecycleUI::EnumRecycleFile_Callback(PVOID data, UINT_PTR Param)
 {
+	LPWIN32_FIND_DATA pData = (LPWIN32_FIND_DATA)data;
+
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
 
@@ -51,8 +53,10 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 }
 
 //枚举盘符暂存用于查找每个盘下的回收站文件
-BOOL CErasureRecycleUI::GernalCallback_Callback(TCHAR* pData, UINT_PTR Param)
+BOOL CErasureRecycleUI::EnumVolume_Callback(PVOID data, UINT_PTR Param)
 {
+	TCHAR* pData = (TCHAR*)data;
+
 	CLdArray<CLdString*>* pVolumes = (CLdArray<CLdString*>*)Param;
 	pVolumes->Add(new CLdString(pData));
 	return TRUE;
@@ -74,7 +78,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 	WIN_OS_TYPE os = GetOsType();
 	if (GetCurrentUserSID(sid) != 0)
 		return;
-	CVolumeUtils::MountedVolumes(this, (UINT_PTR)&Volumes);
+	CVolumeUtils::MountedVolumes(CMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
 
 	for(int i=0; i<Volumes.GetCount(); i++)
 	{
@@ -99,7 +103,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 		recyclePath += _T("\\");
 //		m_RecycleFiles.Tag = (UINT_PTR)recyclePath.GetData();
-		CFileUtils::EnumFiles(recyclePath, L"*.*", this, (UINT_PTR)recyclePath.GetData());
+		CFileUtils::EnumFiles(recyclePath, L"*.*", CMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumRecycleFile_Callback), (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}

@@ -25,7 +25,7 @@ namespace LeadowLib {
 	{
 	public:
 		//有盘符的分区
-		static DWORD MountedVolumes(IGernalCallback<TCHAR*>* callback, UINT_PTR Param);
+		static DWORD MountedVolumes(CMethodDelegate callback, UINT_PTR Param);
 		//FindFirstVolume 
 		static DWORD EnumVolumeNames(IGernalCallback<TCHAR*>* callback, UINT_PTR Param);
 		static VOLUME_FILE_SYSTEM GetVolumeFileSystem(TCHAR* szPath);
