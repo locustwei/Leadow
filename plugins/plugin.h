@@ -5,6 +5,8 @@
 */
 
 #include <Windows.h>
+#include <LdLib.h>
+#include <LdApp.h>
 
 enum PLUGIN_USAGE
 {
@@ -18,18 +20,20 @@ typedef struct PLUGIN_PROPERTY
 	TCHAR id[37];
 }*PPLUGIN_PROPERTY;
 
-#ifndef UI_CLASS_NAME
-#define UI_CLASS_NAME void
+//在没有引用界面库的时候，用VOID以便编译通过
+#ifndef PLUGIN_UI_CLASS
+#define PLUGIN_UI_CLASS VOID
 #endif
 
 //模块功能接口。
-interface __declspec(dllexport) IPluginInterface
+interface IPluginInterface
 {
 	virtual ~IPluginInterface()
 	{
 	}
 
-	virtual UI_CLASS_NAME* CreateUI() = 0;
+	virtual PLUGIN_UI_CLASS* CreateUI() = 0;
+	virtual DWORD InitCommunicate() = 0;
 };
 
 #ifdef _PLUGIN_
@@ -51,7 +55,7 @@ VOID LDLIB_API API_UnInit()                             \
 
 /*注册，用于插件自身说明*/
 #define  API_Register()                                 \
-PLUGIN_PRPPERTY LDLIB_API API_Register()                \
+PLUGIN_PROPERTY LDLIB_API API_Register()                \
 {                                                       \
 	return GetSelfDesc();                               \
 }
@@ -60,13 +64,20 @@ extern HANDLE ThisModule;
 #else
 
 typedef PLUGIN_PROPERTY(*_API_Register)();
-typedef IPluginInterface(*API_Init)(PVOID);
+typedef IPluginInterface*(*_API_Init)(CLdApp*);
 
 class CPluginManager
 {
 public:
-	static void FindPlugin(const TCHAR* path, PLUGIN_USAGE usage, CLdMap<CLdString, PLUGIN_PROPERTY>* out_result);
-	static IPluginInterface 
+	CPluginManager(const TCHAR* path);
+	~CPluginManager();
+	void FindPlugin(PLUGIN_USAGE usage, CLdArray<PLUGIN_PROPERTY>* out_result);
+	IPluginInterface* LoadPlugin(CLdApp* app, TCHAR* plugid);
+private:
+	CLdMap<CLdString, PLUGIN_PROPERTY> m_Plugins;
+	CLdString m_Plug_path;
+	INT_PTR EnumFile_Callback(PVOID data, UINT_PTR param);
+	void LoadAllPlugins();
 };
 
 #endif

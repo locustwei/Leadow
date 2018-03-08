@@ -133,17 +133,17 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 	return true;
 }
 
-bool CShFileViewUI::OnCreate(CLdCommunication* Sender)
-{
-	return true;
-}
-
-void CShFileViewUI::OnTerminate(CLdCommunication* Sender)
-{
-}
-
-void CShFileViewUI::OnCommand(CLdCommunication* Sender)
-{
-};
+//bool CShFileViewUI::OnCreate()
+//{
+//	return true;
+//}
+//
+//void CShFileViewUI::OnTerminate(DWORD exitcode)
+//{
+//}
+//
+//void CShFileViewUI::OnCommand(WORD id, PVOID data, WORD nSize)
+//{
+//};
 
 

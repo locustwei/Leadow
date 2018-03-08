@@ -9,6 +9,7 @@
 
 //#define WIN32_LEAN_AND_MEAN	
 #define _CRT_SECURE_NO_DEPRECATE
+#define PLUGIN_UI_CLASS CFramNotifyPump
 
 #pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
 #pragma warning(disable:4996) //'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. 
@@ -29,8 +30,6 @@
 using namespace DuiLib;
 using namespace LeadowLib;
 using namespace JsonBox;
-
-#define UI_CLASS_NAME CFramNotifyPump
 
 #ifdef _DEBUG
 #ifdef WIN64

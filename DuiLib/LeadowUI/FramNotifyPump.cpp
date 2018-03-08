@@ -4,7 +4,6 @@
 namespace DuiLib {
 	CFramNotifyPump::CFramNotifyPump()
 		: m_Ctrl(nullptr)
-//		, m_Listener(nullptr)
 	{
 	}
 
@@ -13,8 +12,24 @@ namespace DuiLib {
 		m_Ctrl = pCtrl;
 		if (m_Ctrl)
 			m_Ctrl->SetVirtualWnd(m_Name);
-//		if (m_Listener)
-//			m_Listener->OnAttanch(pCtrl);
+	}
+
+	CControlUI* CFramNotifyPump::GetUI()
+	{
+		return m_Ctrl;
+	}
+
+	CControlUI * CFramNotifyPump::BuildXml(TCHAR * skinXml)
+	{
+		if (skinXml == nullptr || _tcslen(skinXml) == 0)
+			return nullptr;
+
+		CDialogBuilder builder;
+		CPaintManagerUI pm_ui;
+		CControlUI * pControl = builder.Create(skinXml, nullptr, NULL, &pm_ui);
+		_ASSERTE(pControl);
+
+		return pControl;
 	}
 
 	DUI_BEGIN_MESSAGE_MAP(CFramNotifyPump, CNotifyPump)

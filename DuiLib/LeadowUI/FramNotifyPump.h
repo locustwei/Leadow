@@ -17,7 +17,13 @@ namespace DuiLib {
 	public:
 		CFramNotifyPump();
 		virtual void AttanchControl(CControlUI* pCtrl);
+		CControlUI* GetUI();
+
+		static CControlUI * BuildXml(TCHAR * skinXml);
+
 		DUI_DECLARE_MESSAGE_MAP()
+
+
 	protected:
 		CControlUI* m_Ctrl;
 //		IFrameListener* m_Listener;

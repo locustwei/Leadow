@@ -1,4 +1,5 @@
-#include "plugin.h"
+
+#include <Windows.h>
 
 HANDLE ThisModule = nullptr;
 

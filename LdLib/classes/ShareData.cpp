@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "LdString.h"
 #include "ShareData.h"
+#include "../../LdApp/LdApp.h"
 
 namespace LeadowLib
 {
@@ -13,51 +14,64 @@ namespace LeadowLib
 		, m_nTimeOut(INFINITE)
 		, m_FreeOnTerminate(false)
 	{
-		nSize += sizeof(struct MAP_DATA);
+		nSize += sizeof(SHAREDATA_DATA);
 		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
 		
 		if (hMap == nullptr)
 			return;
 	
-		m_IsMaster = GetLastError() == 0;// ERROR_ALREADY_EXISTS;
+//		m_IsMaster = GetLastError() == 0;// ERROR_ALREADY_EXISTS;
 		m_hFile = hMap;
-		m_pFileHeader = (struct MAP_DATA*)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
+		m_pFileHeader = (PSHAREDATA_DATA)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
+		m_ThisID = *(PWORD)m_pFileHeader;   //用户编号
+		*(PWORD)m_pFileHeader = m_ThisID + 1; 
+		m_pFileHeader = (PSHAREDATA_DATA)((PBYTE)m_pFileHeader + sizeof(DWORD));
 		m_Size = nSize;
 
 		m_Name = pName;
-		m_hSemaphore = CreateSemaphore(nullptr, 0, 1, pName);
-	
+
 		CLdString s = pName;
-		s += _T("master");
-		HANDLE hMaster = CreateEvent(nullptr, TRUE, TRUE, s);
+		s += _T("samaphore");
+		m_hSemaphore = CreateSemaphore(nullptr, 1, 1, s);
+		if (!m_hSemaphore)
+			DebugOutput(L"CreateSemaphore error = %d", GetLastError());
+
 		s = pName;
-		s += _T("client");
-		HANDLE hClient = CreateEvent(nullptr, TRUE, TRUE, s);
+		s += _T("event");
+		m_hReadEvent = CreateEvent(nullptr, TRUE, FALSE, s);
+		if (!m_hReadEvent)
+			DebugOutput(L"CreateEvent error = %d", GetLastError());
+//		s = pName;
+//		s += _T("client");
+//		HANDLE hClient = CreateEvent(nullptr, TRUE, TRUE, s);
 		
-		m_hReadEvent = m_IsMaster ? hClient : hMaster;
-		m_hWriteEvent = m_IsMaster ? hMaster : hClient;
+//		m_hReadEvent = m_IsMaster ? hClient : hMaster;
+		//m_hWriteEvent = m_IsMaster ? hMaster : hClient;
 	}
 
 	void CShareData::ThreadBody(CThread* Sender, UINT_PTR Param)
 	{
 		m_TermateReadThread = false;
-		IGernalCallback<PVOID>* ReadCallback = (IGernalCallback<PVOID>*)Param;
-		while (ReadCallback && !m_TermateReadThread)
+		while (!m_TermateReadThread)
 		{
-			DWORD k = WaitForSingleObject(m_hReadEvent, INFINITE);
-			
-			if (k == WAIT_OBJECT_0)
+			DebugOutput(L"CShareData Wait For read...");
+//			DWORD k = WaitForSingleObject(m_hReadEvent, INFINITE);
+//			
+//			if (k == WAIT_OBJECT_0)
 			{
 				WORD nSize;
 				BYTE* Data;
-				Read(&Data, &nSize);
-				m_TermateReadThread = !ReadCallback->GernalCallback_Callback(Data, nSize);
-				delete[] Data;
+				if (Read(&Data, &nSize) == 0)
+				{
+					m_TermateReadThread = !m_ReadCallback(Data, nSize);
+					delete[] Data;
+				}
 			}
-			else
-				break;
+//			else
+//				break;
 		}
 		m_TermateReadThread = true;
+		DebugOutput(L"CShareData::ThreadBody out");
 	}
 
 	void CShareData::OnThreadInit(CThread* Sender, UINT_PTR Param)
@@ -80,8 +94,13 @@ namespace LeadowLib
 			CloseHandle(m_hSemaphore);
 		if (m_hReadEvent)
 			CloseHandle(m_hReadEvent);
-		if (m_hWriteEvent)
-			CloseHandle(m_hWriteEvent);
+//		if (m_hWriteEvent)
+//			CloseHandle(m_hWriteEvent);
+	}
+
+	CLdString& CShareData::GetName()
+	{
+		return m_Name;
 	}
 
 	DWORD CShareData::Write(PVOID pData, UINT nLength)
@@ -90,31 +109,12 @@ namespace LeadowLib
 			return DWORD(-1);
 		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
 			return GetLastError();
-		m_pFileHeader->nSign = 0;
+		m_pFileHeader->id = m_ThisID;
 		m_pFileHeader->nSize = nLength;
 		MoveMemory(m_pFileHeader->Data, pData, nLength);
 		FlushViewOfFile(m_pFileHeader, m_Size);
 		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
-		::PulseEvent(m_hWriteEvent);
-		return 0;
-	}
-
-	DWORD CShareData::Read(PVOID pData, WORD nLength)
-	{
-		if (!m_hFile || !m_pFileHeader ||  nLength > m_Size)
-			return DWORD(-1);
-		//等写入数据
-		if(WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
-			return GetLastError();
-		//进临界区
-		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
-			return GetLastError();
-		if (m_pFileHeader->nSize && nLength > m_pFileHeader->nSize)
-			MoveMemory(pData, m_pFileHeader->Data, nLength);
-		m_pFileHeader->nSize = 0;
-		m_pFileHeader->nSign = 1;
-		FlushViewOfFile(m_pFileHeader, sizeof(struct MAP_DATA));
-		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+		::PulseEvent(m_hReadEvent);
 		return 0;
 	}
 
@@ -128,24 +128,31 @@ namespace LeadowLib
 		//进临界区
 		if (WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
 			return GetLastError();
-		if (m_pFileHeader->nSize)
+		__try
 		{
-			*nLength = m_pFileHeader->nSize;
-			*pData = new BYTE[m_pFileHeader->nSize];
-			MoveMemory(*pData, m_pFileHeader->Data, *nLength);
+			if (m_pFileHeader->nSize) 
+				//if(m_pFileHeader->id != m_ThisID)   //自己写的数据不要读
+				{
+					*nLength = m_pFileHeader->nSize;
+					*pData = new BYTE[m_pFileHeader->nSize];
+					MoveMemory(*pData, m_pFileHeader->Data, *nLength);
+					m_pFileHeader->nSize = 0;
+					return 0;
+				}
 		}
-		m_pFileHeader->nSize = 0;
-		m_pFileHeader->nSign = 1;
-		FlushViewOfFile(m_pFileHeader, sizeof(struct MAP_DATA));
-		ReleaseSemaphore(m_hSemaphore, 1, nullptr);
-		return 0;
+		__finally
+		{
+			ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+		}
+		return -1;
 	}
 
-	DWORD CShareData::StartReadThread(IGernalCallback<PVOID>* ReadCallback, bool FreeOnTerminate)
+	DWORD CShareData::StartReadThread(CMethodDelegate ReadCallback, bool FreeOnTerminate)
 	{
 		m_FreeOnTerminate = FreeOnTerminate;
+		m_ReadCallback = ReadCallback;
 		CThread* thread = new CThread(this);
-		thread->Start((UINT_PTR)ReadCallback);
+		thread->Start(0);
 		return 0;
 	}
 
@@ -163,17 +170,4 @@ namespace LeadowLib
 		m_nTimeOut = nTime;
 	}
 
-//	CShareData* CShareData::Create(TCHAR* pName, UINT nSize)
-//	{
-//		nSize += sizeof(struct MAP_DATA);
-//
-//		HANDLE hMap = CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, nSize, pName);
-//		if (hMap == nullptr)
-//			return nullptr;
-//		CShareData* result = new CShareData(pName);
-//		result->m_hFile = hMap;
-//		result->m_pFileHeader = (struct MAP_DATA*)MapViewOfFile(hMap, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, nSize);
-//		result->m_Size = nSize;
-//		return result;
-//	}
 }

@@ -1,20 +1,12 @@
 #include "stdafx.h"
 #include "plugin.h"
+#include <tchar.h>
 
-
-struct ENUM_FILE_PARAM
-{
-	const TCHAR* path;
-	PLUGIN_USAGE usage;
-	CLdMap<CLdString, PLUGIN_PROPERTY>* out_result;
-};
-
-INT_PTR EnumFile_Callback(PVOID data, UINT_PTR param)
+INT_PTR CPluginManager::EnumFile_Callback(PVOID data, UINT_PTR param)
 {
 	PWIN32_FIND_DATA pData = (PWIN32_FIND_DATA)data;
-	struct ENUM_FILE_PARAM* pParam = (struct ENUM_FILE_PARAM*)param;
 	
-	CLdString filename = (TCHAR*)pParam->path;
+	CLdString filename = m_Plug_path;
 	if (filename[filename.GetLength() - 1] != '\\')
 		filename += '\\';
 	filename += pData->cFileName;
@@ -22,13 +14,13 @@ INT_PTR EnumFile_Callback(PVOID data, UINT_PTR param)
 	HMODULE hmodule = LoadLibrary(filename);
 	if(hmodule != nullptr)
 	{
-		_API_Register fn = (_API_Register)GetProcAddress(hmodule, "");
+		_API_Register fn = (_API_Register)GetProcAddress(hmodule, "API_Register");
 		if (fn != nullptr)
 		{
 			PLUGIN_PROPERTY prpperty = fn();
-			if(prpperty.func & pParam->usage)
+			if(prpperty.func)
 			{
-				pParam->out_result->Put(filename, prpperty);
+				m_Plugins.Put(filename, prpperty);
 			}
 		}
 		FreeLibrary(hmodule);
@@ -36,13 +28,62 @@ INT_PTR EnumFile_Callback(PVOID data, UINT_PTR param)
 	return 1;
 }
 
-void CPluginManager::FindPlugin(const TCHAR* path, PLUGIN_USAGE usage, CLdMap<CLdString, PLUGIN_PROPERTY>* out_result)
+CPluginManager::CPluginManager(const TCHAR* path)
 {
-	struct ENUM_FILE_PARAM param;
-	param.path = path;
-	param.usage = usage;
-	param.out_result = out_result;
+	m_Plug_path = path;
+}
 
-	CFileUtils::EnumFiles((TCHAR*)path, _T("*.dll"), CMethodDelegate::MakeDelegate(EnumFile_Callback), (UINT_PTR)&param);
+CPluginManager::~CPluginManager()
+{
+}
 
+void CPluginManager::FindPlugin(PLUGIN_USAGE usage, CLdArray<PLUGIN_PROPERTY>* out_result)
+{
+	if (m_Plugins.GetCount() == 0)
+		LoadAllPlugins();
+	for(int i=0; i<m_Plugins.GetCount(); i++)
+	{
+		PLUGIN_PROPERTY property = m_Plugins.ValueOf(i);
+		if (property.func && usage)
+			out_result->Add(property);
+	}
+}
+
+IPluginInterface* CPluginManager::LoadPlugin(CLdApp* app, TCHAR* plugid)
+{
+	if (m_Plugins.GetCount() == 0)
+		LoadAllPlugins();
+
+	CLdString filename;
+
+	for (int i = 0; i<m_Plugins.GetCount(); i++)
+	{
+		PLUGIN_PROPERTY property = m_Plugins.ValueOf(i);
+		if (_tccmp(property.id, plugid) == 0)
+		{
+			filename = m_Plugins.KeyOf(i);
+			break;
+		}
+	}
+	if (!filename.IsEmpty())
+	{
+		HMODULE hmodule = LoadLibrary(filename);
+		if (hmodule != nullptr)
+		{
+			_API_Init fn = (_API_Init)GetProcAddress(hmodule, "API_Init");
+			if (fn != nullptr)
+			{
+				return fn(app);
+			}
+			else
+				FreeLibrary(hmodule);
+		}
+	}
+	DebugOutput(L"CPluginManager::LoadPlugin not found %s ", plugid);
+	return nullptr;
+}
+
+void CPluginManager::LoadAllPlugins()
+{
+	CFileUtils::EnumFiles((TCHAR*)m_Plug_path.GetData(), _T("*.dll"), CMethodDelegate::MakeDelegate(this, &CPluginManager::EnumFile_Callback), (UINT_PTR)& m_Plugins);
 }

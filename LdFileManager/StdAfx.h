@@ -2,6 +2,7 @@
 
 //#define WIN32_LEAN_AND_MEAN	
 #define _CRT_SECURE_NO_DEPRECATE
+#define PLUGIN_UI_CLASS CFramNotifyPump
 
 #ifdef _DEBUG
 #ifdef WIN64
@@ -35,6 +36,7 @@
 #include <zmouse.h>
 #include "LdLib.h"
 #include "UIlib.h"
+#include "LdApp.h"
 
 using namespace DuiLib;
 using namespace LeadowLib;

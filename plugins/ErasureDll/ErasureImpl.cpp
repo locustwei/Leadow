@@ -5,6 +5,7 @@
 #include "define.h"
 #include "ErasureImpl.h"
 #include "ErasureUI/ErasureMainWnd.h"
+#include "IPC/FileEraserComm.h"
 
 CErasureImpl* ErasureImpl = nullptr;
 
@@ -18,9 +19,9 @@ if(ErasureImpl)            \
 	ErasureImpl = nullptr; \
 }                          \
 
-PLUGIN_PRPPERTY GetSelfDesc()
+PLUGIN_PROPERTY GetSelfDesc()
 {
-	PLUGIN_PRPPERTY ErasurePrpperty = { PLUGIN_USAGE_UI | PLUGIN_USAGE_BK, PLUGIN_ID, nullptr };
+	PLUGIN_PROPERTY ErasurePrpperty = { PLUGIN_USAGE_UI | PLUGIN_USAGE_BK, PLUGIN_ID };
 	return ErasurePrpperty;
 }
 
@@ -33,12 +34,15 @@ CErasureImpl::CErasureImpl()
 	: m_hModule(nullptr)
 	, m_EraseThread()
 	, m_Files()
+	, m_Comm(nullptr)
 {
 }
 
 CErasureImpl::~CErasureImpl()
 {
 	FreeEraseFiles(&m_Files);
+	if (m_Comm)
+		delete m_Comm;
 
 	ErasureImpl = nullptr;
 }
@@ -184,7 +188,29 @@ CFramNotifyPump* CErasureImpl::CreateUI()
 	return new CErasureMainWnd;
 }
 
-//TCHAR* CErasureImpl::GetPropertys(PLUGIN_PROPERTYS nproperty)
-//{
-//	return nullptr;
-//}
+DWORD CErasureImpl::InitCommunicate()
+{
+	DebugOutput(L"InitCommunicate");
+
+	m_Comm = new CFileEraserComm(this);
+
+	return 0;
+}
+
+bool CErasureImpl::OnCreate()
+{
+	return true;
+}
+
+void CErasureImpl::OnTerminate(DWORD exitcode)
+{
+}
+
+void CErasureImpl::OnCommand(WORD id, PVOID data, WORD nSize)
+{
+	
+	switch(id)
+	{
+		
+	}
+}
