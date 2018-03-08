@@ -9,20 +9,14 @@
 class CFileEraserComm;
 
 class CErasureImpl
-	: public IErasure
+	: public IPluginInterface
 	, public ICommunicationListen
 {
-private:
-	friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  dwReason, LPVOID /*lpReserved*/);
 public:
 	CErasureImpl();
 	~CErasureImpl();
 	HMODULE GetModuleHandle();
-protected: //IErasure
-	DWORD EraseFile(CDynObject& Param, IEraserListen* callback) override;
-	DWORD EraseVolume(CDynObject& Param, IEraserListen* callback) override;
-	DWORD AnaFile(CDynObject& Param, IEraserListen* callback) override;
-	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback) override;
+protected: //IPluginInterface
 	CFramNotifyPump* CreateUI() override;
 	DWORD InitCommunicate() override;
 protected: //ICommunicationListen
@@ -36,6 +30,10 @@ private:
 	CFileEraserComm* m_Comm;
 	DWORD SetFolderFilesData(CVirtualFile * pFile);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
+	DWORD EraseFile(CDynObject& Param, IEraserListen* callback);
+	DWORD EraseVolume(CDynObject& Param, IEraserListen* callback);
+	DWORD FileAnalysis(CDynObject Param, IEraserListen* callback);
+	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback);
 };
 
 extern CErasureImpl* ErasureImpl;

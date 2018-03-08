@@ -97,6 +97,7 @@ namespace LeadowLib {
 			if (m_Delegate)
 				delete m_Delegate;
 		};
+
 		void operator = (CMethodDelegateBase* d)
 		{
 			if (m_Delegate)
@@ -104,6 +105,7 @@ namespace LeadowLib {
 
 			m_Delegate = d;
 		};
+		//赋值后原MethodDelegate失效，否则解构时出错
 		void operator = (CMethodDelegate d)
 		{
 			if (m_Delegate)

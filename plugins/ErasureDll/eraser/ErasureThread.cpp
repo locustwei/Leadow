@@ -70,8 +70,8 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 	m_Abort = false;
 
 	m_MaxThreadCount = nMaxCount;
-	m_ControlThread = new CThread(this);
-	m_ControlThread->Start(0);
+	m_ControlThread = new CThread();
+	m_ControlThread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::EraseFile_Thread), 0);
 	return 0;
 }
 //磁盘状态分析
@@ -88,8 +88,9 @@ DWORD CEreaserThrads::StartAnalysis(UINT nMaxCount)
 	m_Abort = false;
 
 	m_MaxThreadCount = nMaxCount;
-	m_ControlThread = new CThread(this);
-	m_ControlThread->Start(1);
+	m_ControlThread = new CThread();
+	m_ControlThread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnal_Thread), 0);
+//	m_ControlThread->Start(1);
 
 	return 0;
 }
@@ -124,7 +125,7 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 		//LONG nTemp = *pCount;
 		CThread* thread = new CThread(this);
 		thread->SetTag((UINT_PTR)pCount);
-		thread->Start((UINT_PTR)file);
+		thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::ErasureThreadRun), (UINT_PTR)file);
 		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
 			//Sleep(10);
 	}
@@ -139,29 +140,23 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 	return true;
 }
 
-//擦除控制线程,创建单个文件擦除线程，控制文件擦除线程数。
-void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
+INT_PTR CEreaserThrads::FileAnal_Thread(PVOID, UINT_PTR Param)
 {
 	m_ThreadCount = 0;
 	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
-	if (Param == 0)
+
+	for (int i = 0; i < m_Files->GetCount(); i++)
 	{
-		ReEresareFile(m_Files);
-		Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
-	}else
-	{
-		for (int i = 0; i < m_Files->GetCount(); i++)
+		if (m_Abort)
+			return 0;
+		CVirtualFile* file = m_Files->Get(i);
+		if (file->GetFileType() == vft_volume)
 		{
-			if (m_Abort)
-				return ;
-			CVirtualFile* file = m_Files->Get(i);
-			if (file->GetFileType() == vft_volume)
-			{
-				if (WaitForThread() == 0)
-					break;
-				CThread* thread = new CThread(this);
-				thread->Start((UINT_PTR)file);
-			}
+			if (WaitForThread() == 0)
+				break;
+			CThread* thread = new CThread();
+			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::AnalyThreadRung), (UINT_PTR)file);
+//			thread->Start();
 		}
 	}
 	while (m_ThreadCount>0)
@@ -169,12 +164,33 @@ void CEreaserThrads::ControlThreadRun(UINT_PTR Param)
 		Sleep(20);
 	}
 	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
+
+	return 0;
+}
+
+//擦除控制线程,创建单个文件擦除线程，控制文件擦除线程数。
+INT_PTR CEreaserThrads::EraseFile_Thread(PVOID, UINT_PTR Param)
+{
+	m_ThreadCount = 0;
+	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
+	ReEresareFile(m_Files);
+	Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
+
+	while (m_ThreadCount>0)
+	{
+		Sleep(20);
+	}
+	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
+
+	return 0;
 }
 //单个文件擦除
-void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
+INT_PTR CEreaserThrads::ErasureThreadRun(PVOID pData, UINT_PTR Param)
 {
 	if (m_Abort)
-		return;
+		return 0;
+
+	CVirtualFile* pFile = (CVirtualFile*)Param;
 
 	CErasure erasure;
 
@@ -196,12 +212,16 @@ void CEreaserThrads::ErasureThreadRun(CVirtualFile* pFile)
 	default:
 		break;
 	}
+
+	return 0;
 }
 
-void CEreaserThrads::AnalyThreadRung(CVolumeInfo* pVolume)
+INT_PTR CEreaserThrads::AnalyThreadRung(PVOID pData, UINT_PTR Param)
 {
 	if (m_Abort)
-		return;
+		return 0;
+
+	CVolumeInfo* pVolume = (CVolumeInfo*)Param;
 
 	DWORD error;
 	if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
@@ -214,25 +234,12 @@ void CEreaserThrads::AnalyThreadRung(CVolumeInfo* pVolume)
 	}
 	m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
 
+	return 0;
 }
 
 void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 {
-	if (Param == 0 || //文件擦除线程
-		Param == 1)   //磁盘分析线程
-		ControlThreadRun(Param);
-	else
-	{
-		LONG volatile* pCount = (LONG volatile*)Sender->GetTag();
-		if(pCount)  //这是擦除线程
-		{
-			//DebugOutput(L"start ------ %d %s\n", m_ThreadCount, ((CVirtualFile*)Param)->GetFullName());
-			ErasureThreadRun((CVirtualFile*)Param);
-		}else
-		{ //这是磁盘分析线程
-			AnalyThreadRung((CVolumeInfo*)Param);
-		}
-	}
+	
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
