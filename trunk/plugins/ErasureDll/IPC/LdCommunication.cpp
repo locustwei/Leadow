@@ -2,120 +2,149 @@
 #include "LdCommunication.h"
 #include <LdStructs.h>
 
-struct CALL_PARAM
-{
-	DWORD id;
-	TCHAR Param_data_name[30]; 
-};
-
 CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 	: m_Data(nullptr)
 	, m_hProcess(nullptr)
+	, m_Connected(false)
 {
 	m_Listen = listen;
 }
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedata)
 	: m_hProcess(nullptr)
+	, m_Connected(true)
 {
 	m_Listen = listen;
 	m_Data = new CShareData(sharedata);
-	m_Data->StartReadThread(this);
+	m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback));
 }
 
 CLdCommunication::~CLdCommunication()
 {
+	TerminateHost();
+
 	if (m_Data)
 		delete m_Data;
 }
 
 DWORD CLdCommunication::TerminateHost()
 {
+//	if (!m_Data)
+//		m_Data->Write();
 	if (!m_hProcess)
-		return (DWORD)-1;
-	if(!m_Data)
+	{
 		TerminateProcess(m_hProcess, 0);
-	CloseHandle(m_hProcess);
-	m_hProcess = nullptr;
+		CloseHandle(m_hProcess);
+		m_hProcess = nullptr;
+	}
 	return 0;
 }
 
-DWORD CLdCommunication::LoadHost()
+DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 {
-	CLdString data_name = NewGuidString();
-	if (data_name.IsEmpty())
-		return false;
-	//m_Data = new CShareData(data_name, 1024);
-	data_name.Insert(0, HOST_PARAM_PIPENAME);
-	//HANDLE hProcess = nullptr;
-	DWORD result = ThisApp->RunPluginHost(data_name, false, &m_hProcess);
+
+	if (!m_Data)
+	{
+		CLdString data_name = NewGuidString();
+		if (data_name.IsEmpty())
+			return false;
+		m_Data = new CShareData(data_name);
+		m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback));
+	}
+	CLdString param;
+	param.Format(_T("%s%s"), HOST_PARAM_PLUGID, plugid);
+
+	DWORD result = ThisApp->RunPluginHost(param, false, &m_hProcess);
 	if(result != 0)
 	{
-		//delete m_Data;
-		return result;
-	}
-	if(!m_Listen->OnCreate(this))
-	{
-		//delete m_Data;
-		TerminateHost();
+		m_Data->StopReadThread();
+		delete m_Data;
+		m_Data = nullptr;
+
 		return result;
 	}
 
-	if(result)
+	if(!m_Listen->OnCreate())
 	{
-		CThread* thread = new CThread();
-		thread->Start(CMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
+		TerminateHost();
+		m_Data->StopReadThread();
+		delete m_Data;
+		m_Data = nullptr;
+
+		return result;
 	}
-	m_Data = new CShareData(data_name);
-	m_Data->StartReadThread(this);
+
+	CThread* thread = new CThread();
+	thread->Start(CMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
+
+	m_Connected = true;
+
 	return result;
 }
 
-//DWORD CLdCommunication::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
-//{
-//	//m_Data->Write()
-//	CallMethod(0, nullptr, 0, nullptr);
-//	return 0;
-//}
-
-bool CLdCommunication::CallMethod(DWORD dwId, PVOID Param, WORD nParamSize, PVOID* result, IGernalCallback<PVOID>* progress)
+bool CLdCommunication::IsConnected()
 {
-	//生产GUID作为共享内存的名字
-	CLdString data_name = NewGuidString();
-	if (data_name.IsEmpty())
-		return false;
-	CShareData* ParamData = new CShareData(data_name);
-	ParamData->Write(Param, nParamSize);
-	struct CALL_PARAM call_param = { 0 };
-	call_param.id = dwId;
-	data_name.CopyTo(call_param.Param_data_name);
+	return m_Connected;
+}
+
+bool CLdCommunication::CallMethod(WORD dwId, PVOID Param, WORD nParamSize, PVOID* result, CMethodDelegate progress)
+{
+
+	DebugOutput(L"CallMethod id=%d, paramsize=%d", dwId, nParamSize);
+
+	int len = sizeof(COMMUNICATE_DATA) + nParamSize;
+
+	PCOMMUNICATE_DATA call_param = (PCOMMUNICATE_DATA)new BYTE[len];
+	ZeroMemory(call_param, len);
+
+	call_param->commid = dwId;
+	call_param->nSize = nParamSize;
+	if (Param && nParamSize)
+		MoveMemory(&call_param->data, Param, nParamSize);
+
+	if (!progress.IsNull())
+	{
+		CLdString data_name = NewGuidString();
+		data_name.CopyTo(call_param->progress);
+
+		CShareData* ParamData = new CShareData(data_name);
+		ParamData->StartReadThread(progress, true);    //读数线程结束时对象自我销毁
+	}
+
 	//发送调用参数。
-	m_Data->Write(&call_param, sizeof(data_name));
-	PBYTE p = nullptr;
-	WORD n;
-	//等待返回
-	ParamData->Read(&p, &n);
-	if (progress)
-		ParamData->StartReadThread(progress, true);
+	m_Data->Write(&call_param, len);
+	
+	delete[] (PBYTE)call_param;
+
 	if (result)
-		*result = p;
-	else if (p)
-		delete[] p;
-	if(!progress)
-		delete ParamData;
+	{
+		PBYTE p = nullptr;
+		WORD nSize = 0;
+		if (m_Data->Read(&p, &nSize) == 0)
+		{
+			*result = p;
+		}
+	}
 	return true;
 }
 //
-BOOL CLdCommunication::GernalCallback_Callback(void* pData, UINT_PTR Param)
+INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 {
-	m_Listen->OnCommand(this);
-	return true;
+	PCOMMUNICATE_DATA  data = (PCOMMUNICATE_DATA)pData;
+	
+	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d", data->commid, data->nSize);
+
+	m_Listen->OnCommand(data->commid, data->data, data->nSize);
+	return 1;
 }
 
 INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
 {
 	HANDLE hProcess = (HANDLE)Param;
 	WaitForSingleObject(hProcess, INFINITE);
-	m_Listen->OnTerminate(this);
+	DWORD dwCode = 0;
+	GetExitCodeProcess(hProcess, &dwCode);
+	m_Listen->OnTerminate(dwCode);
+	DebugOutput(L"WaitHost %d", dwCode);
 	return 0;
 }

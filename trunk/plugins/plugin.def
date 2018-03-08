@@ -3,3 +3,4 @@ LIBRARY
 EXPORTS
 	API_Init
 	API_UnInit
+	API_Register

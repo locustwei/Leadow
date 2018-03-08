@@ -10,11 +10,22 @@
 
 #include "stdafx.h"
 #include <shellapi.h>
-#include "Eraser/RunErasure.h"
-#include "../LdApp/LdApp.h"
+#include <LdStructs.h>
+#include "../plugins/plugin.h"
 
 #pragma warning(disable:4996)
 
+
+DWORD LoadPlugin(TCHAR* plugid)
+{
+	DebugOutput(L"LoadPlugin plugid=%s", plugid);
+
+	CPluginManager pm(ThisApp->GetPluginPath());
+	IPluginInterface* pi = pm.LoadPlugin(ThisApp, plugid);
+	if (pi == nullptr)
+		return 1;
+	return pi->InitCommunicate();
+}
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -23,8 +34,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	CLdStringW cmdLine = lpCmdLine;
 	cmdLine.Trim();
-
-	DebugOutput(cmdLine.GetData());
 
 	if(cmdLine.IsEmpty())
 	{
@@ -43,18 +52,17 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	CLdApp::Initialize(hInstance);
+	DebugOutput(cmdLine.GetData());
 
-	if(wcsicmp(lpParamStrs[0], CMD_ERASE) == 0)
+	TCHAR* plugid = nullptr;
+	for(int i=0; i<ParamCount; i++)
 	{
-		if(ParamCount < 2)
+		if(_tcsstr(lpParamStrs[i], HOST_PARAM_PLUGID) == lpParamStrs[i])
 		{
-			//goto help
-			return 0;
-		}
-		if(RunEraseFile(&lpParamStrs[1], ParamCount - 1) != 0)
-		{
-			//goto help;
-			//return 0;
+			plugid = lpParamStrs[i] + _tcslen(HOST_PARAM_PLUGID);
+//			if (pipename != nullptr)
+			LoadPlugin(plugid);
+			continue;
 		}
 	}
 
@@ -69,8 +77,6 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		::TranslateMessage(&msg);
 		::DispatchMessage(&msg);
 	}
-
-	
 
 	return (int) 0;
 }

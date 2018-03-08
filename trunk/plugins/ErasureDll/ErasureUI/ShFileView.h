@@ -9,7 +9,7 @@ class CFileEraserComm;
 
 class CShFileViewUI : 
 	public CFramNotifyPump, 
-	public ICommunicationListen,
+	//public ICommunicationListen,
 	IGernalCallback<CLdArray<TCHAR*>*>,  	 //CSHFolders::EnumFolderObjects 回掉
 	public IGernalCallback<PSH_HEAD_INFO>           //CSHFolders::EnumFolderColumes 回掉
 {
@@ -45,8 +45,8 @@ protected:
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//枚举ShellView列头信息
 	BOOL GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param) override;
-	bool OnCreate(CLdCommunication* Sender) override;
-	void OnTerminate(CLdCommunication* Sender) override;
-	void OnCommand(CLdCommunication* Sender) override;
+//	bool OnCreate() override;
+//	void OnTerminate(DWORD exitcode) override;
+//	void OnCommand(WORD id, PVOID data, WORD nSize) override;
 };
 

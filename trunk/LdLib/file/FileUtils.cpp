@@ -7,7 +7,7 @@ namespace LeadowLib {
 
 #define DOS_L_NAME TEXT("\\\\?\\")
 
-	BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, TCHAR* lpDriveName)
+	BOOL CFileUtils::ExtractFileDrive(TCHAR* lpFullName, CLdString& lpDriveName)
 	{
 		size_t len;
 		if (!lpFullName || !lpDriveName)
@@ -15,14 +15,15 @@ namespace LeadowLib {
 		len = _tcslen(lpFullName);
 		if (len >= 2 && lpFullName[1] == ':')
 		{
-			_tcsncpy(lpDriveName, lpFullName, 2);
+			lpDriveName.Assign(lpFullName, 2);
+			//_tcsncpy(lpDriveName, lpFullName, 2);
 			return TRUE;
 		}
 		else
 			return FALSE;
 	}
 
-	UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, TCHAR* lpFilePath)
+	UINT CFileUtils::ExtractFilePath(TCHAR* lpFullName, CLdString& lpFilePath)
 	{
 		if (!lpFullName)
 			return 0;
@@ -31,12 +32,12 @@ namespace LeadowLib {
 		if (s == NULL)
 			return 0;
 		UINT_PTR len = s - lpFullName;
-		if (lpFilePath)
-			_tcsncpy(lpFilePath, lpFullName, len);
+		lpFilePath.Assign(lpFullName, len);
+
 		return (UINT)len;
 	}
 
-	UINT CFileUtils::ExtractFileName(TCHAR* lpFullName, TCHAR* lpName)
+	UINT CFileUtils::ExtractFileName(TCHAR* lpFullName, CLdString& lpName)
 	{
 		//_tsplitpath(lpDir, lpDrive, NULL, lpFile, lpExt);
 		if (!lpFullName)
@@ -46,12 +47,11 @@ namespace LeadowLib {
 		if (s == NULL)
 			return 0;
 		s += 1;
-		if (lpName)
-			_tcscpy(lpName, s);
+		lpName = s;
 		return (UINT)_tcslen(s);
 	}
 
-	UINT CFileUtils::ExtractFileExt(TCHAR* lpFullName, TCHAR* lpName)
+	UINT CFileUtils::ExtractFileExt(TCHAR* lpFullName, CLdString& lpName)
 	{
 		if (!lpFullName)
 			return 0;
@@ -60,27 +60,26 @@ namespace LeadowLib {
 		if (s == NULL)
 			return 0;
 		s += 1;
-		if (lpName)
-			wcscat(lpName, s);
+		lpName = s;
 		return (UINT)_tcslen(s);;
 	}
 
-	UINT CFileUtils::Win32Path2DevicePath(TCHAR* lpFullName, TCHAR* lpDevicePath)
+	UINT CFileUtils::Win32Path2DevicePath(TCHAR* lpFullName, CLdString& lpDevicePath)
 	{
-		TCHAR Device[10] = { 0 };
+		CLdString Device;
 		if (!ExtractFileDrive(lpFullName, Device))
 			return 0;
 		TCHAR DevicePath[MAX_PATH] = { 0 };
 		UINT ret = QueryDosDevice(Device, DevicePath, MAX_PATH);
-		if (ret && lpDevicePath)
+		if (ret)
 		{
-			wcscat(lpDevicePath, DevicePath);
-			wcscat(lpDevicePath, lpFullName + _tcslen(Device));
+			lpDevicePath = DevicePath;
+			lpDevicePath += (lpFullName + Device.GetLength());
 		}
 		return ret;
 	}
 
-	UINT CFileUtils::DevicePathToWin32Path(TCHAR* lpDevicePath, TCHAR* lpDosPath)
+	UINT CFileUtils::DevicePathToWin32Path(TCHAR* lpDevicePath, CLdString& lpDosPath)
 	{
 		TCHAR szDrives[512];
 		if (!GetLogicalDriveStrings(_countof(szDrives) - 1, szDrives)) {
@@ -98,11 +97,8 @@ namespace LeadowLib {
 			{
 				if (_wcsnicmp(szDevice, lpDevicePath, _tcslen(szDevice)) == 0)
 				{
-					if (lpDosPath)
-					{
-						wcscat(lpDosPath, szDrive);
-						wcscat(lpDosPath, lpDevicePath + _tcslen(szDevice));
-					}
+					lpDosPath = szDrive;
+					lpDosPath += (lpDevicePath + _tcslen(szDevice));
 					break;
 				}
 			}
@@ -303,10 +299,9 @@ namespace LeadowLib {
 			p = _tcsrchr(lpFrom, '\\');
 			if (!p)
 				return (DWORD)-1;
-			to.SetLength((UINT)(p - lpFrom) + 2);
 
-			CFileUtils::ExtractFilePath(lpFrom, to.GetData());
-			to.GetData()[to.GetLength()] = '\\';
+			CFileUtils::ExtractFilePath(lpFrom, to);
+			to += '\\';
 			to += lpTo;
 		}
 		from.Assign(lpFrom);

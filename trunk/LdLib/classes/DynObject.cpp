@@ -25,17 +25,14 @@ namespace LeadowLib {
 	BOOL CDynObject::LoadFromFile(TCHAR* FileName)
 	{
 		try {
-			if(!PathFileExists(FileName))
+			if(PathFileExists(FileName))
 			{
-				CLdString tmp = FileName;
-				CLdString path((UINT)MAX_PATH);
-				CFileUtils::ExtractFilePath(tmp, path.GetData());
-				if (CFileUtils::ForceDirectories(path) != 0)
-					return FALSE;
+				CLdStringA string = FileName;
+				m_Config.loadFromFile(string);
+				return TRUE;
 			}
-			CLdStringA string = FileName;
-			m_Config.loadFromFile(string);
-			return TRUE;
+			else
+				return FALSE;
 		}catch(...)
 		{
 			return FALSE;
@@ -45,6 +42,14 @@ namespace LeadowLib {
 	BOOL CDynObject::SaveToFile(TCHAR* FileName)
 	{
 		try {
+			if (!PathFileExists(FileName))
+			{
+				CLdString path;
+				CFileUtils::ExtractFilePath(FileName, path);
+				if (CFileUtils::ForceDirectories(path) != 0)
+					return FALSE;
+			}
+
 			CLdStringA string = FileName;
 			m_Config.writeToFile(string);
 			return TRUE;

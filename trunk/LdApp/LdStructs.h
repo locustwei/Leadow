@@ -1,6 +1,7 @@
 #pragma once
 
-#define HOST_PARAM_PIPENAME _T("pn:")
+#define HOST_PARAM_PLUGID _T("plug:")
+//#define HOST_PARAM_PIPENAME _T("pn:")
 //进程启动后与向主进程建立通信发送函数ID，以确认身份。（ID与参数对应）
 enum LD_FUNCTION_ID
 {

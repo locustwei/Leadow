@@ -56,7 +56,7 @@ typedef enum ErasureMothedType
 	em_Gutmann             //Gutmann£¨35 passes£©£º¹ÅÌØÂü£¨35)
 };
 /*²Á³ı·½·¨*/
-class LDLIB_API CErasureMothed
+class CErasureMothed
 {
 public:
 	CErasureMothed(ErasureMothedType mothed);

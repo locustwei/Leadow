@@ -14,9 +14,11 @@
 #define INVOKER_EXE _T("LdInvoker.exe")
 #endif
 
+CLdApp* ThisApp = nullptr;
+
 void DebugOutput(LPCTSTR pstrFormat, ...)
 {
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	LPTSTR szSprintf;
 	va_list argList;
 	int nLen;
@@ -32,14 +34,17 @@ void DebugOutput(LPCTSTR pstrFormat, ...)
 	szSprintf[4] = ' ';
 	szSprintf[5] = ' ';
 	va_end(argList);
-	::OutputDebugString(szSprintf);
+	if(ThisApp)
+	{
+		CLdString s;
+		s.Format(_T("%s %s"), ThisApp->GetAppName(), szSprintf);
+		::OutputDebugString(s);
+	}
+	else
+		::OutputDebugString(szSprintf);
 	free(szSprintf);
-#endif
+//#endif
 }
-
-
-CLdApp* ThisApp = nullptr;
-
 
 CLdApp::CLdApp() 
 	: m_Instance(nullptr)
@@ -65,6 +70,11 @@ CLdString& CLdApp::GetAppDataPath()
 	return m_AppDataPath;
 }
 
+CLdString CLdApp::GetPluginPath()
+{
+	return m_AppPath + _T("modules");
+}
+
 HINSTANCE CLdApp::GetInstance()
 {
 	return m_Instance;
@@ -75,9 +85,23 @@ DWORD CLdApp::GetMainThreadId()
 	return m_ThreadID;
 }
 
+CLdStringW& CLdApp::GetAppName()
+{
+	if(m_AppName.IsEmpty())
+	{
+		//读取可执行文件的版本信息
+		TCHAR tszModule[MAX_PATH + 1] = { 0 };
+		::GetModuleFileName(nullptr, tszModule, MAX_PATH);
+		CFileUtils::ExtractFileName(tszModule, m_AppName);		
+	}
+	return m_AppName;
+}
+
 BOOL CLdApp::Initialize(HINSTANCE hInstance)
 {
 	CoInitialize(nullptr);
+
+	//setlocale(LC_ALL, "chs");
 
 	ThisApp = new CLdApp();
 	ThisApp->m_Instance = hInstance;
@@ -87,7 +111,8 @@ BOOL CLdApp::Initialize(HINSTANCE hInstance)
 	::GetModuleFileName(hInstance, tszModule, MAX_PATH);
 	ThisApp->m_AppPath = tszModule;
 	int pos = ThisApp->m_AppPath.ReverseFind(_T('\\'));
-	if (pos >= 0) ThisApp->m_AppPath = ThisApp->m_AppPath.Left(pos + 1);
+	if (pos >= 0) 
+		ThisApp->m_AppPath = ThisApp->m_AppPath.Left(pos + 1);
 
 	ExpandEnvironmentStrings(_T("%APPDATA%"), tszModule, MAX_PATH);
 	ThisApp->m_AppDataPath.Format(_T("%s\\%s\\%s\\"), tszModule, COMPANY_NAME, APPLICATION_NAME);

@@ -104,6 +104,15 @@ namespace LeadowLib {
 
 			m_Delegate = d;
 		};
+		void operator = (CMethodDelegate d)
+		{
+			if (m_Delegate)
+				delete m_Delegate;
+
+			m_Delegate = d.m_Delegate;
+			d.m_Delegate = nullptr;
+		}
+
 		INT_PTR operator() (PVOID pData, UINT_PTR param)
 		{
 			return Invoke(pData, param);
@@ -115,6 +124,12 @@ namespace LeadowLib {
 			else
 				return 0;
 		}
+
+		bool IsNull()
+		{
+			return m_Delegate == nullptr;
+		}
+
 		template <class T>
 		static CMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(PVOID, UINT_PTR))
 		{
@@ -125,7 +140,11 @@ namespace LeadowLib {
 		{
 			return CMethodDelegate(new CStaticMethodDelegate(pFn));
 		}
-
+		//¿Õ´úÀí
+		static CMethodDelegate MakeDelegate()
+		{
+			return CMethodDelegate(nullptr);
+		}
 	private:
 		CMethodDelegateBase* m_Delegate;
 	};

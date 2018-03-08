@@ -3,7 +3,8 @@
 #include "EraserUI.h"
 #include "../IPC/FileEraserComm.h"
 
-CErasureFileUI::CErasureFileUI() :
+CErasureFileUI::CErasureFileUI() 
+	: m_Comm(nullptr),
 	m_ErasureFile()
 {
 	btnOpenFile = nullptr;
@@ -101,7 +102,7 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 
 	AddLstViewHeader(8);
 
-	m_Comm->LoadHost();
+	m_Comm->LoadHost(PLUGIN_ID);
 }
 //擦除完成后从m_ErasureFile中删除
 void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
@@ -239,6 +240,19 @@ bool CErasureFileUI::AnalyResult(TCHAR* FileName, PVOID pData)
 	return false;
 }
 
+bool CErasureFileUI::OnCreate()
+{
+	return true;
+}
+
+void CErasureFileUI::OnTerminate(DWORD exitcode)
+{
+}
+
+void CErasureFileUI::OnCommand(WORD id, PVOID data, WORD nSize)
+{
+}
+
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
@@ -257,7 +271,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 		CControlUI* desc = col->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 		if (desc)
 		{
-			TCHAR s[MAX_PATH] = {0};
+			CLdString s;
 			CFileUtils::ExtractFilePath(pFile->GetFullName(), s);
 			desc->SetText(s);
 		}
@@ -311,14 +325,18 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 
 		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow(), dft_file_folder))
 		{
+			CLdArray<CLdString> filenames;
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
 				if (m_ErasureFile.Find(dlg.GetFileName(i), true, true) != nullptr)
 					continue;
-				CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
-				AddFileUI(pFile);
-				m_Comm->AnalFile(dlg.GetFileName(i));
+				//CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
+				//AddFileUI(pFile);
+				//m_Comm->AnalFile(dlg.GetFileName(i));
+				filenames.Add(dlg.GetFileName(i));
 			}
+			m_Comm->ExecuteFileAnalysis(&filenames);
+
 			m_ErasureFile.Sort();
 		};
 	}

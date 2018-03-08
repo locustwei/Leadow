@@ -182,7 +182,6 @@ namespace LeadowLib {
 
 	DWORD RunProcess(TCHAR* cmd, TCHAR* param, bool admin, PPROCESS_INFORMATION out)
 	{
-		CLdString invoker = cmd;
 
 		if (admin)
 		{
@@ -190,7 +189,7 @@ namespace LeadowLib {
 			info.cbSize = sizeof(SHELLEXECUTEINFO);
 			info.fMask = SEE_MASK_NOCLOSEPROCESS | SEE_MASK_DEFAULT;
 			info.lpVerb = TEXT("runas");
-			info.lpFile = invoker;
+			info.lpFile = cmd;
 			info.lpParameters = param;
 
 			if (!ShellExecuteEx(&info))
@@ -207,8 +206,11 @@ namespace LeadowLib {
 		{
 			PROCESS_INFORMATION info = { 0 };
 			STARTUPINFO si = { 0 };
+			
+			CLdString invoker;
+			invoker.Format(_T("\"%s\" %s"), cmd, param);
 			si.cb = sizeof(STARTUPINFO);
-			if (CreateProcess(invoker, param, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
+			if (!CreateProcess(nullptr, invoker, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &info))
 				return GetLastError();
 			if (out)
 			{

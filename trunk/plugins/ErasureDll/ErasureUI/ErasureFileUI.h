@@ -10,6 +10,7 @@
 
 class CErasureFileUI : 
 	IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	ICommunicationListen,
 	public CShFileViewUI
 {
 public:
@@ -50,4 +51,8 @@ protected:
 	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
 	bool AnalyResult(TCHAR* FileName, PVOID pData) override;
+protected: //ICommunicationListen
+	bool OnCreate() override;
+	void OnTerminate(DWORD exitcode) override;
+	void OnCommand(WORD id, PVOID data, WORD nSize) override;
 };

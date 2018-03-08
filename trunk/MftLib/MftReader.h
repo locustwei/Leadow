@@ -14,7 +14,7 @@ namespace LeadowLib
 {
 #define FILE_ATTRIBUTE_DELETED 0x80000000
 	//文件信息
-	typedef struct LDLIB_API _FILE_INFO {
+	typedef struct _FILE_INFO {
 		UINT64 DirectoryFileReferenceNumber;         //
 		_FILETIME CreationTime;       // Saved when filename last changed
 		_FILETIME ChangeTime;         //
@@ -36,7 +36,7 @@ namespace LeadowLib
 		//virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param) = 0;
 	};
 
-	class LDLIB_API CMftReader
+	class CMftReader
 	{
 	public:
 		IMftReadeHolder* SetHolder(IMftReadeHolder* pHolder); //设置回掉接口

@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "MainWnd.h"
 #include "About.h"
-
+#include "../plugins/plugin.h"
 
 DUI_BEGIN_MESSAGE_MAP(CMainWnd, WindowImplBase)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
@@ -68,32 +68,27 @@ void CMainWnd::OnClick(TNotifyUI& msg)
 	return __super::OnClick(msg);
 }
 
-CControlUI * BuildXml(TCHAR * skinXml)
-{
-	if (skinXml == nullptr || _tcslen(skinXml) == 0)
-		return nullptr;
-
-	CDialogBuilder builder;
-	CPaintManagerUI pm_ui;
-	CControlUI * pControl = builder.Create(skinXml, nullptr, NULL, &pm_ui);
-	_ASSERTE(pControl);
-
-	return pControl;
-}
-
 void CMainWnd::InitWindow()
 {
 
 	CTabLayoutUI* pControl = static_cast<CTabLayoutUI*>(m_PaintManager.FindControl(_T("switch")));
 	if (!pControl)
 		return;
-	//嵌入文件擦除模块窗口
-//	m_EraserUI = new CErasureMainWnd();
-//	CControlUI* control = BuildXml(_T("erasure/erasuremain.xml"));
-//	m_EraserUI->AttanchControl(control);
-//	AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
-//	pControl->Add(control);
-//	pControl->SelectItem(control);
+
+	CLdString s = ThisApp->GetAppPath();
+	s += _T("modules\\");
+	CPluginManager pm(s);
+	CLdArray<PLUGIN_PROPERTY> plugins;
+	pm.FindPlugin(PLUGIN_USAGE_UI, &plugins);
+
+	for(int i=0; i<plugins.GetCount(); i++)
+	{
+		IPluginInterface* pi_interface = pm.LoadPlugin(ThisApp, plugins[i].id);
+		m_EraserUI = pi_interface->CreateUI();
+		AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
+		pControl->Add(m_EraserUI->GetUI());
+		pControl->SelectItem(m_EraserUI->GetUI());
+	}
 
 	m_btnLogo = static_cast<CButtonUI*>(m_PaintManager.FindControl(_T("logo")));
 }

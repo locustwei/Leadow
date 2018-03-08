@@ -134,7 +134,7 @@ DWORD CErasure::FileErasure(TCHAR * lpFileName, CErasureMothed * method, IErasur
 		if(result == 0)
 		{
 			path = new CLdString((UINT)_tcslen(lpFileName));
-			CFileUtils::ExtractFilePath(lpFileName, path->GetData());
+			CFileUtils::ExtractFilePath(lpFileName, *path);
 			if (!path->IsEmpty() && path->GetData()[path->GetLength() - 1] != '\\')
 				*path += '\\';
 			*path += tmpName.GetData();
@@ -171,7 +171,7 @@ DWORD CErasure::DirectoryErasure(TCHAR * lpDirName, IErasureCallback * callbck)
 	if (result == 0)
 	{
 		path = new CLdString((UINT)_tcslen(lpDirName));
-		CFileUtils::ExtractFilePath(lpDirName, path->GetData());
+		CFileUtils::ExtractFilePath(lpDirName, *path);
 		if (!path->IsEmpty() && path->GetData()[path->GetLength() - 1] != '\\')
 			*path += '\\';
 		*path += tmpName.GetData();

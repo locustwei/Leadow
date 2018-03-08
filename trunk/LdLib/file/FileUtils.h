@@ -21,17 +21,17 @@ namespace LeadowLib {
 	{
 	public:
 		//提取文件名中的盘符
-		static BOOL ExtractFileDrive(TCHAR* lpFullName, __out TCHAR* lpDriveName);
+		static BOOL ExtractFileDrive(TCHAR* lpFullName, __out CLdString& lpDriveName);
 		//提取文件名中的路径
-		static UINT ExtractFilePath(TCHAR* lpFullName, __out TCHAR* lpFilePath);
+		static UINT ExtractFilePath(TCHAR* lpFullName, __out CLdString& lpFilePath);
 		//提取完整文件名中的文件名
-		static UINT ExtractFileName(TCHAR* lpFullName, __out TCHAR* lpName);
+		static UINT ExtractFileName(TCHAR* lpFullName, __out CLdString& lpName);
 		//提取文件名中的扩展名
-		static UINT ExtractFileExt(TCHAR* lpFullName, __out TCHAR* lpName);
+		static UINT ExtractFileExt(TCHAR* lpFullName, __out CLdString& lpName);
 		//Dos路径转换成设备路径（C:\ —— \\device\partion1\)
-		static UINT Win32Path2DevicePath(TCHAR* lpFullName, __out TCHAR* lpDevicePath);
+		static UINT Win32Path2DevicePath(TCHAR* lpFullName, __out CLdString& lpDevicePath);
 		//设备路径转换成Dos路径
-		static UINT DevicePathToWin32Path(TCHAR* lpDevicePath, __out TCHAR* lpDosPath);
+		static UINT DevicePathToWin32Path(TCHAR* lpDevicePath, __out CLdString& lpDosPath);
 		//static DWORD GetFileAttribute(TCHAR* lpFullName);
 		//（如果不存在）创建文件路径
 		static DWORD ForceDirectories(TCHAR* lpFullPath);

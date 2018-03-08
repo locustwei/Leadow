@@ -8,26 +8,21 @@
 #include "targetver.h"
 
 #include <windows.h>
+#include <tchar.h>
 
 #include <LdLib.h>
 using namespace LeadowLib;
-#include <UIlib.h>
-using namespace DuiLib;
+#include <LdApp.h>
 
-#include "Communications.h"
 
 #ifdef _DEBUG
 #ifdef WIN64
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"jsonlib_d64.lib")
-#pragma comment(lib,"DuiLib_d64.lib")
-#pragma comment(lib,"Communications_d64.lib")
 #pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"jsonlib_d32.lib")
-#pragma comment(lib,"DuiLib_d32.lib")
-#pragma comment(lib,"Communications_d32.lib")
 #pragma comment(lib,"LdApp_d32.lib")
 #endif
 #else

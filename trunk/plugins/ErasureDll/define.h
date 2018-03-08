@@ -3,8 +3,8 @@
 #include "stdafx.h"
 #include "../plugin.h"
 
+#define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
 //调用进程命令行参数中的第一个参数，指明调用那个函数。
-#define CMD_ERASE    TEXT("/erase")      //文件擦除
 
 //调用"文件擦除"进程命令行参数名。
 #define EPN_ERASE_FILES   TEXT("files")
@@ -14,6 +14,11 @@
 #define EPN_MOTHED        TEXT("mothed")
 #define EPN_NAME          TEXT("name")
 #define EPN_UNDELFOLDER   TEXT("undelfolder")
+
+enum ERASER_COMM_IDS
+{
+	eci_anafiles
+};
 
 //文件擦除状态
 enum E_FILE_STATE
@@ -41,14 +46,14 @@ enum E_THREAD_OPTION
 };
 
 //擦除线程回掉函数
-interface LDLIB_API IEraserListen
+interface IEraserListen
 {
 	//public:
 	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
 	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
 };
 
-interface LDLIB_API IErasure: IPluginInterface
+interface IErasure: IPluginInterface
 {
 	virtual DWORD EraseFile(CDynObject& Param, IEraserListen * callback) = 0;
 	virtual DWORD EraseVolume(CDynObject& Param, IEraserListen * callback) = 0;

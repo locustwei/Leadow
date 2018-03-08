@@ -15,6 +15,9 @@ CErasureMainWnd::CErasureMainWnd():
 	m_ErasureVolume = nullptr;
 	m_ErasureOptions = nullptr;
 	m_Name = _T("erasure/ErasureMainWnd");
+
+	CControlUI* control = BuildXml(_T("erasure/erasuremain.xml"));
+	AttanchControl(control);
 }
 
 
