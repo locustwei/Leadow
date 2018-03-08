@@ -36,6 +36,7 @@ CErasureImpl::CErasureImpl()
 	, m_Files()
 	, m_Comm(nullptr)
 {
+	m_hModule = (HMODULE)ThisModule;
 }
 
 CErasureImpl::~CErasureImpl()
@@ -99,10 +100,10 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 {
 	//int mothed = Param.GetInteger(EPN_MOTHED, 3);
 	//BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
-	int k = Param.GetArrayCount(EPN_NAME);
+	int k = Param.GetArrayCount(EPN_FILES);
 	for(int i=0; i<k; i++)
 	{
-		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
+		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
 		if (s.IsEmpty())
 			continue;
 
@@ -135,10 +136,10 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param, IEraserListen* callback)
 
 DWORD CErasureImpl::EraseVolume(CDynObject& Param, IEraserListen* callback)
 {
-	int k = Param.GetArrayCount(EPN_NAME);
+	int k = Param.GetArrayCount(EPN_FILES);
 	for (int i = 0; i<k; i++)
 	{
-		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
+		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
 		if (s.IsEmpty())
 			continue;
 
@@ -157,17 +158,49 @@ DWORD CErasureImpl::EraseVolume(CDynObject& Param, IEraserListen* callback)
 
 }
 
-DWORD CErasureImpl::AnaFile(CDynObject& Param, IEraserListen* callback)
+DWORD CErasureImpl::FileAnalysis(CDynObject Param, IEraserListen* callback)
 {
+	DebugOutput(L"FileAnalysis");
+
+	int k = Param.GetArrayCount(EPN_FILES);
+	for (int i = 0; i<k; i++)
+	{
+		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
+		if (s.IsEmpty())
+			continue;
+
+		DebugOutput(L"FileAnalysis %s", s.GetData());
+
+		CFileInfo* info;
+		if (CFileUtils::IsDirectoryExists(s))
+		{
+			info = new CFolderInfo();
+			info->SetFileName(s);
+			((CFolderInfo*)info)->FindFiles(true);
+		}
+		else
+		{
+			info = new CFileInfo();
+			info->SetFileName(s);
+		}
+
+		m_Files.Add(info);
+
+		SetFolderFilesData(info);
+	}
+
+	m_EraseThread.SetCallback(callback);
+	m_EraseThread.SetEreaureFiles(&m_Files);
+	m_EraseThread.StartAnalysis(10);
 	return 0;
 }
 
 DWORD CErasureImpl::AnaVolume(CDynObject& Param, IEraserListen* callback)
 {
-	int k = Param.GetArrayCount(EPN_NAME);
+	int k = Param.GetArrayCount(EPN_FILES);
 	for (int i = 0; i<k; i++)
 	{
-		CLdString s = Param.GetString(EPN_NAME, nullptr, i);
+		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
 		if (s.IsEmpty())
 			continue;
 
@@ -211,6 +244,10 @@ void CErasureImpl::OnCommand(WORD id, PVOID data, WORD nSize)
 	
 	switch(id)
 	{
-		
+	case eci_anafiles:
+		FileAnalysis((TCHAR*)data, nullptr);
+		break;
+	default:
+		DebugOutput(L"unknow command id=%d", id);
 	}
 }

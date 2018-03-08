@@ -15,6 +15,7 @@ namespace LeadowLib {
 	{
 	public:
 		CDynObject();
+		CDynObject(TCHAR* szJson);
 		~CDynObject();
 
 		BOOL LoadFromFile(TCHAR* FileName);

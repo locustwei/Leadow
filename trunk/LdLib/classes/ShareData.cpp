@@ -109,6 +109,9 @@ namespace LeadowLib
 			return DWORD(-1);
 		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
 			return GetLastError();
+		
+		DebugOutput(L"write data size=%d", nLength);
+		
 		m_pFileHeader->id = m_ThisID;
 		m_pFileHeader->nSize = nLength;
 		MoveMemory(m_pFileHeader->Data, pData, nLength);
@@ -131,12 +134,13 @@ namespace LeadowLib
 		__try
 		{
 			if (m_pFileHeader->nSize) 
-				//if(m_pFileHeader->id != m_ThisID)   //自己写的数据不要读
+				if(m_pFileHeader->id != m_ThisID)   //自己写的数据不要读
 				{
+					DebugOutput(L"read data size=%d", m_pFileHeader->nSize);
 					*nLength = m_pFileHeader->nSize;
 					*pData = new BYTE[m_pFileHeader->nSize];
 					MoveMemory(*pData, m_pFileHeader->Data, *nLength);
-					m_pFileHeader->nSize = 0;
+					//m_pFileHeader->nSize = 0;
 					return 0;
 				}
 		}

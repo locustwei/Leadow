@@ -17,6 +17,10 @@ namespace LeadowLib {
 
 	}
 
+	CDynObject::CDynObject(TCHAR* szJson)
+	{
+		PrepareStr(szJson);
+	}
 
 	CDynObject::~CDynObject()
 	{
@@ -218,7 +222,7 @@ namespace LeadowLib {
 		AddObjectAttribute(path, s.GetData(), index);
 	}
 
-	CLdStringW CDynObject::ToString()
+	CLdString CDynObject::ToString()
 	{
 		std::ostringstream stream;
 		m_Config.writeToStream(stream, false, false);

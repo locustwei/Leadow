@@ -112,7 +112,7 @@ bool CLdCommunication::CallMethod(WORD dwId, PVOID Param, WORD nParamSize, PVOID
 	}
 
 	//发送调用参数。
-	m_Data->Write(&call_param, len);
+	m_Data->Write(call_param, len);
 	
 	delete[] (PBYTE)call_param;
 

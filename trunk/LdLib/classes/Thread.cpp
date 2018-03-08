@@ -197,7 +197,7 @@ namespace LeadowLib {
 		if (m_Runer)
 			m_Runer->ThreadBody(this, m_Param);
 		else
-			m_Delegate(nullptr, m_Param);
+			m_Delegate(this, m_Param);
 		return 0;
 	}
 

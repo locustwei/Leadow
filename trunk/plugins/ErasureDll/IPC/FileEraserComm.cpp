@@ -28,11 +28,11 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 	CDynObject param;
 	for(int i=0; i<files->GetCount(); i++)
 	{
-		param.AddArrayValue(EPN_ERASE_FILES, *files[i]);
+		param.AddArrayValue(EPN_FILES, *files[i]);
 	}
 	CLdString s = param.ToString();
 
-	CallMethod(eci_anafiles, s.GetData(), s.GetLength() * sizeof(TCHAR), nullptr);
+	CallMethod(eci_anafiles, s.GetData(), (s.GetLength()+1) * sizeof(TCHAR), nullptr);
 
 	return 0;
 }
