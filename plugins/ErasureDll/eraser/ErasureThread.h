@@ -67,7 +67,8 @@ private:
 	INT_PTR ErasureThreadRun(PVOID pData, UINT_PTR Param);//单个文件擦除线程
 
 	INT_PTR FileAnal_Thread(PVOID, UINT_PTR Param);       //文件分析控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
-	INT_PTR AnalyThreadRung(PVOID pData, UINT_PTR Param); //单个文件分析线程。
+	INT_PTR VolumeAnalyThread(PVOID pData, UINT_PTR Param); //单个磁盘分析线程。
+	INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
 
 	//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      

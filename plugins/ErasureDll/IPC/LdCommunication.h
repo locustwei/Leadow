@@ -53,6 +53,7 @@ protected:
 		CMethodDelegate progress = nullptr  //需要过程数据（如：进度状态）
 	);
 	INT_PTR WaitHost(PVOID, UINT_PTR Param);
+	virtual void DoRecvData(PCOMMUNICATE_DATA data);
 	//客户进程共享数据读取回掉
 	INT_PTR ShareData_Callback(void* pData, UINT_PTR Param);
 };

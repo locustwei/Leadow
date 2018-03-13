@@ -149,14 +149,17 @@ INT_PTR CEreaserThrads::FileAnal_Thread(PVOID, UINT_PTR Param)
 	{
 		if (m_Abort)
 			return 0;
+		if (WaitForThread() == 0)
+			break;
 		CVirtualFile* file = m_Files->Get(i);
 		if (file->GetFileType() == vft_volume)
 		{
-			if (WaitForThread() == 0)
-				break;
 			CThread* thread = new CThread();
-			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::AnalyThreadRung), (UINT_PTR)file);
-//			thread->Start();
+			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), (UINT_PTR)file);
+		}else
+		{
+			CThread* thread = new CThread();
+			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnalyThread), (UINT_PTR)file);
 		}
 	}
 	while (m_ThreadCount>0)
@@ -216,7 +219,7 @@ INT_PTR CEreaserThrads::ErasureThreadRun(PVOID pData, UINT_PTR Param)
 	return 0;
 }
 
-INT_PTR CEreaserThrads::AnalyThreadRung(PVOID pData, UINT_PTR Param)
+INT_PTR CEreaserThrads::VolumeAnalyThread(PVOID pData, UINT_PTR Param)
 {
 	if (m_Abort)
 		return 0;
@@ -234,6 +237,16 @@ INT_PTR CEreaserThrads::AnalyThreadRung(PVOID pData, UINT_PTR Param)
 	}
 	m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
 
+	return 0;
+}
+
+INT_PTR CEreaserThrads::FileAnalyThread(PVOID pData, UINT_PTR Param)
+{
+	CVirtualFile* pFile = (CVirtualFile*)Param;
+	if(pFile->GetFileType()==vft_folder)
+	{
+		((CFolderInfo*)pFile)->FindFiles(true);
+	}
 	return 0;
 }
 
