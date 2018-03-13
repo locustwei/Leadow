@@ -1,7 +1,6 @@
 #pragma once
 
 #include "stdafx.h"
-#include "../plugin.h"
 
 #define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
 //调用进程命令行参数中的第一个参数，指明调用那个函数。
@@ -9,10 +8,7 @@
 //调用"文件擦除"进程命令行参数名。
 #define EPN_FILES         TEXT("files")
 #define ENP_ERASE_VOLUMES TEXT("volumes")
-#define CMD_ANALY_FILES   TEXT("anafile")
-#define CMD_ANALY_VOLUMES TEXT("anavolume")
-#define EPN_MOTHED        TEXT("mothed")
-#define EPN_NAME          TEXT("name")
+#define EPN_MOTHED        TEXT("method")
 #define EPN_UNDELFOLDER   TEXT("undelfolder")
 
 enum ERASER_COMM_IDS

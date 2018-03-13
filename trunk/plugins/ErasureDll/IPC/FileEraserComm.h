@@ -11,7 +11,6 @@ public:
 
 	DWORD Connect();
 	DWORD ExecuteFileAnalysis(CLdArray<CLdString>* files);
-	void AnalFile(TCHAR* file_name);
 protected:
 };
 

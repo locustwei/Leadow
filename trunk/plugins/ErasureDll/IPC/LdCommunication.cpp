@@ -134,7 +134,8 @@ INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 	
 	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d", data->commid, data->nSize);
 
-	m_Listen->OnCommand(data->commid, data->data, data->nSize);
+	DoRecvData(data);
+
 	return 1;
 }
 
@@ -147,4 +148,10 @@ INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
 	m_Listen->OnTerminate(dwCode);
 	DebugOutput(L"WaitHost %d", dwCode);
 	return 0;
+}
+
+void CLdCommunication::DoRecvData(PCOMMUNICATE_DATA data)
+{
+	if(m_Listen)
+		m_Listen->OnCommand(data->commid, data->data, data->nSize);
 }

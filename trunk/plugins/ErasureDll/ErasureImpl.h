@@ -30,10 +30,12 @@ private:
 	CFileEraserComm* m_Comm;
 	DWORD SetFolderFilesData(CVirtualFile * pFile);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
-	DWORD EraseFile(CDynObject& Param, IEraserListen* callback);
-	DWORD EraseVolume(CDynObject& Param, IEraserListen* callback);
-	DWORD FileAnalysis(CDynObject Param, IEraserListen* callback);
-	DWORD AnaVolume(CDynObject& Param, IEraserListen* callback);
+	DWORD EraseFile(CDynObject& Param);
+	DWORD EraseVolume(CDynObject& Param);
+	DWORD FileAnalysis(CDynObject Param);
+	DWORD AnaVolume(CDynObject& Param);
+	
+	INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
 };
 
 extern CErasureImpl* ErasureImpl;

@@ -16,11 +16,16 @@ DWORD CEraseTest::CountVolumeFiles(CVolumeInfo * pVolume)
 	return result;
 }
 
+UINT CEraseTest::TestWriteSpeed()
+{
+	return 0;
+}
+
 BOOL CEraseTest::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
 {
 	if (pFileInfo)
 	{
-		PERASE_VOLUME_INFO info = (PERASE_VOLUME_INFO)Param;
+		PTEST_VOLUME_RESULT info = (PTEST_VOLUME_RESULT)Param;
 
 		if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
 		{
@@ -48,15 +53,28 @@ CEraseTest::~CEraseTest()
 {
 }
 
-DWORD CEraseTest::TestVolume(TCHAR* VolumePath, IErasureCallback* callback)
+TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR* VolumePath)
 {
-	DWORD result;
-	ERASE_VOLUME_INFO info = { 0 };
+	TEST_VOLUME_RESULT result;
 	CVolumeInfo volume;
 	volume.SetFileName(VolumePath);
-	volume.SetTag((UINT_PTR)&info);
+	volume.SetTag((UINT_PTR)&result);
 	CLdString TempPath;
-	result = CountVolumeFiles(&volume);
+	result.ErrorCode = CountVolumeFiles(&volume);
+
+	return result;
+}
+
+TEST_FILE_RESULT CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder)
+{
+	TEST_FILE_RESULT result = { 0 };
+
+	return result;
+}
+
+TEST_FILE_RESULT CEraseTest::TestDirectory(TCHAR* lpDirName)
+{
+	TEST_FILE_RESULT result = { 0 };
 
 	return result;
 }

@@ -37,7 +37,3 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 	return 0;
 }
 
-void CFileEraserComm::AnalFile(TCHAR* file_name)
-{
-
-}
