@@ -26,7 +26,6 @@ public:
 	DWORD TerminateHost();
 	virtual DWORD LoadHost(TCHAR* plugid);
 	bool IsConnected();
-
 //	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
 protected:
 	typedef struct COMMUNICATE_DATA

@@ -4,8 +4,8 @@
 
 
 class CErasureVolumeUI : 
-	public CShFileViewUI,
-	IEraserListen  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	public CShFileViewUI
+//IEraserListen  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 //	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
 {
 public:
@@ -41,6 +41,6 @@ protected:
 	//擦除线程回掉，同步擦除状态
 	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue);
 	bool GetViewHeader() override;
-	bool AnalyResult(TCHAR* FileName, PVOID pData) override;
+	bool AnalyResult(TCHAR* FileName, PVOID pData);
 };
 

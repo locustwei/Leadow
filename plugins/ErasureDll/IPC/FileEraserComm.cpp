@@ -37,3 +37,8 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 	return 0;
 }
 
+void CFileEraserComm::SendFileAnalyResult(TCHAR* FileName, PTEST_FILE_RESULT result)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+

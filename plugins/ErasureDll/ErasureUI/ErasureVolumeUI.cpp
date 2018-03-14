@@ -309,7 +309,7 @@ void CErasureVolumeUI::StatAnalysis()
 	{
 		files.Add(m_Volumes.Get(i)->GetFullName());
 	}
-	ExecuteVolumeAnalysis(this, &files);
+	//ExecuteVolumeAnalysis(this, &files);
 }
 
 void CErasureVolumeUI::StatErase()
@@ -319,7 +319,7 @@ void CErasureVolumeUI::StatErase()
 	{
 		files.Add(m_Volumes.Get(i)->GetFullName());
 	}
-	ExecuteFileErase(this, &files);
+	//ExecuteFileErase(this, &files);
 }
 
 void CErasureVolumeUI::OnClick(TNotifyUI& msg)
