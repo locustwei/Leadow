@@ -224,18 +224,18 @@ INT_PTR CEreaserThrads::VolumeAnalyThread(PVOID pData, UINT_PTR Param)
 	if (m_Abort)
 		return 0;
 
-	CVolumeInfo* pVolume = (CVolumeInfo*)Param;
+	//CVolumeInfo* pVolume = (CVolumeInfo*)Param;
 
-	DWORD error;
-	if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
-		error = ERROR_CANCELED;
-	else
-	{
-		CEraseTest Test;
-		error = Test.TestVolume(pVolume->GetFullName(), nullptr);
-		//error = pVolume->StatisticsFileStatus();
-	}
-	m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
+	//DWORD error;
+	//if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
+	//	error = ERROR_CANCELED;
+	//else
+	//{
+	//	CEraseTest Test;
+	//	error = Test.TestVolume(pVolume->GetFullName(), nullptr);
+	//	//error = pVolume->StatisticsFileStatus();
+	//}
+	//m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
 
 	return 0;
 }

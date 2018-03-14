@@ -9,7 +9,7 @@
 #include "../define.h"
 
 class CErasureFileUI : 
-	IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
+	//IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
 	ICommunicationListen,
 	public CShFileViewUI
 {
@@ -50,7 +50,7 @@ protected:
 	//更新擦除信息（显示在ListUI中）
 	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
-	bool AnalyResult(TCHAR* FileName, PVOID pData) override;
+	bool AnalyResult(TCHAR* FileName, PVOID pData);
 protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;

@@ -67,7 +67,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	}
 
 	LocalFree(lpParamStrs);
-
+	
 	DebugOutput(L"exit");
 
 	MSG msg = { 0 };

@@ -17,6 +17,14 @@ typedef struct FILE_ERASURE_DATA
 	DWORD nErasued;                   //已经被擦除的文件数
 }*PFILE_ERASURE_DATA;
 
+//擦除线程回掉函数
+interface IEraserListen
+{
+	//public:
+	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
+};
+
 //擦除选项。
 typedef struct ERASER_OPTIONS
 {

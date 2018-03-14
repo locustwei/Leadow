@@ -1,28 +1,10 @@
 #pragma once
 #include "ErasureMethod.h"
-
-typedef struct TEST_VOLUME_RESULT {
-	UINT64 FileCount;        //文件数
-	UINT64 DirectoryCount;   //目录数
-	UINT64 FileTrackCount;   //MFT中删除文件的痕迹数
-	UINT64 RecoverableCount; //删除文可以被恢复文件数（粗略数字及文件大小不为0）
-	UINT   Writespeed;       //写文件速度（1G字节所用时间，单位毫秒）
-	UINT   Cratespeed;       //创建0字节文件速度（100个文件所用时间，单位毫秒）
-	UINT   Deletespeed;      //删除0字节文件的速度（100个文件所用时间，单位毫秒）
-	DWORD ErrorCode;        //分析错误代码（如果）
-}*PTEST_VOLUME_RESULT;
-
-typedef struct TEST_FILE_RESULT {
-	DWORD FileCount;        //文件数
-	DWORD ADSCount;         //流个数
-	UINT64 TotalSize;       //文件（目录）字节数
-	UINT64 ADSSizie;        //流字节数
-	DWORD ErrorCode;        //分析错误代码（如果）
-}*PTEST_FILE_RESULT;
+#include "..\define.h"
 
 class CEraseTest
 	:public IMftReadeHolder
-	,IThreadRunable
+	//,IThreadRunable
 {
 public:
 	CEraseTest();

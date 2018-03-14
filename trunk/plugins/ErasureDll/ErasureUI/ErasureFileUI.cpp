@@ -232,7 +232,7 @@ void CErasureFileUI::StatErase()
 	{
 		files.Add(m_ErasureFile.GetFiles()->Get(i)->GetFullName());
 	}
-	ExecuteFileErase(this, &files);
+	//ExecuteFileErase(this, &files);
 }
 
 bool CErasureFileUI::AnalyResult(TCHAR* FileName, PVOID pData)

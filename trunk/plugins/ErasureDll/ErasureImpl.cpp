@@ -220,6 +220,8 @@ INT_PTR CErasureImpl::FileAnalyThread(PVOID pData, UINT_PTR Param)
 	PERASE_FILE_PARAM pParam = (PERASE_FILE_PARAM)Param;
 	CEraseTest test;
 	TEST_FILE_RESULT result = test.TestFile(pParam->FileName, pParam->bRemoveFolder);
+	delete pParam;
+	m_Comm->SendFileAnalyResult(pParam->FileName, &result);
 	return 0;
 }
 
@@ -233,7 +235,6 @@ DWORD CErasureImpl::InitCommunicate()
 	DebugOutput(L"InitCommunicate");
 
 	m_Comm = new CFileEraserComm(this);
-
 	return 0;
 }
 
@@ -255,6 +256,6 @@ void CErasureImpl::OnCommand(WORD id, PVOID data, WORD nSize)
 		FileAnalysis((TCHAR*)data);
 		break;
 	default:
-		DebugOutput(L"unknow command id=%d", id);
+		DebugOutput(L"unknown command id=%d", id);
 	}
 }

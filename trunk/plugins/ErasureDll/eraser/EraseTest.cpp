@@ -53,17 +53,17 @@ CEraseTest::~CEraseTest()
 {
 }
 
-TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR* VolumePath)
-{
-	TEST_VOLUME_RESULT result;
-	CVolumeInfo volume;
-	volume.SetFileName(VolumePath);
-	volume.SetTag((UINT_PTR)&result);
-	CLdString TempPath;
-	result.ErrorCode = CountVolumeFiles(&volume);
-
-	return result;
-}
+//TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR* VolumePath)
+//{
+//	TEST_VOLUME_RESULT result;
+//	CVolumeInfo volume;
+//	volume.SetFileName(VolumePath);
+//	volume.SetTag((UINT_PTR)&result);
+//	CLdString TempPath;
+//	result.ErrorCode = CountVolumeFiles(&volume);
+//
+//	return result;
+//}
 
 TEST_FILE_RESULT CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder)
 {
