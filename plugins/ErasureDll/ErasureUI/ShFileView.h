@@ -1,5 +1,4 @@
 #pragma once
-#include "../IPC/LdCommunication.h"
 
 /*******************************************************
 用Windows资源管理器（Shell）格式，显示文件（文件夹）信息

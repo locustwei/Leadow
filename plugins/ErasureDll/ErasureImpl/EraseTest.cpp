@@ -68,7 +68,29 @@ CEraseTest::~CEraseTest()
 TEST_FILE_RESULT CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder)
 {
 	TEST_FILE_RESULT result = { 0 };
+	
+	CFileInfo* pFile;
+	if (CFileUtils::IsDirectoryExists(lpFileName))
+	{
+		pFile = new CFolderInfo();
+	}
+	else
+		pFile = new CFileInfo();
 
+	if (pFile->GetFileType() == vft_folder)
+	{
+		((CFolderInfo*)pFile)->FindFiles(true);
+		result.FileCount = ((CFolderInfo*)pFile)->GetFilesCount(true);
+	}
+	
+	CLdArray<CADStream *>* ads = pFile->GetADStreams();
+	if (ads)
+	{
+		result.ADSCount = ads->GetCount();
+		for (int i = 0; i < result.ADSCount; i++)
+			result.ADSSizie += ads->Get(i)->GetDataSize();
+	}
+	result.TotalSize = pFile->GetDataSize();
 	return result;
 }
 
