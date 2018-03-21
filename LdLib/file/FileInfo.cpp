@@ -172,7 +172,7 @@ namespace LeadowLib {
 		return true;
 	}
 
-	CLdArray<CVirtualFile*>* CFileInfo::GetADStreams()
+	CLdArray<CADStream*>* CFileInfo::GetADStreams()
 	{
 		if (m_FileName.IsEmpty())
 			return nullptr;
@@ -182,7 +182,7 @@ namespace LeadowLib {
 			CLdArray<PFILE_ADS_INFO> stream_array;
 			if(CFileUtils::GetFileADSNames(GetFullName(), &stream_array) == 0)
 			{
-				m_Streams = new CLdArray<CVirtualFile*>();
+				m_Streams = new CLdArray<CADStream*>();
 				for (int i = 0; i < stream_array.GetCount(); i++)
 				{
 					CADStream* stream = new CADStream();
@@ -196,6 +196,22 @@ namespace LeadowLib {
 			}
 		}
 		return m_Streams;
+	}
+
+	int CFileInfo::GetADSStreamCount()
+	{
+		if (m_Streams)
+			return m_Streams->GetCount();
+		else
+			return 0;
+	}
+
+	CADStream * CFileInfo::GetADStream(int idx)
+	{
+		if (m_Streams)
+			return m_Streams->Get(idx);
+		else
+			return nullptr;
 	}
 
 	void CFileInfo::ClearValue()

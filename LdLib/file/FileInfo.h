@@ -79,8 +79,9 @@ namespace LeadowLib {
 		virtual bool SetFileName(TCHAR* pFileName);
 		bool SetFindData(const TCHAR* pPath, PWIN32_FIND_DATA pData);
 		//ADS文件交换数据流
-		CLdArray<CVirtualFile*>* GetADStreams();
-
+		CLdArray<CADStream*>* GetADStreams();
+		int GetADSStreamCount();
+		CADStream* GetADStream(int idx);
 		//文件属性-----------------------------------------------------------------------------
 		FILETIME GetCreateTime();
 		FILETIME GetLastWriteTime();
@@ -105,7 +106,7 @@ namespace LeadowLib {
 		bool GetFileBasicInfo();
 	private:
 
-		CLdArray<CVirtualFile*>* m_Streams;
+		CLdArray<CADStream*>* m_Streams;
 	};
 	//文件夹
 	class CFolderInfo : public CFileInfo
