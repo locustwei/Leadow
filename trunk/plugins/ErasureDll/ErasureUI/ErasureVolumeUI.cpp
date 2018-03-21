@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ErasureVolumeUI.h"
-#include "EraserUI.h"
 //#include "../LdFileEraser/ErasureLibrary.h"
 
 //#include "../eraser/VolumeEx.h"

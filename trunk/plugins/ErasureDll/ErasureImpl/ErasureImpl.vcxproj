@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{44FEFE13-EA21-426C-A807-D88D6423E7EC}</ProjectGuid>
+    <ProjectGuid>{967E7193-8E4B-4E85-8483-F3E1DAB4220C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ErasureDll</RootNamespace>
+    <RootNamespace>ErasureImpl</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140_xp</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -71,8 +71,6 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(SolutionDir)bin\modules</OutDir>
-    <TargetName>$(ProjectName)_d32</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -85,17 +83,16 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_PLUGIN_;WIN32;_DEBUG;_WINDOWS;_USRDLL;ERASUREDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\MftLib;..\..\LdApp;..\..\LdLib;..\..\Jsonlib;..\..\DuiLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;ERASUREIMPL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)lib</AdditionalLibraryDirectories>
-      <ModuleDefinitionFile>../plugin.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -104,7 +101,8 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_PLUGIN_;_DEBUG;_WINDOWS;_USRDLL;ERASUREDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;ERASUREIMPL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -119,7 +117,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ERASUREDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;ERASUREIMPL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -136,7 +135,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;ERASUREDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;ERASUREIMPL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,48 +146,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\dllmain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="eraser\EraseTest.cpp" />
-    <ClCompile Include="eraser\Erasure.cpp" />
-    <ClCompile Include="eraser\ErasureMethod.cpp" />
-    <ClCompile Include="eraser\ErasureThread.cpp" />
-    <ClCompile Include="ErasureImpl.cpp" />
-    <ClCompile Include="ErasureUI\ErasureFileUI.cpp" />
-    <ClCompile Include="ErasureUI\ErasureMainWnd.cpp" />
-    <ClCompile Include="ErasureUI\ErasureOptions.cpp" />
-    <ClCompile Include="ErasureUI\ErasureRecycleUI.cpp" />
-    <ClCompile Include="ErasureUI\ErasureVolumeUI.cpp" />
-    <ClCompile Include="ErasureUI\ShFileView.cpp" />
-    <ClCompile Include="IPC\FileEraserComm.cpp" />
-    <ClCompile Include="IPC\LdCommunication.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\plugin.h" />
-    <ClInclude Include="define.h" />
-    <ClInclude Include="eraser\EraseTest.h" />
-    <ClInclude Include="eraser\Erasure.h" />
-    <ClInclude Include="eraser\ErasureMethod.h" />
-    <ClInclude Include="eraser\ErasureThread.h" />
-    <ClInclude Include="ErasureImpl.h" />
-    <ClInclude Include="ErasureUI\EraserUI.h" />
-    <ClInclude Include="ErasureUI\ErasureFileUI.h" />
-    <ClInclude Include="ErasureUI\ErasureMainWnd.h" />
-    <ClInclude Include="ErasureUI\ErasureOptions.h" />
-    <ClInclude Include="ErasureUI\ErasureRecycleUI.h" />
-    <ClInclude Include="ErasureUI\ErasureVolumeUI.h" />
-    <ClInclude Include="ErasureUI\ShFileView.h" />
-    <ClInclude Include="IPC\FileEraserComm.h" />
-    <ClInclude Include="IPC\LdCommunication.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

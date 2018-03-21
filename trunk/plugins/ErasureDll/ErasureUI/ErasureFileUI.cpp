@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
-#include "EraserUI.h"
 #include "../IPC/FileEraserComm.h"
 
 CErasureFileUI::CErasureFileUI() 
@@ -13,7 +12,7 @@ CErasureFileUI::CErasureFileUI()
 	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
-	m_Comm = new CFileEraserComm(this);
+	m_Comm = new CFileEraserComm(nullptr);
 }
 
 CErasureFileUI::~CErasureFileUI()
@@ -291,7 +290,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 				s.Format(_T("包含数%d个文件（文件夹），合计%s"), ((CFolderInfo*)pFile)->GetFilesCount(true), strSize);
 				//desc->SetText(s);
 			}
-			CLdArray<CVirtualFile*>* streams = ((CFileInfo*)pFile)->GetADStreams();
+			CLdArray<CADStream*>* streams = ((CFileInfo*)pFile)->GetADStreams();
 			if (streams && streams->GetCount()>0)
 			{
 				INT64 nSize = 0;

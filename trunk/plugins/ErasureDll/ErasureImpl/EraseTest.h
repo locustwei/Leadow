@@ -1,7 +1,27 @@
 #pragma once
+
+/*!
+ * file EraseTest.h
+ *
+ * author asa-pc
+ * date 三月 2018
+ *
+ * brief 
+ *
+ * 
+ */
+
 #include "ErasureMethod.h"
 #include "..\define.h"
 
+/*!
+ * \class classname
+ *
+ * \brief 
+ *
+ * \author asa-pc
+ * \date 三月 2018
+ */
 class CEraseTest
 	:public IMftReadeHolder
 	//,IThreadRunable

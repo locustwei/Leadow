@@ -160,36 +160,36 @@ DWORD CErasureImpl::EraseVolume(CDynObject& Param)
 }
 
 typedef struct ERASE_FILE_PARAM {
-	CLdString FileName;
-	CErasureMothed* method;
+	CLdString progress;
+	
 	BOOL bRemoveFolder;
 }*PERASE_FILE_PARAM;
 
 
-DWORD CErasureImpl::FileAnalysis(CDynObject Param)
+DWORD CErasureImpl::FileAnalysis(TCHAR* Param, TCHAR* progress)
 {
 	DebugOutput(L"FileAnalysis");
 
-	bool undelfolder = Param.GetBoolean(EPN_UNDELFOLDER);
+	//bool undelfolder = Param.GetBoolean(EPN_UNDELFOLDER);
 
-	int k = Param.GetArrayCount(EPN_FILES);
+	//int k = Param.GetArrayCount(EPN_FILES);
 
-	for (int i = 0; i<k; i++)
-	{
-		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
-		if (s.IsEmpty())
-			continue;
+	//for (int i = 0; i<k; i++)
+	//{
+	//	CLdString s = Param.GetString(EPN_FILES, nullptr, i);
+	//	if (s.IsEmpty())
+	//		continue;
 
-		DebugOutput(L"FileAnalysis %s", s.GetData());
+	//	DebugOutput(L"FileAnalysis %s", s.GetData());
 
-		PERASE_FILE_PARAM Param = new ERASE_FILE_PARAM;
-		Param->FileName = s;
-		Param->method = new CErasureMothed(em_Pseudorandom);
-		Param->bRemoveFolder = undelfolder;
+	//	PERASE_FILE_PARAM Param = new ERASE_FILE_PARAM;
+	//	Param->FileName = s;
+	//	Param->method = new CErasureMothed(em_Pseudorandom);
+	//	Param->bRemoveFolder = undelfolder;
 
-		CThread* thread = new CThread();
-		thread->Start(CMethodDelegate::MakeDelegate(this, &CErasureImpl::FileAnalyThread), (UINT_PTR)Param);
-	}
+	//	CThread* thread = new CThread();
+	//	thread->Start(CMethodDelegate::MakeDelegate(this, &CErasureImpl::FileAnalyThread), (UINT_PTR)Param);
+	//}
 
 	return 0;
 }
@@ -217,11 +217,11 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param)
 
 INT_PTR CErasureImpl::FileAnalyThread(PVOID pData, UINT_PTR Param)
 {
-	PERASE_FILE_PARAM pParam = (PERASE_FILE_PARAM)Param;
-	CEraseTest test;
-	TEST_FILE_RESULT result = test.TestFile(pParam->FileName, pParam->bRemoveFolder);
-	delete pParam;
-	m_Comm->SendFileAnalyResult(pParam->FileName, &result);
+	//PERASE_FILE_PARAM pParam = (PERASE_FILE_PARAM)Param;
+	//CEraseTest test;
+	//TEST_FILE_RESULT result = test.TestFile(pParam->FileName, pParam->bRemoveFolder);
+	//delete pParam;
+	//m_Comm->SendFileAnalyResult(pParam->FileName, &result);
 	return 0;
 }
 
@@ -247,13 +247,13 @@ void CErasureImpl::OnTerminate(DWORD exitcode)
 {
 }
 
-void CErasureImpl::OnCommand(WORD id, PVOID data, WORD nSize)
+void CErasureImpl::OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize)
 {
 	
 	switch(id)
 	{
 	case eci_anafiles:
-		FileAnalysis((TCHAR*)data);
+		FileAnalysis((TCHAR*)data, ProcessName);
 		break;
 	default:
 		DebugOutput(L"unknown command id=%d", id);
