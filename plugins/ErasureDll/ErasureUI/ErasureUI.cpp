@@ -18,7 +18,7 @@ if(ErasureUI)            \
 
 PLUGIN_PROPERTY GetSelfDesc()
 {
-	PLUGIN_PROPERTY ErasurePrpperty = { PLUGIN_USAGE_UI | PLUGIN_USAGE_BK, PLUGIN_ID };
+	PLUGIN_PROPERTY ErasurePrpperty = { PLUGIN_USAGE_UI, PLUGIN_ID };
 	return ErasurePrpperty;
 }
 

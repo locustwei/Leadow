@@ -1,5 +1,4 @@
 #pragma once
-#include "../../MftLib/MftReader.h"
 
 /*!
 回掉函数，用于中断处理、报告进度

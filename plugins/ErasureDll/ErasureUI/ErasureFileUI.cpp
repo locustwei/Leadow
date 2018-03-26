@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
-#include "../IPC/FileEraserComm.h"
 
 CErasureFileUI::CErasureFileUI() 
 	: m_Comm(nullptr),
@@ -12,7 +11,7 @@ CErasureFileUI::CErasureFileUI()
 	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
-	m_Comm = new CFileEraserComm(nullptr);
+	m_Comm = new CUIComm(nullptr);
 }
 
 CErasureFileUI::~CErasureFileUI()

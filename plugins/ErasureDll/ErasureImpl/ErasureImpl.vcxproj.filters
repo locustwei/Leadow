@@ -13,5 +13,78 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Impl">
+      <UniqueIdentifier>{48593870-b944-438d-a68d-c5c04e81177b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{1773fa31-a537-4cb1-9bc9-b511ea63c8c1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="EraseTest.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="Erasure.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureMethod.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureThread.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="VolumeEx.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dllmain.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureImpl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="EraseTest.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="Erasure.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureMethod.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureThread.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="VolumeEx.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\define.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\plugin.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureImpl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Communication.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
   </ItemGroup>
 </Project>

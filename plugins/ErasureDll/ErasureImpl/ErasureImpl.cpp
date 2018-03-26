@@ -1,12 +1,10 @@
 #include "stdafx.h"
-#include "../plugin.h"
-#include "../../LdApp/LdApp.h"
-#include "eraser/ErasureThread.h"
-#include "define.h"
+#include "../../plugin.h"
+#include "ErasureThread.h"
+#include "../define.h"
 #include "ErasureImpl.h"
-#include "ErasureUI/ErasureMainWnd.h"
-#include "IPC/FileEraserComm.h"
-#include "eraser/EraseTest.h"
+#include "Communication.h"
+#include "EraseTest.h"
 
 CErasureImpl* ErasureImpl = nullptr;
 
@@ -227,7 +225,7 @@ INT_PTR CErasureImpl::FileAnalyThread(PVOID pData, UINT_PTR Param)
 
 CFramNotifyPump* CErasureImpl::CreateUI()
 {
-	return new CErasureMainWnd;
+	return nullptr;
 }
 
 DWORD CErasureImpl::InitCommunicate()

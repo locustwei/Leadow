@@ -13,66 +13,81 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="dll">
+      <UniqueIdentifier>{472bf8c4-4cf9-43f5-af79-11d624e2955d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Impl">
+      <UniqueIdentifier>{a0fbdf76-8ca8-433b-b13e-d61e829f2f3e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ErasureFileUI.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureMainWnd.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureOptions.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureRecycleUI.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ErasureVolumeUI.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="ShFileView.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="..\define.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\plugin.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ErasureUI.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Communication.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\plugin.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="..\define.h">
+      <Filter>dll</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureFileUI.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureMainWnd.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureOptions.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureRecycleUI.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ErasureVolumeUI.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ShFileView.h">
+      <Filter>Impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ErasureFileUI.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureMainWnd.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureOptions.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureRecycleUI.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ErasureVolumeUI.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ShFileView.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ErasureUI.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\dllmain.cpp">
+      <Filter>dll</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureFileUI.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureMainWnd.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureOptions.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureRecycleUI.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ErasureVolumeUI.cpp">
+      <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ShFileView.cpp">
+      <Filter>Impl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

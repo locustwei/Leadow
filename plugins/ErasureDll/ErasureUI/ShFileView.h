@@ -4,7 +4,7 @@
 用Windows资源管理器（Shell）格式，显示文件（文件夹）信息
 ********************************************************/
 
-class CFileEraserComm;
+class CUIComm;
 
 class CShFileViewUI : 
 	public CFramNotifyPump, 

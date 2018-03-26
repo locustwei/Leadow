@@ -7,6 +7,7 @@
 
 #include "ShFileView.h"
 #include "../define.h"
+#include "Communication.h"
 
 class CErasureFileUI : 
 	//IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
@@ -19,7 +20,7 @@ public:
 
 	DUI_DECLARE_MESSAGE_MAP()
 private:
-	CFileEraserComm* m_Comm;
+	CUIComm* m_Comm;
 
 	CButtonUI* btnOpenFile;
 	bool m_Abort;
