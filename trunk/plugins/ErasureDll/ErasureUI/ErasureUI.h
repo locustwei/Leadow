@@ -6,7 +6,7 @@
 
 #include <LdCommunication.h>
 
-class CFileEraserComm;
+class CUIComm;
 
 class CErasureUI
 	: public IPluginInterface
@@ -25,6 +25,6 @@ protected: //ICommunicationListen
 	void OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize) override;
 private:
 	HMODULE m_hModule;
-	CFileEraserComm* m_Comm;
+	CUIComm* m_Comm;
 };
 

@@ -1,24 +1,23 @@
 #include "stdafx.h"
-#include "FileEraserComm.h"
-#include "../define.h"
+#include "Communication.h"
 
 #define PIPE_NAME _T("8E557ACB-D1D3-4D30-989D-ECA43B8A9BDE")
 
-CFileEraserComm::CFileEraserComm(ICommunicationListen* listen)
+CUIComm::CUIComm(ICommunicationListen* listen)
 	:CLdCommunication(listen, PIPE_NAME)
 {
 }
 
-CFileEraserComm::~CFileEraserComm()
+CUIComm::~CUIComm()
 {
 }
 
-DWORD CFileEraserComm::Connect()
+DWORD CUIComm::Connect()
 {
 	return 0;
 }
 
-DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
+DWORD CUIComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 {
 	DebugOutput(L"ExecuteFileAnalysis");
 
@@ -35,10 +34,5 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 	CallMethod(eci_anafiles, s.GetData(), (s.GetLength()+1) * sizeof(TCHAR), nullptr);
 
 	return 0;
-}
-
-void CFileEraserComm::SendFileAnalyResult(TCHAR* FileName, PTEST_FILE_RESULT result)
-{
-	//todo 发送文件分析结果
 }
 
