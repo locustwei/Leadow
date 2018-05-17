@@ -6,6 +6,8 @@
 #include "Communication.h"
 #include "EraseTest.h"
 
+#define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
+
 CErasureImpl* ErasureImpl = nullptr;
 
 
@@ -20,7 +22,7 @@ if(ErasureImpl)            \
 
 PLUGIN_PROPERTY GetSelfDesc()
 {
-	PLUGIN_PROPERTY ErasurePrpperty = { PLUGIN_USAGE_UI | PLUGIN_USAGE_BK, PLUGIN_ID };
+	PLUGIN_PROPERTY ErasurePrpperty = { PLUGIN_USAGE_BK, PLUGIN_ID };
 	return ErasurePrpperty;
 }
 

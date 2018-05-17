@@ -85,6 +85,11 @@ void CMainWnd::InitWindow()
 	{
 		IPluginInterface* pi_interface = pm.LoadPlugin(ThisApp, plugins[i].id);
 		m_EraserUI = pi_interface->CreateUI();
+		if (!m_EraserUI)
+		{
+			delete pi_interface;
+			continue;
+		}
 		AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
 		pControl->Add(m_EraserUI->GetUI());
 		pControl->SelectItem(m_EraserUI->GetUI());

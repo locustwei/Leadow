@@ -99,8 +99,6 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	CSHFolders::EnumFolderColumes(Path, this, 0);
 
 	AddLstViewHeader(8);
-
-	m_Comm->LoadHost(PLUGIN_ID);
 }
 //擦除完成后从m_ErasureFile中删除
 void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
@@ -274,6 +272,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 			desc->SetText(s);
 		}
 	}
+
 	col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume2"), 0);
 	if (col)
 	{

@@ -55,20 +55,34 @@ namespace LeadowLib
 		while (!m_TermateReadThread)
 		{
 			DebugOutput(L"CShareData Wait For read...");
-//			DWORD k = WaitForSingleObject(m_hReadEvent, INFINITE);
-//			
-//			if (k == WAIT_OBJECT_0)
+
+			if (WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
+				return ;
+			//进临界区
+			if (WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
+				return ;
+
+			__try
 			{
-				WORD nSize;
-				BYTE* Data;
-				if (Read(&Data, &nSize) == 0)
-				{
-					m_TermateReadThread = !m_ReadCallback(Data, nSize);
-					delete[] Data;
-				}
+				if (m_TermateReadThread)
+					break;
+
+				if (m_pFileHeader->nSize)
+					if (m_pFileHeader->id != m_ThisID)   //自己写的数据不要读
+					{
+						DebugOutput(L"read data size=%d", m_pFileHeader->nSize);
+						WORD nSize = m_pFileHeader->nSize;
+						BYTE* pData = new BYTE[m_pFileHeader->nSize];
+						::MoveMemory(pData, m_pFileHeader->Data, nSize);
+						m_TermateReadThread = !m_ReadCallback(pData, nSize);
+						delete[] pData;
+					}
 			}
-//			else
-//				break;
+			__finally
+			{
+				ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+			}
+
 		}
 		m_TermateReadThread = true;
 		DebugOutput(L"CShareData::ThreadBody out");
@@ -148,7 +162,7 @@ namespace LeadowLib
 		{
 			ReleaseSemaphore(m_hSemaphore, 1, nullptr);
 		}
-		return -1;
+		return 0;
 	}
 
 	DWORD CShareData::StartReadThread(CMethodDelegate ReadCallback, bool FreeOnTerminate)
