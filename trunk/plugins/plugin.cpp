@@ -44,7 +44,7 @@ void CPluginManager::FindPlugin(PLUGIN_USAGE usage, CLdArray<PLUGIN_PROPERTY>* o
 	for(int i=0; i<m_Plugins.GetCount(); i++)
 	{
 		PLUGIN_PROPERTY property = m_Plugins.ValueOf(i);
-		if (property.func && usage)
+		if (property.func & usage)
 			out_result->Add(property);
 	}
 }
@@ -59,7 +59,7 @@ IPluginInterface* CPluginManager::LoadPlugin(CLdApp* app, TCHAR* plugid)
 	for (int i = 0; i<m_Plugins.GetCount(); i++)
 	{
 		PLUGIN_PROPERTY property = m_Plugins.ValueOf(i);
-		if (_tccmp(property.id, plugid) == 0)
+		if (_tcscmp(property.id, plugid) == 0)
 		{
 			filename = m_Plugins.KeyOf(i);
 			break;

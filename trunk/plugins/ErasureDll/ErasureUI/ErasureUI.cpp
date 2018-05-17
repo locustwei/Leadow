@@ -4,6 +4,8 @@
 #include "ErasureUI.h"
 #include "ErasureMainWnd.h"
 
+#define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262F")
+
 CErasureUI* ErasureUI = nullptr;
 
 
@@ -64,7 +66,6 @@ DWORD CErasureUI::InitCommunicate()
 {
 	DebugOutput(L"InitCommunicate");
 
-	//m_Comm = new CFileEraserComm(this);
 	return 0;
 }
 

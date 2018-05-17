@@ -2,8 +2,6 @@
 
 #include "stdafx.h"
 
-#define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
-//调用进程命令行参数中的第一个参数，指明调用那个函数。
 
 //调用"文件擦除"进程命令行参数名。
 #define EPN_FILES         TEXT("files")
