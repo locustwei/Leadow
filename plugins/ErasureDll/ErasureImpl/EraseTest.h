@@ -23,7 +23,7 @@
  * \date ÈýÔÂ 2018
  */
 class CEraseTest
-	:public IMftReadeHolder
+	:public IMftReaderHandler
 	//,IThreadRunable
 {
 public:
@@ -52,6 +52,6 @@ private:
 
 	DWORD CountVolumeFiles(CVolumeInfo * pVolume);
 	UINT TestWriteSpeed();
-	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override;
+	BOOL EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param) override;
 };
 

@@ -1,44 +1,44 @@
 #pragma once
 
 #include "MftReader.h"
-#include "../LdLib/volume/fat.h"
-namespace LeadowLib
+#include "Fat.h"
+
+class CFatMftReader: public CMftReader
 {
+public:
+	UINT64 EnumFiles(IMftReaderHandler*, PVOID Param) override;
+public:
+	CFatMftReader(HANDLE hVolume);
+	~CFatMftReader(void) override;
+protected:
+	bool Init() override;
+	void ZeroMember() override;
 
-	class CFatMftReader : public CMftReader
-	{
-	public:
-		CFatMftReader(void);
-		~CFatMftReader(void);
-		bool Init();
-		UINT64 EnumFiles(UINT_PTR Param) override;
+	virtual BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) override;
+private:
 
-		DWORD EraseTrace(DWORD& nFileCount);
-
-	protected:
-		void ZeroMember() override;
-
-		//const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber) override;
-	private:
-
-		typedef struct FAT_CACHE {
-			DWORD beginSector;
-			DWORD sectorCount;
-			BYTE* pFAT;
-		};
-
-		UCHAR m_EntrySize;
-		FAT_CACHE m_fatCache;
-		FAT_FILE m_Root;
-
-		INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, UINT_PTR Param);
-		HANDLE OpenVolumeWrite();
-		DWORD EraseDeleteTrace(PFAT_FILE pParentDir, DWORD& nFileCount);
-		DWORD DataClusterStartSector(DWORD ClusterNumber);
-		DWORD GetNextClusterNumber(DWORD ClusterNumber);
-		PUCHAR ReadFat(DWORD sector, DWORD count, BOOL cache);
-		BOOL DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, UINT_PTR Param);
-		BOOL WriteSector(UINT64 sector, DWORD count, PVOID buffer);
+	typedef struct FAT_CACHE{
+		ULONG beginSector;
+		ULONG sectorCount;
+		BYTE* pFAT;
 	};
 
-}
+	USHORT m_SectorsPerRootDirectory;
+	ULONG m_SectorsPerFAT;
+	ULONG m_FirstDataSector;
+	ULONG m_FirstFatSector;
+	ULONG m_TotalSectors;
+	UCHAR m_EntrySize;
+	FAT_CACHE m_fatCache;
+	FAT_FILE m_Root;
+
+	LONGLONG EnumDirectoryFiles(PFAT_FILE pParentDir);
+	ULONG DataClusterStartSector(ULONG ClusterNumber);
+	ULONG GetNextClusterNumber(ULONG ClusterNumber);
+	PUCHAR ReadFat(ULONG sector, ULONG count, BOOL cache);
+	BOOL DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir);
+
+	virtual CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = false) override;
+
+};
+

@@ -144,31 +144,31 @@ UINT CVolumeEx::TestCreateAndDelSpeed()
 DWORD CVolumeEx::CountFiles()
 {
 	DWORD result = 0;
-	CMftReader* reader = CMftReader::CreateReader(this);
-	if (!reader)
-		return GetLastError();
-	reader->SetHolder(this);
-	if (reader->EnumFiles(0) == 0)
-		result = GetLastError();
-	delete reader;
+	//CMftReader* reader = CMftReader::CreateReader(this);
+	//if (!reader)
+	//	return GetLastError();
+	//reader->SetHolder(this);
+	//if (reader->EnumFiles(0) == 0)
+	//	result = GetLastError();
+	//delete reader;
 	return result;
 }
 
-BOOL CVolumeEx::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
+BOOL CVolumeEx::EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param)
 {
 	if (pFileInfo)
 	{
-		if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
-		{
-			m_FileTrackCount++;
-			if (pFileInfo->DataSize > 0)
-				m_RecoverableCount++;
-		}else if(pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			m_DirectoryCount++;
-		}
-		else
-			m_FileCount++;
+		//if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
+		//{
+		//	m_FileTrackCount++;
+		//	if (pFileInfo->DataSize > 0)
+		//		m_RecoverableCount++;
+		//}else if(pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		//{
+		//	m_DirectoryCount++;
+		//}
+		//else
+		//	m_FileCount++;
 	}
 	return true;
 }

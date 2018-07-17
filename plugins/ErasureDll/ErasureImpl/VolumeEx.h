@@ -16,7 +16,7 @@ public:
 	virtual BOOL ErasureProgress(UINT64 nMaxCount, UINT64 nCurent) = 0;
 };
 
-class CVolumeEx : public CVolumeInfo, public IMftReadeHolder
+class CVolumeEx : public CVolumeInfo, public IMftReaderHandler
 {
 public:
 	CVolumeEx();
@@ -46,6 +46,6 @@ private:
 	UINT TestWriteSpeed();
 	UINT TestCreateAndDelSpeed();
 	DWORD CountFiles();
-	BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) override;
+	BOOL EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param) override;
 };
 

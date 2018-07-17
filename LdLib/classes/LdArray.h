@@ -224,6 +224,12 @@ namespace LeadowLib {
 				FCapacity = NewCapacity;
 			};
 		};
+		
+		T* GetData()
+		{
+			return FList;
+		}
+
 	protected:
 		int FCount, FCapacity;
 		T* FList;

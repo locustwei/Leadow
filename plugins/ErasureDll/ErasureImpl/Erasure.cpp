@@ -589,14 +589,14 @@ DWORD CErasure::EraseNtfsTrace(IErasureCallback* callback)
 
 DWORD CErasure::EraseFatTrace(IErasureCallback* callback)
 {
-	CMftReader* reader = CMftReader::CreateReader(m_Volume);
-	//reader->SetHolder(this);
-	//reader->EnumFiles(nullptr);
-	DWORD dwFileCount = 0;
-	DWORD result = ((CFatMftReader*)reader)->EraseTrace(dwFileCount);
-	delete reader;
+	//CMftReader* reader = CMftReader::CreateReader(m_Volume);
+	////reader->SetHolder(this);
+	////reader->EnumFiles(nullptr);
+	//DWORD dwFileCount = 0;
+	//DWORD result = ((CFatMftReader*)reader)->EraseTrace(dwFileCount);
+	//delete reader;
 
-	return result;
+	return 0;
 }
 
 DWORD CErasure::EraseDelFileTrace(IErasureCallback* callback)

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "LdString.h"
-#include <algorithm>
+#include <stdio.h>
 
 #define reallocstrW(pStr, ccSize) (WCHAR*)realloc(pStr, ccSize * sizeof(WCHAR))
 #define reallocstrA(pStr, ccSize) (char*)realloc(pStr, ccSize * sizeof(char))
@@ -85,7 +85,10 @@ namespace LeadowLib {
 	void CLdStringW::Append(WCHAR* pstr)
 	{
 		if (pstr == nullptr)
+		{
+			Assign(pstr);
 			return;
+		}
 		int oLength = GetLength();
 		int nNewLength = oLength + (int)wcslen(pstr);
 		m_pstr = reallocstrW(m_pstr, (nNewLength + 1));
@@ -107,7 +110,7 @@ namespace LeadowLib {
 			m_pstr = reallocstrW(m_pstr, (cchMax + 1));
 		}
 		wcsncpy(m_pstr, pstr, cchMax);
-		m_pstr[cchMax] = _T('\0');
+		m_pstr[cchMax] = '\0';
 	}
 
 	void CLdStringW::Assign(char* pstr, int nLength)
@@ -118,7 +121,7 @@ namespace LeadowLib {
 
 	bool CLdStringW::IsEmpty() const
 	{
-		return m_pstr == NULL || m_pstr[0] == _T('\0');
+		return m_pstr == NULL || m_pstr[0] == ('\0');
 	}
 
 	void CLdStringW::Empty()
@@ -255,7 +258,7 @@ namespace LeadowLib {
 
 	const CLdStringW& CLdStringW::operator+=(const WCHAR ch)
 	{
-		WCHAR str[] = { ch, _T('\0') };
+		WCHAR str[] = { ch, ('\0') };
 		Append(str);
 		return *this;
 	}
@@ -383,7 +386,8 @@ namespace LeadowLib {
 			cchTo = (int)wcslen(pstrTo);
 		while (iPos >= 0) {
 			sTemp = Left(iPos);
-			sTemp += pstrTo;
+			if(pstrTo)
+				sTemp += pstrTo;
 			sTemp += Mid(iPos + cchFrom);
 			Assign(sTemp);
 			iPos = Find(pstrFrom, iPos + cchTo);
@@ -408,10 +412,20 @@ namespace LeadowLib {
 
 	void CLdStringW::Insert(int nStart, WCHAR* lpStr)
 	{
+		if (!m_pstr && nStart == 0)
+		{
+			Assign(lpStr);
+			return;
+		}
 		if (!m_pstr || nStart < 0 || !lpStr)
 			return;
+
 		if (nStart >= (int)wcslen(m_pstr))
-			*this += lpStr;
+		{
+			Append(lpStr);
+			return;
+		}
+
 		CLdStringW s(lpStr);
 		s += m_pstr + nStart;
 		m_pstr[nStart] = '\0';
@@ -528,7 +542,10 @@ namespace LeadowLib {
 	void CLdStringA::Append(char* pstr)
 	{
 		if (pstr == nullptr)
+		{
+			Assign(pstr);
 			return;
+		}
 		int oLength = GetLength();
 		int nNewLength = oLength + (int)strlen(pstr);
 		m_pstr = reallocstrA(m_pstr, (nNewLength + 1));
@@ -550,7 +567,7 @@ namespace LeadowLib {
 			m_pstr = reallocstrA(m_pstr, (cchMax + 1));
 		}
 		strncpy(m_pstr, pstr, cchMax);
-		m_pstr[cchMax] = _T('\0');
+		m_pstr[cchMax] = ('\0');
 	}
 
 	void CLdStringA::Assign(wchar_t* pstr, int nLength)
@@ -561,7 +578,7 @@ namespace LeadowLib {
 
 	bool CLdStringA::IsEmpty() const
 	{
-		return m_pstr == NULL || m_pstr[0] == _T('\0');
+		return m_pstr == NULL || m_pstr[0] == ('\0');
 	}
 
 	void CLdStringA::Empty()
@@ -698,7 +715,7 @@ namespace LeadowLib {
 
 	const CLdStringA& CLdStringA::operator+=(const char ch)
 	{
-		char str[] = { ch, _T('\0') };
+		char str[] = { ch, ('\0') };
 		Append(str);
 		return *this;
 	}
@@ -851,6 +868,11 @@ namespace LeadowLib {
 
 	void CLdStringA::Insert(int nStart, char* lpStr)
 	{
+		if (!m_pstr && nStart == 0)
+		{
+			Assign(lpStr);
+			return;
+		}
 		if (!m_pstr || nStart < 0 || !lpStr)
 			return;
 		if (nStart >= (int)strlen(m_pstr))

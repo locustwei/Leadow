@@ -1,6 +1,7 @@
 #pragma once
 
-namespace LeadowLib {
+namespace LeadowLib 
+{
 	class CLdStringA
 	{
 	public:

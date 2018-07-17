@@ -6,13 +6,13 @@
 DWORD CEraseTest::CountVolumeFiles(CVolumeInfo * pVolume)
 {
 	DWORD result = 0;
-	CMftReader* reader = CMftReader::CreateReader(pVolume);
-	if (!reader)
-		return GetLastError();
-	reader->SetHolder(this);
-	if (reader->EnumFiles(pVolume->GetTag()) == 0)
-		result = GetLastError();
-	delete reader;
+	//CMftReader* reader = CMftReader::CreateReader(pVolume);
+	//if (!reader)
+	//	return GetLastError();
+	//reader->SetHolder(this);
+	//if (reader->EnumFiles(pVolume->GetTag()) == 0)
+	//	result = GetLastError();
+	//delete reader;
 	return result;
 }
 
@@ -21,24 +21,24 @@ UINT CEraseTest::TestWriteSpeed()
 	return 0;
 }
 
-BOOL CEraseTest::EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param)
+BOOL CEraseTest::EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param)
 {
 	if (pFileInfo)
 	{
 		PTEST_VOLUME_RESULT info = (PTEST_VOLUME_RESULT)Param;
 
-		if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
-		{
-			info->FileTrackCount++;
-			if (pFileInfo->DataSize > 0)
-				info->RecoverableCount++;
-		}
-		else if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-		{
-			info->DirectoryCount++;
-		}
-		else
-			info->FileCount++;
+		//if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DELETED)
+		//{
+		//	info->FileTrackCount++;
+		//	if (pFileInfo->DataSize > 0)
+		//		info->RecoverableCount++;
+		//}
+		//else if (pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		//{
+		//	info->DirectoryCount++;
+		//}
+		//else
+		//	info->FileCount++;
 	}
 	return true;
 

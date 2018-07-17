@@ -1,7 +1,7 @@
 /*!
  * author asa
  *
- * 文件分配表直接读取抽象Class
+ * 分区文件分配表直接读取抽象Class
  * 1、分析文件分配表MFT，读取磁盘文件信息
  * 2、数据更新
  *
@@ -10,57 +10,67 @@
 */
 #pragma once
 
-namespace LeadowLib
+//文件信息
+typedef struct MFT_FILE_DATA
 {
-#define FILE_ATTRIBUTE_DELETED 0x80000000
-	//文件信息
-	typedef struct _FILE_INFO {
-		UINT64 DirectoryFileReferenceNumber;         //
-		_FILETIME CreationTime;       // Saved when filename last changed
-		_FILETIME ChangeTime;         //
-		_FILETIME LastWriteTime;      //
-		_FILETIME LastAccessTime;     //
-		UINT64 AllocatedSize;      //
-		UINT64 DataSize;           //
-		DWORD FileAttributes;         //
-		UCHAR NameLength;             //
-		TCHAR Name[1];                //
-	}FILE_INFO, *PFILE_INFO;
+	UINT64 FileReferenceNumber;         //0x00000001
+	UINT64 DirectoryFileReferenceNumber;         //
+	_FILETIME CreationTime;       // Saved when filename last changed
+								  //_FILETIME ChangeTime;         //
+	_FILETIME LastWriteTime;      //
+								  //_FILETIME LastAccessTime;     //
+								  //UINT64 AllocatedSize;      //
+	UINT64 DataSize;           //
+	ULONG FileAttributes;         //
+	UCHAR NameLength;             //
+	WCHAR Name[MAX_PATH + 1];                //
+}*PMFT_FILE_DATA;
 
-	//使用者回掉接口
-	__interface IMftReadeHolder
+class CMftReader;
+
+class CMftFile
+{
+public:
+	CMftFile(CMftReader* reader)
 	{
-		//枚举文件回掉
-		virtual BOOL EnumMftFileCallback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param) = 0;
-		//文件更新回掉
-		//virtual BOOL EnumUsnRecordCallback(PUSN_RECORD record, PVOID Param) = 0;
+		m_Reader = reader;
 	};
+	virtual ~CMftFile() {};
+	virtual PMFT_FILE_DATA GetFileData() = 0;
+protected:
+	CMftReader* m_Reader;
+};
 
-	class CMftReader
-	{
-	public:
-		IMftReadeHolder* SetHolder(IMftReadeHolder* pHolder); //设置回掉接口
+//使用者回掉接口
+interface IMftReaderHandler
+{
+	virtual BOOL EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param) = 0; 
+};
 
-		virtual UINT64 EnumFiles(UINT_PTR Param) = 0;    //读取MFT文件
-		//virtual const PFILE_INFO GetFileInfo(UINT64 ReferenceNumber);  //读取文件信息，文件序号
-		//virtual USN GetLastUsn();      //获取MFT当前标识，用于更新文件时传入
-		//virtual USN UpdateFiles(USN LastUsn, PVOID param); //更新文件信息
+class CMftReader
+{
+public:
+	virtual UINT64 EnumFiles(IMftReaderHandler*, PVOID);
+	virtual UINT64 EnumDeleteFiles(IMftReaderHandler*, PVOID);
+	virtual BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) = 0;  //读取文件信息，文件序号
+	virtual CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = true) = 0;
 
-		//BOOL IsValid();     //
+	BOOL IsValid();     
+public:
+	CMftReader(HANDLE hVolume);
+	virtual ~CMftReader(void);
+protected:
+	USHORT m_BytesPerSector;
+	USHORT m_SectorsPerCluster;
+	HANDLE m_Handle;
+	IMftReaderHandler* m_Holder;
+	bool m_Inited;
+	PVOID m_Param;
+	bool m_IsDeleted;
+	BOOL ReadSector(UINT64 sector, ULONG count, PVOID buffer);
+	BOOL Callback(UINT64 ReferenceNumber, PMFT_FILE_DATA pFileInfo);
 
-		static CMftReader* CreateReader(CVolumeInfo * pVolume);
-	public:
-		CMftReader(void);
-		virtual ~CMftReader(void);
-	protected:
-		HANDLE m_Handle;
-		IMftReadeHolder* m_Holder;
-		CVolumeInfo * m_Volume;
-		PVOLUME_BPB_DATA m_BpbData;
+	virtual void ZeroMember();
+	virtual bool Init();
 
-		BOOL ReadSector(UINT64 sector, DWORD count, PVOID buffer);
-		BOOL Callback(UINT64 ReferenceNumber, PFILE_INFO pFileInfo, UINT_PTR Param);
-
-		virtual void ZeroMember();
-	};
-}
+};
