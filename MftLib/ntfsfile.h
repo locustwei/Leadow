@@ -1,12 +1,6 @@
 #pragma once
 #include "MftReader.h"
 
-typedef struct LCN_BLOCK    //逻辑组块
-{
-	UINT64 startLcn; //起始组
-	UINT nCount;     //连续组数
-}*PLCN_BLOCK;
-
 /*!
  * CNtfsDataStreamAttribute
  *
@@ -58,7 +52,7 @@ public:
 	{
 		return ValueOffset;
 	}
-	UINT GetBlockCount()
+	int GetBlockCount()
 	{
 		return LcnBlockCount;
 	}
@@ -105,7 +99,7 @@ private:
  * author asa-pc
  * date 六月 2018
  */
-class CNtfsFile : CMftFile
+class CNtfsFile : public CMftFile
 {
 public:
 	CNtfsFile(CMftReader* reader);
@@ -113,16 +107,15 @@ public:
 	VOID Clear();
 
 	VOID LoadAttributes(UINT64 FileReferenceNumber, PNTFS_FILE_RECORD_HEADER FileHeader, bool NameOnly);
-	PMFT_FILE_DATA GetFileData() override;
-	UINT GetDataStreamCount();
+
+	int GetDataStreamCount();
 	CNtfsFileAttribute* GetDataStream(int id = 0);
 	UINT64 Vcn2Lcn(UINT64, PUINT);
-	CNtfsFileAttribute* FindAttribute(ATTRIBUTE_TYPE type);
+	//CNtfsFileAttribute* FindAttribute(ATTRIBUTE_TYPE type);
 	CNtfsFileAttribute* GetBitmapAttribute();
 	PNTFS_FILE_RECORD_HEADER GetFileRecord();
 private:
-	MFT_FILE_DATA m_FileInfo;           //标准属性
-	UINT m_DataAttrCount;
+	int m_DataAttrCount;
 	CNtfsFileAttribute** m_Data;        //数据流
 	PNTFS_FILE_RECORD_HEADER m_FileRecord;
 	CNtfsFileAttribute* m_BitmapAttribute;

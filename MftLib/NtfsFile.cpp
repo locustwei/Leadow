@@ -13,6 +13,7 @@ CNtfsFile::CNtfsFile(CMftReader* reader):CMftFile(reader)
 	m_DataAttrCount = 0;
 	ZeroMemory((PUCHAR)&m_FileInfo, sizeof(m_FileInfo));
 	m_BitmapAttribute = nullptr;
+	m_FileRecord = nullptr;
 }
 
 CNtfsFile::~CNtfsFile()
@@ -25,66 +26,27 @@ VOID CNtfsFile::Clear()
 	ZeroMemory((PUCHAR)&m_FileInfo, sizeof(m_FileInfo));
 	m_FileRecord = nullptr;
 
-	for (UINT i = 0; i < m_DataAttrCount; i++)
-		delete m_Data[i];
-	
-	free(m_Data);
-
+	if (m_Data)
+	{
+		for (int i = 0; i < m_DataAttrCount; i++)
+			delete m_Data[i];
+		m_DataAttrCount = 0;
+		free(m_Data);
+		m_Data = nullptr;
+	}
 	if (m_BitmapAttribute)
+	{
 		delete m_BitmapAttribute;
-	m_BitmapAttribute = nullptr;
+		m_BitmapAttribute = nullptr;
+	}
 }
 
 VOID CNtfsFile::LoadAttributes(UINT64 FileReferenceNumber, PNTFS_FILE_RECORD_HEADER FileHeader, bool NameOnly)
 {
+	Clear();
+
 	m_FileRecord = FileHeader;
 	m_FileInfo.FileReferenceNumber = FileReferenceNumber;
-
-	PATTRIBUTE attr = NULL;
-	ULONG Offset = FileHeader->AttributesOffset;
-
-	for (attr = PATTRIBUTE(Padd(FileHeader, FileHeader->AttributesOffset)); attr->AttributeType; attr = Padd(attr, attr->Length))
-	{
-		if (attr->AttributeType == -1) break;
-		if (attr->Length == 0) break;
-		if (attr->Length % 8 != 0)  //8字节对齐；
-			attr->Length = (attr->Length / 8 + 1) * 8;
-
-		if (!attr->Nonresident)
-		{
-			switch (attr->AttributeType)
-			{
-			case AttributeStandardInformation:
-				LoadStandardAttribute(PSTANDARD_INFORMATION(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
-				break;
-			case AttributeAttributeList:
-				if(!NameOnly)
-					LoadListAttribute(PATTRIBUTE_LIST(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
-				break;
-			case AttributeFileName:
-				LoadFilenameAttribute(PFILENAME_ATTRIBUTE(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
-				break;
-			}
-		}
-
-		if(attr->AttributeType == AttributeData && attr->NameLength == 0 )
-			m_FileInfo.DataSize += attr->Nonresident ? PNONRESIDENT_ATTRIBUTE(attr)->DataSize : PRESIDENT_ATTRIBUTE(attr)->ValueLength;
-
-		if (!NameOnly)
-		{
-			switch (attr->AttributeType)
-			{
-			case AttributeData:
-				LoadDataAttribute(attr, Offset);
-				break;
-			case AttributeBitmap:
-				m_BitmapAttribute = LoadFileAttribute(attr, Offset);
-				break;
-			}
-		}
-		Offset += attr->Length;
-	}
-
 	m_FileInfo.FileAttributes &= 0x0001FFFF;
 
 	if (FileHeader->Flags & 02)
@@ -92,21 +54,85 @@ VOID CNtfsFile::LoadAttributes(UINT64 FileReferenceNumber, PNTFS_FILE_RECORD_HEA
 	else
 		m_FileInfo.FileAttributes &= (!FILE_ATTRIBUTE_DIRECTORY);
 
+	PATTRIBUTE attr = nullptr;
+	ULONG Offset = FileHeader->AttributesOffset;
+
+	for (attr = PATTRIBUTE(Padd(FileHeader, FileHeader->AttributesOffset)); attr->AttributeType != -1; attr = (PATTRIBUTE)Padd(FileHeader, Offset))
+	{
+		if (attr->Length == 0) break;
+		
+		switch (attr->AttributeType)
+		{
+		case AttributeStandardInformation:
+			if (!attr->Nonresident)
+				LoadStandardAttribute(PSTANDARD_INFORMATION(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
+			break;
+		case AttributeAttributeList:
+			if (!NameOnly)
+				LoadListAttribute(PATTRIBUTE_LIST(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
+			break;
+		case AttributeFileName:
+			if (!attr->Nonresident)
+				LoadFilenameAttribute(PFILENAME_ATTRIBUTE(Padd(attr, PRESIDENT_ATTRIBUTE(attr)->ValueOffset)));
+			break;
+		case AttributeData:
+			//if(attr->NameLength == 0)
+			m_FileInfo.DataSize += attr->Nonresident ? PNONRESIDENT_ATTRIBUTE(attr)->DataSize : PRESIDENT_ATTRIBUTE(attr)->ValueLength;
+			if(!NameOnly)
+				LoadDataAttribute(attr, Offset);
+			break;
+		case AttributeBitmap:
+			if (!NameOnly)
+				m_BitmapAttribute = LoadFileAttribute(attr, Offset);
+			break;
+		case AttributeObjectId:
+			break;
+		case AttributeSecurityDescriptor:
+			break;
+		case AttributeVolumeName:
+			break;
+		case AttributeVolumeInformation:
+			break;
+		case AttributeIndexRoot:
+			break;
+		case AttributeIndexAllocation:
+			break;
+		case AttributeReparsePoint:
+			break;
+		case AttributeEAInformation:
+			break;
+		case AttributeEA:
+			break;
+		case AttributePropertySet:
+			break;
+		case AttributeLoggedUtilityStream:
+			break;
+		default:
+			//DebugOutput(L"error read file attribute %s\n", m_FileInfo.Name);
+
+			return;   //读取错误
+
+		}
+
+		
+		Offset += attr->Length;
+		if (Offset % 8 != 0)  //8字节对齐；
+		{
+			//DebugOutput(L"%s\n", m_FileInfo.Name);
+			Offset = (Offset / 8 + 1) * 8;
+		}
+	}
+
 }
 
-PMFT_FILE_DATA CNtfsFile::GetFileData()
-{
-	return &m_FileInfo;
-}
-
-UINT CNtfsFile::GetDataStreamCount()
+int CNtfsFile::GetDataStreamCount()
 {
 	return m_DataAttrCount;
 }
 
 CNtfsFileAttribute * CNtfsFile::GetDataStream(int id)
 {
-	if (id < 0 || (UINT)id >= m_DataAttrCount)
+	if (id < 0 || (int)id >= m_DataAttrCount)
 		return nullptr;
 	return m_Data[id];
 }
@@ -123,7 +149,7 @@ void CNtfsFile::LoadFilenameAttribute(PFILENAME_ATTRIBUTE attr)
 	if (attr->NameType == 2 && m_FileInfo.NameLength > 0)
 		return;
 	m_FileInfo.DirectoryFileReferenceNumber = attr->DirectoryFileReferenceNumber & 0x0000FFFFFFFFFFFF;
-	m_FileInfo.FileAttributes = attr->FileAttributes;
+	m_FileInfo.FileAttributes |= attr->FileAttributes;
 	//m_FileInfo.DataSize = attr->DataSize;
 	m_FileInfo.NameLength = attr->NameLength;
 	MoveMemory(m_FileInfo.Name, attr->Name, attr->NameLength * sizeof(TCHAR));
@@ -146,12 +172,12 @@ void CNtfsFile::LoadListAttribute(PATTRIBUTE_LIST attrList)
 		{
 			USHORT id = attr->AttributeNumber;
 			CNtfsFile* file = dynamic_cast<CNtfsFile*>(m_Reader->GetFile(FileNumber, false));
-			for (UINT i = 0; i < file->m_DataAttrCount; i++)
+			for (int i = 0; i < file->m_DataAttrCount; i++)
 			{
 				if (file->m_Data[i]->id == id)
 				{
 					bool b = false;
-					for(UINT j=0; j<m_DataAttrCount; j++)
+					for(int j=0; j<m_DataAttrCount; j++)
 						if (wcsicmp(m_Data[j]->Name, file->m_Data[i]->Name)==0)
 						{
 							m_Data[j]->AddLcnBlocks(file->m_Data[i]->Lcn, file->m_Data[i]->LcnBlockCount);
@@ -174,6 +200,8 @@ void CNtfsFile::LoadListAttribute(PATTRIBUTE_LIST attrList)
 void CNtfsFile::LoadDataAttribute(PATTRIBUTE attrData, ULONG Offset)
 {
 	CNtfsFileAttribute* tmp = LoadFileAttribute(attrData, Offset);
+	if (!tmp)
+		return;
 
 	if (tmp->Name)
 	{
@@ -217,10 +245,7 @@ CNtfsFileAttribute* CNtfsFile::LoadFileAttribute(PATTRIBUTE attrData, ULONG Offs
 		wcsncpy(tmp->Name, (TCHAR*)Padd(attrData, attrData->NameOffset), attrData->NameLength);
 		//tmp->Name.Assign((TCHAR*)Padd(attrData, attrData->NameOffset), attrData->NameLength);
 	}
-	else
-	{
-		//tmp->Name.Empty();
-	}
+
 	tmp->Nonresident = attrData->Nonresident;
 	tmp->id = attrData->AttributeNumber;
 
@@ -234,6 +259,12 @@ CNtfsFileAttribute* CNtfsFile::LoadFileAttribute(PATTRIBUTE attrData, ULONG Offs
 	else
 	{
 		PNONRESIDENT_ATTRIBUTE attr = PNONRESIDENT_ATTRIBUTE(attrData);
+		if (attr->CompressionUnit > 0)
+		{
+			delete tmp;
+			return nullptr;
+		}
+
 		tmp->Size = attr->DataSize;
 		PUCHAR runArray = (PUCHAR)Padd(attr, attr->RunArrayOffset);
 		int k = 0;
@@ -243,7 +274,10 @@ CNtfsFileAttribute* CNtfsFile::LoadFileAttribute(PATTRIBUTE attrData, ULONG Offs
 			int L = runArray[k] & 0x0F;
 			int F = runArray[k] >> 4 & 0x0F;
 			if (L == 0 || L > 8)
-				break;
+			{
+				delete tmp;       //错误数据
+				return nullptr;
+			}
 			k++;
 
 			UINT Length = 0;
@@ -286,26 +320,26 @@ void CNtfsFile::AddDataAttribute(CNtfsFileAttribute* DataAttribute, int idx)
 	m_DataAttrCount++;
 }
 
-CNtfsFileAttribute* CNtfsFile::FindAttribute(ATTRIBUTE_TYPE type)
-{
-	PATTRIBUTE attr = NULL;
-	ULONG Offset = m_FileRecord->AttributesOffset;
-
-	for (attr = PATTRIBUTE(Padd(m_FileRecord, m_FileRecord->AttributesOffset)); !attr->AttributeType; attr = Padd(attr, attr->Length))
-	{
-		if (attr->AttributeType == -1) break;
-		if (attr->Length == 0) break;
-		if (attr->Length % 8 != 0)  //8字节对齐；
-			attr->Length = (attr->Length / 8 + 1) * 8;
-
-		if (attr->AttributeType == type)
-		{
-			return LoadFileAttribute(attr, Offset);
-		}
-		Offset += attr->Length;
-	}
-	return nullptr;
-}
+//CNtfsFileAttribute* CNtfsFile::FindAttribute(ATTRIBUTE_TYPE type)
+//{
+//	PATTRIBUTE attr = NULL;
+//	ULONG Offset = m_FileRecord->AttributesOffset;
+//
+//	for (attr = PATTRIBUTE(Padd(m_FileRecord, m_FileRecord->AttributesOffset)); !attr->AttributeType; attr = Padd(attr, attr->Length))
+//	{
+//		if (attr->AttributeType == -1) break;
+//		if (attr->Length == 0) break;
+//		if (attr->Length % 8 != 0)  //8字节对齐；
+//			attr->Length = (attr->Length / 8 + 1) * 8;
+//
+//		if (attr->AttributeType == type)
+//		{
+//			return LoadFileAttribute(attr, Offset);
+//		}
+//		Offset += attr->Length;
+//	}
+//	return nullptr;
+//}
 
 CNtfsFileAttribute* CNtfsFile::GetBitmapAttribute()
 {

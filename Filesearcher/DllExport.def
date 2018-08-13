@@ -1,0 +1,49 @@
+LIBRARY
+
+EXPORTS
+	WJSOpen
+	WJSClose
+
+	WJSDataSize
+	WJSDataClusters
+	WJSDataClustersCount
+	WJSDataOffset
+
+	WJSFileReferences
+	WJSParentDircetoryReferences
+	WJSIsDir
+	WJSCreationTime
+	WJSChangeTime
+	WJSLastWriteTime
+	WJSLastAccessTime
+	WJSFileAttributes
+	WJSFileSize
+	WJSFileName
+	WJSFileDataInfo
+	WJSMatchExpression
+
+	WJSOpenHandle
+	WJSCloseHandle
+	WJSGetVolumeGuid
+	WJSGetVolumePath
+	WJSGetVolumeLabel
+	WJSGetFileSystem
+	WJSGetMediaType
+	WJSGetTotalSize
+	WJGetShlDisplayName
+
+	WJSEnumMftFiles
+	WJSEnumDeleteFiles
+	WJSGetFile
+	WJSReadSector
+	WJSReadCluster
+	WJSGetBytesPerSector
+	WJSGetSectorsPerCluster
+	WJSGetTotalCluster
+
+	WJSGetVolumeCount
+	WJSGetVolume
+	WJSSearchVolume
+	WJSSearchDeletedFile
+	WJSCreateMftReader
+	WJVolumeCanReader
