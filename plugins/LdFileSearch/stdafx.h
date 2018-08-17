@@ -1,27 +1,50 @@
-// stdafx.h : 标准系统包含文件的包含文件，
-// 或是经常使用但不常更改的
-// 特定于项目的包含文件
+// stdafx.h : include file for standard system include files,
+//  or project specific include files that are used frequently, but
+//  are changed infrequently
+//
 
 #pragma once
 
-//#define WIN32_LEAN_AND_MEAN             //  从 Windows 头文件中排除极少使用的信息
-// Windows 头文件:
-#include <windows.h>
+#pragma warning(disable:4091 4477 4996)
 
-#pragma warning(disable:4996 4091)
+#define HIDWORD(a) ((DWORD)((ULONGLONG)(a) >> 32))
+#define LODWORD(a) ((DWORD)((ULONGLONG)(a) & 0xFFFFFFFF))
 
-// C 运行时头文件
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
+// Windows 头文件: 
+#include <Windows.h>
 #include <tchar.h>
 
-#include "targetver.h"
-#include "../LdLib/LdLib.h"
+#include "LdArray.h"
+#include "LdString.h"
+#include "WJDefines.h"
+#include "Thread.h"
 
-#include "../DuiLib/Uilib.h"
-
-using namespace DuiLib;
+using namespace std;
 using namespace LeadowLib;
 
+inline void DebugOutput(LPCTSTR pstrFormat, ...)
+{
+	va_list argList;
+	va_start(argList, pstrFormat);
 
+
+#ifdef _CONSOLE
+	vwprintf(pstrFormat, argList);
+	//printf(szSprintf);
+#else
+	LPTSTR szSprintf;
+	int nLen = _vstprintf(NULL, 0, pstrFormat, argList);
+	szSprintf = (LPTSTR)malloc((nLen + 7) * sizeof(TCHAR));
+	ZeroMemory(szSprintf, (nLen + 7) * sizeof(TCHAR));
+	_vsntprintf(szSprintf + 6, nLen + 1, pstrFormat, argList);
+	szSprintf[0] = 'W';
+	szSprintf[1] = 'I';
+	szSprintf[2] = 'S';
+	szSprintf[3] = 'E';
+	szSprintf[4] = ' ';
+	szSprintf[5] = ' ';
+	::OutputDebugString(szSprintf);
+	free(szSprintf);
+#endif
+	va_end(argList);
+}

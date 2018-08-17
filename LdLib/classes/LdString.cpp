@@ -84,11 +84,17 @@ namespace LeadowLib {
 
 	void CLdStringW::Append(WCHAR* pstr)
 	{
-		if (pstr == nullptr)
+		if (!pstr)
+		{
+			return;
+		}
+
+		if (m_pstr == nullptr)
 		{
 			Assign(pstr);
 			return;
 		}
+		
 		int oLength = GetLength();
 		int nNewLength = oLength + (int)wcslen(pstr);
 		m_pstr = reallocstrW(m_pstr, (nNewLength + 1));

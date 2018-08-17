@@ -1,0 +1,17 @@
+#pragma once
+#include "MftChangeListener.h"
+
+class CNtfsUSN : public CMftChangeListener
+{
+public:
+	CNtfsUSN(HANDLE hVoluem);
+	~CNtfsUSN();
+
+	static BOOL QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus);
+	static BOOL CreateUsnJournal(HANDLE hVolume);
+	static BOOL DeleteUsnJournal(HANDLE hVolume);
+protected:
+	USN UpdateFiles() override;
+
+};
+
