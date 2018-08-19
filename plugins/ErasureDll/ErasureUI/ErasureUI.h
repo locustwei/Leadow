@@ -5,6 +5,7 @@
 */
 
 #include <LdCommunication.h>
+#include <LdPlugin.h>
 
 class CUIComm;
 

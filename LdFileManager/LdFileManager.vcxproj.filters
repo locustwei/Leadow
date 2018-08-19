@@ -16,9 +16,6 @@
     <Filter Include="UI">
       <UniqueIdentifier>{a6e4bcfa-96fb-41df-9c65-11a6812b4a4a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="plugins">
-      <UniqueIdentifier>{0077e694-fa13-4e03-b16d-bfd90b9d308f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StdAfx.cpp">
@@ -33,9 +30,6 @@
     <ClCompile Include="About.cpp">
       <Filter>UI</Filter>
     </ClCompile>
-    <ClCompile Include="..\plugins\plugin.cpp">
-      <Filter>plugins</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdAfx.h">
@@ -49,9 +43,6 @@
     </ClInclude>
     <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="..\plugins\plugin.h">
-      <Filter>plugins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

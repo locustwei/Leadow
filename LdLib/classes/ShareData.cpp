@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "LdString.h"
 #include "ShareData.h"
-#include "../../LdApp/LdApp.h"
+#include "../LdLib.h"
 
 namespace LeadowLib
 {

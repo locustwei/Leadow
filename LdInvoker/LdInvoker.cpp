@@ -12,6 +12,7 @@
 #include <shellapi.h>
 #include <LdStructs.h>
 #include "../plugins/plugin.h"
+#include <LdPlugin.h>
 
 #pragma warning(disable:4996)
 

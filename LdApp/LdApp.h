@@ -21,7 +21,6 @@ public:
 	HINSTANCE GetInstance();
 	DWORD GetMainThreadId();
 	CLdString& GetAppName();
-
 	static BOOL Initialize(HINSTANCE hInstance);  //初始化，程序启动时调用
 	/*
 	消息循环过滤主线程消息
@@ -41,6 +40,5 @@ private:
 	CLdString m_AppName;
 };
 
-void DebugOutput(LPCTSTR pstrFormat, ...);
-
 extern CLdApp* ThisApp;
+

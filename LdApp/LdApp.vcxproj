@@ -133,6 +133,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="LdApp.h" />
     <ClInclude Include="LdCommunication.h" />
+    <ClInclude Include="LdPlugin.h" />
     <ClInclude Include="LdStructs.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -141,6 +142,7 @@
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="LdApp.cpp" />
     <ClCompile Include="LdCommunication.cpp" />
+    <ClCompile Include="LdPlugin.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

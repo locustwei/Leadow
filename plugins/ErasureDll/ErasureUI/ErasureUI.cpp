@@ -1,8 +1,7 @@
 #include "stdafx.h"
-#include "../../plugin.h"
-#include "../define.h"
 #include "ErasureUI.h"
 #include "ErasureMainWnd.h"
+#include "../../plugin.h"
 
 #define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262F")
 

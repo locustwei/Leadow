@@ -154,9 +154,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\plugins\plugin.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Use</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="About.cpp" />
     <ClCompile Include="LdFileManager.cpp" />
     <ClCompile Include="MainWnd.cpp" />
@@ -166,7 +163,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\plugins\plugin.h" />
     <ClInclude Include="About.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="MainWnd.h" />

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "LdPlugin.h"
 #include "LdApp.h"
 
 #define MM_CALLBACKMSG WM_USER + 0xFAB  //发消息到主线程，wparam是IGernalCallback在主线程执行回掉函数
@@ -15,36 +16,6 @@
 #endif
 
 CLdApp* ThisApp = nullptr;
-
-void DebugOutput(LPCTSTR pstrFormat, ...)
-{
-//#ifdef _DEBUG
-	LPTSTR szSprintf;
-	va_list argList;
-	int nLen;
-	va_start(argList, pstrFormat);
-	nLen = _vsntprintf(NULL, 0, pstrFormat, argList);
-	szSprintf = (TCHAR*)malloc((nLen + 7) * sizeof(TCHAR));
-	ZeroMemory(szSprintf, (nLen + 7) * sizeof(TCHAR));
-	_vsntprintf(szSprintf+6, nLen + 1, pstrFormat, argList);
-	szSprintf[0] = '_';
-	szSprintf[1] = '_';
-	szSprintf[2] = 'L';
-	szSprintf[3] = 'D';
-	szSprintf[4] = ' ';
-	szSprintf[5] = ' ';
-	va_end(argList);
-	if(ThisApp)
-	{
-		CLdString s;
-		s.Format(_T("%s %s"), ThisApp->GetAppName(), szSprintf);
-		::OutputDebugString(s);
-	}
-	else
-		::OutputDebugString(szSprintf);
-	free(szSprintf);
-//#endif
-}
 
 CLdApp::CLdApp() 
 	: m_Instance(nullptr)

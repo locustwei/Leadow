@@ -38,9 +38,6 @@
     <ClCompile Include="LdInvoker.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\plugins\plugin.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LdInvoker.rc">

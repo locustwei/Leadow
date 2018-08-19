@@ -5,6 +5,7 @@
 #include "MainWnd.h"
 #include "About.h"
 #include "../plugins/plugin.h"
+#include <LdPlugin.h>
 
 DUI_BEGIN_MESSAGE_MAP(CMainWnd, WindowImplBase)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
@@ -76,7 +77,7 @@ void CMainWnd::InitWindow()
 		return;
 
 	CLdString s = ThisApp->GetAppPath();
-	s += _T("modules\\");
+	s += PLUGIN_PATH;
 	CPluginManager pm(s);
 	CLdArray<PLUGIN_PROPERTY> plugins;
 	pm.FindPlugin(PLUGIN_USAGE_UI, &plugins);

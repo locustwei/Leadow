@@ -2,6 +2,8 @@
 #include "LdCommunication.h"
 #include "LdStructs.h"
 #include "LdApp.h"
+#include "../plugins/plugin.h"
+#include "LdPlugin.h"
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 	: m_Data(nullptr)
@@ -52,34 +54,48 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 		m_Data = new CShareData(data_name);
 		m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback));
 	}
-	CLdString param;
-	param.Format(_T("%s%s"), HOST_PARAM_PLUGID, plugid);
 
-	DWORD result = ThisApp->RunPluginHost(param, false, &m_hProcess);
-	if(result != 0)
+	DWORD result = 0xFFFFFFFF;
+
+	do
 	{
-		m_Data->StopReadThread();
-		delete m_Data;
-		m_Data = nullptr;
 
-		return result;
-	}
+#ifdef _DEBUG
+		CLdString s = ThisApp->GetAppPath();
+		s += PLUGIN_PATH;
+		CPluginManager pm(s);
+		IPluginInterface* plug = pm.LoadPlugin(ThisApp, plugid);
+		if (plug == nullptr)
+			break;
+		
+#else
 
-	if(!m_Listen->OnCreate())
+		CLdString param;
+		param.Format(_T("%s%s"), HOST_PARAM_PLUGID, plugid);
+
+		result = ThisApp->RunPluginHost(param, false, &m_hProcess);
+		if (result != 0)
+			break;
+#endif
+
+		if (!m_Listen->OnCreate())
+			break;
+
+		CThread* thread = new CThread();
+		thread->Start(CMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
+		result = 0;
+
+	} while (false);
+
+	if (result != 0)
 	{
 		TerminateHost();
 		m_Data->StopReadThread();
 		delete m_Data;
 		m_Data = nullptr;
-
-		return result;
 	}
 
-	CThread* thread = new CThread();
-	thread->Start(CMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
-
-	m_Connected = true;
-
+	m_Connected = result == 0;
 	return result;
 }
 
