@@ -11,7 +11,7 @@ CErasureFileUI::CErasureFileUI()
 	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
-	m_Comm = new CUIComm(nullptr);
+	m_Comm = new CUIComm();
 }
 
 CErasureFileUI::~CErasureFileUI()

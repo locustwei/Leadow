@@ -4,8 +4,8 @@
 
 #define PIPE_NAME _T("8E557ACB-D1D3-4D30-989D-ECA43B8A9BDE")
 
-CFileEraserComm::CFileEraserComm(ICommunicationListen* listen)
-	:CLdCommunication(listen, PIPE_NAME)
+CFileEraserComm::CFileEraserComm()
+	:CLdCommunication(this, PIPE_NAME)
 {
 }
 
@@ -40,5 +40,25 @@ DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
 void CFileEraserComm::SendFileAnalyResult(TCHAR* FileName, PTEST_FILE_RESULT result)
 {
 	//todo 发送文件分析结果
+}
+
+bool CFileEraserComm::OnCreate()
+{
+	return true;
+}
+
+void CFileEraserComm::OnTerminate(DWORD exitcode)
+{
+}
+
+void CFileEraserComm::OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize)
+{
+	switch (id)
+	{
+	case eci_anafiles:
+		DebugOutput(_T("OnCommand %s"), ProcessName);
+	default:
+		break;
+	}
 }
 

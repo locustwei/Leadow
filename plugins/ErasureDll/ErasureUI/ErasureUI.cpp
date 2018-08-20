@@ -30,7 +30,7 @@ API_Register();
 
 CErasureUI::CErasureUI()
 	: m_hModule(nullptr)
-	, m_Comm(nullptr)
+	, m_Comm()
 {
 	m_hModule = (HMODULE)ThisModule;
 }

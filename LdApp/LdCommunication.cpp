@@ -15,7 +15,7 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedata)
 	: m_hProcess(nullptr)
-	, m_Connected(true)
+	, m_Connected(false)
 {
 	m_Listen = listen;
 	m_Data = new CShareData(sharedata);
@@ -67,7 +67,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 		IPluginInterface* plug = pm.LoadPlugin(ThisApp, plugid);
 		if (plug == nullptr)
 			break;
-		
+		plug->InitCommunicate();
 #else
 
 		CLdString param;

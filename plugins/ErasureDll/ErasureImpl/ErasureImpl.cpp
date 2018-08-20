@@ -234,7 +234,7 @@ DWORD CErasureImpl::InitCommunicate()
 {
 	DebugOutput(L"InitCommunicate");
 
-	m_Comm = new CFileEraserComm(this);
+	m_Comm = new CFileEraserComm();
 	return 0;
 }
 
