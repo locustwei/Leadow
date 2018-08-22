@@ -53,7 +53,7 @@ CFramNotifyPump* CErasureUI::CreateUI()
 
 DWORD CErasureUI::InitCommunicate()
 {
-	DebugOutput(L"InitCommunicate");
+	DebugOutput(L"InitCommunicate\n");
 
 	return 0;
 }

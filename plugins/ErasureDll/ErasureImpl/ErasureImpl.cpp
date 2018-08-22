@@ -233,7 +233,7 @@ CFramNotifyPump* CErasureImpl::CreateUI()
 
 DWORD CErasureImpl::InitCommunicate()
 {
-	DebugOutput(L"InitCommunicate");
+	DebugOutput(L"InitCommunicate\n");
 
 	m_Comm = new CLdCommunication(this, PIPE_NAME);
 	return 0;

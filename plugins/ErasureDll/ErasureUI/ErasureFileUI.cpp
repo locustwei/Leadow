@@ -55,7 +55,7 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 	return 0;
 }
 
-void CErasureFileUI::ExecuteFileAnalysis(CLdArray<CLdString>* files)
+void CErasureFileUI::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 {
 	DebugOutput(L"ExecuteFileAnalysis");
 
@@ -342,7 +342,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 
 		if(dlg.OpenFile(m_Ctrl->GetManager()->GetPaintWindow(), dft_file_folder))
 		{
-			CLdArray<CLdString> filenames;
+			CLdArray<TCHAR*> filenames;
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
 				if (m_ErasureFile.Find(dlg.GetFileName(i), true, true) != nullptr)
