@@ -104,22 +104,21 @@ bool CLdCommunication::IsConnected()
 	return m_Connected;
 }
 
-bool CLdCommunication::CallMethod(WORD dwId, PVOID Param, WORD nParamSize, PVOID* result, CMethodDelegate progress)
+bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* result, ICommunicationListen* progress)
 {
 
-	DebugOutput(L"CallMethod id=%d, paramsize=%d", dwId, nParamSize);
-
-	int len = sizeof(COMMUNICATE_DATA) + nParamSize;
+	CLdString tmp = Param.ToString();
+	int len = sizeof(COMMUNICATE_DATA) + tmp.GetLength() * sizeof(TCHAR);
 
 	PCOMMUNICATE_DATA call_param = (PCOMMUNICATE_DATA)new BYTE[len];
 	ZeroMemory(call_param, len);
 
 	call_param->commid = dwId;
-	call_param->nSize = nParamSize;
-	if (Param && nParamSize)
-		MoveMemory(&call_param->data, Param, nParamSize);
+	call_param->nSize = tmp.GetLength() * sizeof(TCHAR);
+	if (call_param->nSize)
+		MoveMemory(&call_param->data, tmp.GetData(), call_param->nSize);
 
-	if (!progress.IsNull())
+	if (!progress)
 	{
 		CLdString data_name = NewGuidString();
 		data_name.CopyTo(call_param->progress);
@@ -135,12 +134,12 @@ bool CLdCommunication::CallMethod(WORD dwId, PVOID Param, WORD nParamSize, PVOID
 
 	if (result)
 	{
-		PBYTE p = nullptr;
+		/*PBYTE p = nullptr;
 		WORD nSize = 0;
 		if (m_Data->Read(&p, &nSize) == 0)
 		{
 			*result = p;
-		}
+		}*/
 	}
 	return true;
 }
@@ -149,7 +148,7 @@ INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 {
 	PCOMMUNICATE_DATA  data = (PCOMMUNICATE_DATA)pData;
 	
-	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d", data->commid, data->nSize);
+	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d\n", data->commid, data->nSize);
 
 	DoRecvData(data);
 

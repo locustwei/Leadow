@@ -38,7 +38,7 @@ interface ICommunicationListen
 	// Parameter:   WORD nParamSize 参数字节数
 	// description: 进程间通讯，当接受到到调用信息的回掉接口。
 	//************************************
-	virtual void OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize) = 0;
+	virtual void OnCommand(WORD id, CDynObject& Param) = 0;
 };
 
 /*!
@@ -64,10 +64,9 @@ public:
 	bool IsConnected();
 	bool CallMethod(
 		WORD dwId,       //方法ID
-		PVOID Param,      //参数指针
-		WORD nParamSize,  //参数字节数
-		PVOID* result,    //函数返回值（null，不需要返回）
-		CMethodDelegate progress = nullptr  //需要过程数据（如：进度状态）
+		CDynObject& Param,
+		CDynObject* result = nullptr,              //函数返回值（null，不需要返回）
+		ICommunicationListen* progress = nullptr  //需要过程数据（如：进度状态）
 	);
 protected:
 	typedef struct COMMUNICATE_DATA
