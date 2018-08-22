@@ -436,12 +436,18 @@ input:
 	//CMftSearchDeletedImpl::EnumFiles(i);
 	//CMftSearchDeletedImpl::EnumDeleteFiles(i);
 	impl.m_volume = volume;
-	IWJMftIndexFile* file = g_lib->CreateIndexFile(volume, nullptr, &impl);
-	impl.indexfile = file;
+	IWJMftIndexFile* file = g_lib->CreateIndexFile(volume, L"test.db", &impl, TRUE);
+	if (file == nullptr)
+		printf("create file fail");
+	else
+		impl.indexfile = file;
 
 	goto input;
 
 	getchar();
+
+	file->StopListener();
+	file->Close();
 
 exit:
 	WJSClose();
@@ -452,9 +458,9 @@ VOID CHandlerImpl::OnEnd(PVOID)
 {
 	t = GetTickCount() - t;
 	wprintf(L"%s OnEnd ÓÃÊ± %d\n", m_volume->GetVolumePath(), t);
-	CMftSearchDeletedImpl* impl = new CMftSearchDeletedImpl(m_volume);
+	//CMftSearchDeletedImpl* impl = new CMftSearchDeletedImpl(m_volume);
 
-	lib->SearchIndexFile(indexfile, impl);
+	//lib->SearchIndexFile(indexfile, impl);
 
 	//delete this;
 }

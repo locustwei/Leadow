@@ -7,15 +7,13 @@
 #include <LdCommunication.h>
 #include <LdPlugin.h>
 
-class CFileEraserComm;
-
 class CErasureImpl
 	: public IPluginInterface
 	, public ICommunicationListen
 {
 public:
 	CErasureImpl();
-	~CErasureImpl();
+	~CErasureImpl() override;
 	HMODULE GetModuleHandle();
 protected: //IPluginInterface
 	CFramNotifyPump* CreateUI() override;
@@ -28,7 +26,7 @@ private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
 	CLdArray<CVirtualFile*> m_Files;
-	CFileEraserComm* m_Comm;
+	CLdCommunication* m_Comm;
 	DWORD SetFolderFilesData(CVirtualFile * pFile);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 	DWORD EraseFile(CDynObject& Param);

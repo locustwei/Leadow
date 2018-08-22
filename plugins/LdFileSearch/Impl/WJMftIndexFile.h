@@ -16,6 +16,8 @@ class CWJMftIndexFile
 	: public IWJMftIndexFile
 {
 	friend class CEnumFilesThread;
+	friend class CListenChangeThread;
+	friend class CCreateFileThread;
 
 public:
 	CWJMftIndexFile(const TCHAR* Filename);
@@ -35,7 +37,7 @@ public:
 	void SetVolumePath(const TCHAR* volumepath);
 	const TCHAR* GetVolumePath();
 
-	bool CreateIndexFile(IWJVolume* volume, IWJSHandler* hander);
+	bool CreateIndexFile(IWJVolume* volume, IWJSHandler* hander, BOOL ListenChange);
 private:
 	CLdString m_FileName;
 	CRecordFile m_IndexFile;
@@ -43,7 +45,14 @@ private:
 	IWJMftSearchHandler * m_Handler;
 	PVOID m_Param;
 	CLdString m_VolumePath;
+	IWJVolume* m_Volume;
+
+	void CreateNewThreadTerminated();
+	BOOL m_ListenChange;
+	bool StartListenChange();
+	HANDLE m_ListenChangeEvent;
 protected:
 	virtual VOID Close() override;
+	virtual VOID StopListener() override;
 };
 

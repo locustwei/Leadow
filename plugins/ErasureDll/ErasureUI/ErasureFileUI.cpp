@@ -11,7 +11,7 @@ CErasureFileUI::CErasureFileUI()
 	m_Abort = false;
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
-	m_Comm = new CUIComm();
+	m_Comm = new CLdCommunication(this, COMM_PIPE_NAME);
 }
 
 CErasureFileUI::~CErasureFileUI()
@@ -54,6 +54,26 @@ DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
 	pFile->SetTag((UINT_PTR)pData);
 	return 0;
 }
+
+void CErasureFileUI::ExecuteFileAnalysis(CLdArray<CLdString>* files)
+{
+	DebugOutput(L"ExecuteFileAnalysis");
+
+	if (!m_Comm->IsConnected())
+		if (m_Comm->LoadHost(IMPL_PLUGIN_ID) != 0)
+			return;
+	//m_Data->Write()
+	CDynObject param;
+	for (int i = 0; i < files->GetCount(); i++)
+	{
+		param.AddArrayValue(EPN_FILES, *files[i]);
+	}
+	CLdString s = param.ToString();
+
+	m_Comm->CallMethod(eci_anafiles, s.GetData(), (s.GetLength() + 1) * sizeof(TCHAR), nullptr);
+
+}
+
 //把行当进度条
 bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 {
@@ -245,7 +265,7 @@ void CErasureFileUI::OnTerminate(DWORD exitcode)
 {
 }
 
-void CErasureFileUI::OnCommand(WORD id, PVOID data, WORD nSize)
+void CErasureFileUI::OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize)
 {
 }
 
@@ -332,7 +352,8 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 				//m_Comm->AnalFile(dlg.GetFileName(i));
 				filenames.Add(dlg.GetFileName(i));
 			}
-			m_Comm->ExecuteFileAnalysis(&filenames);
+			
+			ExecuteFileAnalysis(&filenames);
 
 			m_ErasureFile.Sort();
 		};

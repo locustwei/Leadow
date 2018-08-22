@@ -21,7 +21,7 @@ protected:
 	//virtual IWJMftIndexFile* CreateIndexFile(IWJVolume*, const TCHAR* Filename, IWJSHandler*) override;
 	virtual IWJMftReader * CreateMftReader(IWJVolume *) override;
 	virtual WJ_ERROR_CODE VolumeCanReader(IWJVolume*) override;
-	virtual IWJMftIndexFile* CreateIndexFile(IWJVolume*, const TCHAR* Filename, IWJSHandler*) override;
+	virtual IWJMftIndexFile* CreateIndexFile(IWJVolume*, const TCHAR* Filename, IWJSHandler*, BOOL ListenChange) override;
 	virtual WJ_ERROR_CODE SearchIndexFile(IWJMftIndexFile*, IWJMftSearchHandler*) override;
 private:
 	typedef struct VOLUME_ACTOR

@@ -7,11 +7,11 @@
 
 #include "ShFileView.h"
 #include "../define.h"
-#include "Communication.h"
+#include "LdCommunication.h"
 
 class CErasureFileUI : 
 	//IEraserListen,  //文件擦除线程回掉函数，报告擦除状态、进度信息。
-	//ICommunicationListen,
+	ICommunicationListen,
 	public CShFileViewUI
 {
 public:
@@ -20,7 +20,7 @@ public:
 
 	DUI_DECLARE_MESSAGE_MAP()
 private:
-	CUIComm* m_Comm;
+	CLdCommunication* m_Comm;
 
 	CButtonUI* btnOpenFile;
 	bool m_Abort;
@@ -28,6 +28,7 @@ private:
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);               //退出时清除文件对象。
 	DWORD SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui);     //给文件附加数据，记录文件擦除状态等信息
+	void ExecuteFileAnalysis(CLdArray<CLdString>* filenames);
 protected:
 	typedef struct _FILE_EX_DATA
 	{
@@ -53,7 +54,7 @@ protected:
 	void StatErase();        //开始擦除
 	bool AnalyResult(TCHAR* FileName, PVOID pData);
 protected: //ICommunicationListen
-	bool OnCreate() ;
-	void OnTerminate(DWORD exitcode) ;
-	void OnCommand(WORD id, PVOID data, WORD nSize) ;
+	bool OnCreate() override;
+	void OnTerminate(DWORD exitcode) override;
+	void OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize) override;
 };

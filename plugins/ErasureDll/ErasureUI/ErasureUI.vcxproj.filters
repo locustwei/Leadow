@@ -30,9 +30,6 @@
     <ClInclude Include="ErasureUI.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Communication.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\plugin.h">
       <Filter>dll</Filter>
     </ClInclude>
@@ -63,9 +60,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ErasureUI.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Communication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dllmain.cpp">

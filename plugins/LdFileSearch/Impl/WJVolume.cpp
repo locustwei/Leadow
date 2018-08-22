@@ -116,8 +116,6 @@ VOID CWJVolume::GetVolumeInfo()
 			else if (_tcscmp(FileSystemNameBuffer, _T("UDF")) == 0)
 				m_FileSystem = FILESYSTEM_TYPE_UDF;
 			m_VolumeName = VolumeName;
-
-			//DebugOutput(L"FileSystemFlags = %d\nFileSystemNameBuffer = %s\n", m_FileSystemFlags, FileSystemNameBuffer);
 		}
 	}
 

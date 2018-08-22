@@ -45,9 +45,6 @@
     <ClCompile Include="ErasureImpl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Communication.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EraseTest.h">
@@ -78,9 +75,6 @@
       <Filter>dll</Filter>
     </ClInclude>
     <ClInclude Include="ErasureImpl.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Communication.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

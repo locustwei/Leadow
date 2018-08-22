@@ -152,7 +152,6 @@
     <ClCompile Include="..\..\dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Communication.cpp" />
     <ClCompile Include="EraseTest.cpp" />
     <ClCompile Include="Erasure.cpp" />
     <ClCompile Include="ErasureImpl.cpp" />
@@ -166,7 +165,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\plugin.h" />
     <ClInclude Include="..\define.h" />
-    <ClInclude Include="Communication.h" />
     <ClInclude Include="EraseTest.h" />
     <ClInclude Include="Erasure.h" />
     <ClInclude Include="ErasureImpl.h" />

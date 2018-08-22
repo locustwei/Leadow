@@ -1,4 +1,5 @@
 #pragma once
+#include "MftReader.h"
 
 enum USN_CHANGED_REASON
 {
@@ -11,23 +12,26 @@ enum USN_CHANGED_REASON
 
 interface IMftChangeListenerHandler
 {
-	virtual BOOL OnFileChangedCallback(USN_CHANGED_REASON, UINT64, PVOID) = 0;
-	virtual BOOL ListenerStop() = 0;
+	virtual BOOL OnFileChangedCallback(USN_CHANGED_REASON, PMFT_FILE_DATA, UINT_PTR) = 0;
+	virtual BOOL Stop(UINT_PTR) = 0;
 };
 
 class CMftChangeListener
 {
 public:
-	CMftChangeListener(HANDLE hVoluem);
+	CMftChangeListener(TCHAR* VolumePath);
 	virtual ~CMftChangeListener();
 
 	USN GetLastUsn();
 	VOID SetLastUsn(USN usn);
-	virtual USN ListenUpdate(IMftChangeListenerHandler*, PVOID param);
+	virtual USN ListenUpdate(HANDLE hStopEvent, IMftChangeListenerHandler*, UINT_PTR param);
+
+	static CMftChangeListener* CreateListener(TCHAR*, UINT fs);
+
 protected:
 	IMftChangeListenerHandler* m_Handler;
-	HANDLE m_Handle;
-	PVOID m_Param;
+	TCHAR* m_Path;
+	UINT_PTR m_Param;
 	USN m_USN;
 	virtual USN UpdateFiles() = 0;
 };

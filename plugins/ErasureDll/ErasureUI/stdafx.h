@@ -14,6 +14,9 @@
 #pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
 #pragma warning(disable:4996) //'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. 
 
+#define COMM_PIPE_NAME _T("8E557ACB-D1D3-4D30-989D-ECA43B8A9BDE")
+#define IMPL_PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
+
 // C 运行时头文件
 #include <stdlib.h>
 #include <malloc.h>

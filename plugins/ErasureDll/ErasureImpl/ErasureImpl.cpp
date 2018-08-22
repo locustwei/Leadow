@@ -3,15 +3,15 @@
 #include "ErasureThread.h"
 #include "../define.h"
 #include "ErasureImpl.h"
-#include "Communication.h"
 #include "EraseTest.h"
 
 #define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262E")
+#define PIPE_NAME _T("8E557ACB-D1D3-4D30-989D-ECA43B8A9BDE")
 
 CErasureImpl* ErasureImpl = nullptr;
 
+#pragma region 动态库导出函数
 
-//动态库导出函数---------------------------------------
 #define CreatePluginImpl() new CErasureImpl();
 #define DeletePluginImpl() \
 if(ErasureImpl)            \
@@ -29,7 +29,8 @@ PLUGIN_PROPERTY GetSelfDesc()
 API_Init();
 API_UnInit();
 API_Register();
-//--------------------------------------------------------
+
+#pragma endregion  动态库导出函数
 
 CErasureImpl::CErasureImpl()
 	: m_hModule(nullptr)
@@ -234,7 +235,7 @@ DWORD CErasureImpl::InitCommunicate()
 {
 	DebugOutput(L"InitCommunicate");
 
-	m_Comm = new CFileEraserComm();
+	m_Comm = new CLdCommunication(this, PIPE_NAME);
 	return 0;
 }
 
@@ -259,3 +260,22 @@ void CErasureImpl::OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize
 		DebugOutput(L"unknown command id=%d", id);
 	}
 }
+
+//DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
+//{
+//	DebugOutput(L"ExecuteFileAnalysis");
+//
+//	if (!IsConnected())
+//		Connect();
+//	//m_Data->Write()
+//	CDynObject param;
+//	for (int i = 0; i < files->GetCount(); i++)
+//	{
+//		param.AddArrayValue(EPN_FILES, *files[i]);
+//	}
+//	CLdString s = param.ToString();
+//
+//	CallMethod(eci_anafiles, s.GetData(), (s.GetLength() + 1) * sizeof(TCHAR), nullptr);
+//
+//	return 0;
+//}

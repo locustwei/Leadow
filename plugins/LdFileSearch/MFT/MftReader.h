@@ -51,6 +51,7 @@ public:
 		m_Reader = reader;
 	};
 	virtual ~CMftFile() {};
+
 	PMFT_FILE_DATA GetFileData()
 	{
 		return &m_FileInfo;

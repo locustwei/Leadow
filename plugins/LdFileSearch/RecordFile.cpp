@@ -156,7 +156,6 @@ CRecordFile::PRECORD_POINTER CRecordFile::GetRecordPointer(UINT64 ReferenceNumbe
 	ULONG m = (ULONG)(ReferenceNumber / BLOCK_REFERENCE_COUNT), n = (ULONG)(ReferenceNumber % BLOCK_REFERENCE_COUNT);
 	if (m_RecordIndexBlocks.GetCount() <= m)
 	{
-		Beep(0, 0);
 		return NULL;
 	}
 	return (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[m] + n * sizeof(RECORD_POINTER)));
@@ -286,19 +285,34 @@ UINT64 CRecordFile::EnumRecord(IRecordFileHandler* Holder, PVOID Param, PINDEX_R
 	UCHAR* pRecord = new UCHAR[MAX_RECORD_LENGTH];
 	ZeroMemory(pRecord, MAX_RECORD_LENGTH);
 
-	for(UINT64 i=0; i<GetLastReference(); i++){
-		rs = GetRecordPointer(i); 
-		if(!rs || rs->Pointer == 0 || rs->Length == 0){
-			continue;
+	for (int i = 0; i < m_RecordIndexBlocks.GetCount(); i++)
+	{
+		for (int j = 0; j < BLOCK_REFERENCE_COUNT; j++) 
+		{
+			rs = (PRECORD_POINTER)(File2MapPointer(m_RecordIndexBlocks[i] + j * sizeof(RECORD_POINTER)));
+			if (!rs || rs->Pointer == 0 || rs->Length == 0) {
+				continue;
+			}
+
+			if (ReadRecord(rs, pRecord, rs->Length))
+				if (!m_Holder->EnumRecordCallback(i, pRecord, rs->Length, Param))
+					break;
+			result++;
 		}
-		
-		if(ReadRecord(rs, pRecord, rs->Length))
-			if(!m_Holder->EnumRecordCallback(i, pRecord, rs->Length, Param)){
-				break;
-			}//https://pan.baidu.com/s/1cHGkBO  http://pan.baidu.com/s/1hsspHGC
-			//delete pRecord;
-		result ++;
 	}
+
+	//for(UINT64 i=0; i<GetLastReference(); i++){
+	//	rs = GetRecordPointer(i); 
+	//	if(!rs || rs->Pointer == 0 || rs->Length == 0){
+	//		continue;
+	//	}
+	//	
+	//	if(ReadRecord(rs, pRecord, rs->Length))
+	//		if(!m_Holder->EnumRecordCallback(i, pRecord, rs->Length, Param))
+	//			break;
+	//		//delete pRecord;
+	//	result ++;
+	//}
 
 	delete pRecord;
 
@@ -796,7 +810,8 @@ UINT64 CRecordFile::AllocSpace(ULONG nSize)
 			m_Header->AllocSize += FILE_PAGE_SIZE;
 			SaveFile();
 
-			CreateFileView();
+			if (!CreateFileView())
+				return 0;
 		}
 
 		m_Header->FileSize += nSize;
@@ -829,7 +844,10 @@ VOID CRecordFile::FreeSpace()
 
 bool CRecordFile::CreateFileView()
 {
-	bool result;
+	bool result = false;
+
+	if (m_hFile == INVALID_HANDLE_VALUE)
+		return true;
 
 	CloseFileView();
 
@@ -843,12 +861,12 @@ bool CRecordFile::CreateFileView()
 
 			result = true;
 		}
+		else
+			DebugOutput(L"MapViewOfFile error =%d", GetLastError());
 	}
 
 	if (!result)
 	{
-		//DebugOutput(L"InitFileMapView = %d", GetLastError());
-
 		CloseFileView();
 	}
 
@@ -893,7 +911,6 @@ PVOID CRecordFile::File2MapPointer(UINT64 Pointer)
 	{
 		if (!m_pMapStart || (Pointer > m_Header->AllocSize))
 		{
-			Beep(0, 0);
 			return NULL;
 		}
 

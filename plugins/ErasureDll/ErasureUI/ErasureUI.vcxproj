@@ -157,7 +157,6 @@
     <ClInclude Include="ErasureRecycleUI.h" />
     <ClInclude Include="ErasureUI.h" />
     <ClInclude Include="ErasureVolumeUI.h" />
-    <ClInclude Include="Communication.h" />
     <ClInclude Include="ShFileView.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -172,7 +171,6 @@
     <ClCompile Include="ErasureRecycleUI.cpp" />
     <ClCompile Include="ErasureUI.cpp" />
     <ClCompile Include="ErasureVolumeUI.cpp" />
-    <ClCompile Include="Communication.cpp" />
     <ClCompile Include="ShFileView.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

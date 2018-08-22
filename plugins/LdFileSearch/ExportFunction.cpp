@@ -465,7 +465,7 @@ WJS_API WJINDEXFILE WJCreateIndexFile(WJSVOLUME volume, const TCHAR* name, WJS_C
 		CExportHandlerImpl* impl = new CExportHandlerImpl();
 		impl->callback = callback;
 		impl->param = Param;
-		return g_Lib->CreateIndexFile(volume, name, impl);
+		return g_Lib->CreateIndexFile(volume, name, impl, TRUE);
 	}
 	else
 		return nullptr;

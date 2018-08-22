@@ -62,7 +62,13 @@ public:
 	DWORD TerminateHost();
 	virtual DWORD LoadHost(TCHAR* plugid);
 	bool IsConnected();
-//	DWORD ExecuteFileAnalysis(CLdArray<TCHAR*>* files);
+	bool CallMethod(
+		WORD dwId,       //方法ID
+		PVOID Param,      //参数指针
+		WORD nParamSize,  //参数字节数
+		PVOID* result,    //函数返回值（null，不需要返回）
+		CMethodDelegate progress = nullptr  //需要过程数据（如：进度状态）
+	);
 protected:
 	typedef struct COMMUNICATE_DATA
 	{
@@ -80,13 +86,6 @@ protected:
 	/*
 		调用外部进程方法
 	*/
-	bool CallMethod(
-		WORD dwId,       //方法ID
-		PVOID Param,      //参数指针
-	 	WORD nParamSize,  //参数字节数
-		PVOID* result,    //函数返回值（null，不需要返回）
-		CMethodDelegate progress = nullptr  //需要过程数据（如：进度状态）
-	);
 	INT_PTR WaitHost(PVOID, UINT_PTR Param);
 	virtual void DoRecvData(PCOMMUNICATE_DATA data);
 	//客户进程共享数据读取回掉

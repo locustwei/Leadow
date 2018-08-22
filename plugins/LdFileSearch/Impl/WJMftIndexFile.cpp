@@ -4,6 +4,7 @@
 #include "WJVolume.h"
 #include "WJMftFileImpl.h"
 #include <shlwapi.h>
+#include "..\MFT\MftChangeListener.h"
 
 CWJMftIndexFile::CWJMftIndexFile(const TCHAR* Filename)
 	: m_IndexFile()
@@ -12,13 +13,158 @@ CWJMftIndexFile::CWJMftIndexFile(const TCHAR* Filename)
 {
 	m_FileName = Filename;
 	ZeroMemory(&m_MftInfo, sizeof(m_MftInfo));
+	m_ListenChangeEvent = INVALID_HANDLE_VALUE;
 	//Open();
 }
 
 
 CWJMftIndexFile::~CWJMftIndexFile()
 {
+	if (m_ListenChangeEvent != INVALID_HANDLE_VALUE)
+	{
+		SetEvent(m_ListenChangeEvent);
+		CloseHandle(m_ListenChangeEvent);
+	}
+
 	UpdateFile();
+}
+
+void CWJMftIndexFile::CreateNewThreadTerminated()
+{
+	m_MftInfo.LastUsn = CWJVolume::GetLastUsn(m_Volume->OpenHandle());
+	UpdateFile();
+
+	if (m_ListenChange)
+	{
+		StartListenChange();
+	}
+}
+
+
+class CListenChangeThread :
+	public IThreadRunable,
+	IMftChangeListenerHandler
+{
+public:
+	CListenChangeThread(CWJMftIndexFile* Owner, HANDLE stopEvent, CMftChangeListener* ListenChange)
+	{
+		m_Owner = Owner;
+		m_StopEvet = stopEvent;
+		m_ListenChange = ListenChange;
+	};
+	~CListenChangeThread()
+	{
+	};
+
+
+	virtual BOOL OnFileChangedCallback(USN_CHANGED_REASON reason, PMFT_FILE_DATA pFile, UINT_PTR Param) override
+	{
+		MFT_FILE_DATA tmp;
+
+		switch (reason)
+		{
+		case USN_FILE_DELETE:
+			m_Owner->DeleteFileRecord(pFile->FileReferenceNumber);
+			break;
+		case USN_FILE_CREATE:
+			GetFileData(pFile);
+
+			m_Owner->AddFileRecord(pFile);
+			break;
+		case USN_RENAME_NEW_NAME:
+			if (m_Owner->GetFileInfo(pFile->FileReferenceNumber, &tmp))
+			{
+				tmp.DirectoryFileReferenceNumber = pFile->DirectoryFileReferenceNumber;
+				tmp.NameLength = pFile->NameLength;
+				CopyMemory(tmp.Name, pFile->Name, pFile->NameLength * sizeof(WCHAR));
+				tmp.Name[tmp.NameLength] = '\0';
+				m_Owner->AddFileRecord(pFile);
+			}
+			else
+				m_Owner->AddFileRecord(pFile);
+
+
+			break;
+		//case USN_FILE_UNKONW:
+		//case USN_DATA_OVERWRITE:
+		default:
+			return TRUE;
+		}
+
+		return m_Owner->m_ListenChange;
+	}
+
+
+	virtual BOOL Stop(UINT_PTR) override
+	{
+		if (m_Owner->m_MftInfo.LastUsn != m_ListenChange->GetLastUsn())
+		{
+			m_Owner->m_MftInfo.LastUsn = m_ListenChange->GetLastUsn();
+			m_Owner->UpdateFile();
+		}
+		return !m_Owner->m_ListenChange;
+	}
+
+public:
+	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
+	{
+		m_ListenChange->ListenUpdate(m_StopEvet, this, Param);
+	};
+
+	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
+	{
+
+	};
+	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
+	{
+		if (m_ListenChange)
+			delete m_ListenChange;
+		delete this;
+	};
+private:
+	CWJMftIndexFile* m_Owner;
+	HANDLE m_StopEvet;
+	CMftChangeListener* m_ListenChange;
+
+	void GetFileData(PMFT_FILE_DATA pFile)
+	{
+		CLdString tmppath;
+		m_Owner->GetFileFullname(pFile->DirectoryFileReferenceNumber, tmppath);
+		if (tmppath.IsEmpty())
+			return;
+		tmppath += pFile->Name;
+
+		WIN32_FIND_DATA data = { 0 };
+
+		HANDLE hFind = FindFirstFile(tmppath, &data);
+		if (hFind == INVALID_HANDLE_VALUE)
+			return;
+		pFile->FileAttributes = data.dwFileAttributes;
+		pFile->DataSize = (data.nFileSizeHigh << 32) + data.nFileSizeLow;
+		LocalFileTimeToFileTime(&data.ftCreationTime, &pFile->CreationTime);
+		LocalFileTimeToFileTime(&data.ftLastWriteTime, &pFile->LastWriteTime);
+		FindClose(hFind);
+	}
+
+
+};
+
+bool CWJMftIndexFile::StartListenChange()
+{
+	CMftChangeListener* changer = CMftChangeListener::CreateListener((TCHAR*)m_Volume->GetVolumePath(), m_Volume->GetFileSystem());
+	if (!changer)
+		return false;
+	changer->SetLastUsn(m_MftInfo.LastUsn);
+	m_ListenChangeEvent = CreateEvent(nullptr, TRUE, FALSE, nullptr);
+	if (m_ListenChangeEvent == INVALID_HANDLE_VALUE)
+	{
+		delete changer;
+		return false;
+	}
+
+	CThread* thread = new CThread(new CListenChangeThread(this, m_ListenChangeEvent, changer));
+	thread->Start(0);
+	return true;
 }
 
 VOID WJS_CALL CWJMftIndexFile::Close()
@@ -92,8 +238,10 @@ public:
 			m_Hander->OnBegin(nullptr);
 
 		m_Reader->EnumFiles(this, (PVOID)Param);
+
 		if(m_Hander)
 			m_Hander->OnEnd(nullptr);
+
 	};
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
@@ -102,6 +250,8 @@ public:
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
+		m_Owner->CreateNewThreadTerminated();
+
 		delete m_Reader;
 		delete this;
 	};
@@ -111,28 +261,40 @@ private:
 	IWJSHandler* m_Hander;
 };
 
-bool CWJMftIndexFile::CreateIndexFile(IWJVolume* volume, IWJSHandler* hander)
+bool CWJMftIndexFile::CreateIndexFile(IWJVolume* volume, IWJSHandler* hander, BOOL ListenChange)
 {
-	if (volume == nullptr || volume->OpenHandle() == INVALID_HANDLE_VALUE)
+	if (volume == nullptr || volume->OpenHandle() == INVALID_HANDLE_VALUE || volume->GetFileSystem() != FILESYSTEM_TYPE_NTFS)
 		return false;
-	CMftReader* read = CMftReader::CreateReader(volume->OpenHandle(), volume->GetFileSystem());
-	if (read == nullptr)
-		return false;
-
 	if (!Open())
-	{
-		delete read;
 		return false;
-	}
-	m_IndexFile.DeleteAllRecord();
 	
-	CCreateFileThread* threadbody = new CCreateFileThread(this, read, hander);
-	CThread* thread = new CThread(threadbody);
-	thread->Start(0);
+	m_Volume = volume;
+	m_ListenChange = ListenChange;
+	m_VolumePath = m_Volume->GetVolumePath();
 
-	m_MftInfo.LastUsn = CWJVolume::GetLastUsn(volume);
-	m_VolumePath = volume->GetVolumePath();
+	if (m_MftInfo.FileCount == 0)
+	{
+		CMftReader* reader = CMftReader::CreateReader(volume->OpenHandle(), volume->GetFileSystem());
+		if (reader == nullptr)
+			return false;
+		CCreateFileThread* threadbody = new CCreateFileThread(this, reader, hander);
+		CThread* thread = new CThread(threadbody);
+		thread->Start(0);
+	}
+	else
+	{
+		hander->OnBegin(0);
+		StartListenChange();
+		hander->OnEnd(0);
+	}
+
 	return true;
+}
+
+VOID CWJMftIndexFile::StopListener()
+{
+	if (m_ListenChangeEvent != INVALID_HANDLE_VALUE)
+		SetEvent(m_ListenChangeEvent);
 }
 
 USN CWJMftIndexFile::GetLastUSN()
@@ -189,6 +351,7 @@ public:
 protected:
 	virtual LONG EnumRecordCallback(UINT64, const PUCHAR data, USHORT len, PVOID Param) override
 	{
+
 		if (FilterFile((PMFT_FILE_DATA)data))
 		{
 			m_File.SetFileInfo((PMFT_FILE_DATA)data, len);

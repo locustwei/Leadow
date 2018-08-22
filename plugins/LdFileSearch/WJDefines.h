@@ -110,6 +110,8 @@ interface WJS_API IWJVolume
 interface WJS_API IWJMftIndexFile
 {
 	virtual VOID  Close() = 0;
+
+	virtual VOID StopListener() = 0;
 };
 
 interface WJS_API IWJMftReader
@@ -135,5 +137,5 @@ interface WJS_API IWJLibInterface
 
 	virtual WJ_ERROR_CODE SearchIndexFile(IWJMftIndexFile*, IWJMftSearchHandler*) = 0;
 	//virtual WJ_ERROR_CODE ListenFileChaged(IWJVolume*, IWJMftIndexFile*, IWJMftChangeHandler*) = 0;
-	virtual IWJMftIndexFile* CreateIndexFile(IWJVolume*, const TCHAR*, IWJSHandler*) = 0;
+	virtual IWJMftIndexFile* CreateIndexFile(IWJVolume*, const TCHAR*, IWJSHandler*, BOOL ListenChange) = 0;
 };

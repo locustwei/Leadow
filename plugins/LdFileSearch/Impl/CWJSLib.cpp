@@ -134,10 +134,10 @@ WJ_ERROR_CODE  CWJSLib::SearchDeletedFile(IWJVolume* volume, IWJMftSearchHandler
 		return WJERROR_FILE_SYSTEM_NOT_SUPPORT;
 }
 
-IWJMftIndexFile* CWJSLib::CreateIndexFile(IWJVolume* volume, const TCHAR* Filename, IWJSHandler* hander)
+IWJMftIndexFile* CWJSLib::CreateIndexFile(IWJVolume* volume, const TCHAR* Filename, IWJSHandler* hander, BOOL ListenChange)
 {
 	CWJMftIndexFile* file = new CWJMftIndexFile(Filename);
-	if(!file->CreateIndexFile(volume, hander))
+	if(!file->CreateIndexFile(volume, hander, ListenChange))
 	{
 		delete file;
 		return nullptr;
