@@ -39,9 +39,10 @@ public:
 	);
 
 	// 测试文件
-	TEST_FILE_RESULT TestFile(
-		TCHAR* lpFileName,         //文件名
-		BOOL bRemoveFolder         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
+	DWORD TestFile(
+		TCHAR* lpFileName,          //文件名
+		BOOL bRemoveFolder,         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
+		PTEST_FILE_RESULT
 	);
 	//测试目录
 	TEST_FILE_RESULT TestDirectory(

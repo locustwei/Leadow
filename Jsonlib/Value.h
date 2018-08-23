@@ -110,7 +110,11 @@ namespace JsonBox {
 		 * Constructs the value from an integer.
 		 * @param newInt Integer used as the value.
 		 */
-		Value(int newInt);
+		Value(int64_t newInt);
+		Value(int newInt) : type(INTEGER), data(new int64_t(newInt)) {};
+		Value(unsigned int newInt) : type(INTEGER), data(new int64_t(newInt)) {};
+		Value(short newInt) : type(INTEGER), data(new int64_t(newInt)) {};
+		Value(unsigned short newInt) : type(INTEGER), data(new int64_t(newInt)) {};
 
 		/**
 		 * Constructs the value from a double.
@@ -388,7 +392,7 @@ namespace JsonBox {
 		 * @return Value's integer value, or 0 if the value doesn't contain a
 		 * numeric value.
 		 */
-		int getInteger() const;
+		int64_t getInteger() const;
 
 		/**
 		 * Tries to get the value's integer value.
@@ -397,7 +401,7 @@ namespace JsonBox {
 		 * @return Value's integer value, or defaultValue if the value doesn't
 		 * contain a numeric value.
 		 */
-		int tryGetInteger(int defaultValue) const;
+		int64_t tryGetInteger(int defaultValue) const;
 
 		/**
 		 * Sets the value as an integer.
@@ -558,7 +562,7 @@ namespace JsonBox {
 		 */
 		union ValueDataPointer {
 			std::string *stringValue;
-			int *intValue;
+			int64_t *intValue;
 			double *doubleValue;
 			Object *objectValue;
 			Array *arrayValue;
@@ -579,7 +583,7 @@ namespace JsonBox {
 			 * Parameterized constructor.
 			 * @param newIntValue Pointer to set to the int pointer.
 			 */
-			ValueDataPointer(int *newIntValue);
+			ValueDataPointer(int64_t *newIntValue);
 
 			/**
 			 * Parameterized constructor.

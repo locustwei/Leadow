@@ -12,12 +12,12 @@ using namespace std;
 namespace LeadowLib {
 
 	CDynObject::CDynObject()
-		:m_Config()
+		:m_Json()
 	{
 
 	}
 
-	CDynObject::CDynObject(TCHAR* szJson)
+	CDynObject::CDynObject(const TCHAR* szJson)
 	{
 		PrepareStr(szJson);
 	}
@@ -26,13 +26,13 @@ namespace LeadowLib {
 	{
 	}
 
-	BOOL CDynObject::LoadFromFile(TCHAR* FileName)
+	BOOL CDynObject::LoadFromFile(const TCHAR* FileName)
 	{
 		try {
 			if(PathFileExists(FileName))
 			{
-				CLdStringA string = FileName;
-				m_Config.loadFromFile(string);
+				CLdStringA string = (TCHAR*)FileName;
+				m_Json.loadFromFile(string);
 				return TRUE;
 			}
 			else
@@ -43,19 +43,19 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CDynObject::SaveToFile(TCHAR* FileName)
+	BOOL CDynObject::SaveToFile(const TCHAR* FileName)
 	{
 		try {
 			if (!PathFileExists(FileName))
 			{
 				CLdString path;
-				CFileUtils::ExtractFilePath(FileName, path);
+				CFileUtils::ExtractFilePath((TCHAR*)FileName, path);
 				if (CFileUtils::ForceDirectories(path) != 0)
 					return FALSE;
 			}
 
 			CLdStringA string = FileName;
-			m_Config.writeToFile(string);
+			m_Json.writeToFile(string);
 			return TRUE;
 		}
 		catch (...)
@@ -64,26 +64,26 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CDynObject::PrepareStr(TCHAR* szJson)
+	BOOL CDynObject::PrepareStr(const TCHAR* szJson)
 	{
 		CLdStringA s = szJson;
 
-		m_Config.loadFromString(s.GetData());
+		m_Json.loadFromString(s.GetData());
 		return TRUE;
 	}
 
 	void CDynObject::operator=(CDynObject & source)
 	{
-		m_Config = source.m_Config;
+		m_Json = source.m_Json;
 	}
 
-	int CDynObject::GetDataType(CLdStringA Path)
+	int CDynObject::GetDataType(const TCHAR* Path)
 	{
 		CDynObjectValue val = GetDynObject(Path);
 		return val.getType();
 	}
 
-	int CDynObject::GetArrayCount(CLdStringA Path)
+	int CDynObject::GetArrayCount(const TCHAR* Path)
 	{
 		CDynObjectValue val = GetDynObject(Path);
 		if (val.getType() != JsonBox::Value::ARRAY)
@@ -94,31 +94,31 @@ namespace LeadowLib {
 		}
 	}
 
-	BOOL CDynObject::GetBoolean(CLdStringA Path, BOOL def, int index)
+	BOOL CDynObject::GetBoolean(const TCHAR* Path, BOOL def, int index)
 	{
-		CDynObjectValue val = GetDynObject(Path, index);
-		return val.tryGetBoolean(def == TRUE);
+		CDynObjectValue val = GetDynObject((char*)Path, index);
+		return val.tryGetBoolean(def);
 	}
 
-	double CDynObject::GetDouble(CLdStringA Path, double def, int index)
+	double CDynObject::GetDouble(const TCHAR* Path, double def, int index)
 	{
 		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetDouble(def);
 	}
 
-	float CDynObject::GetFloat(CLdStringA Path, float def, int index)
+	float CDynObject::GetFloat(const TCHAR* Path, float def, int index)
 	{
 		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetFloat(def);
 	}
 
-	int CDynObject::GetInteger(CLdStringA Path, int def, int index)
+	int64_t CDynObject::GetInteger(const TCHAR* Path, int def, int index)
 	{
 		CDynObjectValue val = GetDynObject(Path, index);
 		return val.tryGetInteger(def);
 	}
 
-	CLdString CDynObject::GetString(CLdStringA Path, TCHAR* def, int index)
+	CLdString CDynObject::GetString(const TCHAR* Path, TCHAR* def, int index)
 	{
 		CDynObjectValue val = GetDynObject(Path, index);
 		CLdString result;
@@ -127,35 +127,41 @@ namespace LeadowLib {
 			result = def;
 		return result;
 	}
-	void CDynObject::AddArrayValue(CLdStringA Path, CDynObjectValue value)
+	void CDynObject::AddArrayValue(const TCHAR* Path, CDynObjectValue value)
 	{
 		int k = GetArrayCount(Path);
 		AddObjectAttribute(Path, value, k);
 	}
 
-	void CDynObject::AddArrayValue(CLdStringA Path, wchar_t* value)
+	void CDynObject::AddArrayValue(const TCHAR* Path, wchar_t* value)
 	{
 		CLdStringA s = value;
 		AddArrayValue(Path, s.GetData());
 	}
 
+	VOID CDynObject::AddArrayValue(const TCHAR* Path, CDynObject& value)
+	{
+		return AddArrayValue(Path, value.m_Json);
+	}
+
 	CDynObjectValue CDynObject::GetDynObject(CLdStringA string, int index)
 	{
 		int len = string.GetLength();
-		char* p = string.GetData();
-		CDynObjectValue * parent = &m_Config;
+		char* p = string;
+
+		CDynObjectValue * parent = &m_Json;
 		CDynObjectValue * value = nullptr; // JsonBox::Value::NULL_VALUE;
 
 		for (int i = 0; i < len; i++)
 		{
-			if (string.GetData()[i] == '\\' || string.GetData()[i] == '/')
+			if (string[i] == '\\' || string[i] == '/')
 			{
 				string.GetData()[i] = '\0';
 				value = &(*parent)[p];
 				if (value->isNull())
-					break;
+					return JsonBox::Value();
 				parent = value;
-				p = string.GetData() + i + 1;
+				p = string + i + 1;
 			}
 		}
 		value = &(*parent)[p];
@@ -167,17 +173,18 @@ namespace LeadowLib {
 				value = nullptr;// JsonBox::Value::NULL_VALUE;
 		}
 		if (!value)
-			return JsonBox::Value::NULL_VALUE;
+			return JsonBox::Value();
 		else
 			return *value;
 	}
 
-	void CDynObject::AddObjectAttribute(CLdStringA path, CDynObjectValue value, int index)
+	void CDynObject::AddObjectAttribute(const TCHAR* Path, CDynObjectValue value, int index)
 	{
+		CLdStringA path = Path;
 		int len = path.GetLength();
 		//CLdMap<char*, JsonBox::Value> objs;
 		char* p = path.GetData();
-		CDynObjectValue* parent = &m_Config;
+		CDynObjectValue* parent = &m_Json;
 
 		for (int i = 0; i < len; i++)
 		{
@@ -188,10 +195,6 @@ namespace LeadowLib {
 				if((*parent)[p].isNull())
 					(*parent)[p] = JsonBox::Object();
 				parent = &(*parent)[p];
-				//需要添加不存在的对象,把路径保存下来.以便后面依次向上赋值
-				//objs.Put(p, parent);
-
-				//parent = value;
 				p = path.GetData() + i + 1;
 			}
 		}
@@ -205,27 +208,23 @@ namespace LeadowLib {
 		else
 			*v = value;
 
-//		JsonBox::Value *pItem = nullptr;
-//		for (int i = objs.GetCount() - 1; i >= 0; i--)
-//		{
-//			char** pkey = objs.GetAt(i, &pItem);
-//			(*pItem)[*pkey] = v;
-//			v = *pItem;
-//		}
-//		if (pItem)
-//			m_Config = *pItem;
 	}
 
-	void CDynObject::AddObjectAttribute(CLdStringA path, wchar_t* value, int index)
+	void CDynObject::AddObjectAttribute(const TCHAR* path, wchar_t* value, int index)
 	{
 		CLdStringA s = value;
 		AddObjectAttribute(path, s.GetData(), index);
 	}
 
+	void CDynObject::AddObjectAttribute(const TCHAR* path, CDynObject& obj, int index)
+	{
+		AddObjectAttribute(path, obj.m_Json, index);
+	}
+
 	CLdString CDynObject::ToString()
 	{
 		std::ostringstream stream;
-		m_Config.writeToStream(stream, false, false);
+		m_Json.writeToStream(stream, false, false);
 		std::string s = stream.str();
 		return (char*)s.c_str();
 	}

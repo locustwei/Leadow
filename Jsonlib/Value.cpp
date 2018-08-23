@@ -182,7 +182,7 @@ namespace JsonBox {
 		data = (char*)converted_str.c_str();
 	}
 
-	Value::Value(int newInt) : type(INTEGER), data(new int(newInt)) {
+	Value::Value(int64_t newInt) : type(INTEGER), data(new int64_t(newInt)) {
 	}
 
 	Value::Value(double newDouble) : type(DOUBLE), data(new double(newDouble)) {
@@ -206,7 +206,7 @@ namespace JsonBox {
 			break;
 
 		case INTEGER:
-			data.intValue = new int(*src.data.intValue);
+			data.intValue = new int64_t(*src.data.intValue);
 			break;
 
 		case DOUBLE:
@@ -246,7 +246,7 @@ namespace JsonBox {
 				break;
 
 			case INTEGER:
-				data.intValue = new int(*src.data.intValue);
+				data.intValue = new int64_t(*src.data.intValue);
 				break;
 
 			case DOUBLE:
@@ -532,11 +532,11 @@ namespace JsonBox {
 		}
 	}
 
-	int Value::getInteger() const {
+	int64_t Value::getInteger() const {
 		return tryGetInteger(EMPTY_INT);
 	}
 
-	int Value::tryGetInteger(int defaultValue) const {
+	int64_t Value::tryGetInteger(int defaultValue) const {
 		return (type == INTEGER) ? (*data.intValue) : ((type == DOUBLE) ? (static_cast<int>(*data.doubleValue)) : (defaultValue));
 	}
 
@@ -547,7 +547,7 @@ namespace JsonBox {
 		} else {
 			clear();
 			type = INTEGER;
-			data.intValue = new int(newInteger);
+			data.intValue = new int64_t(newInteger);
 		}
 	}
 
@@ -613,7 +613,7 @@ namespace JsonBox {
 	}
 
 	bool Value::tryGetBoolean(bool defaultValue) const {
-		return (type == BOOLEAN) ? (*data.boolValue) : (EMPTY_BOOL);
+		return (type == BOOLEAN) ? (*data.boolValue) : (defaultValue);
 	}
 
 	void Value::setBoolean(bool newBoolean) {
@@ -828,7 +828,7 @@ namespace JsonBox {
 		stringValue = new std::string(newStringValue);
 	}
 
-	Value::ValueDataPointer::ValueDataPointer(int *newIntValue) :
+	Value::ValueDataPointer::ValueDataPointer(int64_t *newIntValue) :
 		intValue(newIntValue) {
 	}
 

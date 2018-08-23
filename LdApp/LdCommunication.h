@@ -77,7 +77,7 @@ protected:
 		BYTE data[0];
 	}*PCOMMUNICATE_DATA;
 
-	ICommunicationListen* m_Listen;
+	ICommunicationListen* m_Listener;
 	CShareData* m_Data;
 	HANDLE m_hProcess;
 	bool m_Connected;
@@ -86,7 +86,7 @@ protected:
 		调用外部进程方法
 	*/
 	INT_PTR WaitHost(PVOID, UINT_PTR Param);
-	virtual void DoRecvData(PCOMMUNICATE_DATA data);
+	virtual void DoRecvData(PCOMMUNICATE_DATA data, ICommunicationListen* listener);
 	//客户进程共享数据读取回掉
 	INT_PTR ShareData_Callback(void* pData, UINT_PTR Param);
 };

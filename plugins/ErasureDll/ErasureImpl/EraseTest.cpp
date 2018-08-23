@@ -65,32 +65,37 @@ CEraseTest::~CEraseTest()
 //	return result;
 //}
 
-TEST_FILE_RESULT CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder)
+DWORD CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder, PTEST_FILE_RESULT tr)
 {
-	TEST_FILE_RESULT result = { 0 };
-	
-	CFileInfo* pFile;
-	if (CFileUtils::IsDirectoryExists(lpFileName))
+	DWORD result = 0;
+	do 
 	{
-		pFile = new CFolderInfo();
-	}
-	else
-		pFile = new CFileInfo();
+		CFileInfo* pFile;
+		if (CFileUtils::IsDirectoryExists(lpFileName))
+		{
+			pFile = new CFolderInfo();
+		}
+		else
+			pFile = new CFileInfo();
 
-	if (pFile->GetFileType() == vft_folder)
-	{
-		((CFolderInfo*)pFile)->FindFiles(true);
-		result.FileCount = ((CFolderInfo*)pFile)->GetFilesCount(true);
-	}
+		if (pFile->GetFileType() == vft_folder)
+		{
+			result = ((CFolderInfo*)pFile)->FindFiles(true);
+			if (result != 0)
+				break;
+			tr->FileCount = ((CFolderInfo*)pFile)->GetFilesCount(true);
+		}
+
+		CLdArray<CADStream *>* ads = pFile->GetADStreams();
+		if (ads)
+		{
+			tr->ADSCount = ads->GetCount();
+			for (int i = 0; i < tr->ADSCount; i++)
+				tr->ADSSizie += ads->Get(i)->GetDataSize();
+		}
+		tr->TotalSize = pFile->GetDataSize();
+	} while (FALSE);
 	
-	CLdArray<CADStream *>* ads = pFile->GetADStreams();
-	if (ads)
-	{
-		result.ADSCount = ads->GetCount();
-		for (int i = 0; i < result.ADSCount; i++)
-			result.ADSSizie += ads->Get(i)->GetDataSize();
-	}
-	result.TotalSize = pFile->GetDataSize();
 	return result;
 }
 

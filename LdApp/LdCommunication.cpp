@@ -10,16 +10,16 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 	, m_hProcess(nullptr)
 	, m_Connected(false)
 {
-	m_Listen = listen;
+	m_Listener = listen;
 }
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedata)
 	: m_hProcess(nullptr)
 	, m_Connected(false)
 {
-	m_Listen = listen;
+	m_Listener = listen;
 	m_Data = new CShareData(sharedata);
-	m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback));
+	m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 }
 
 CLdCommunication::~CLdCommunication()
@@ -52,7 +52,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 		if (data_name.IsEmpty())
 			return false;
 		m_Data = new CShareData(data_name);
-		m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback));
+		m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 	}
 
 	DWORD result = 0xFFFFFFFF;
@@ -67,7 +67,6 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 		IPluginInterface* plug = pm.LoadPlugin(ThisApp, plugid);
 		if (plug == nullptr)
 			break;
-		plug->InitCommunicate();
 #else
 
 		CLdString param;
@@ -78,7 +77,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 			break;
 #endif
 
-		if (!m_Listen->OnCreate())
+		if (!m_Listener->OnCreate())
 			break;
 
 		CThread* thread = new CThread();
@@ -108,23 +107,23 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 {
 
 	CLdString tmp = Param.ToString();
-	int len = sizeof(COMMUNICATE_DATA) + tmp.GetLength() * sizeof(TCHAR);
+	int len = sizeof(COMMUNICATE_DATA) + (tmp.GetLength()+1) * sizeof(TCHAR);
 
 	PCOMMUNICATE_DATA call_param = (PCOMMUNICATE_DATA)new BYTE[len];
 	ZeroMemory(call_param, len);
 
 	call_param->commid = dwId;
-	call_param->nSize = tmp.GetLength() * sizeof(TCHAR);
-	if (call_param->nSize)
-		MoveMemory(&call_param->data, tmp.GetData(), call_param->nSize);
+	call_param->nSize = (tmp.GetLength()+1) * sizeof(TCHAR);
+	if (!tmp.IsEmpty())
+		tmp.CopyTo((TCHAR*)call_param->data);
 
-	if (!progress)
+	if (progress)
 	{
 		CLdString data_name = NewGuidString();
 		data_name.CopyTo(call_param->progress);
 
 		CShareData* ParamData = new CShareData(data_name);
-		ParamData->StartReadThread(progress, true);    //回掉函数progress返回0时线程结束，线程结束CShareData对象自我销毁
+		ParamData->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), (UINT_PTR)progress, true);    //回掉函数progress返回0时线程结束，线程结束CShareData对象自我销毁
 	}
 
 	//发送调用参数。
@@ -149,8 +148,10 @@ INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 	PCOMMUNICATE_DATA  data = (PCOMMUNICATE_DATA)pData;
 	
 	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d\n", data->commid, data->nSize);
-
-	DoRecvData(data);
+	if (Param == 0)
+		DoRecvData(data, m_Listener);
+	else
+		DoRecvData(data, (ICommunicationListen*)Param);
 
 	return 1;
 }
@@ -161,13 +162,16 @@ INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
 	WaitForSingleObject(hProcess, INFINITE);
 	DWORD dwCode = 0;
 	GetExitCodeProcess(hProcess, &dwCode);
-	m_Listen->OnTerminate(dwCode);
+	m_Listener->OnTerminate(dwCode);
 	DebugOutput(L"WaitHost %d", dwCode);
 	return 0;
 }
 
-void CLdCommunication::DoRecvData(PCOMMUNICATE_DATA data)
+void CLdCommunication::DoRecvData(PCOMMUNICATE_DATA data, ICommunicationListen* listener)
 {
-	if(m_Listen)
-		m_Listen->OnCommand(data->commid, data->progress, data->data, data->nSize);
+	if (listener)
+	{
+		CDynObject param = (TCHAR*)data->data;
+		listener->OnCommand(data->commid, param);
+	}
 }

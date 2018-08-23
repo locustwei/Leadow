@@ -8,10 +8,13 @@
 
 /*获取模块功能接口（IPluginInterface）*/
 #define API_Init()                                      \
-IPluginInterface LDLIB_API * API_Init(CLdApp* pThisApp) \
+LDLIB_API IPluginInterface * API_Init(CLdApp* pThisApp) \
 {                                                       \
 	ThisApp = pThisApp;                                 \
-	return CreatePluginImpl();                          \
+	IPluginInterface* result = CreatePluginImpl();      \
+	if(result)                                          \
+		result->InitCommunicate();                      \
+	return result;                                      \
 }
 
 /*资源释放*/

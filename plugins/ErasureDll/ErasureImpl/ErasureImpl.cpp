@@ -167,30 +167,41 @@ typedef struct ERASE_FILE_PARAM {
 }*PERASE_FILE_PARAM;
 
 
-DWORD CErasureImpl::FileAnalysis(TCHAR* Param, TCHAR* progress)
+DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 {
 	DebugOutput(L"FileAnalysis");
 
-	//bool undelfolder = Param.GetBoolean(EPN_UNDELFOLDER);
+	CDynObject result;
 
-	//int k = Param.GetArrayCount(EPN_FILES);
+	bool undelfolder = Param.GetBoolean(EPN_UNDELFOLDER);
 
-	//for (int i = 0; i<k; i++)
-	//{
-	//	CLdString s = Param.GetString(EPN_FILES, nullptr, i);
-	//	if (s.IsEmpty())
-	//		continue;
+	int k = Param.GetArrayCount(EPN_FILES);
+	CEraseTest test;
+	TEST_FILE_RESULT tr;
+	bool removedir = Param.GetBoolean(EPN_OP_REMOVEDIR);
+	for (int i = 0; i<k; i++)
+	{
+		ZeroMemory(&tr, sizeof(TEST_FILE_RESULT));
+		DWORD error = 0;
+		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
+		if (s.IsEmpty())
+		{
+			error = (DWORD)-1;
+			continue;
+		}
+		else
+		{
+			error = test.TestFile(s, true, &tr);
+		}
+		CDynObject obj;
+		obj.AddObjectAttribute(EPN_ERROR_CODE, (int)error);
+		if (error == 0)
+		{
+			obj.AddObjectAttribute(EPN_ERROR_CODE, tr.ADSCount);
 
-	//	DebugOutput(L"FileAnalysis %s", s.GetData());
-
-	//	PERASE_FILE_PARAM Param = new ERASE_FILE_PARAM;
-	//	Param->FileName = s;
-	//	Param->method = new CErasureMothed(em_Pseudorandom);
-	//	Param->bRemoveFolder = undelfolder;
-
-	//	CThread* thread = new CThread();
-	//	thread->Start(CMethodDelegate::MakeDelegate(this, &CErasureImpl::FileAnalyThread), (UINT_PTR)Param);
-	//}
+		}
+		result.AddArrayValue(EPN_FILES, obj);
+	}
 
 	return 0;
 }
@@ -216,16 +227,6 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param)
 	return 0;
 }
 
-INT_PTR CErasureImpl::FileAnalyThread(PVOID pData, UINT_PTR Param)
-{
-	//PERASE_FILE_PARAM pParam = (PERASE_FILE_PARAM)Param;
-	//CEraseTest test;
-	//TEST_FILE_RESULT result = test.TestFile(pParam->FileName, pParam->bRemoveFolder);
-	//delete pParam;
-	//m_Comm->SendFileAnalyResult(pParam->FileName, &result);
-	return 0;
-}
-
 CFramNotifyPump* CErasureImpl::CreateUI()
 {
 	return nullptr;
@@ -248,13 +249,13 @@ void CErasureImpl::OnTerminate(DWORD exitcode)
 {
 }
 
-void CErasureImpl::OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize)
+void CErasureImpl::OnCommand(WORD id, CDynObject& Param)
 {
 	
 	switch(id)
 	{
 	case eci_anafiles:
-		FileAnalysis((TCHAR*)data, ProcessName);
+		FileAnalysis(Param);
 		break;
 	default:
 		DebugOutput(L"unknown command id=%d", id);

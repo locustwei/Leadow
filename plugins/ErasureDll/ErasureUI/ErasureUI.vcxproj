@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\plugin.h" />
     <ClInclude Include="..\define.h" />
+    <ClInclude Include="..\ErasureConfig.h" />
     <ClInclude Include="ErasureFileUI.h" />
     <ClInclude Include="ErasureMainWnd.h" />
     <ClInclude Include="ErasureOptions.h" />
@@ -165,6 +166,7 @@
     <ClCompile Include="..\..\dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="..\ErasureConfig.cpp" />
     <ClCompile Include="ErasureFileUI.cpp" />
     <ClCompile Include="ErasureMainWnd.cpp" />
     <ClCompile Include="ErasureOptions.cpp" />

@@ -5,7 +5,7 @@
 
 namespace LeadowLib
 {
-	CShareData::CShareData(TCHAR* pName, WORD nSize)
+	CShareData::CShareData(TCHAR* pName, DWORD nSize)
 		: m_hFile(nullptr)
 		, m_pFileHeader(nullptr)
 		, m_Size(0)
@@ -72,7 +72,7 @@ namespace LeadowLib
 						WORD nSize = m_pFileHeader->nSize;
 						BYTE* pData = new BYTE[m_pFileHeader->nSize];
 						::MoveMemory(pData, m_pFileHeader->Data, nSize);
-						m_TermateReadThread = !m_ReadCallback(pData, nSize);
+						m_TermateReadThread = !m_ReadCallback(pData, Param);
 						delete[] pData;
 					}
 			}
@@ -168,7 +168,7 @@ namespace LeadowLib
 	//	return 0;
 	//}
 
-	DWORD CShareData::StartReadThread(CMethodDelegate ReadCallback, bool FreeOnTerminate, UINT_PTR Param)
+	DWORD CShareData::StartReadThread(CMethodDelegate ReadCallback, UINT_PTR Param, bool FreeOnTerminate)
 	{
 		m_FreeOnTerminate = FreeOnTerminate;
 		m_ReadCallback = ReadCallback;

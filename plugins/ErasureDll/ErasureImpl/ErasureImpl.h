@@ -21,7 +21,7 @@ protected: //IPluginInterface
 protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;
-	void OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize) override;
+	void OnCommand(WORD id, CDynObject& Param) override;
 private:
 	HMODULE m_hModule;
 	CEreaserThrads m_EraseThread;
@@ -31,10 +31,9 @@ private:
 	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 	DWORD EraseFile(CDynObject& Param);
 	DWORD EraseVolume(CDynObject& Param);
-	DWORD FileAnalysis(TCHAR* Param, TCHAR* progress);
+	DWORD FileAnalysis(CDynObject& Param);
 	DWORD AnaVolume(CDynObject& Param);
 	
-	INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
 };
 
 extern CErasureImpl* ErasureImpl;

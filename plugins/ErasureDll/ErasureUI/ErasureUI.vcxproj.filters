@@ -54,6 +54,9 @@
     <ClInclude Include="ShFileView.h">
       <Filter>Impl</Filter>
     </ClInclude>
+    <ClInclude Include="..\ErasureConfig.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -82,6 +85,9 @@
     </ClCompile>
     <ClCompile Include="ShFileView.cpp">
       <Filter>Impl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ErasureConfig.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -35,7 +35,7 @@ void CErasureOptionsUI::OnItemClick(TNotifyUI & msg)
 
 void CErasureOptionsUI::LoadConfig()
 {
-//	int k = ThisLibrary->GetConfig()->GetFileErasureMothed();
+	//int k = ThisLibrary->GetConfig()->GetFileErasureMothed();
 //	if (m_cbFile)
 //		m_cbFile->SelectItem(k, false);
 //	BOOL b = ThisLibrary->GetConfig()->IsRemoveFolder();

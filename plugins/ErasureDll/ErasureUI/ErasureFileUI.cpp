@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureFileUI.h"
+#include "..\ErasureConfig.h"
 
 CErasureFileUI::CErasureFileUI() 
 	: m_Comm(nullptr),
@@ -62,15 +63,16 @@ void CErasureFileUI::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 	if (!m_Comm->IsConnected())
 		if (m_Comm->LoadHost(IMPL_PLUGIN_ID) != 0)
 			return;
-	//m_Data->Write()
 	CDynObject param;
+	param.AddObjectAttribute(EPN_OP_REMOVEDIR, ErasureConfig.IsRemoveFolder());
+	param.AddObjectAttribute(EPN_OP_METHOD, ErasureConfig.GetFileErasureMothed());
+
 	for (int i = 0; i < files->GetCount(); i++)
 	{
-		param.AddArrayValue(EPN_FILES, *files[i]);
+		param.AddArrayValue(EPN_FILES, files->Get(i));
 	}
-	CLdString s = param.ToString();
 
-	m_Comm->CallMethod(eci_anafiles, s.GetData(), (s.GetLength() + 1) * sizeof(TCHAR), nullptr);
+	m_Comm->CallMethod(eci_anafiles, param);
 
 }
 
@@ -265,7 +267,7 @@ void CErasureFileUI::OnTerminate(DWORD exitcode)
 {
 }
 
-void CErasureFileUI::OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize)
+void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 {
 }
 

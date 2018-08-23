@@ -16,7 +16,7 @@ namespace LeadowLib
 	{
 
 	public:
-		CShareData(TCHAR* pName, WORD nSize = 1024);
+		CShareData(TCHAR* pName, DWORD nSize = 0x100000);
 		~CShareData();
 		CLdString& GetName();
 		//写数据
@@ -26,7 +26,8 @@ namespace LeadowLib
 		//virtual DWORD Read(PBYTE* pData, WORD* nLength);
 		//线程等待读取数据
 		virtual DWORD StartReadThread(
-			CMethodDelegate ReadCallback, //读到数据回掉
+			CMethodDelegate ReadCallback,         //读到数据回掉
+			UINT_PTR Param,                       //回调函数参数
 			bool FreeOnTerminate = false);        //停止读取时删除自己
 												  //停止读取数据线程
 		void StopReadThread();

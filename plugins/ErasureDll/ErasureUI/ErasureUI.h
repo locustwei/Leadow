@@ -17,11 +17,8 @@ public:
 protected: //IPluginInterface
 	CFramNotifyPump* CreateUI() override;
 	DWORD InitCommunicate() override;
-//protected: //ICommunicationListen
-//	bool OnCreate() override;
-//	void OnTerminate(DWORD exitcode) override;
-//	void OnCommand(WORD id, TCHAR* ProcessName, PVOID data, WORD nSize) override;
 private:
 	HMODULE m_hModule;
+
 };
 

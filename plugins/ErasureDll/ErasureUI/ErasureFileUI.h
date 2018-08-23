@@ -56,5 +56,5 @@ protected:
 protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;
-	void OnCommand(WORD id, TCHAR* ProcessName, PVOID Param, WORD nParamSize) override;
+	void OnCommand(WORD id, CDynObject& Param) override;
 };

@@ -25,7 +25,6 @@ DWORD LoadPlugin(TCHAR* plugid)
 	IPluginInterface* pi = pm.LoadPlugin(ThisApp, plugid);
 	if (pi == nullptr)
 		return 1;
-	return pi->InitCommunicate();
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

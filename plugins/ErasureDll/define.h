@@ -3,8 +3,14 @@
 #include "stdafx.h"
 
 
-//调用"文件擦除"进程命令行参数名。
-#define EPN_FILES         TEXT("files")
+//函数调用参数名称
+#define EPN_FILES                TEXT("files")
+#define EPN_OP_REMOVEDIR         TEXT("rd")
+#define EPN_OP_METHOD            TEXT("method")
+
+#define EPN_ERROR_CODE            TEXT("error")
+
+
 #define ENP_ERASE_VOLUMES TEXT("volumes")
 #define EPN_MOTHED        TEXT("method")
 #define EPN_UNDELFOLDER   TEXT("undelfolder")
@@ -57,11 +63,3 @@ typedef struct TEST_FILE_RESULT {
 	UINT64 ADSSizie;        //流字节数
 	DWORD ErrorCode;        //分析错误代码（如果）
 }*PTEST_FILE_RESULT;
-
-//interface IErasure: IPluginInterface
-//{
-//	virtual DWORD EraseFile(CDynObject& Param, IEraserListen * callback) = 0;
-//	virtual DWORD EraseVolume(CDynObject& Param, IEraserListen * callback) = 0;
-//	virtual DWORD AnaFile(CDynObject& Param, IEraserListen * callback) = 0;
-//	virtual DWORD AnaVolume(CDynObject& Param, IEraserListen * callback) = 0;
-//};

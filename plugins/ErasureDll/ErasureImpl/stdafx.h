@@ -13,6 +13,7 @@
 
 #pragma warning(disable:4091) //warning C4091: “typedef ”: 没有声明变量时忽略“tagGPFIDL_FLAGS”的左侧
 #pragma warning(disable:4996) //'wcscpy': This function or variable may be unsafe. Consider using wcscpy_s instead. 
+#pragma warning(disable:4800) //“BOOL”: 将值强制为布尔值“true”或“false”(性能警告)
 
 // C 运行时头文件
 #include <stdlib.h>

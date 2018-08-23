@@ -10,7 +10,17 @@ namespace LeadowLib
 		CLdStringA(const char ch);
 		CLdStringA(const CLdStringA& src);
 		CLdStringA(char* lpsz);
+		CLdStringA(const char* lpsz)
+		{
+			m_pstr = NULL;
+			Assign((char*)lpsz);
+		};
 		CLdStringA(wchar_t* lpsz);
+		CLdStringA(const wchar_t* lpsz)
+		{
+			m_pstr = nullptr;
+			Assign((wchar_t*)lpsz);
+		};
 		CLdStringA(UINT ccSize);
 
 		~CLdStringA();
@@ -90,7 +100,18 @@ namespace LeadowLib
 		CLdStringW(const WCHAR ch);
 		CLdStringW(const CLdStringW& src);
 		CLdStringW(WCHAR* lpsz);
+		CLdStringW(const WCHAR* lpsz)
+		{
+			m_pstr = nullptr;
+			Assign((WCHAR*)lpsz);
+		};
 		CLdStringW(char* lpsz);
+		CLdStringW(const char* lpsz)
+		{
+			m_pstr = nullptr;
+			Assign((char*)lpsz);
+		};
+
 		CLdStringW(UINT ccSize);
 
 		~CLdStringW();

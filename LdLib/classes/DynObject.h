@@ -15,47 +15,58 @@ namespace LeadowLib {
 	{
 	public:
 		CDynObject();
-		CDynObject(TCHAR* szJson);
+		CDynObject(const TCHAR* szJson);
 		~CDynObject();
 
-		BOOL LoadFromFile(TCHAR* FileName);
-		BOOL SaveToFile(TCHAR* FileName);
-		BOOL PrepareStr(TCHAR* szJson);
+		BOOL LoadFromFile(const TCHAR* FileName);
+		BOOL SaveToFile(const TCHAR* FileName);
+		BOOL PrepareStr(const TCHAR* szJson);
 		void operator = (CDynObject& source);   
 
-		int GetDataType(CLdStringA Path); //类型参见JsonBox::Value::Type
-		int GetArrayCount(CLdStringA Path);
-		BOOL GetBoolean(CLdStringA Path, BOOL def = FALSE, int index = -1);
-		double GetDouble(CLdStringA Path, double def = 0.0, int index = -1);
-		float GetFloat(CLdStringA Path, float def = 0.0, int index = -1);
-		int GetInteger(CLdStringA Path, int def = 0, int index = -1);
-		CLdString GetString(CLdStringA Path, TCHAR* def = nullptr, int index = -1);
+		int GetDataType(const TCHAR* Path); //类型参见JsonBox::Value::Type
+		int GetArrayCount(const TCHAR* Path);
+		BOOL GetBoolean(const TCHAR* Path, BOOL def = FALSE, int index = -1);
+		double GetDouble(const TCHAR* Path, double def = 0.0, int index = -1);
+		float GetFloat(const TCHAR* Path, float def = 0.0, int index = -1);
+		int64_t GetInteger(const TCHAR* Path, int def = 0, int index = -1);
+		CLdString GetString(const TCHAR* Path, TCHAR* def = nullptr, int index = -1);
 
 		VOID AddArrayValue(                                         //添加数组项目
-			CLdStringA Path, 
+			const TCHAR* Path,
 			CDynObjectValue value
 		);
 
 		VOID AddArrayValue(                                         //添加数组项目
-			CLdStringA Path,
+			const TCHAR* Path,
+			CDynObject& value
+		);
+
+		VOID AddArrayValue(                                         //添加数组项目
+			const TCHAR* Path,
 			wchar_t* value
 		);
 
-		void AddObjectAttribute(                                       //添加属性值
-			CLdStringA path,                                      //路径
+		void AddObjectAttribute(                                     //添加属性值
+			const TCHAR*,                                           //路径
 			CDynObjectValue value,                                   //值
 			int index = -1                                          //数组下标：-1不是数组。
 		);
 
 		void AddObjectAttribute(                                       //添加属性值
-			CLdStringA path,                                      //路径
-			wchar_t* value,                                   //值
+			const TCHAR* path,                                      //路径
+			wchar_t* value,                                       //值
+			int index = -1                                          //数组下标：-1不是数组。
+		);
+
+		void AddObjectAttribute(                                       //添加属性值
+			const TCHAR* path,                                      //路径
+			CDynObject& obj,                                       //值
 			int index = -1                                          //数组下标：-1不是数组。
 		);
 
 		CLdString ToString();
 	protected:
-		CDynObjectValue m_Config;
+		CDynObjectValue m_Json;
 //		CLdStringA m_ConfigFileName;
 
 	private:
