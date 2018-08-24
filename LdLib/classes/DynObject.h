@@ -15,6 +15,8 @@ namespace LeadowLib {
 	{
 	public:
 		CDynObject();
+		CDynObject(CDynObject&);
+		CDynObject(CDynObjectValue);
 		CDynObject(const TCHAR* szJson);
 		~CDynObject();
 
@@ -30,6 +32,7 @@ namespace LeadowLib {
 		float GetFloat(const TCHAR* Path, float def = 0.0, int index = -1);
 		int64_t GetInteger(const TCHAR* Path, int def = 0, int index = -1);
 		CLdString GetString(const TCHAR* Path, TCHAR* def = nullptr, int index = -1);
+		CDynObject GetDynObject(const TCHAR* Path, int index = -1);
 
 		VOID AddArrayValue(                                         //添加数组项目
 			const TCHAR* Path,
@@ -67,14 +70,11 @@ namespace LeadowLib {
 		CLdString ToString();
 	protected:
 		CDynObjectValue m_Json;
-//		CLdStringA m_ConfigFileName;
 
 	private:
-		CDynObjectValue GetDynObject(                             //获取指定路径下的对象
+		CDynObjectValue GetDynObjectValue(                             //获取指定路径下的对象
 			CLdStringA string,                                      //路径
 			int index = -1                                          //如果对象是数组，这是数组下标
-//			JsonBox::Value::Type type= JsonBox::Value::NULL_VALUE,  //数据类如果不为null_value,则当对象不存在时创建一个
-//			PVOID pValue=nullptr                                    //如果创建,对象值
 		);
 	};
 }

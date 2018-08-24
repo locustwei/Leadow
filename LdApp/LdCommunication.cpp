@@ -142,6 +142,20 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 	}
 	return true;
 }
+
+BOOL CLdCommunication::GernalCallback_Callback(PVOID pData, UINT_PTR Param)
+{
+	PCALLBACK_DATA data = (PCALLBACK_DATA)Param;
+
+	CDynObject param = (TCHAR*)data->commdata.data;
+
+	data->listener->OnCommand(data->commdata.commid, param);
+
+	delete[] data;
+
+	return TRUE;
+}
+
 //
 INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 {
@@ -156,8 +170,9 @@ INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 	return 1;
 }
 
+//监视进程结束。
 INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
-{
+{  
 	HANDLE hProcess = (HANDLE)Param;
 	WaitForSingleObject(hProcess, INFINITE);
 	DWORD dwCode = 0;
@@ -170,8 +185,10 @@ INT_PTR CLdCommunication::WaitHost(PVOID, UINT_PTR Param)
 void CLdCommunication::DoRecvData(PCOMMUNICATE_DATA data, ICommunicationListen* listener)
 {
 	if (listener)
-	{
-		CDynObject param = (TCHAR*)data->data;
-		listener->OnCommand(data->commid, param);
+	{	//发到主线程调用OnCommand
+		PCALLBACK_DATA calldata = (PCALLBACK_DATA)new BYTE[sizeof(CALLBACK_DATA)+data->nSize];
+		calldata->listener = listener;
+		MoveMemory(&calldata->commdata, data, sizeof(COMMUNICATE_DATA) + data->nSize);
+		ThisApp->Send2MainThread(this, (UINT_PTR)calldata);
 	}
 }

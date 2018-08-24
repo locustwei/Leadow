@@ -48,8 +48,6 @@ namespace LeadowLib
 		m_TermateReadThread = false;
 		while (!m_TermateReadThread)
 		{
-			DebugOutput(L"CShareData Wait For read...\n");
-
 			if (WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
 				return ;
 			//½øÁÙ½çÇø

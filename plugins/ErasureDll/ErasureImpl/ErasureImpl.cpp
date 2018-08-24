@@ -193,15 +193,26 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 		{
 			error = test.TestFile(s, true, &tr);
 		}
+
 		CDynObject obj;
+		obj.AddObjectAttribute(_T("name"), s);
+
 		obj.AddObjectAttribute(EPN_ERROR_CODE, (int)error);
 		if (error == 0)
 		{
-			obj.AddObjectAttribute(EPN_ERROR_CODE, tr.ADSCount);
-
+			if(tr.ADSCount)
+				obj.AddObjectAttribute(_T("ADSCount"), tr.ADSCount);
+			if(tr.ADSSizie)
+				obj.AddObjectAttribute(_T("ADSSizie"), (int64_t)tr.ADSSizie);
+			if(tr.FileCount)
+				obj.AddObjectAttribute(_T("FileCount"), tr.FileCount);
+			if(tr.TotalSize)
+				obj.AddObjectAttribute(_T("TotalSize"), (int64_t)tr.TotalSize);
 		}
 		result.AddArrayValue(EPN_FILES, obj);
 	}
+
+	m_Comm->CallMethod(eci_anafiles, result);
 
 	return 0;
 }
@@ -261,22 +272,3 @@ void CErasureImpl::OnCommand(WORD id, CDynObject& Param)
 		DebugOutput(L"unknown command id=%d", id);
 	}
 }
-
-//DWORD CFileEraserComm::ExecuteFileAnalysis(CLdArray<CLdString>* files)
-//{
-//	DebugOutput(L"ExecuteFileAnalysis");
-//
-//	if (!IsConnected())
-//		Connect();
-//	//m_Data->Write()
-//	CDynObject param;
-//	for (int i = 0; i < files->GetCount(); i++)
-//	{
-//		param.AddArrayValue(EPN_FILES, *files[i]);
-//	}
-//	CLdString s = param.ToString();
-//
-//	CallMethod(eci_anafiles, s.GetData(), (s.GetLength() + 1) * sizeof(TCHAR), nullptr);
-//
-//	return 0;
-//}

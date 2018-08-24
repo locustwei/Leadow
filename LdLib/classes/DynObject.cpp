@@ -17,6 +17,16 @@ namespace LeadowLib {
 
 	}
 
+	CDynObject::CDynObject(CDynObject & obj)
+	{
+		m_Json = obj.m_Json;
+	}
+
+	CDynObject::CDynObject(CDynObjectValue json)
+	{
+		m_Json = json;
+	}
+
 	CDynObject::CDynObject(const TCHAR* szJson)
 	{
 		PrepareStr(szJson);
@@ -79,13 +89,13 @@ namespace LeadowLib {
 
 	int CDynObject::GetDataType(const TCHAR* Path)
 	{
-		CDynObjectValue val = GetDynObject(Path);
+		CDynObjectValue val = GetDynObjectValue(Path);
 		return val.getType();
 	}
 
 	int CDynObject::GetArrayCount(const TCHAR* Path)
 	{
-		CDynObjectValue val = GetDynObject(Path);
+		CDynObjectValue val = GetDynObjectValue(Path);
 		if (val.getType() != JsonBox::Value::ARRAY)
 			return 0;
 		else
@@ -96,37 +106,43 @@ namespace LeadowLib {
 
 	BOOL CDynObject::GetBoolean(const TCHAR* Path, BOOL def, int index)
 	{
-		CDynObjectValue val = GetDynObject((char*)Path, index);
+		CDynObjectValue val = GetDynObjectValue((char*)Path, index);
 		return val.tryGetBoolean(def);
 	}
 
 	double CDynObject::GetDouble(const TCHAR* Path, double def, int index)
 	{
-		CDynObjectValue val = GetDynObject(Path, index);
+		CDynObjectValue val = GetDynObjectValue(Path, index);
 		return val.tryGetDouble(def);
 	}
 
 	float CDynObject::GetFloat(const TCHAR* Path, float def, int index)
 	{
-		CDynObjectValue val = GetDynObject(Path, index);
+		CDynObjectValue val = GetDynObjectValue(Path, index);
 		return val.tryGetFloat(def);
 	}
 
 	int64_t CDynObject::GetInteger(const TCHAR* Path, int def, int index)
 	{
-		CDynObjectValue val = GetDynObject(Path, index);
+		CDynObjectValue val = GetDynObjectValue(Path, index);
 		return val.tryGetInteger(def);
 	}
 
 	CLdString CDynObject::GetString(const TCHAR* Path, TCHAR* def, int index)
 	{
-		CDynObjectValue val = GetDynObject(Path, index);
+		CDynObjectValue val = GetDynObjectValue(Path, index);
 		CLdString result;
 		result = val.getString().c_str();
 		if (result.IsEmpty() && !def)
 			result = def;
 		return result;
 	}
+
+	CDynObject CDynObject::GetDynObject(const TCHAR* Path, int index /*= -1*/)
+	{
+		return GetDynObjectValue(Path, index);
+	}
+
 	void CDynObject::AddArrayValue(const TCHAR* Path, CDynObjectValue value)
 	{
 		int k = GetArrayCount(Path);
@@ -144,7 +160,7 @@ namespace LeadowLib {
 		return AddArrayValue(Path, value.m_Json);
 	}
 
-	CDynObjectValue CDynObject::GetDynObject(CLdStringA string, int index)
+	CDynObjectValue CDynObject::GetDynObjectValue(CLdStringA string, int index)
 	{
 		int len = string.GetLength();
 		char* p = string;

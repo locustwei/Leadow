@@ -50,7 +50,7 @@ interface ICommunicationListen
  * date 三月 2018
  */
 class CLdCommunication
-	//:IGernalCallback<PVOID>
+	:IGernalCallback<PVOID>
 {
 public:
 	//主动方建构函数
@@ -68,14 +68,23 @@ public:
 		CDynObject* result = nullptr,              //函数返回值（null，不需要返回）
 		ICommunicationListen* progress = nullptr  //需要过程数据（如：进度状态）
 	);
+
 protected:
-	typedef struct COMMUNICATE_DATA
+	//通讯数据结构
+	typedef struct COMMUNICATE_DATA   
 	{
 		WORD nSize;
 		WORD commid;
 		TCHAR progress[37];
 		BYTE data[0];
 	}*PCOMMUNICATE_DATA;
+
+	//OnCommand 回调数据结构
+	typedef struct CALLBACK_DATA
+	{
+		ICommunicationListen* listener;
+		COMMUNICATE_DATA commdata;
+	}*PCALLBACK_DATA;
 
 	ICommunicationListen* m_Listener;
 	CShareData* m_Data;
@@ -89,5 +98,7 @@ protected:
 	virtual void DoRecvData(PCOMMUNICATE_DATA data, ICommunicationListen* listener);
 	//客户进程共享数据读取回掉
 	INT_PTR ShareData_Callback(void* pData, UINT_PTR Param);
+	//回到主线程调用OnCommand
+	virtual BOOL GernalCallback_Callback(PVOID pData, UINT_PTR Param) override;
 };
 

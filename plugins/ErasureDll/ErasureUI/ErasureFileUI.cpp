@@ -269,17 +269,30 @@ void CErasureFileUI::OnTerminate(DWORD exitcode)
 
 void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 {
+	switch (id)
+	{
+	case eci_anafiles:
+		for (int i = 0; i < Param.GetArrayCount(EPN_FILES); i++)
+		{
+			AddFileUI(Param.GetDynObject(EPN_FILES, i));
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
-void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
+void CErasureFileUI::AddFileUI(CDynObject FileObj)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
-	CControlUI* ui = AddFile(pFile->GetFullName());
-	SetFolderFilesData(pFile, ui);
+	CLdString filename = FileObj.GetString(_T("name"));
+
+	CControlUI* ui = AddFile(filename);
+	//SetFolderFilesData(pFile, ui);
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
@@ -290,7 +303,7 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 		if (desc)
 		{
 			CLdString s;
-			CFileUtils::ExtractFilePath(pFile->GetFullName(), s);
+			CFileUtils::ExtractFilePath(filename, s);
 			desc->SetText(s);
 		}
 	}
@@ -304,25 +317,29 @@ void CErasureFileUI::AddFileUI(CVirtualFile* pFile)
 		if (desc)
 		{
 			CLdString s, strSize;
-			if (pFile->GetFileType() == vft_folder)
+			UINT64 filesize = FileObj.GetInteger(_T("TotalSize"));
+			CFileUtils::FormatFileSize(filesize, strSize);
+			int filecount = FileObj.GetInteger(_T("FileCount"));
+
+			if (filecount)
 			{
-				CFileUtils::FormatFileSize(pFile->GetDataSize(), strSize);
-				s.Format(_T("包含数%d个文件（文件夹），合计%s"), ((CFolderInfo*)pFile)->GetFilesCount(true), strSize);
-				//desc->SetText(s);
+				s.Format(_T("包含数%d个文件（文件夹），合计%s"), filecount, strSize);
 			}
-			CLdArray<CADStream*>* streams = ((CFileInfo*)pFile)->GetADStreams();
-			if (streams && streams->GetCount()>0)
+			else
+				s.Format(_T("文件大小%s"), filecount, strSize);
+
+			int adscount = FileObj.GetInteger(_T("ADSCount"));
+
+			if (adscount)
 			{
-				INT64 nSize = 0;
-				for(int i=0; i<streams->GetCount();i++)
-				{
-					nSize += streams->Get(i)->GetDataSize();
-				}
-				CFileUtils::FormatFileSize(nSize, strSize);
+				INT64 adssize = FileObj.GetInteger(_T("ADSSizie"));
+
+				CFileUtils::FormatFileSize(adssize, strSize);
 				CLdString s1;
-				s1.Format(_T("\n文件有%d个交换数据流，合计%s"), streams->GetCount(), strSize);
+				s1.Format(_T("\n文件有%d个交换数据流，合计%s"), adssize, strSize);
 				s += s1;
 			};
+
 			desc->SetText(s);
 		}
 	}
@@ -349,15 +366,12 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 			{
 				if (m_ErasureFile.Find(dlg.GetFileName(i), true, true) != nullptr)
 					continue;
-				//CVirtualFile* pFile = AddEraseFile(dlg.GetFileName(i));
-				//AddFileUI(pFile);
-				//m_Comm->AnalFile(dlg.GetFileName(i));
+				
 				filenames.Add(dlg.GetFileName(i));
 			}
 			
 			ExecuteFileAnalysis(&filenames);
 
-			m_ErasureFile.Sort();
 		};
 	}
 	else if (msg.pSender == btnOk)

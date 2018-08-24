@@ -42,7 +42,7 @@ protected:
 	CFolderInfo m_ErasureFile;                     //要擦除的文件放在这里
 	//CLdMap<CLdString*, CControlUI*> m_file_map;
 	CVirtualFile* AddEraseFile(TCHAR* file_name);  //添加待擦除的文件
-	void AddFileUI(CVirtualFile* pFile);  //在文件信息显示在ListUI中
+	void AddFileUI(CDynObject);  //在文件信息显示在ListUI中
 	bool GetViewHeader() override;                                                 //ListUI添加列头（取Windows资源管理器的列信息）
 	bool OnAfterColumePaint(PVOID Param);                                          //处理列Paint事件，把列当进度条用
 	void AttanchControl(CControlUI* pCtrl) override;                   

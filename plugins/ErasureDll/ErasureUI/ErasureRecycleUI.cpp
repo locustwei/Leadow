@@ -46,7 +46,7 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 
 	if (file)
 	{
-		AddFileUI(file);
+		//AddFileUI(file);
 	}
 
 	return true;
