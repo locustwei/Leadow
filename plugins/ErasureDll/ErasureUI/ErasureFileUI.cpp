@@ -325,8 +325,8 @@ void CErasureFileUI::AddFileUI(CDynObject FileObj)
 			{
 				s.Format(_T("包含数%d个文件（文件夹），合计%s"), filecount, strSize);
 			}
-			else
-				s.Format(_T("文件大小%s"), filecount, strSize);
+			//else
+			//	s.Format(_T("文件大小%s"), strSize);
 
 			int adscount = FileObj.GetInteger(_T("ADSCount"));
 

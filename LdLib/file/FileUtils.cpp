@@ -218,18 +218,17 @@ namespace LeadowLib {
 #define __MB (1024 * __KB)
 #define __GB (1024 * __MB)
 #define __TB 0x10000000000 
-		double Size = (double)nSize;
 
-		if (Size < __KB)
+		if (nSize < __KB)
 			result.Format(_T("%dBytes"), nSize);
-		else if (Size < __MB)
-			result.Format(_T("%.2fKB"), Size / __KB);
-		else if (Size < __GB)
-			result.Format(_T("%.2fMB"), Size / __MB);
-		else if (Size < __TB)
-			result.Format(_T("%.2fGB"), Size / __GB);
+		else if (nSize < __MB)
+			result.Format(_T("%.2fKB"), nSize / __KB);
+		else if (nSize < __GB)
+			result.Format(_T("%.2fMB"), nSize / __MB);
+		else if (nSize < __TB)
+			result.Format(_T("%.2fGB"), nSize / __GB);
 		else
-			result.Format(_T("%.2fTB"), Size / __TB);
+			result.Format(_T("%.2fTB"), nSize / __TB);
 	}
 
 	void CFileUtils::GenerateRandomFileName(int length, CLdString* Out)

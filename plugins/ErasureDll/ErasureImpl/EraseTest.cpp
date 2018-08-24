@@ -78,6 +78,8 @@ DWORD CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder, PTEST_FILE_RES
 		else
 			pFile = new CFileInfo();
 
+		pFile->SetFileName(lpFileName);
+
 		if (pFile->GetFileType() == vft_folder)
 		{
 			result = ((CFolderInfo*)pFile)->FindFiles(true);

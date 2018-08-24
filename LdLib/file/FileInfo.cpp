@@ -22,7 +22,6 @@ namespace LeadowLib {
 		INT_PTR EnumFiles_Callback(PVOID pData, UINT_PTR Param)
 		{
 			CFolderInfo* pFolder = (CFolderInfo*)Param;
-			int k = pFolder->AddFile((PWIN32_FIND_DATA)pData);
 			if (bTree && (((PWIN32_FIND_DATA)pData)->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
 				CFolderInfo* pFile = (CFolderInfo*)pFolder->m_Files[k];
@@ -30,7 +29,10 @@ namespace LeadowLib {
 				pFolder->m_AttributeData.nFileSize += pFile->GetDataSize();
 				pFolder->m_AttributeData.nFileCount += pFile->m_AttributeData.nFileCount;
 				pFolder->m_AttributeData.nFolderCount += pFile->m_AttributeData.nFolderCount;
+
 			}
+
+			int k = pFolder->AddFile((PWIN32_FIND_DATA)pData);
 
 			return TRUE;
 		};
