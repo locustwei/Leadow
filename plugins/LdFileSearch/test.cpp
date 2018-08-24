@@ -166,6 +166,8 @@ LONG WINAPI ExceptionFilter(EXCEPTION_POINTERS* _pExcp)
 		NULL);
 	CloseHandle(hFile);
 
+	Sleep(10000);
+
 	return   EXCEPTION_CONTINUE_SEARCH;
 }
 
@@ -400,7 +402,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	for (UINT i = 0; i < g_lib->GetVolumeCount(); i++)
 	{
 		IWJVolume* volume = g_lib->GetVolume(i);
-		printf("%d = %S\n ", i, volume->GetVolumePath());
+		printf("%d = %S %d %S\n ", i, volume->GetVolumePath(), volume->GetFileSystem(), volume->GetShlDisplayName());
+		//IWJMftReader* reader = g_lib->CreateMftReader(volume);
+		//if (reader)
+		//	printf("reader created\n");
 	}
 
 	TCHAR** filter = new TCHAR*[10];
@@ -435,6 +440,7 @@ input:
 	//WJSSearchVolume(volume, &Callback, filter);
 	//CMftSearchDeletedImpl::EnumFiles(i);
 	//CMftSearchDeletedImpl::EnumDeleteFiles(i);
+
 	impl.m_volume = volume;
 	IWJMftIndexFile* file = g_lib->CreateIndexFile(volume, L"test.db", &impl, TRUE);
 	if (file == nullptr)
@@ -446,8 +452,8 @@ input:
 
 	getchar();
 
-	file->StopListener();
-	file->Close();
+	//file->StopListener();
+	//file->Close();
 
 exit:
 	WJSClose();

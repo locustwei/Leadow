@@ -50,7 +50,10 @@ HANDLE  CWJVolume::OpenHandle()
 			path += m_VolumePath;
 			path.SetAt(path.GetLength() - 1, '\0');
 		}
-		if(!path.IsEmpty())
+		else
+			return INVALID_HANDLE_VALUE;
+		
+		if (!path.IsEmpty())
 			m_hVolume = CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, 0);
 	}
 	return m_hVolume;
@@ -94,31 +97,55 @@ const TCHAR*  CWJVolume::GetVolumePath()
 	return m_VolumePath;
 }
 
+BOOL IsWindowsVersionOrGreater_(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
+{
+	OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0,{ 0 }, 0, 0 };
+	DWORDLONG        const dwlConditionMask = VerSetConditionMask(
+		VerSetConditionMask(
+			VerSetConditionMask(
+				0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+			VER_MINORVERSION, VER_GREATER_EQUAL),
+		VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+	osvi.dwMajorVersion = wMajorVersion;
+	osvi.dwMinorVersion = wMinorVersion;
+	osvi.wServicePackMajor = wServicePackMajor;
+
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+}
+
 VOID CWJVolume::GetVolumeInfo()
 {
 	GetVolumePath();
 
+	DWORD MaxFilenameLength;
+	TCHAR FileSystemNameBuffer[MAX_PATH] = { 0 };
+	TCHAR VolumeName[MAX_PATH] = { 0 };
+
 	if (!m_VolumePath.IsEmpty())
 	{
-		DWORD MaxFilenameLength;
-		TCHAR FileSystemNameBuffer[MAX_PATH] = { 0 };
-		TCHAR VolumeName[MAX_PATH] = { 0 };
-		if (GetVolumeInformation(m_VolumePath, VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
-		{
-			if (_tcscmp(FileSystemNameBuffer, _T("NTFS"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_NTFS;
-			else if (_tcscmp(FileSystemNameBuffer, _T("FAT32"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_FAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("FAT"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_FAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("exFAT")) == 0)
-				m_FileSystem = FILESYSTEM_TYPE_EXFAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("UDF")) == 0)
-				m_FileSystem = FILESYSTEM_TYPE_UDF;
-			m_VolumeName = VolumeName;
-		}
+		if (!GetVolumeInformation(m_VolumePath, VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
+			return;
 	}
+	else if(IsWindowsVersionOrGreater_(6, 0, 0))
+	{
+		if (!GetVolumeInformationByHandleW(OpenHandle(), VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
+			return;
+	}
+	else
+		return;
 
+	if (_tcscmp(FileSystemNameBuffer, _T("NTFS")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_NTFS;
+	else if (_tcscmp(FileSystemNameBuffer, _T("FAT32")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_FAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("FAT")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_FAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("exFAT")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_EXFAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("UDF")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_UDF;
+	m_VolumeName = VolumeName;
 }
 
 VOID  CWJVolume::CloseHandle()

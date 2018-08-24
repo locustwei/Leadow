@@ -36,9 +36,15 @@ public:
 	UINT GetFileFullname(UINT64, CLdString&);
 	void SetVolumePath(const TCHAR* volumepath);
 	const TCHAR* GetVolumePath();
+	IWJVolume* GetVolume();
 
 	bool CreateIndexFile(IWJVolume* volume, IWJSHandler* hander, BOOL ListenChange);
 private:
+	bool m_Freed;                      //free是等待线程结束
+	CRITICAL_SECTION m_CreateCriticalSection;  //free是等待 创建 线程结束,
+	CRITICAL_SECTION m_ListenCriticalSection;  //free是等待 监听文件变更 线程结束,
+	CRITICAL_SECTION m_EnumCriticalSection;  //free是等待 枚举文件 线程结束,
+
 	CLdString m_FileName;
 	CRecordFile m_IndexFile;
 	VOLUME_MFT_INFO m_MftInfo;

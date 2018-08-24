@@ -128,6 +128,9 @@ interface WJS_API IWJMftReader
 
 interface WJS_API IWJLibInterface
 {
+	virtual ~IWJLibInterface()
+	{
+	};
 	virtual UINT  GetVolumeCount() = 0;
 	virtual IWJVolume*  GetVolume(int idx) = 0;
 	virtual WJ_ERROR_CODE VolumeCanReader(IWJVolume*) = 0;

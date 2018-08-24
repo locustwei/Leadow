@@ -49,7 +49,9 @@ protected:
 
 	virtual UINT64 GetTotalCluster() override;
 private:
-	CWJMftReader();
+	bool m_Freed;                      //free是等待线程结束
+	CRITICAL_SECTION m_CriticalSection;//free是等待线程结束
+
 	CMftReader* m_Reader;
 	CRecordFile* m_FolderCachFile;
 	CLdString m_PathName;      //
@@ -57,6 +59,7 @@ private:
 	IWJMftSearchHandler* m_SearchHandler;
 	CLdString m_VolumePath;
 
+	CWJMftReader();
 	UINT GetPathName(UINT64 FileReferenceNumber, bool read = true);
 	BOOL FilterFile(PMFT_FILE_DATA pFileInfo);
 	BOOL FilterDelFile(PMFT_FILE_DATA pFileInfo);

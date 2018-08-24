@@ -4,13 +4,14 @@
 #include "WJVolume.h"
 #include "..\WJDefines.h"
 #include "WJMftReader.h"
+#include "WJMftIndexFile.h"
 
 class CWJSLib: public IWJLibInterface
 {
 
 public:
 	CWJSLib();
-	~CWJSLib();
+	~CWJSLib() override;
 protected:
 	virtual UINT  GetVolumeCount() override;
 	virtual IWJVolume* GetVolume(int idx) override;
@@ -32,10 +33,12 @@ private:
 
 	CLdArray<CWJVolume*> m_Volumes;
 	CLdArray<CWJMftReader*> m_VolumeReaders;
+	CLdArray<CWJMftIndexFile*> m_VolumeIndexFiles;
 
 	VOID EnumDiskVolumes();	
 
 	// Í¨¹ý IWJLibInterface ¼Ì³Ð
-	CWJMftReader* FindReader(const TCHAR * volume);
+	CWJMftReader* FindReader(IWJVolume * volume);
+	CWJMftIndexFile* FindIndexFile(IWJVolume * volume);
 };
 

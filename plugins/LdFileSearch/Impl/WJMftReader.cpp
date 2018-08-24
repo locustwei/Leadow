@@ -9,17 +9,24 @@
 
 CWJMftReader::CWJMftReader()
 {
+	m_Freed = false;
 	m_Reader = nullptr;
 	m_FolderCachFile = nullptr;
 	m_SearchHandler = nullptr;
+	InitializeCriticalSection(&m_CriticalSection);
 }
 
 CWJMftReader::~CWJMftReader()
 {
+	m_Freed = true;
+	EnterCriticalSection(&m_CriticalSection);
+
 	if (m_FolderCachFile)
 		delete m_FolderCachFile;
 	if (m_Reader)
 		delete m_Reader;
+	LeaveCriticalSection(&m_CriticalSection);
+	DeleteCriticalSection(&m_CriticalSection);
 }
 
 const TCHAR* CWJMftReader::GetVolumePath()
@@ -43,6 +50,8 @@ public:
 public:
 	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
 	{
+		EnterCriticalSection(&m_Owner->m_CriticalSection);
+		
 		m_Owner->m_SearchHandler->OnBegin(nullptr);
 		
 		switch (m_Op)
@@ -61,10 +70,10 @@ public:
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
 	{
-
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
+		LeaveCriticalSection(&m_Owner->m_CriticalSection);
 		delete this;
 	};
 private:
@@ -144,6 +153,8 @@ CWJMftReader* CWJMftReader::CreateReader(IWJVolume* volume)
 	CWJMftReader* result = new CWJMftReader();
 	result->m_Reader = Reader;
 	result->m_VolumePath = volume->GetVolumePath();
+	if (result->m_VolumePath.IsEmpty())
+		result->m_VolumePath = volume->GetVolumeGuid();
 	return result;
 }
 
@@ -181,6 +192,9 @@ UINT64 CWJMftReader::GetTotalCluster()
 
 BOOL CWJMftReader::EnumMftDeleteFileCallback(PMFT_FILE_DATA pFileInfo, PFILE_DATA_STREAM stream, PVOID Param)
 {
+	if (m_Freed)
+		return FALSE;
+
 	if ((pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		m_FolderCachFile->WriteRecord(pFileInfo->FileReferenceNumber, (PUCHAR)pFileInfo, sizeof(MFT_FILE_DATA) - sizeof(pFileInfo->Name) + (pFileInfo->NameLength + 1) * sizeof(WCHAR));
 	else
@@ -189,25 +203,18 @@ BOOL CWJMftReader::EnumMftDeleteFileCallback(PMFT_FILE_DATA pFileInfo, PFILE_DAT
 		{
 			m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));
 			m_File.SetDataInfo(stream);
-			//if (m_PathName.IsEmpty())
-			//{
-			//	m_PathName.Format(_T("%sFolder%lld\\"), m_VolumePath, pFileInfo->DirectoryFileReferenceNumber);
-			//}
 			m_SearchHandler->OnMftFileInfo(&m_File, m_PathName, Param);
 		}
 	}
-	/*else
-	{
-	GetPathName(pFileInfo->DirectoryFileReferenceNumber);
-	m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));
-	m_File.SetDataInfo(stream);
-	m_SearchHandler->OnMftFileInfo(&m_File, m_PathName, Param);
-	}*/
+
 	return !m_SearchHandler->Stop(Param);
 }
 
 BOOL CWJMftReader::EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param)
 {
+	if (m_Freed)
+		return FALSE;
+
 	if (FilterFile(pFileInfo))
 	{
 		m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));

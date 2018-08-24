@@ -14,12 +14,22 @@ CWJMftIndexFile::CWJMftIndexFile(const TCHAR* Filename)
 	m_FileName = Filename;
 	ZeroMemory(&m_MftInfo, sizeof(m_MftInfo));
 	m_ListenChangeEvent = INVALID_HANDLE_VALUE;
+
+	m_Freed = false;
+	InitializeCriticalSection(&m_CreateCriticalSection);
+	InitializeCriticalSection(&m_ListenCriticalSection);
+	InitializeCriticalSection(&m_EnumCriticalSection);
 	//Open();
 }
 
 
 CWJMftIndexFile::~CWJMftIndexFile()
 {
+	m_Freed = true;
+	EnterCriticalSection(&m_CreateCriticalSection);
+	EnterCriticalSection(&m_ListenCriticalSection);
+	EnterCriticalSection(&m_EnumCriticalSection);
+
 	if (m_ListenChangeEvent != INVALID_HANDLE_VALUE)
 	{
 		SetEvent(m_ListenChangeEvent);
@@ -27,12 +37,24 @@ CWJMftIndexFile::~CWJMftIndexFile()
 	}
 
 	UpdateFile();
+
+	LeaveCriticalSection(&m_CreateCriticalSection);
+	LeaveCriticalSection(&m_ListenCriticalSection);
+	LeaveCriticalSection(&m_EnumCriticalSection);
+
+	DeleteCriticalSection(&m_CreateCriticalSection);
+	DeleteCriticalSection(&m_ListenCriticalSection);
+	DeleteCriticalSection(&m_EnumCriticalSection);
 }
 
 void CWJMftIndexFile::CreateNewThreadTerminated()
 {
+
 	m_MftInfo.LastUsn = CWJVolume::GetLastUsn(m_Volume->OpenHandle());
 	UpdateFile();
+
+	if (m_Freed)
+		return;
 
 	if (m_ListenChange)
 	{
@@ -50,7 +72,7 @@ public:
 	{
 		m_Owner = Owner;
 		m_StopEvet = stopEvent;
-		m_ListenChange = ListenChange;
+		m_Listener = ListenChange;
 	};
 	~CListenChangeThread()
 	{
@@ -59,6 +81,9 @@ public:
 
 	virtual BOOL OnFileChangedCallback(USN_CHANGED_REASON reason, PMFT_FILE_DATA pFile, UINT_PTR Param) override
 	{
+		if (m_Owner->m_Freed)
+			return FALSE;
+
 		MFT_FILE_DATA tmp;
 
 		switch (reason)
@@ -91,40 +116,49 @@ public:
 			return TRUE;
 		}
 
-		return m_Owner->m_ListenChange;
+		return !m_Owner->m_Freed;
 	}
 
 
 	virtual BOOL Stop(UINT_PTR) override
 	{
-		if (m_Owner->m_MftInfo.LastUsn != m_ListenChange->GetLastUsn())
+		if (m_Owner->m_Freed)
+			return TRUE;
+
+		if (m_Owner->m_MftInfo.LastUsn != m_Listener->GetLastUsn())
 		{
-			m_Owner->m_MftInfo.LastUsn = m_ListenChange->GetLastUsn();
+			m_Owner->m_MftInfo.LastUsn = m_Listener->GetLastUsn();
 			m_Owner->UpdateFile();
 		}
-		return !m_Owner->m_ListenChange;
+		return m_Owner->m_Freed;
 	}
 
 public:
 	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
 	{
-		m_ListenChange->ListenUpdate(m_StopEvet, this, Param);
+		EnterCriticalSection(&m_Owner->m_CreateCriticalSection);        //等待创建线程结束；
+		LeaveCriticalSection(&m_Owner->m_CreateCriticalSection);
+		EnterCriticalSection(&m_Owner->m_ListenCriticalSection);
+
+		m_Listener->ListenUpdate(m_StopEvet, this, Param);
 	};
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
 	{
-
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
-		if (m_ListenChange)
-			delete m_ListenChange;
+		if (m_Listener)
+			delete m_Listener;
+
+		LeaveCriticalSection(&m_Owner->m_ListenCriticalSection);
+
 		delete this;
 	};
 private:
 	CWJMftIndexFile* m_Owner;
 	HANDLE m_StopEvet;
-	CMftChangeListener* m_ListenChange;
+	CMftChangeListener* m_Listener;
 
 	void GetFileData(PMFT_FILE_DATA pFile)
 	{
@@ -206,6 +240,11 @@ const TCHAR * CWJMftIndexFile::GetVolumePath()
 	return m_VolumePath;
 }
 
+IWJVolume * CWJMftIndexFile::GetVolume()
+{
+	return m_Volume;
+}
+
 class CCreateFileThread :
 	public IThreadRunable,
 	IMftReaderHandler
@@ -224,6 +263,10 @@ public:
 
 	virtual BOOL EnumMftFileCallback(PMFT_FILE_DATA pFile, PVOID Param) override
 	{
+		
+		if (m_Owner->m_Freed)
+			return FALSE;
+
 		m_Owner->AddFileRecord(pFile);
 		if (m_Hander)
 			return !m_Hander->Stop(Param);
@@ -234,7 +277,9 @@ public:
 public:
 	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
 	{
-		if(m_Hander)
+		EnterCriticalSection(&m_Owner->m_CreateCriticalSection);
+		
+		if (m_Hander)
 			m_Hander->OnBegin(nullptr);
 
 		m_Reader->EnumFiles(this, (PVOID)Param);
@@ -246,13 +291,16 @@ public:
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
 	{
-
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
+
+		LeaveCriticalSection(&m_Owner->m_CreateCriticalSection);
+		
 		m_Owner->CreateNewThreadTerminated();
 
 		delete m_Reader;
+
 		delete this;
 	};
 private:
@@ -351,13 +399,15 @@ public:
 protected:
 	virtual LONG EnumRecordCallback(UINT64, const PUCHAR data, USHORT len, PVOID Param) override
 	{
+		if (m_Owner->m_Freed)
+			return FALSE;
 
 		if (FilterFile((PMFT_FILE_DATA)data))
 		{
 			m_File.SetFileInfo((PMFT_FILE_DATA)data, len);
 			m_SearchHandler->OnMftFileInfo(&m_File, m_PathName, Param);
 		}
-		return !m_SearchHandler->Stop(Param);
+		return !m_SearchHandler->Stop(Param) && !m_Owner->m_Freed;
 	}
 
 
@@ -369,6 +419,10 @@ protected:
 public:
 	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
 	{
+		EnterCriticalSection(&m_Owner->m_CreateCriticalSection);
+		LeaveCriticalSection(&m_Owner->m_CreateCriticalSection);
+		EnterCriticalSection(&m_Owner->m_EnumCriticalSection);
+
 		if (m_SearchHandler)
 			m_SearchHandler->OnBegin(nullptr);
 
@@ -376,14 +430,16 @@ public:
 
 		if (m_SearchHandler)
 			m_SearchHandler->OnEnd(nullptr);
+
+
 	};
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
 	{
-
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
+		LeaveCriticalSection(&m_Owner->m_EnumCriticalSection);
 		delete this;
 	};
 private:

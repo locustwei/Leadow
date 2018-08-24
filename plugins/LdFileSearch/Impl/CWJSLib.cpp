@@ -18,12 +18,13 @@ CWJSLib::CWJSLib():
 
 CWJSLib::~CWJSLib()
 {
-	for (int i = 0; i < m_Volumes.GetCount(); i++)
+
+	for (int i = 0; i < m_VolumeIndexFiles.GetCount(); i++)
 	{
-		if(m_Volumes[i])
-			delete m_Volumes[i];
+		if (m_VolumeIndexFiles[i])
+			delete m_VolumeIndexFiles[i];
 	}
-	m_Volumes.Clear();
+	m_VolumeIndexFiles.Clear();
 
 	for (int i = 0; i < m_VolumeReaders.GetCount(); i++)
 	{
@@ -31,6 +32,14 @@ CWJSLib::~CWJSLib()
 			delete m_VolumeReaders[i];
 	}
 	m_VolumeReaders.Clear();
+
+	for (int i = 0; i < m_Volumes.GetCount(); i++)
+	{
+		if(m_Volumes[i])
+			delete m_Volumes[i];
+	}
+	m_Volumes.Clear();
+
 }
 
 WJ_ERROR_CODE CWJSLib::VolumeCanReader(IWJVolume* volume)
@@ -81,17 +90,33 @@ VOID CWJSLib::EnumDiskVolumes()
 
 }
 
-CWJMftReader * CWJSLib::FindReader(const TCHAR * volume)
+CWJMftReader * CWJSLib::FindReader(IWJVolume * volume)
 {
+	if (volume == nullptr)
+		return nullptr;
+	CLdString s = (TCHAR*)volume->GetVolumePath();
+	if (s.IsEmpty())
+		s = (TCHAR*)volume->GetVolumeGuid();
 	for(int i=0; i<m_VolumeReaders.GetCount(); i++)
-		if(_tcscmp(m_VolumeReaders[i]->GetVolumePath(), volume)==0)
+		if(s == m_VolumeReaders[i]->GetVolumePath())
 			return m_VolumeReaders[i];
+	return nullptr;
+}
+
+CWJMftIndexFile * CWJSLib::FindIndexFile(IWJVolume * volume)
+{
+	if (volume == nullptr)
+		return nullptr;
+	
+	for (int i = 0; i < m_VolumeIndexFiles.GetCount(); i++)
+		if (volume == m_VolumeIndexFiles[i]->GetVolume())
+			return m_VolumeIndexFiles[i];
 	return nullptr;
 }
 
 IWJMftReader * CWJSLib::CreateMftReader(IWJVolume * volume)
 {
-	CWJMftReader* Reader = FindReader(volume->GetVolumePath());
+	CWJMftReader* Reader = FindReader(volume);
 	if (!Reader)
 	{
 		Reader = CWJMftReader::CreateReader(volume);
@@ -136,14 +161,19 @@ WJ_ERROR_CODE  CWJSLib::SearchDeletedFile(IWJVolume* volume, IWJMftSearchHandler
 
 IWJMftIndexFile* CWJSLib::CreateIndexFile(IWJVolume* volume, const TCHAR* Filename, IWJSHandler* hander, BOOL ListenChange)
 {
-	CWJMftIndexFile* file = new CWJMftIndexFile(Filename);
-	if(!file->CreateIndexFile(volume, hander, ListenChange))
+	CWJMftIndexFile* file = FindIndexFile(volume);
+	if (file == nullptr)
 	{
-		delete file;
-		return nullptr;
+		file = new CWJMftIndexFile(Filename);
+		if (!file->CreateIndexFile(volume, hander, ListenChange))
+		{
+			delete file;
+			return nullptr;
+		}
+		m_VolumeIndexFiles.Add(file);
 	}
-	else
-		return file;
+		
+	return file;
 }
 
 WJ_ERROR_CODE CWJSLib::SearchIndexFile(IWJMftIndexFile* idxfile, IWJMftSearchHandler* hander)
