@@ -12,6 +12,7 @@
  */
 #pragma once
 
+#define RunOnMainThread GernalCallback_Callback
 /*!
  * classname
  *
@@ -99,6 +100,6 @@ protected:
 	//客户进程共享数据读取回掉
 	INT_PTR ShareData_Callback(void* pData, UINT_PTR Param);
 	//回到主线程调用OnCommand
-	virtual BOOL GernalCallback_Callback(PVOID pData, UINT_PTR Param) override;
+	virtual BOOL RunOnMainThread(PVOID pData, UINT_PTR Param) override;
 };
 

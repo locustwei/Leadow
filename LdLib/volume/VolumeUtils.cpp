@@ -2,7 +2,7 @@
 #include "VolumeUtils.h"
 
 namespace LeadowLib {
-	DWORD CVolumeUtils::MountedVolumes(CMethodDelegate callback, UINT_PTR Param)
+	DWORD CVolumeUtils::MountedVolumes(CLdMethodDelegate callback, UINT_PTR Param)
 	{
 		DWORD			dwSize = GetLogicalDriveStrings(0, NULL);
 		dwSize += 2;

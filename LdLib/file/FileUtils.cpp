@@ -159,7 +159,7 @@ namespace LeadowLib {
 		return Result;
 	}
 
-	DWORD CFileUtils::EnumFiles(TCHAR* lpFullPath, TCHAR* lpFilter, CMethodDelegate callback, UINT_PTR Param)
+	DWORD CFileUtils::EnumFiles(TCHAR* lpFullPath, TCHAR* lpFilter, CLdMethodDelegate callback, UINT_PTR Param)
 	{
 		DWORD result = 0;
 		CLdString path = lpFullPath;

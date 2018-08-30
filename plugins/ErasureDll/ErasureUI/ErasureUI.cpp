@@ -6,16 +6,17 @@
 
 #define PLUGIN_ID _T("BCBE2CB1-37FC-46C2-A9A2-9B9EEBEC262F")
 
-CErasureUI* ErasureUI = nullptr;
+CErasureUI* Impl = nullptr;
+CErasureMainWnd* Wnd = nullptr;
 
 #pragma region 动态库导出函数
 
 #define CreatePluginImpl() new CErasureUI();
 #define DeletePluginImpl() \
-if(ErasureUI)            \
+if(Impl)            \
 {                          \
-	delete ErasureUI;    \
-	ErasureUI = nullptr; \
+	delete Impl;    \
+	Impl = nullptr; \
 }                          \
 
 PLUGIN_PROPERTY GetSelfDesc()
@@ -38,7 +39,9 @@ CErasureUI::CErasureUI()
 
 CErasureUI::~CErasureUI()
 {
-	ErasureUI = nullptr;
+	Impl = nullptr;
+	if (Wnd)
+		delete Wnd;
 }
 
 
@@ -49,7 +52,9 @@ HMODULE CErasureUI::GetModuleHandle()
 
 CFramNotifyPump* CErasureUI::CreateUI()
 {
-	return new CErasureMainWnd;
+	if(!Wnd)
+		Wnd= new CErasureMainWnd();
+	return Wnd;
 }
 
 DWORD CErasureUI::InitCommunicate()

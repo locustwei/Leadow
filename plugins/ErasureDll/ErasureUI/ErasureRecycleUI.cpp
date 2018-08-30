@@ -78,7 +78,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 	WIN_OS_TYPE os = GetOsType();
 	if (GetCurrentUserSID(sid) != 0)
 		return;
-	CVolumeUtils::MountedVolumes(CMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
+	CVolumeUtils::MountedVolumes(CLdMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
 
 	for(int i=0; i<Volumes.GetCount(); i++)
 	{
@@ -103,7 +103,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 		recyclePath += _T("\\");
 //		m_RecycleFiles.Tag = (UINT_PTR)recyclePath.GetData();
-		CFileUtils::EnumFiles(recyclePath, L"*.*", CMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumRecycleFile_Callback), (UINT_PTR)recyclePath.GetData());
+		CFileUtils::EnumFiles(recyclePath, L"*.*", CLdMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumRecycleFile_Callback), (UINT_PTR)recyclePath.GetData());
 
 		delete Volumes[i];
 	}

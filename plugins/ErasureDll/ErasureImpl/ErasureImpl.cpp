@@ -39,6 +39,7 @@ CErasureImpl::CErasureImpl()
 	, m_Comm(nullptr)
 {
 	m_hModule = (HMODULE)ThisModule;
+	m_EraseThread.SetCallback(this);
 }
 
 CErasureImpl::~CErasureImpl()
@@ -75,6 +76,17 @@ HMODULE CErasureImpl::GetModuleHandle()
 	return m_hModule;
 }
 
+bool CErasureImpl::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
+{
+
+	return true;
+}
+
+bool CErasureImpl::AnalyResult(TCHAR* FileName, PVOID pData)
+{
+	return true;
+}
+
 //设置文件的目录指向，擦除时更新隶属文件夹的进度
 DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
 {
@@ -98,10 +110,12 @@ DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
 	return nCount;
 }
 
-DWORD CErasureImpl::EraseFile(CDynObject& Param)
+DWORD CErasureImpl::EraseFiles(CDynObject& Param)
 {
-	//int mothed = Param.GetInteger(EPN_MOTHED, 3);
-	//BOOL removefolder = Param.GetBoolean(EPN_UNDELFOLDER, true);
+
+	CDynObject result;
+
+	bool removedir = Param.GetBoolean(EPN_OP_REMOVEDIR);
 	int k = Param.GetArrayCount(EPN_FILES);
 	for(int i=0; i<k; i++)
 	{
@@ -128,7 +142,7 @@ DWORD CErasureImpl::EraseFile(CDynObject& Param)
 	}
 
 //	m_EraseThread.SetCallback(callback);
-	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
+	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
 	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
 	m_EraseThread.StartEreasure(10);
@@ -151,7 +165,7 @@ DWORD CErasureImpl::EraseVolume(CDynObject& Param)
 	}
 
 //	m_EraseThread.SetCallback(callback);
-	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_MOTHED);
+	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
 	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	m_EraseThread.SetEreaureFiles(&m_Files);
 	m_EraseThread.StartEreasure(k);
@@ -267,6 +281,9 @@ void CErasureImpl::OnCommand(WORD id, CDynObject& Param)
 	{
 	case eci_anafiles:
 		FileAnalysis(Param);
+		break;
+	case eci_erasefiles:
+		EraseFiles(Param);
 		break;
 	default:
 		DebugOutput(L"unknown command id=%d", id);

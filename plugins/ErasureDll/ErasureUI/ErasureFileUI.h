@@ -53,6 +53,8 @@ protected:
 	bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) ;    //擦除线程的回掉函数
 	void StatErase();        //开始擦除
 	bool AnalyResult(TCHAR* FileName, PVOID pData);
+	bool IsSelecteFile(TCHAR*);
+
 protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;

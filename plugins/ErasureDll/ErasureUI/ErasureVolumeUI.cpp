@@ -249,7 +249,7 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 {
 	__super::AttanchControl(pCtrl);
 	btnOk = (CButtonUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0);
-	CVolumeUtils::MountedVolumes(CMethodDelegate::MakeDelegate(this, &CErasureVolumeUI::EnumVolume_Callback), 0);
+	CVolumeUtils::MountedVolumes(CLdMethodDelegate::MakeDelegate(this, &CErasureVolumeUI::EnumVolume_Callback), 0);
 	CLdArray<TCHAR*> atts;
 
 	

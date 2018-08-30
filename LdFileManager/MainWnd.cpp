@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "MainWnd.h"
 #include "About.h"
-#include "../plugins/plugin.h"
 #include <LdPlugin.h>
 
 DUI_BEGIN_MESSAGE_MAP(CMainWnd, WindowImplBase)
@@ -19,6 +18,7 @@ CMainWnd::CMainWnd(TCHAR* xmlSkin)
 	, m_EraserUI(nullptr)
 {
 	m_Skin = xmlSkin;
+	m_Plugins.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<IPluginInterface*>);
 }
 
 CMainWnd::~CMainWnd()
@@ -91,6 +91,8 @@ void CMainWnd::InitWindow()
 			delete pi_interface;
 			continue;
 		}
+		m_Plugins.Add(pi_interface);
+
 		AddVirtualWnd(m_EraserUI->GetName(), m_EraserUI);
 		pControl->Add(m_EraserUI->GetUI());
 		pControl->SelectItem(m_EraserUI->GetUI());

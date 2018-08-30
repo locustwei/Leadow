@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "MainWnd.h"
-//#include "MainCommunication.h"
+
 #include "../LdApp/LdApp.h"
 
 #define APP_TITLE _T("DYDOT File Manager")
@@ -31,9 +31,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	MainWnd.Create(NULL, APP_TITLE, UI_WNDSTYLE_FRAME, WS_EX_APPWINDOW | WS_EX_OVERLAPPEDWINDOW);
 	MainWnd.CenterWindow();
 	::ShowWindow(MainWnd, SW_SHOW);
-	//进程通信监听
-	//CMainCommunication mc;
-	//mc.Listen();
+
  
 	MSG msg = { 0 };
 	while (::GetMessage(&msg, NULL, 0, 0)) {
@@ -44,7 +42,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 			::DispatchMessage(&msg);
 		}
 	}
-	//mc.Close();
+
 	::CoUninitialize();
 
 	return 0;

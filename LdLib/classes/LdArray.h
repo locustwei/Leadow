@@ -2,6 +2,15 @@
 #include "..\LdDelegate.h"
 
 namespace LeadowLib {
+
+	/*class 数组，释放数组成员模板函数*/
+	template <typename T >
+	static INT_PTR ArrayDeleteObjectMethod(PVOID pObject, UINT_PTR)
+	{
+		delete *(T*)pObject;
+		return 0;
+	}
+
 	template <typename T >
 	__interface ISortCompare
 	{
@@ -13,11 +22,6 @@ namespace LeadowLib {
 	{
 		virtual int ArrayFindCompare(PVOID key, T* it) = 0;
 	};
-
-	template <typename T > bool DeleteObjectMethod(PVOID pObject)
-	{
-		delete (T)pObject;
-	}
 
 	template <typename T >
 	class CLdArray
@@ -235,8 +239,8 @@ namespace LeadowLib {
 		{
 			return FList;
 		}
-
-		CMethodDelegate ObjectFreeMethod;
+		//如果是对象数组，且需destroy数组成员时的方法
+		CLdMethodDelegate ObjectFreeMethod; 
 
 	protected:
 		int FCount, FCapacity;

@@ -19,7 +19,7 @@ namespace LeadowLib {
 	/*
 	函数代理
 	*/
-	class CMethodDelegate
+	class CLdMethodDelegate
 	{
 	private:
 		class CMethodDelegateBase
@@ -77,22 +77,22 @@ namespace LeadowLib {
 		};
 
 	public:
-		CMethodDelegate()
+		CLdMethodDelegate()
 		{
 			m_Delegate = nullptr;
 		};
 		//赋值后原MethodDelegate失效，否则解构时出错
-		CMethodDelegate(CMethodDelegate& source)
+		CLdMethodDelegate(CLdMethodDelegate& source)
 		{
 			m_Delegate = source.m_Delegate;
 			source.m_Delegate = nullptr;
 		};
 
-		CMethodDelegate(CMethodDelegateBase* d)
+		CLdMethodDelegate(CMethodDelegateBase* d)
 		{
 			m_Delegate = d;
 		};
-		~CMethodDelegate()
+		~CLdMethodDelegate()
 		{
 			if (m_Delegate)
 				delete m_Delegate;
@@ -106,7 +106,7 @@ namespace LeadowLib {
 			m_Delegate = d;
 		};
 		//赋值后原MethodDelegate失效，否则解构时出错
-		void operator = (CMethodDelegate d)
+		void operator = (CLdMethodDelegate d)
 		{
 			if (m_Delegate)
 				delete m_Delegate;
@@ -133,19 +133,19 @@ namespace LeadowLib {
 		}
 
 		template <class T>
-		static CMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(PVOID, UINT_PTR))
+		static CLdMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(PVOID, UINT_PTR))
 		{
-			return CMethodDelegate(new CObjectMethodDelegate<T>(pObject, pFn));
+			return CLdMethodDelegate(new CObjectMethodDelegate<T>(pObject, pFn));
 		}
 
-		static CMethodDelegate MakeDelegate(INT_PTR(*pFn)(PVOID, UINT_PTR))
+		static CLdMethodDelegate MakeDelegate(INT_PTR(*pFn)(PVOID, UINT_PTR))
 		{
-			return CMethodDelegate(new CStaticMethodDelegate(pFn));
+			return CLdMethodDelegate(new CStaticMethodDelegate(pFn));
 		}
 		//空代理
-		static CMethodDelegate MakeDelegate()
+		static CLdMethodDelegate MakeDelegate()
 		{
-			return CMethodDelegate(nullptr);
+			return CLdMethodDelegate(nullptr);
 		}
 	private:
 		CMethodDelegateBase* m_Delegate;

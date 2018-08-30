@@ -12,12 +12,12 @@
 
 
 #define ENP_ERASE_VOLUMES TEXT("volumes")
-#define EPN_MOTHED        TEXT("method")
 #define EPN_UNDELFOLDER   TEXT("undelfolder")
 
 enum ERASER_COMM_IDS
 {
-	eci_anafiles
+	eci_anafiles,
+	eci_erasefiles
 };
 
 //ÎÄ¼þ²Á³ý×´Ì¬

@@ -85,5 +85,5 @@ IPluginInterface* CPluginManager::LoadPlugin(CLdApp* app, TCHAR* plugid)
 
 void CPluginManager::LoadAllPlugins()
 {
-	CFileUtils::EnumFiles((TCHAR*)m_Plug_path.GetData(), _T("*.dll"), CMethodDelegate::MakeDelegate(this, &CPluginManager::EnumFile_Callback), (UINT_PTR)& m_Plugins);
+	CFileUtils::EnumFiles((TCHAR*)m_Plug_path.GetData(), _T("*.dll"), CLdMethodDelegate::MakeDelegate(this, &CPluginManager::EnumFile_Callback), (UINT_PTR)& m_Plugins);
 }

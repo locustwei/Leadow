@@ -19,7 +19,7 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedat
 {
 	m_Listener = listen;
 	m_Data = new CShareData(sharedata);
-	m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
+	m_Data->StartReadThread(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 }
 
 CLdCommunication::~CLdCommunication()
@@ -52,7 +52,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 		if (data_name.IsEmpty())
 			return false;
 		m_Data = new CShareData(data_name);
-		m_Data->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
+		m_Data->StartReadThread(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 	}
 
 	DWORD result = 0xFFFFFFFF;
@@ -81,7 +81,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 			break;
 
 		CThread* thread = new CThread();
-		thread->Start(CMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
 		result = 0;
 
 	} while (false);
@@ -123,7 +123,7 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 		data_name.CopyTo(call_param->progress);
 
 		CShareData* ParamData = new CShareData(data_name);
-		ParamData->StartReadThread(CMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), (UINT_PTR)progress, true);    //回掉函数progress返回0时线程结束，线程结束CShareData对象自我销毁
+		ParamData->StartReadThread(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), (UINT_PTR)progress, true);    //回掉函数progress返回0时线程结束，线程结束CShareData对象自我销毁
 	}
 
 	//发送调用参数。
@@ -142,8 +142,10 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 	}
 	return true;
 }
-
-BOOL CLdCommunication::GernalCallback_Callback(PVOID pData, UINT_PTR Param)
+/************************************************************************/
+/* 接收到消息在主线程调用*/
+/************************************************************************/
+BOOL CLdCommunication::RunOnMainThread(PVOID pData, UINT_PTR Param)
 {
 	PCALLBACK_DATA data = (PCALLBACK_DATA)Param;
 

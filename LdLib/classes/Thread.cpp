@@ -68,7 +68,7 @@ namespace LeadowLib {
 		return hThread;
 	}
 
-	HANDLE CThread::Start(CMethodDelegate method, UINT_PTR Param)
+	HANDLE CThread::Start(CLdMethodDelegate method, UINT_PTR Param)
 	{
 		if (m_hThread != INVALID_HANDLE_VALUE)
 			return INVALID_HANDLE_VALUE;

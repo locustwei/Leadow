@@ -166,7 +166,7 @@ namespace LeadowLib
 	//	return 0;
 	//}
 
-	DWORD CShareData::StartReadThread(CMethodDelegate ReadCallback, UINT_PTR Param, bool FreeOnTerminate)
+	DWORD CShareData::StartReadThread(CLdMethodDelegate ReadCallback, UINT_PTR Param, bool FreeOnTerminate)
 	{
 		m_FreeOnTerminate = FreeOnTerminate;
 		m_ReadCallback = ReadCallback;

@@ -13,48 +13,13 @@ CErasureFileUI::CErasureFileUI()
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
 	m_Comm = new CLdCommunication(this, COMM_PIPE_NAME);
-	m_ErasureFile.ObjectFreeMethod = MakeDelegate(DeleteObjectMethod<CLdString*>);
+	m_ErasureFile.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
 }
 
 CErasureFileUI::~CErasureFileUI()
 {
-	//m_EreaserThreads.StopThreads();
-	//FreeEraseFiles(m_ErasureFile.GetFiles());
 	if (m_Comm)
 		delete m_Comm;
-}
-
-void CErasureFileUI::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
-{
-	for (int i = 0; i<files->GetCount(); i++)
-	{
-		CVirtualFile * file = files->Get(i);
-		if (file)
-		{
-			if (file->GetFileType() == vft_folder)
-				FreeEraseFiles(((CFolderInfo*)file)->GetFiles());
-
-			if (file->GetTag() != 0)
-				delete (PFILE_EX_DATA)file->GetTag();
-			file->SetTag(0);
-			delete file;
-		}
-
-	}
-}
-//设置文件的目录指向，擦除时更新隶属文件夹的进度
-DWORD CErasureFileUI::SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui)
-{
-	PFILE_EX_DATA pData = new FILE_EX_DATA;
-	ZeroMemory(pData, sizeof(FILE_EX_DATA));
-	pData->ui = ui;
-	if (pFile->GetFileType() == vft_folder)
-		pData->nFileCount = ((CFolderInfo*)pFile)->GetFilesCount(true);
-	else
-		pData->nFileCount = 1;
-
-	pFile->SetTag((UINT_PTR)pData);
-	return 0;
 }
 
 void CErasureFileUI::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
@@ -90,25 +55,7 @@ bool CErasureFileUI::OnAfterColumePaint(PVOID Param)
 	CRenderEngine::DrawColor(pPaint->hDc, rect, 0x8008E0E0);
 	return true;
 }
-//添加一个待擦除文件
-CVirtualFile* CErasureFileUI::AddEraseFile(TCHAR* file_name)
-{
-	CFileInfo* info;
-	if (CFileUtils::IsDirectoryExists(file_name))
-	{
-		info = new CFolderInfo();
-		info->SetFileName(file_name);
-		((CFolderInfo*)info)->FindFiles(true);
-	}
-	else
-	{
-		info = new CFileInfo();
-		info->SetFileName(file_name);		
-	}
 
-	//m_ErasureFile.AddFile(info);
-	return info;
-}
 //初始化窗口
 void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 {
@@ -173,15 +120,8 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
 		col->NeedUpdate();
 	}
 }
-//查找擦除文件顶层文件夹（文件）统计信息
-CErasureFileUI::PFILE_EX_DATA CErasureFileUI::GetFileData(CVirtualFile* pFile)
-{
-	if (!pFile)
-		return nullptr;
-	//while (pFile->GetFolder() != &m_ErasureFile && pFile->GetFolder() != nullptr)
-	//	pFile = pFile->GetFolder();
-	return (PFILE_EX_DATA)pFile->GetTag();
-}
+
+
 //擦除过程回掉函数
 bool CErasureFileUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
 {
@@ -243,20 +183,26 @@ bool CErasureFileUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWO
 
 void CErasureFileUI::StatErase()
 {
-	//if (m_ErasureFile.GetFilesCount() == 0)
-	//	return;
-	m_Abort = false;
-	CLdArray<TCHAR*> files;
-	//for(UINT i=0; i<m_ErasureFile.GetFilesCount(); i++)
-	//{
-		//files.Add(m_ErasureFile.GetFiles()->Get(i)->GetFullName());
-	//}
-	//ExecuteFileErase(this, &files);
-}
+	if (m_ErasureFile.GetCount() == 0)
+		return;
 
-bool CErasureFileUI::AnalyResult(TCHAR* FileName, PVOID pData)
-{
-	return false;
+	m_Abort = false;
+	DebugOutput(L"StatErase");
+
+	if (!m_Comm->IsConnected())
+		if (m_Comm->LoadHost(IMPL_PLUGIN_ID) != 0)
+			return;
+	CDynObject param;
+	param.AddObjectAttribute(EPN_OP_REMOVEDIR, ErasureConfig.IsRemoveFolder());
+	param.AddObjectAttribute(EPN_OP_METHOD, ErasureConfig.GetFileErasureMothed());
+
+	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
+	{
+		param.AddArrayValue(EPN_FILES, m_ErasureFile[i]->GetData());
+	}
+
+	m_Comm->CallMethod(eci_erasefiles, param, nullptr, this);
+
 }
 
 bool CErasureFileUI::OnCreate()
@@ -287,12 +233,24 @@ DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
+bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
+{
+	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
+	{
+		if (*m_ErasureFile[i] == filename)
+			return true;
+	}
+	return false;
+}
+
 void CErasureFileUI::AddFileUI(CDynObject FileObj)
 {
 	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
-	CLdString filename = FileObj.GetString(_T("name"));
+	CLdString* filename = new CLdString(FileObj.GetString(_T("name")));
 
-	CControlUI* ui = AddFile(filename);
+	m_ErasureFile.Add(filename);
+
+	CControlUI* ui = AddFile(filename->GetData());
 	//SetFolderFilesData(pFile, ui);
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
@@ -304,7 +262,7 @@ void CErasureFileUI::AddFileUI(CDynObject FileObj)
 		if (desc)
 		{
 			CLdString s;
-			CFileUtils::ExtractFilePath(filename, s);
+			CFileUtils::ExtractFilePath(filename->GetData(), s);
 			desc->SetText(s);
 		}
 	}
@@ -365,8 +323,8 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 			CLdArray<TCHAR*> filenames;
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
-				//if (m_ErasureFile.IndexOf(dlg.GetFileName(i)) != -1)
-				//	continue;
+				if (IsSelecteFile(dlg.GetFileName(i)))
+					continue;
 				
 				filenames.Add(dlg.GetFileName(i));
 			}

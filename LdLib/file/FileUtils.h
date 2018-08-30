@@ -47,7 +47,7 @@ namespace LeadowLib {
 		FindFirst, FindNext 搜索目录（不 递归子目录）
 		Param
 		*/
-		static DWORD EnumFiles(TCHAR* lpFullPath, TCHAR* lpFilter, CMethodDelegate callback, UINT_PTR Param);
+		static DWORD EnumFiles(TCHAR* lpFullPath, TCHAR* lpFilter, CLdMethodDelegate callback, UINT_PTR Param);
 		/*
 		删除文件（SHFileOperation）
 		*/

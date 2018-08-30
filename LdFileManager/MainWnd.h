@@ -1,4 +1,5 @@
 #pragma once
+#include "LdPlugin.h"
 
 /*
 程序主窗口，框架窗口嵌入功能模块窗口。
@@ -26,6 +27,7 @@ private:
 	CButtonUI* m_btnLogo;
 	CFramNotifyPump* m_EraserUI;
 	void About();
+	CLdArray<IPluginInterface*> m_Plugins;
 
 	virtual void OnSelectChanged(TNotifyUI &msg);
 	virtual void OnItemClick(TNotifyUI &msg);

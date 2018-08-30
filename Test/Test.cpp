@@ -12,6 +12,8 @@
 #include "../Jsonlib/JsonBox.h"
 #include <sqlext.h>
 #include <Propkey.h>
+#include "../LdLib/classes/LdArray.h"
+#include "../LdLib/LdDelegate.h"
 
 #import "C:\\Program Files (x86)\\Common Files\\System\\ado\\msado15.dll" no_namespace rename("EOF", "ADOEOF")
 
@@ -119,6 +121,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 	
+	CLdArray<CLdString*> a;
+	a.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
+
+	a.Add(new CLdString(L"aaaaaaaa"));
+	a.Add(new CLdString(L"bbbbbbbb"));
+	a.Add(new CLdString(L"cccccccc"));
+	a.Add(new CLdString(L"dddddddd"));
+
+
 	printf("\npress any key exit");
 	getchar();
 

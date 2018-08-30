@@ -26,7 +26,7 @@ namespace LeadowLib
 		//virtual DWORD Read(PBYTE* pData, WORD* nLength);
 		//线程等待读取数据
 		virtual DWORD StartReadThread(
-			CMethodDelegate ReadCallback,         //读到数据回掉
+			CLdMethodDelegate ReadCallback,         //读到数据回掉
 			UINT_PTR Param,                       //回调函数参数
 			bool FreeOnTerminate = false);        //停止读取时删除自己
 												  //停止读取数据线程
@@ -55,7 +55,7 @@ namespace LeadowLib
 //		bool m_IsMaster;           //是否为Master
 		UINT m_nTimeOut;           //WaitFor写入、读取等待超时
 		bool m_FreeOnTerminate;    //读取线程结束时删除自己
-		CMethodDelegate m_ReadCallback;
+		CLdMethodDelegate m_ReadCallback;
 		WORD m_ThisID;            //同一共享文件，使用者编号
 	protected: //IThreadRunable
 		void ThreadBody(CThread* Sender, UINT_PTR Param) override;

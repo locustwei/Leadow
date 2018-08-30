@@ -71,7 +71,7 @@ DWORD CEreaserThrads::StartEreasure(UINT nMaxCount)
 
 	m_MaxThreadCount = nMaxCount;
 	m_ControlThread = new CThread();
-	m_ControlThread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::EraseFile_Thread), 0);
+	m_ControlThread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::EraseFile_Thread), 0);
 	return 0;
 }
 //磁盘状态分析
@@ -89,7 +89,7 @@ DWORD CEreaserThrads::StartAnalysis(UINT nMaxCount)
 
 	m_MaxThreadCount = nMaxCount;
 	m_ControlThread = new CThread();
-	m_ControlThread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnal_Thread), 0);
+	m_ControlThread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnal_Thread), 0);
 //	m_ControlThread->Start(1);
 
 	return 0;
@@ -125,7 +125,7 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 		//LONG nTemp = *pCount;
 		CThread* thread = new CThread(this);
 		thread->SetTag((UINT_PTR)pCount);
-		thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::ErasureThreadRun), (UINT_PTR)file);
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::ErasureThreadRun), (UINT_PTR)file);
 		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
 			//Sleep(10);
 	}
@@ -155,11 +155,11 @@ INT_PTR CEreaserThrads::FileAnal_Thread(PVOID, UINT_PTR Param)
 		if (file->GetFileType() == vft_volume)
 		{
 			CThread* thread = new CThread();
-			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), (UINT_PTR)file);
+			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), (UINT_PTR)file);
 		}else
 		{
 			CThread* thread = new CThread();
-			thread->Start(CMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnalyThread), (UINT_PTR)file);
+			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnalyThread), (UINT_PTR)file);
 		}
 	}
 	while (m_ThreadCount>0)

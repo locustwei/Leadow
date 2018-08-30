@@ -326,7 +326,7 @@ namespace LeadowLib {
 		CFindFileCallbackImpl impl;
 		impl.bTree = bTree;
 		DWORD result = CFileUtils::EnumFiles(m_FileName, _T("*.*"), 
-			CMethodDelegate::MakeDelegate(&impl, &CFindFileCallbackImpl::EnumFiles_Callback), (UINT_PTR)this);
+			CLdMethodDelegate::MakeDelegate(&impl, &CFindFileCallbackImpl::EnumFiles_Callback), (UINT_PTR)this);
 		if (m_Files.GetCount() > 0)
 			m_Files.Sort(&impl);
 		return result;
