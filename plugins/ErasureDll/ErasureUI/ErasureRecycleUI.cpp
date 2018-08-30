@@ -42,12 +42,12 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		return true;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 
-	CVirtualFile* file = m_ErasureFile.Find(fi.szDisplayName);
+	//CVirtualFile* file = m_ErasureFile.Find(fi.szDisplayName);
 
-	if (file)
-	{
+	//if (file)
+	//{
 		//AddFileUI(file);
-	}
+	//}
 
 	return true;
 }
@@ -107,7 +107,7 @@ void CErasureRecycleUI::EnumRecyleFiels()
 
 		delete Volumes[i];
 	}
-	m_ErasureFile.Sort();
+	//m_ErasureFile.Sort();
 
 	SetThreadErrorMode(oldMode, &oldMode);
 }

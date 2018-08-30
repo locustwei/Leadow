@@ -30,7 +30,9 @@ namespace LeadowLib {
 		LPITEMIDLIST pidl = nullptr;
 
 		PCUITEMID_CHILD pidl2 = nullptr;
-		
+		if (!lpFullName)
+			return (HRESULT)-1;
+
 		TCHAR* lpName = _tcsrchr(lpFullName, '\\');
 		if (lpName == nullptr || _tcslen(lpName) == 1)
 		{

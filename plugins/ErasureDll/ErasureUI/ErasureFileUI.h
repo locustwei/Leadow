@@ -39,7 +39,7 @@ protected:
 	}FILE_EX_DATA, *PFILE_EX_DATA;
 
 	CButtonUI* btnOk;
-	CFolderInfo m_ErasureFile;                     //要擦除的文件放在这里
+	CLdArray<CLdString*> m_ErasureFile;                     //要擦除的文件放在这里
 	//CLdMap<CLdString*, CControlUI*> m_file_map;
 	CVirtualFile* AddEraseFile(TCHAR* file_name);  //添加待擦除的文件
 	void AddFileUI(CDynObject);  //在文件信息显示在ListUI中

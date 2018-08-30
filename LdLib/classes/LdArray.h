@@ -1,4 +1,5 @@
 #pragma once
+#include "..\LdDelegate.h"
 
 namespace LeadowLib {
 	template <typename T >
@@ -13,6 +14,11 @@ namespace LeadowLib {
 		virtual int ArrayFindCompare(PVOID key, T* it) = 0;
 	};
 
+	template <typename T > bool DeleteObjectMethod(PVOID pObject)
+	{
+		delete (T)pObject;
+	}
+
 	template <typename T >
 	class CLdArray
 	{
@@ -26,6 +32,7 @@ namespace LeadowLib {
 			FCapacity = 0;
 			FList = NULL;
 			m_Sorted = false;
+			ObjectFreeMethod = nullptr;
 		};
 
 		CLdArray(CLdArray& LSource)
@@ -37,6 +44,7 @@ namespace LeadowLib {
 			for (int I = 0; I < LSource.FCount; I++)
 				Add(LSource[I]);
 			m_Sorted = false;
+			ObjectFreeMethod = nullptr;
 		}
 
 		virtual ~CLdArray()
@@ -167,9 +175,9 @@ namespace LeadowLib {
 				return;
 			if (NewCount > FCapacity)
 				SetCapacity(NewCount);
-			// 		else
-			// 			for (int I = FCount - 1; I >= NewCount; I--)
-			// 				Delete(I);
+			else if (!ObjectFreeMethod.IsNull())
+				for (int I = FCount - 1; I >= NewCount; I--)
+					ObjectFreeMethod((PVOID)&FList[I], 0);
 			FCount = NewCount;
 		};
 		int GetCount() const
@@ -180,7 +188,6 @@ namespace LeadowLib {
 		{
 			qsort_s(FList, GetCount(), sizeof(T*), array_sort_compare, compare);
 			m_Sorted = true;
-			//qsort_s()
 		};
 
 		T* Find(PVOID pKey, IFindCompare<T>* compare)
@@ -202,7 +209,6 @@ namespace LeadowLib {
 				}
 				return nullptr;
 			}
-				//return (T*)_lsearch_s(pKey, FList, &count, sizeof(T*), array_find_compare, (void*)compare);
 		}
 
 		T Put(int index, T Item)
@@ -230,6 +236,8 @@ namespace LeadowLib {
 			return FList;
 		}
 
+		CMethodDelegate ObjectFreeMethod;
+
 	protected:
 		int FCount, FCapacity;
 		T* FList;
@@ -245,6 +253,7 @@ namespace LeadowLib {
 				Delta = 4;
 			SetCapacity(FCapacity + Delta);
 		};
+
 
 	private:
 		bool m_Sorted;
