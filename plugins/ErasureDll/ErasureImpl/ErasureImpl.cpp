@@ -76,9 +76,16 @@ HMODULE CErasureImpl::GetModuleHandle()
 	return m_hModule;
 }
 
-bool CErasureImpl::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
+bool CErasureImpl::EraserReprotStatus(TCHAR* FileName, TCHAR* subfile, E_THREAD_OPTION op, DWORD dwValue)
 {
-
+	CDynObject param;
+	if(FileName)
+		param.AddObjectAttribute(_T("name"), FileName);
+	if(subfile)
+		param.AddObjectAttribute(_T("subfile"), subfile);
+	param.AddObjectAttribute(_T("op"), op);
+	param.AddObjectAttribute(_T("value"), (UINT)dwValue);
+	m_Comm->CallMethod(eci_filestatus, param);
 	return true;
 }
 

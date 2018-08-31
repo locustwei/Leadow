@@ -27,7 +27,7 @@ protected: //ICommunicationListen
 	void OnTerminate(DWORD exitcode) override;
 	void OnCommand(WORD id, CDynObject& Param) override;
 protected: //IEraserListen
-	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) override;
+	virtual bool EraserReprotStatus(TCHAR* FileName, TCHAR*, E_THREAD_OPTION op, DWORD dwValue) override;
 	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) override;
 private:
 	HMODULE m_hModule;

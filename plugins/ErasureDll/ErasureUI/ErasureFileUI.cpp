@@ -201,7 +201,7 @@ void CErasureFileUI::StatErase()
 		param.AddArrayValue(EPN_FILES, m_ErasureFile[i]->GetData());
 	}
 
-	m_Comm->CallMethod(eci_erasefiles, param, nullptr, this);
+	m_Comm->CallMethod(eci_erasefiles, param);
 
 }
 
@@ -223,6 +223,8 @@ void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 		{
 			AddFileUI(Param.GetDynObject(EPN_FILES, i));
 		}
+		break;
+	case eci_filestatus:
 		break;
 	default:
 		break;

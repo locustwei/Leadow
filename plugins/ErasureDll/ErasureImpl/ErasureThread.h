@@ -21,7 +21,7 @@ typedef struct FILE_ERASURE_DATA
 interface IEraserListen
 {
 	//public:
-	virtual bool EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue) = 0;
+	virtual bool EraserReprotStatus(TCHAR* FileName, TCHAR*, E_THREAD_OPTION op, DWORD dwValue) = 0;
 	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
 };
 
@@ -74,7 +74,7 @@ private:
 	bool ReEresareFile(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
 	INT_PTR ErasureThreadRun(PVOID pData, UINT_PTR Param);//单个文件擦除线程
 
-	INT_PTR FileAnal_Thread(PVOID, UINT_PTR Param);       //文件分析控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
+	//INT_PTR FileAnal_Thread(PVOID, UINT_PTR Param);       //文件分析控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
 	INT_PTR VolumeAnalyThread(PVOID pData, UINT_PTR Param); //单个磁盘分析线程。
 	INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
 
@@ -92,5 +92,7 @@ private:
 		virtual BOOL ErasureStart() override;
 		virtual BOOL ErasureCompleted(DWORD dwErroCode) override;
 		virtual BOOL ErasureProgress(ERASE_STEP nStep, UINT64 nMaxCount, UINT64 nCurent) override;
+	private:
+		CVirtualFile* m_Folder;
 	};
 };

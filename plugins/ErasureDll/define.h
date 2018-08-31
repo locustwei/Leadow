@@ -17,7 +17,8 @@
 enum ERASER_COMM_IDS
 {
 	eci_anafiles,
-	eci_erasefiles
+	eci_erasefiles,
+	eci_filestatus
 };
 
 //ÎÄ¼þ²Á³ý×´Ì¬

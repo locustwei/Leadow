@@ -89,7 +89,7 @@ DWORD CEreaserThrads::StartAnalysis(UINT nMaxCount)
 
 	m_MaxThreadCount = nMaxCount;
 	m_ControlThread = new CThread();
-	m_ControlThread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnal_Thread), 0);
+	m_ControlThread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), 0);
 //	m_ControlThread->Start(1);
 
 	return 0;
@@ -140,42 +140,42 @@ bool CEreaserThrads::ReEresareFile(CLdArray<CVirtualFile*>* files)
 	return true;
 }
 
-INT_PTR CEreaserThrads::FileAnal_Thread(PVOID, UINT_PTR Param)
-{
-	m_ThreadCount = 0;
-	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
-
-	for (int i = 0; i < m_Files->GetCount(); i++)
-	{
-		if (m_Abort)
-			return 0;
-		if (WaitForThread() == 0)
-			break;
-		CVirtualFile* file = m_Files->Get(i);
-		if (file->GetFileType() == vft_volume)
-		{
-			CThread* thread = new CThread();
-			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), (UINT_PTR)file);
-		}else
-		{
-			CThread* thread = new CThread();
-			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnalyThread), (UINT_PTR)file);
-		}
-	}
-	while (m_ThreadCount>0)
-	{
-		Sleep(20);
-	}
-	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
-
-	return 0;
-}
+//INT_PTR CEreaserThrads::FileAnal_Thread(PVOID, UINT_PTR Param)
+//{
+//	m_ThreadCount = 0;
+//	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
+//
+//	for (int i = 0; i < m_Files->GetCount(); i++)
+//	{
+//		if (m_Abort)
+//			return 0;
+//		if (WaitForThread() == 0)
+//			break;
+//		CVirtualFile* file = m_Files->Get(i);
+//		if (file->GetFileType() == vft_volume)
+//		{
+//			CThread* thread = new CThread();
+//			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), (UINT_PTR)file);
+//		}else
+//		{
+//			CThread* thread = new CThread();
+//			thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::FileAnalyThread), (UINT_PTR)file);
+//		}
+//	}
+//	while (m_ThreadCount>0)
+//	{
+//		Sleep(20);
+//	}
+//	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
+//
+//	return 0;
+//}
 
 //擦除控制线程,创建单个文件擦除线程，控制文件擦除线程数。
 INT_PTR CEreaserThrads::EraseFile_Thread(PVOID, UINT_PTR Param)
 {
 	m_ThreadCount = 0;
-	m_callback->EraserReprotStatus(nullptr, eto_start, 0);
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_start, 0);
 	ReEresareFile(m_Files);
 	Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
 
@@ -183,7 +183,7 @@ INT_PTR CEreaserThrads::EraseFile_Thread(PVOID, UINT_PTR Param)
 	{
 		Sleep(20);
 	}
-	m_callback->EraserReprotStatus(nullptr, eto_finished, 0);
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, 0);
 
 	return 0;
 }
@@ -315,6 +315,10 @@ void CEreaserThrads::SetCallback(IEraserListen* callback)
 CEreaserThrads::CErasureCallbackImpl::CErasureCallbackImpl(CVirtualFile* pFile)
 {
 	m_File = pFile;
+	CVirtualFile* p = m_File->GetFolder();
+	while (p && p->GetFolder() != nullptr)
+		p = p->GetFolder();
+	m_Folder = p;
 	m_Control = nullptr;
 }
 
@@ -326,7 +330,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
 
-	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_begin, 0);
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_begin, 0);
 	return !m_Control->m_Abort;
 }
 
@@ -334,21 +338,18 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
 	if (dwErroCode == 0)
 	{
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_completed, dwErroCode);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr? m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?nullptr:m_File->GetFullName(), eto_completed, dwErroCode);
 	}
 	else
 	{
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), eto_error, dwErroCode);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_error, dwErroCode);
 		DebugOutput(L"ErasureCompleted %s %d", m_File->GetFileName(), dwErroCode);
 	}
 
-	if (m_File->GetFolder() != nullptr)  //文件夹下的文件，更新顶层文件夹的进度
+	if (m_Folder)  //文件夹下的文件，更新顶层文件夹的进度
 	{
-		CVirtualFile* p = m_File;
-		while (p->GetFolder() != nullptr)
-			p = p->GetFolder();
 
-		PFILE_ERASURE_DATA pEraserData = (PFILE_ERASURE_DATA)(p->GetTag());
+		PFILE_ERASURE_DATA pEraserData = (PFILE_ERASURE_DATA)(m_Folder->GetTag());
 		if (pEraserData && dwErroCode == 0)
 			InterlockedIncrement(&pEraserData->nErasued);
 
@@ -360,7 +361,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 			percent = (int)ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
 		}
 
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(p->GetFullName(), eto_progress, percent);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder->GetFullName(),nullptr, eto_progress, percent);
 	}
 
 	return !m_Control->m_Abort;
@@ -391,7 +392,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 		break;
 	}
 
-	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_File->GetFullName(), option, (DWORD)ceil(nCurent * 100 / nMaxCount));
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr?m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?m_File->GetFullName():nullptr, option, (DWORD)ceil(nCurent * 100 / nMaxCount));
 
 	return !m_Control->m_Abort;
 }
