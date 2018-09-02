@@ -71,16 +71,16 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 	AddLstViewHeader(8);
 }
 //擦除完成后从m_ErasureFile中删除
-void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
-{
-	if (!pFile)
-		return;
-	if (pFile->GetFileType() == vft_folder)
-		FreeEraseFiles(((CFolderInfo*)pFile)->GetFiles());
-	if (pFile->GetTag() != 0)
-		delete (PFILE_EX_DATA)pFile->GetTag();
-	delete pFile;
-}
+//void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
+//{
+//	if (!pFile)
+//		return;
+//	if (pFile->GetFileType() == vft_folder)
+//		FreeEraseFiles(((CFolderInfo*)pFile)->GetFiles());
+//	if (pFile->GetTag() != 0)
+//		delete (PFILE_EX_DATA)pFile->GetTag();
+//	delete pFile;
+//}
 //擦除过程更新文件擦除状态信息
 void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
 {
@@ -121,66 +121,6 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
 	}
 }
 
-
-//擦除过程回掉函数
-bool CErasureFileUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
-{
-	CVirtualFile* pFile;	
-	PFILE_EX_DATA pData;
-	CControlUI* col;
-
-	switch (op)
-	{
-	case eto_start:  //总进度开始
-		btnOk->SetTag(1);
-		btnOk->SetText(L"取消");
-		break;
-	case eto_begin:  
-		break;
-	case eto_completed: //单个文件擦除完成 //设置擦除状态
-		//pFile = m_ErasureFile.Find(FileName, true, true);
-		pData = GetFileData(pFile);
-
-		if (!pFile || pData == nullptr)
-			break;
-		pData->nErased++;
-		//UpdateEraseProgressMsg(pData, pFile->GetFolder()==&m_ErasureFile);
-		DeleteErasuredFile(pFile);
-		break;
-	case eto_progress: //单个文件进度
-		//pFile = m_ErasureFile.Find(FileName, false, true);
-		pData = GetFileData(pFile);
-
-		if (pData==nullptr)
-			break;
-
-		col = pData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-		if (col)
-		{
-			col->SetTag(dwValue);
-			col->NeedUpdate();
-		}
-		break;
-	case eto_error:
-		//pFile = m_ErasureFile.Find(FileName, true, true);
-		pData = GetFileData(pFile);
-		if (pData)
-		{
-			pData->nErased++;
-			pData->nError++;
-		}
-		break;
-	case eto_finished:
-		btnOk->SetTag(0);
-		btnOk->SetEnabled(true);
-		btnOk->SetText(L"执行");
-		break;
-	default:
-		break;
-	}
-	return !m_Abort;
-}
-
 void CErasureFileUI::StatErase()
 {
 	if (m_ErasureFile.GetCount() == 0)
@@ -219,12 +159,10 @@ void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 	switch (id)
 	{
 	case eci_anafiles:
-		for (int i = 0; i < Param.GetArrayCount(EPN_FILES); i++)
-		{
-			AddFileUI(Param.GetDynObject(EPN_FILES, i));
-		}
+		OnAnaResult(Param);
 		break;
 	case eci_filestatus:
+		OnEraseFileStatus(Param);
 		break;
 	default:
 		break;
@@ -234,6 +172,71 @@ void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
+
+void CErasureFileUI::OnAnaResult(CDynObject& files)
+{
+	for (int i = 0; i < files.GetArrayCount(EPN_FILES); i++)
+	{
+		AddFileUI(files.GetDynObject(EPN_FILES, i));
+	}
+
+}
+
+void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
+{
+	CLdString file = fileStatus.GetString(_T("name"));
+	if (file.IsEmpty())
+		return;
+	if (!m_ErasureFile.Find(file.GetData(), this));
+
+	E_THREAD_OPTION op = (E_THREAD_OPTION)fileStatus.GetInteger(_T("op"));
+	if (op == eto_none)
+		return;
+	CLdString subfile = fileStatus.GetString(_T("subfile"));
+	DWORD value = fileStatus.GetInteger(_T("value"));
+
+	switch (op)
+	{
+	case eto_start:  //总进度开始
+		btnOk->SetTag(1);
+		btnOk->SetText(L"取消");
+		break;
+	case eto_begin:  
+		break;
+	case eto_completed: //单个文件擦除完成 //设置擦除状态
+		break;
+	case eto_progress: //单个文件进度
+		//pFile = m_ErasureFile.Find(FileName, false, true);
+		pData = GetFileData(pFile);
+
+		if (pData==nullptr)
+			break;
+
+		col = pData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+		if (col)
+		{
+			col->SetTag(dwValue);
+			col->NeedUpdate();
+		}
+		break;
+	case eto_error:
+		//pFile = m_ErasureFile.Find(FileName, true, true);
+		pData = GetFileData(pFile);
+		if (pData)
+		{
+			pData->nErased++;
+			pData->nError++;
+		}
+		break;
+	case eto_finished:
+		btnOk->SetTag(0);
+		btnOk->SetEnabled(true);
+		btnOk->SetText(L"执行");
+		break;
+	default:
+		break;
+	}
+}
 
 bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
 {
@@ -247,13 +250,13 @@ bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
 
 void CErasureFileUI::AddFileUI(CDynObject FileObj)
 {
-	//PFILE_ERASURE_DATA p = (PFILE_ERASURE_DATA)pFile->GetTag();
+	PTEST_FILE_RESULT p = new TEST_FILE_RESULT;
 	CLdString* filename = new CLdString(FileObj.GetString(_T("name")));
 
 	m_ErasureFile.Add(filename);
 
 	CControlUI* ui = AddFile(filename->GetData());
-	//SetFolderFilesData(pFile, ui);
+	ui->SetTag((UINT_PTR)p);
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)

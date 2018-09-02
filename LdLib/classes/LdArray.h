@@ -7,7 +7,8 @@ namespace LeadowLib {
 	template <typename T >
 	static INT_PTR ArrayDeleteObjectMethod(PVOID pObject, UINT_PTR)
 	{
-		delete *(T*)pObject;
+		if (pObject && *(T*)pObject != nullptr)
+			delete *(T*)pObject;
 		return 0;
 	}
 

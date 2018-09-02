@@ -33,6 +33,7 @@ enum E_FILE_STATE
 //擦除线程动作
 enum E_THREAD_OPTION
 {
+	eto_none,       //无意义
 	eto_start,      //控制线程开始   
 	eto_begin,      //开始擦除（单个文件）
 	eto_completed,  //擦除完成（单个文件）

@@ -59,4 +59,7 @@ protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;
 	void OnCommand(WORD id, CDynObject& Param) override;
+private:
+	void OnAnaResult(CDynObject& files);
+	void OnEraseFileStatus(CDynObject& fileStatus);
 };

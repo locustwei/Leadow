@@ -29,7 +29,7 @@ BOOL CErasureRecycleUI::EnumRecycleFile_Callback(PVOID data, UINT_PTR Param)
 	CLdString FileName = (TCHAR*)Param;
 	FileName += pData->cFileName;
 
-	AddEraseFile(FileName);
+	//AddEraseFile(FileName);
 
 	return true;
 }
