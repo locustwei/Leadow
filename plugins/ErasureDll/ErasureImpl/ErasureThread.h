@@ -37,8 +37,8 @@ typedef struct ERASER_OPTIONS
 }*PERASER_OPTIONS;
 
 //文件擦除线程（同时创建多个文件擦除线程）
-class CEreaserThrads : 
-	public IThreadRunable
+class CEreaserThrads 
+	: public IThreadRunable
 {
 public:
 	CEreaserThrads();
@@ -48,8 +48,8 @@ public:
 	void StopThreads();                                      //终止擦除
 	void SetEreaureFiles(CLdArray<CVirtualFile*> * pFiles);  //添加擦除文件
 	DWORD StartEreasure(UINT nMaxCount);            //开始擦除
-	DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
-	PERASER_OPTIONS GetOptions();
+	//DWORD StartAnalysis(UINT nMaxCount);            //开始擦除
+	PERASER_OPTIONS GetOptions();                    //获取、修改选项擦除选项
 	void SetCallback(IEraserListen* callback);
 protected:
 	void ThreadBody(CThread* Sender, UINT_PTR Param) override;
@@ -70,13 +70,13 @@ private:
 
 	int WaitForThread();                //当擦除线程达到最大线程数时等待其中一个线程结束
 	
-	INT_PTR EraseFile_Thread(PVOID, UINT_PTR Param);      //文件擦除控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
-	bool ReEresareFile(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
-	INT_PTR ErasureThreadRun(PVOID pData, UINT_PTR Param);//单个文件擦除线程
+	INT_PTR EraseFile_Thread();      //文件擦除控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
+	bool EresareFiles(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
+	INT_PTR ErasureAFile(CVirtualFile* pFile);//单个文件擦除线程
 
 	//INT_PTR FileAnal_Thread(PVOID, UINT_PTR Param);       //文件分析控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
-	INT_PTR VolumeAnalyThread(PVOID pData, UINT_PTR Param); //单个磁盘分析线程。
-	INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
+	//INT_PTR VolumeAnalyThread(PVOID pData, UINT_PTR Param); //单个磁盘分析线程。
+	//INT_PTR FileAnalyThread(PVOID pData, UINT_PTR Param);   //单个文件分析线程。
 
 	//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      

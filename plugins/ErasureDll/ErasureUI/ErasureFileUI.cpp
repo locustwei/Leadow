@@ -13,7 +13,7 @@ CErasureFileUI::CErasureFileUI()
 	m_Name = _T("ErasureFileUI");
 	m_ItemSkin = _T("erasure/listitem_file.xml");
 	m_Comm = new CLdCommunication(this, COMM_PIPE_NAME);
-	m_ErasureFile.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
+	m_ErasureFile.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<PERASER_FILE_DATA>);
 }
 
 CErasureFileUI::~CErasureFileUI()
@@ -82,7 +82,8 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 //	delete pFile;
 //}
 //擦除过程更新文件擦除状态信息
-void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
+
+void CErasureFileUI::UpdateEraseProgressMsg(PERASER_FILE_DATA pData, bool bRoot)
 {
 	if (!pData)
 		return;
@@ -121,6 +122,16 @@ void CErasureFileUI::UpdateEraseProgressMsg(PFILE_EX_DATA pData, bool bRoot)
 	}
 }
 
+CErasureFileUI::PERASER_FILE_DATA CErasureFileUI::GetFileData(TCHAR* pFile)
+{
+	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
+	{
+		if (*m_ErasureFile[i]->filename == pFile)
+			return m_ErasureFile[i];
+	}
+	return nullptr;
+}
+
 void CErasureFileUI::StatErase()
 {
 	if (m_ErasureFile.GetCount() == 0)
@@ -138,7 +149,7 @@ void CErasureFileUI::StatErase()
 
 	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
 	{
-		param.AddArrayValue(EPN_FILES, m_ErasureFile[i]->GetData());
+		param.AddArrayValue(EPN_FILES, m_ErasureFile[i]->filename->GetData());
 	}
 
 	m_Comm->CallMethod(eci_erasefiles, param);
@@ -187,7 +198,9 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 	CLdString file = fileStatus.GetString(_T("name"));
 	if (file.IsEmpty())
 		return;
-	if (!m_ErasureFile.Find(file.GetData(), this));
+
+	PERASER_FILE_DATA pData;
+	CControlUI* col;
 
 	E_THREAD_OPTION op = (E_THREAD_OPTION)fileStatus.GetInteger(_T("op"));
 	if (op == eto_none)
@@ -207,7 +220,7 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 		break;
 	case eto_progress: //单个文件进度
 		//pFile = m_ErasureFile.Find(FileName, false, true);
-		pData = GetFileData(pFile);
+		pData = GetFileData(file);
 
 		if (pData==nullptr)
 			break;
@@ -215,15 +228,15 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 		col = pData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 		if (col)
 		{
-			col->SetTag(dwValue);
+			col->SetTag(value);
 			col->NeedUpdate();
 		}
 		break;
 	case eto_error:
-		//pFile = m_ErasureFile.Find(FileName, true, true);
-		pData = GetFileData(pFile);
+		pData = GetFileData(file);
 		if (pData)
 		{
+			pData->nError = value;
 			pData->nErased++;
 			pData->nError++;
 		}
@@ -238,25 +251,23 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 	}
 }
 
-bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
-{
-	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
-	{
-		if (*m_ErasureFile[i] == filename)
-			return true;
-	}
-	return false;
-}
+//bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
+//{
+//	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
+//	{
+//		if (*m_ErasureFile[i] == filename)
+//			return true;
+//	}
+//	return false;
+//}
 
 void CErasureFileUI::AddFileUI(CDynObject FileObj)
 {
-	PTEST_FILE_RESULT p = new TEST_FILE_RESULT;
+	PERASER_FILE_DATA p = new ERASER_FILE_DATA;
 	CLdString* filename = new CLdString(FileObj.GetString(_T("name")));
-
-	m_ErasureFile.Add(filename);
-
+	p->filename = filename;
 	CControlUI* ui = AddFile(filename->GetData());
-	ui->SetTag((UINT_PTR)p);
+	p->ui = ui;
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
 	if (col)
@@ -307,6 +318,9 @@ void CErasureFileUI::AddFileUI(CDynObject FileObj)
 			desc->SetText(s);
 		}
 	}
+
+	m_ErasureFile.Add(p);
+
 }
 //随便找个路径为模板，取得资源管理器的列信息
 bool CErasureFileUI::GetViewHeader()
@@ -328,7 +342,7 @@ void CErasureFileUI::OnClick(TNotifyUI& msg)
 			CLdArray<TCHAR*> filenames;
 			for(int i=0; i<dlg.GetFileCount();i++)
 			{
-				if (IsSelecteFile(dlg.GetFileName(i)))
+				if (GetFileData(dlg.GetFileName(i)))
 					continue;
 				
 				filenames.Add(dlg.GetFileName(i));
