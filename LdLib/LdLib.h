@@ -34,6 +34,7 @@
 #include "utils/SHFolders.h"
 
 #include "PublicRoutimes.h"
+#include "LdErrorCode.h"
 
 
 inline void DebugOutput(LPCTSTR pstrFormat, ...)

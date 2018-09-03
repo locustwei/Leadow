@@ -118,6 +118,7 @@
       <Filter>classes</Filter>
     </ClInclude>
     <ClInclude Include="LdDelegate.h" />
+    <ClInclude Include="LdErrorCode.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="files">

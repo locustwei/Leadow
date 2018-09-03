@@ -159,6 +159,7 @@
     <ClInclude Include="file\FileInfo.h" />
     <ClInclude Include="file\FileUtils.h" />
     <ClInclude Include="LdDelegate.h" />
+    <ClInclude Include="LdErrorCode.h" />
     <ClInclude Include="LdLib.h" />
     <ClInclude Include="PublicRoutimes.h" />
     <ClInclude Include="stdafx.h" />
