@@ -4,8 +4,6 @@
 用Windows资源管理器（Shell）格式，显示文件（文件夹）信息
 ********************************************************/
 
-class CUIComm;
-
 class CShFileViewUI : 
 	public CFramNotifyPump, 
 	//public ICommunicationListen,
@@ -40,7 +38,7 @@ protected:
 
 	virtual bool GetViewHeader() = 0;
 	void AddLstViewHeader(int ncount);
-	//ShGetFileInfo 回收站显示文件
+	//ShGetFileInfo 添加特殊目录回调pData文件属性值
 	BOOL GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param) override;
 	//枚举ShellView列头信息
 	BOOL GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param) override;

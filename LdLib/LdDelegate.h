@@ -38,31 +38,56 @@ namespace LeadowLib {
 			{
 				return Invoke(pData, param);
 			}
+			INT_PTR operator() (UINT_PTR param, ...)
+			{
+				va_list argptr;
+				va_start(argptr, param);
+
+				INT_PTR ret = Invoke(param, argptr);
+
+				va_end(argptr);
+
+				return ret;
+			}
+
 		protected:
 			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param) = 0;
+			virtual INT_PTR Invoke(UINT_PTR param, va_list argptr) = 0;
 			void* m_pObject;
 			void* m_pFn;
 		};
+
 		//静态函数代理
 		class CStaticMethodDelegate : public CMethodDelegateBase
 		{
 			typedef INT_PTR(*Fn)(PVOID, UINT_PTR);
+			typedef INT_PTR(*Fn1)(UINT_PTR, ...);
 		public:
 			CStaticMethodDelegate(Fn pFn) : CMethodDelegateBase(nullptr, (void*)pFn) { }
+			CStaticMethodDelegate(Fn1 pFn) : CMethodDelegateBase(nullptr, (void*)pFn) { }
 		protected:
-			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param)
+			INT_PTR Invoke(PVOID pData, UINT_PTR param) override
 			{
 				Fn pFn = (Fn)m_pFn;
 				return (*pFn)(pData, param);
 			}
+			INT_PTR Invoke(UINT_PTR param, va_list argptr) override
+			{
+				Fn1 pFn = (Fn1)m_pFn;
+				return (*pFn)(param, argptr);
+			}
 		};
+
+
 		//对象函数代理
 		template <class T>
 		class CObjectMethodDelegate : public CMethodDelegateBase
 		{
 			typedef INT_PTR (T::* Fn)(PVOID, UINT_PTR);
+			typedef INT_PTR(T::* Fn1)(UINT_PTR, ...);
 		public:
 			CObjectMethodDelegate(T* pObj, Fn pFn) : CMethodDelegateBase(pObj, *(void**)&pFn) { }
+			CObjectMethodDelegate(T* pObj, Fn1 pFn) : CMethodDelegateBase(pObj, *(void**)&pFn) { }
 		protected:
 			virtual INT_PTR Invoke(PVOID pData, UINT_PTR param)
 			{
@@ -73,6 +98,16 @@ namespace LeadowLib {
 					Fn fn;
 				} func = { m_pFn };
 				return (pObject->*func.fn)(pData, param);
+			}
+			INT_PTR Invoke(UINT_PTR param, va_list argptr) override
+			{
+				T* pObject = (T*)m_pObject;
+				union
+				{
+					void* ptr;
+					Fn1 fn;
+				} func = { m_pFn };
+				return (pObject->*func.fn)(param, argptr);
 			}
 		};
 
@@ -131,17 +166,30 @@ namespace LeadowLib {
 		{
 			return m_Delegate == nullptr;
 		}
-
+		//类函数指针
 		template <class T>
 		static CLdMethodDelegate MakeDelegate(T* pObject, INT_PTR (T::* pFn)(PVOID, UINT_PTR))
 		{
 			return CLdMethodDelegate(new CObjectMethodDelegate<T>(pObject, pFn));
 		}
+		template <class T>
+		static CLdMethodDelegate MakeDelegate(T* pObject, INT_PTR(T::* pFn)(UINT_PTR, ...))
+		{
+			return CLdMethodDelegate(new CObjectMethodDelegate<T>(pObject, pFn));
+		}
 
+		//静态函数指针
 		static CLdMethodDelegate MakeDelegate(INT_PTR(*pFn)(PVOID, UINT_PTR))
 		{
 			return CLdMethodDelegate(new CStaticMethodDelegate(pFn));
 		}
+		
+
+		static CLdMethodDelegate MakeDelegate(INT_PTR(*pFn)(UINT_PTR, ...))
+		{
+			return CLdMethodDelegate(new CStaticMethodDelegate(pFn));
+		}
+
 		//空代理
 		static CLdMethodDelegate MakeDelegate()
 		{
