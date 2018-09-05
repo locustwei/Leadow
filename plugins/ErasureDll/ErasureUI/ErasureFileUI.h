@@ -26,9 +26,8 @@ private:
 	bool m_Abort;
 
 	virtual void OnClick(DuiLib::TNotifyUI& msg);
-	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);               //退出时清除文件对象。
-	DWORD SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui);     //给文件附加数据，记录文件擦除状态等信息
-	void ExecuteFileAnalysis(CLdArray<TCHAR*>* filenames);
+	//void FreeEraseFiles(CLdArray<CVirtualFile*>* files);               //退出时清除文件对象。
+	//DWORD SetFolderFilesData(CVirtualFile* pFile, CControlUI* ui);     //给文件附加数据，记录文件擦除状态等信息
 protected:
 	class CEreaseFileData
 	{
@@ -54,13 +53,18 @@ protected:
 		DWORD nError;
 		bool Completed;
 		CControlUI* ui;
+		UINT64 nSize;
+		int nADSCount;
+		UINT64 nADSSize;
 	};
 
 	CButtonUI* btnOk;
 	CLdArray<CEreaseFileData*> m_ErasureFile;                     //要擦除的文件放在这里
 	//CLdMap<CLdString*, CControlUI*> m_file_map;
 	//CVirtualFile* AddEraseFile(TCHAR* file_name);  //添加待擦除的文件
-	void AddFileUI(CDynObject);  //在文件信息显示在ListUI中
+	void ListAFile(CDynObject);  //在文件信息显示在ListUI中
+	//virtual CControlUI* AListFile(TCHAR* lpFullName);
+
 	bool GetViewHeader() override;                                                 //ListUI添加列头（取Windows资源管理器的列信息）
 	bool OnAfterColumePaint(PVOID Param);                                          //处理列Paint事件，把列当进度条用
 	void AttanchControl(CControlUI* pCtrl) override;                   
@@ -72,12 +76,13 @@ protected:
 	void StatErase();        //开始擦除
 	//bool AnalyResult(TCHAR* FileName, PVOID pData);
 	//bool IsSelecteFile(TCHAR*);
+	void ExecuteFileAnalysis(CLdArray<TCHAR*>* filenames);
 
 protected: //ICommunicationListen
 	bool OnCreate() override;
 	void OnTerminate(DWORD exitcode) override;
 	void OnCommand(WORD id, CDynObject& Param) override;
 private:
-	void OnAnaResult(CDynObject& files);
+	void ListFiles(CDynObject & files);
 	void OnEraseFileStatus(CDynObject& fileStatus);
 };

@@ -5,11 +5,29 @@ CErasureRecycleUI::CErasureRecycleUI():
 	CErasureFileUI()
 {
 	m_Name = _T("ErasureRecycleUI");
-	m_ItemSkin = _T("erasure/listitem_recycle.xml");            //
+	//m_ItemSkin = _T("erasure/listitem_recycle.xml");            //
 }
 
 CErasureRecycleUI::~CErasureRecycleUI()
 {
+}
+
+CControlUI * CErasureRecycleUI::AddFile(TCHAR * lpFullName)
+{
+	for (int i = 0; i < lstFile->GetCount(); i++)
+	{
+		CControlUI * row = lstFile->GetItemAt(i);
+		CLdString* s = (CLdString*)row->GetTag();
+		TCHAR* p = _tcsrchr(lpFullName, '\\');
+		if (p)
+			p++;
+		if (p && *s == p)
+		{
+			delete s;
+			return row;
+		}
+	}
+	return nullptr;
 }
 
 DUI_BEGIN_MESSAGE_MAP(CErasureRecycleUI, CErasureFileUI)
@@ -22,15 +40,16 @@ DUI_END_MESSAGE_MAP()
 BOOL CErasureRecycleUI::EnumRecycleFile_Callback(PVOID data, UINT_PTR Param)
 {
 	LPWIN32_FIND_DATA pData = (LPWIN32_FIND_DATA)data;
-
 	if (_tcsicmp(pData->cFileName, _T("desktop.ini")) == 0)
 		return true;
 
-	CLdString FileName = (TCHAR*)Param;
+	CLdString FileName((TCHAR*)Param);
 	FileName += pData->cFileName;
 
-	//AddEraseFile(FileName);
-
+	//m_FileNames.Add(FileName);
+	CLdArray<TCHAR*> files;
+	files.Add(FileName);
+	ExecuteFileAnalysis(&files);
 	return true;
 }
 
@@ -42,14 +61,9 @@ BOOL CErasureRecycleUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PT
 		return true;
 	SHGetFileInfo(pData->Get(0), 0, &fi, sizeof(fi), SHGFI_DISPLAYNAME | SHGFI_PIDL);
 
-	AddRecord(pData);
+	CControlUI* ui = AddRecord(pData);
 
-	//CVirtualFile* file = m_ErasureFile.Find(fi.szDisplayName);
-
-	//if (file)
-	//{
-		//AddFileUI(file);
-	//}
+	ui->SetTag((UINT_PTR)new CLdString(fi.szDisplayName));
 
 	return true;
 }
@@ -119,10 +133,11 @@ void CErasureRecycleUI::AttanchControl(CControlUI* pCtrl)
 	CShFileViewUI::AttanchControl(pCtrl); //不用__super::因为CErasureFileUI也添加默认列
 	btnOk = static_cast<CButtonUI*>(m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0));
 
-	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
-	EnumRecyleFiels();
 	//回收站的虚拟文件（原文件信息）
 	AddFolder(CSIDL_BITBUCKET);
+	//回收站中的实际文件（c:\$RECYCLED.BIN\sid\*)
+	EnumRecyleFiels();
+
 	if (lstFile->GetCount() == 0)
 		AddLstViewHeader(5);
 }

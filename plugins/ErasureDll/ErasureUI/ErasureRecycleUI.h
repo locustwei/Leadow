@@ -21,10 +21,12 @@ class CErasureRecycleUI :
 public:
 	CErasureRecycleUI();
 	virtual ~CErasureRecycleUI() override;
+	virtual CControlUI* AddFile(TCHAR* lpFullName) override;
 
 	DUI_DECLARE_MESSAGE_MAP()
 
 private:
+	CLdArray<CLdString*> m_FileNames;
 
 	void EnumRecyleFiels();             //枚举回收站的所有文件
 

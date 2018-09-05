@@ -46,7 +46,11 @@ namespace LeadowLib
 		HANDLE m_hFile;            //内存映像文件
 		PSHAREDATA_DATA m_pFileHeader;   //映像文件内存地址
 		UINT m_Size;               //文件大小
-		HANDLE m_hSemaphore;       //信号量，同步读写内存映像文件
+#ifdef _DEBUG
+		CRITICAL_SECTION m_CriticalSection;
+#else
+		HANDLE m_hSemaphore;       //信号量，保证单个进程读写内存映像文件
+#endif
 		HANDLE m_hReadEvent;       //等待数据写入事件。
 		//HANDLE m_hWriteEvent;      //发送数据写入。
 

@@ -29,12 +29,16 @@ namespace LeadowLib
 		m_Size = nSize;
 
 		m_Name = pName;
-
 		CLdString s = pName;
+
+#ifdef _DEBUG
+		InitializeCriticalSection(&m_CriticalSection);
+#else
 		s += _T("samaphore");
 		m_hSemaphore = CreateSemaphore(nullptr, 1, 1, s);
 		if (!m_hSemaphore)
 			DebugOutput(L"CreateSemaphore error = %d\n", GetLastError());
+#endif // _DEBUG
 
 		s = pName;
 		s += _T("event");
@@ -51,9 +55,12 @@ namespace LeadowLib
 			if (WaitForSingleObject(m_hReadEvent, m_nTimeOut) != WAIT_OBJECT_0)
 				return ;
 			//½øÁÙ½çÇø
+#ifdef _DEBUG
+			EnterCriticalSection(&m_CriticalSection);
+#else
 			if (WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
-				return ;
-
+				return;
+#endif // _DEBUG
 			ResetEvent(m_hReadEvent);
 
 			DebugOutput(L"begin CShareData  read...\n");
@@ -76,7 +83,12 @@ namespace LeadowLib
 			}
 			__finally
 			{
+#ifdef _DEBUG
+				LeaveCriticalSection(&m_CriticalSection);
+#else
 				ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+#endif // _DEBUG
+
 			}
 
 		}
@@ -100,8 +112,12 @@ namespace LeadowLib
 			UnmapViewOfFile(m_pFileHeader);
 		if (m_hFile)
 			CloseHandle(m_hFile);
+#ifdef _DEBUG
+		DeleteCriticalSection(&m_CriticalSection);
+#else
 		if (m_hSemaphore)
 			CloseHandle(m_hSemaphore);
+#endif // _DEBUG
 		if (m_hReadEvent)
 			CloseHandle(m_hReadEvent);
 //		if (m_hWriteEvent)
@@ -117,8 +133,12 @@ namespace LeadowLib
 	{
 		if (!m_hFile || !m_pFileHeader || nLength > m_Size)
 			return DWORD(-1);
+#ifdef _DEBUG
+		EnterCriticalSection(&m_CriticalSection);
+#else
 		if(WaitForSingleObject(m_hSemaphore, m_nTimeOut) != WAIT_OBJECT_0)
 			return GetLastError();
+#endif // _DEBUG
 		__try
 		{
 			DebugOutput(L"write data size=%d\n", nLength);
@@ -128,7 +148,11 @@ namespace LeadowLib
 			MoveMemory(m_pFileHeader->Data, pData, nLength);
 			FlushViewOfFile(m_pFileHeader, m_Size);
 			::SetEvent(m_hReadEvent);
+#ifdef _DEBUG
+			LeaveCriticalSection(&m_CriticalSection);
+#else
 			ReleaseSemaphore(m_hSemaphore, 1, nullptr);
+#endif // _DEBUG
 		}
 		__finally
 		{

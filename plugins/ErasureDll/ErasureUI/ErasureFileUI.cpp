@@ -38,7 +38,10 @@ void CErasureFileUI::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 		param.AddArrayValue(EPN_FILES, files->Get(i));
 	}
 
-	m_Comm->CallMethod(eci_anafiles, param);
+	CDynObject result;
+	m_Comm->CallMethod(eci_anafiles, param, &result);
+
+	ListFiles(result);
 
 }
 
@@ -171,7 +174,7 @@ void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 	switch (id)
 	{
 	case eci_anafiles:
-		OnAnaResult(Param);
+		ListFiles(Param);
 		break;
 	case eci_filestatus:
 		OnEraseFileStatus(Param);
@@ -185,11 +188,11 @@ DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
-void CErasureFileUI::OnAnaResult(CDynObject& files)
+void CErasureFileUI::ListFiles(CDynObject & files)
 {
 	for (int i = 0; i < files.GetArrayCount(EPN_FILES); i++)
 	{
-		AddFileUI(files.GetDynObject(EPN_FILES, i));
+		ListAFile(files.GetDynObject(EPN_FILES, i));
 	}
 
 }
@@ -256,12 +259,18 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 //	return false;
 //}
 
-void CErasureFileUI::AddFileUI(CDynObject FileObj)
+void CErasureFileUI::ListAFile(CDynObject FileObj)
 {
 	CEreaseFileData* p = new CEreaseFileData();
 	CLdString* filename = new CLdString(FileObj.GetString(_T("name")));
 	p->filename = filename;
 	CControlUI* ui = AddFile(filename->GetData());
+	if (!ui)
+	{
+		delete p;
+		return;
+	}
+
 	p->ui = ui;
 
 	CControlUI* col = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);

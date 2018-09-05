@@ -9,25 +9,34 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 	: m_Data(nullptr)
 	, m_hProcess(nullptr)
 	, m_Connected(false)
+	, m_ResultObj(nullptr)
 {
 	m_Listener = listen;
+	m_hWaitResult = CreateEvent(nullptr, FALSE, TRUE, nullptr);
 }
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedata)
 	: m_hProcess(nullptr)
 	, m_Connected(false)
+	, m_ResultObj(nullptr)
 {
 	m_Listener = listen;
+	m_hWaitResult = CreateEvent(nullptr, FALSE, TRUE, nullptr);
+
 	m_Data = new CShareData(sharedata);
 	m_Data->StartReadThread(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 }
 
 CLdCommunication::~CLdCommunication()
 {
+	if (m_hWaitResult != INVALID_HANDLE_VALUE)
+		SetEvent(m_hWaitResult);
+
 	TerminateHost();
 
 	if (m_Data)
 		delete m_Data;
+	CloseHandle(m_hWaitResult);
 }
 
 DWORD CLdCommunication::TerminateHost()
@@ -133,19 +142,37 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 
 	if (result)
 	{
-		/*PBYTE p = nullptr;
-		WORD nSize = 0;
-		if (m_Data->Read(&p, &nSize) == 0)
-		{
-			*result = p;
-		}*/
+		m_ResultObj = result;
+		WaitForSingleObject(m_hWaitResult, INFINITE);
 	}
 	return true;
 }
+
+bool CLdCommunication::SendResult(WORD dwId, /*方法ID */ CDynObject& Param)
+{
+	CLdString tmp = Param.ToString();
+	int len = sizeof(COMMUNICATE_DATA) + (tmp.GetLength() + 1) * sizeof(TCHAR);
+
+	PCOMMUNICATE_DATA call_param = (PCOMMUNICATE_DATA)new BYTE[len];
+	ZeroMemory(call_param, len);
+
+	call_param->commid = dwId;
+	call_param->refer = dwId;
+	call_param->nSize = (tmp.GetLength() + 1) * sizeof(TCHAR);
+	if (!tmp.IsEmpty())
+		tmp.CopyTo((TCHAR*)call_param->data);
+
+	m_Data->Write(call_param, len);
+
+	delete[](PBYTE)call_param;
+
+	return true;
+}
+
 /************************************************************************/
 /* 接收到消息在主线程调用*/
 /************************************************************************/
-BOOL CLdCommunication::RunOnMainThread(PVOID pData, UINT_PTR Param)
+BOOL CLdCommunication::RunOnMainThread(PVOID, UINT_PTR Param)
 {
 	PCALLBACK_DATA data = (PCALLBACK_DATA)Param;
 
@@ -158,13 +185,24 @@ BOOL CLdCommunication::RunOnMainThread(PVOID pData, UINT_PTR Param)
 	return TRUE;
 }
 
+void CLdCommunication::DoResultData(PCOMMUNICATE_DATA data)
+{
+	if (m_ResultObj)
+		m_ResultObj->PrepareStr((TCHAR*)data->data);
+	SetEvent(m_hWaitResult);
+}
+
 //
 INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 {
 	PCOMMUNICATE_DATA  data = (PCOMMUNICATE_DATA)pData;
 	
 	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d\n", data->commid, data->nSize);
-	if (Param == 0)
+
+	if (data->refer != 0)
+	{
+		DoResultData(data);
+	}else if (Param == 0)
 		DoRecvData(data, m_Listener);
 	else
 		DoRecvData(data, (ICommunicationListen*)Param);
@@ -191,6 +229,10 @@ void CLdCommunication::DoRecvData(PCOMMUNICATE_DATA data, ICommunicationListen* 
 		PCALLBACK_DATA calldata = (PCALLBACK_DATA)new BYTE[sizeof(CALLBACK_DATA)+data->nSize];
 		calldata->listener = listener;
 		MoveMemory(&calldata->commdata, data, sizeof(COMMUNICATE_DATA) + data->nSize);
+#ifdef _DEBUG
+		RunOnMainThread(nullptr, (UINT_PTR)calldata);
+#else
 		ThisApp->Send2MainThread(this, (UINT_PTR)calldata);
+#endif
 	}
 }

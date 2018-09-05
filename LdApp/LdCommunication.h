@@ -70,12 +70,18 @@ public:
 		ICommunicationListen* progress = nullptr  //需要过程数据（如：进度状态）
 	);
 
+	bool SendResult(
+		WORD dwId,       //方法ID
+		CDynObject& Param
+	);
+
 protected:
 	//通讯数据结构
 	typedef struct COMMUNICATE_DATA   
 	{
 		WORD nSize;
 		WORD commid;
+		WORD refer;           //调用commid的返回值
 		TCHAR progress[37];
 		BYTE data[0];
 	}*PCOMMUNICATE_DATA;
@@ -101,5 +107,9 @@ protected:
 	INT_PTR ShareData_Callback(void* pData, UINT_PTR Param);
 	//回到主线程调用OnCommand
 	virtual BOOL RunOnMainThread(PVOID pData, UINT_PTR Param) override;
+private:
+	CDynObject* m_ResultObj;
+	HANDLE m_hWaitResult;
+	void DoResultData(PCOMMUNICATE_DATA data);
 };
 

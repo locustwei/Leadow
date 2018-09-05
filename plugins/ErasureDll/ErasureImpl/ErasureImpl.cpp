@@ -231,7 +231,7 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 		result.AddArrayValue(EPN_FILES, obj);
 	}
 
-	m_Comm->CallMethod(eci_anafiles, result);
+	m_Comm->SendResult(eci_anafiles, result);
 
 	return 0;
 }

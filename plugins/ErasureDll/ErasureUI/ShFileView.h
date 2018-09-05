@@ -17,7 +17,7 @@ public:
 	//加一行
 	CControlUI* AddRecord(CLdArray<TCHAR*>* values);
 	//加一个文件（CSHFolders::GetFileAttributeValue）
-	CControlUI* AddFile(TCHAR* lpFullName);
+	virtual CControlUI* AddFile(TCHAR* lpFullName);
 	//添加目录（CSHFolders::EnumFolderObjects）
 	DWORD AddFolder(TCHAR* lpFullName);
 	//添加特殊目录
