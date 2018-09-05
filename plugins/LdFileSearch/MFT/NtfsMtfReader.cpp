@@ -333,8 +333,8 @@ BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, UINT64 i)
 
 BOOL CNtfsMtfReader::ReadFileRecord(UINT64 index, PNTFS_FILE_RECORD_HEADER file, bool cache)
 {
-	static UINT cluster = m_BytesPerFileRecord /m_BytesPerCluster + 1;
-	static UINT MAX_CACH_CLUMSTER_COUNT = (1024 * 1024 * 6) / m_BytesPerCluster;
+	UINT cluster = m_BytesPerFileRecord /m_BytesPerCluster + 1;
+	UINT MAX_CACH_CLUMSTER_COUNT = (1024 * 1024 * 6) / m_BytesPerCluster;
 
 	BOOL result = FALSE;
 
@@ -475,7 +475,7 @@ PUCHAR CNtfsMtfReader::CactchClusterBitmap(UINT64 vcn)
 		m_ClusterBitmapCache.Buffer = nullptr;
 	}
 
-	static UINT count = (1024 * 1024 * 9) / m_BytesPerCluster + 1;
+	UINT count = (1024 * 1024 * 9) / m_BytesPerCluster + 1;
 
 
 	m_ClusterBitmapCache.Buffer = new BYTE[count * m_BytesPerCluster];

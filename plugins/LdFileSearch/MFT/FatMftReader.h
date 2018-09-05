@@ -38,6 +38,8 @@ private:
 
 	UCHAR m_EntrySize;
 	FAT_FILE m_Root;
+	UINT64 m_FileReferenceNumber;        //自增长的文件号
+	MFT_FILE_DATA m_FileInfo;            //临时使用的中间变量
 
 	INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, int op = 0);
 	UINT DataClusterStartSector(UINT ClusterNumber);

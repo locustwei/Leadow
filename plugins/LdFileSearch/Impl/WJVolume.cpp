@@ -114,6 +114,35 @@ BOOL IsWindowsVersionOrGreater_(WORD wMajorVersion, WORD wMinorVersion, WORD wSe
 	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
 }
 
+BOOL GetVolumeInformationByHandle(
+	HANDLE hFile,
+	LPWSTR lpVolumeNameBuffer,
+	DWORD nVolumeNameSize,
+	LPDWORD lpVolumeSerialNumber,
+	LPDWORD lpMaximumComponentLength,
+	LPDWORD lpFileSystemFlags,
+	LPWSTR lpFileSystemNameBuffer,
+	DWORD nFileSystemNameSize
+) 
+{
+	if (!IsWindowsVersionOrGreater_(6, 0, 0))
+		return FALSE;
+	typedef BOOL(WINAPI *GetByHandle)(__in      HANDLE hFile,
+		__out_ecount_opt(nVolumeNameSize) LPWSTR lpVolumeNameBuffer,
+		__in      DWORD nVolumeNameSize,
+		__out_opt LPDWORD lpVolumeSerialNumber,
+		__out_opt LPDWORD lpMaximumComponentLength,
+		__out_opt LPDWORD lpFileSystemFlags,
+		__out_ecount_opt(nFileSystemNameSize) LPWSTR lpFileSystemNameBuffer,
+		__in      DWORD nFileSystemNameSize);
+
+	static GetByHandle fn = (GetByHandle)GetProcAddress(GetModuleHandle(_T("Kernel32.dll")), "GetVolumeInformationByHandleW");
+	if (fn)
+		return fn(hFile, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber, lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
+	else
+		return FALSE;
+}
+
 VOID CWJVolume::GetVolumeInfo()
 {
 	GetVolumePath();
@@ -127,12 +156,7 @@ VOID CWJVolume::GetVolumeInfo()
 		if (!GetVolumeInformation(m_VolumePath, VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
 			return;
 	}
-	else if(IsWindowsVersionOrGreater_(6, 0, 0))
-	{
-		if (!GetVolumeInformationByHandleW(OpenHandle(), VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
-			return;
-	}
-	else
+	else if (!GetVolumeInformationByHandle(OpenHandle(), VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
 		return;
 
 	if (_tcscmp(FileSystemNameBuffer, _T("NTFS")) == 0)

@@ -38,10 +38,11 @@ class CEnumMftFilesThread :
 	public IThreadRunable
 {
 public:
-	CEnumMftFilesThread(CWJMftReader* Owner, int Op)
+	CEnumMftFilesThread(CWJMftReader* Owner, int Op, IWJMftSearchHandler* handler)
 	{
 		m_Owner = Owner;
 		m_Op = Op;
+		m_handler = handler;
 	};
 	~CEnumMftFilesThread()
 	{
@@ -52,6 +53,8 @@ public:
 	{
 		EnterCriticalSection(&m_Owner->m_CriticalSection);
 		
+		m_Owner->m_SearchHandler = m_handler;
+
 		m_Owner->m_SearchHandler->OnBegin(nullptr);
 		
 		switch (m_Op)
@@ -78,6 +81,7 @@ public:
 	};
 private:
 	int m_Op;
+	IWJMftSearchHandler* m_handler;
 	CWJMftReader* m_Owner;
 };
 
@@ -92,8 +96,8 @@ WJ_ERROR_CODE CWJMftReader::EnumMftFiles(IWJMftSearchHandler* handler, PVOID Par
 	}
 	if (error != WJERROR_SUCCEED)
 		return error;
-	m_SearchHandler = handler;
-	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 0);
+	//m_SearchHandler = handler;
+	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 0, handler);
 	CThread* thread = new CThread(threadbody);
 	thread->Start((UINT_PTR)Param);
 	return WJERROR_SUCCEED;
@@ -110,8 +114,8 @@ WJ_ERROR_CODE CWJMftReader::EnumDeleteFiles(IWJMftSearchHandler* handler, PVOID 
 	}
 	if (error != WJERROR_SUCCEED)
 		return error;
-	m_SearchHandler = handler;
-	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 1);
+	//m_SearchHandler = handler;
+	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 1, handler);
 	CThread* thread = new CThread(threadbody);
 	thread->Start((UINT_PTR)Param);
 	return WJERROR_SUCCEED;

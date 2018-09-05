@@ -439,14 +439,14 @@ input:
 	IWJVolume* volume = g_lib->GetVolume(i);
 	//WJSSearchVolume(volume, &Callback, filter);
 	//CMftSearchDeletedImpl::EnumFiles(i);
-	//CMftSearchDeletedImpl::EnumDeleteFiles(i);
+	CMftSearchDeletedImpl::EnumDeleteFiles(i);
 
-	impl.m_volume = volume;
-	IWJMftIndexFile* file = g_lib->CreateIndexFile(volume, L"test.db", &impl, TRUE);
-	if (file == nullptr)
-		printf("create file fail");
-	else
-		impl.indexfile = file;
+	//impl.m_volume = volume;
+	//IWJMftIndexFile* file = g_lib->CreateIndexFile(volume, L"test.db", &impl, TRUE);
+	//if (file == nullptr)
+	//	printf("create file fail");
+	//else
+	//	impl.indexfile = file;
 
 	goto input;
 

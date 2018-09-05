@@ -108,6 +108,7 @@ void CFatMftReader::ZeroMember()
 	m_TotalSectors = 0;
 	m_EntrySize = 0;
 	m_TotalCluster = 0;
+	m_FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
 
 	ZeroMemory(&m_Root, sizeof m_Root);
 	ZeroMemory(&m_fatCache, sizeof(m_fatCache));
@@ -392,28 +393,24 @@ PUCHAR CFatMftReader::CacheFat(UINT sector, UINT count, BOOL cache)
 
 BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, bool deleted)
 {
-	static UINT FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
-
-	static MFT_FILE_DATA aFileInfo;// = (PMFT_FILE_DATA) new UCHAR[sizeof(MFT_FILE_DATA) + MAX_PATH * sizeof(WCHAR)];
-
-	ZeroMemory(&aFileInfo, sizeof(MFT_FILE_DATA) + MAX_PATH * sizeof(WCHAR));
+	ZeroMemory(&m_FileInfo, sizeof(MFT_FILE_DATA));
 
 	if(pParentDir == &m_Root)
-		aFileInfo.DirectoryFileReferenceNumber = 5;
+		m_FileInfo.DirectoryFileReferenceNumber = 5;
 	else
-		aFileInfo.DirectoryFileReferenceNumber = pParentDir->ReferenceNumber;// MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh);
+		m_FileInfo.DirectoryFileReferenceNumber = pParentDir->ReferenceNumber;// MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh);
 
-	aFileInfo.NameLength = (UCHAR)wcslen(FileName);
-	wcscat_s(aFileInfo.Name, FileName);
-	aFileInfo.FileAttributes = pFatFile->Attr;
-	aFileInfo.DataSize = pFatFile->FileSize;
+	m_FileInfo.NameLength = (UCHAR)wcslen(FileName);
+	wcscat_s(m_FileInfo.Name, FileName);
+	m_FileInfo.FileAttributes = pFatFile->Attr;
+	m_FileInfo.DataSize = pFatFile->FileSize;
 	//ULARGE_INTEGER l = {  pFatFile->ReferenceNumber, MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh) };
-	aFileInfo.FileReferenceNumber = FileReferenceNumber++;
-	pFatFile->ReferenceNumber = aFileInfo.FileReferenceNumber;
+	m_FileInfo.FileReferenceNumber = m_FileReferenceNumber++;
+	pFatFile->ReferenceNumber = m_FileInfo.FileReferenceNumber;
 
-	DosDateTimeToFileTime(pFatFile->CreateDate, pFatFile->CreateTime, &aFileInfo.CreationTime);
-	//DosDateTimeToFileTime(pFatFile->LastAccessDate, 0, &aFileInfo->LastAccessTime);
-	DosDateTimeToFileTime(pFatFile->WriteDate, pFatFile->WriteTime, &aFileInfo.LastWriteTime);
+	DosDateTimeToFileTime(pFatFile->CreateDate, pFatFile->CreateTime, &m_FileInfo.CreationTime);
+	//DosDateTimeToFileTime(pFatFile->LastAccessDate, 0, &m_FileInfo->LastAccessTime);
+	DosDateTimeToFileTime(pFatFile->WriteDate, pFatFile->WriteTime, &m_FileInfo.LastWriteTime);
 
 	if (deleted)
 	{
@@ -446,13 +443,13 @@ BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pP
 			}
 
 		}
-		BOOL result = DelCallback(FileReferenceNumber, &aFileInfo, &aDataStream);
+		BOOL result = DelCallback(m_FileReferenceNumber, &m_FileInfo, &aDataStream);
 		if (aDataStream.Lcns)
 			delete[]aDataStream.Lcns;
 		return result;
 	}
 	else
-		return Callback(aFileInfo.FileReferenceNumber, &aFileInfo);
+		return Callback(m_FileInfo.FileReferenceNumber, &m_FileInfo);
 }
 
 CMftFile* CFatMftReader::GetFile(UINT64 FileNumber, bool OnlyName /*= false*/)
