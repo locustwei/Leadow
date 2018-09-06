@@ -5,8 +5,6 @@
 
 class CErasureVolumeUI : 
 	public CShFileViewUI
-//IEraserListen  //文件擦除线程回掉函数，报告擦除状态、进度信息。
-//	IGernalCallback<TCHAR*>              //枚举磁盘（按卷路径）
 {
 public:
 	CErasureVolumeUI();

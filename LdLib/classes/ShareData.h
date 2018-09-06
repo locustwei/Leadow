@@ -40,6 +40,7 @@ namespace LeadowLib
 		{
 			WORD id;       //标记是谁写入的
 			WORD nSize;
+			bool readed;
 			BYTE Data[0];
 		}*PSHAREDATA_DATA;
 

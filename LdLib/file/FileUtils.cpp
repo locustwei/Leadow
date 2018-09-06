@@ -222,13 +222,13 @@ namespace LeadowLib {
 		if (nSize < __KB)
 			result.Format(_T("%dBytes"), nSize);
 		else if (nSize < __MB)
-			result.Format(_T("%.2fKB"), nSize / __KB);
+			result.Format(_T("%.2fKB"), double(nSize) / double(__KB));
 		else if (nSize < __GB)
-			result.Format(_T("%.2fMB"), nSize / __MB);
+			result.Format(_T("%.2fMB"), double(nSize) / double(__MB));
 		else if (nSize < __TB)
-			result.Format(_T("%.2fGB"), nSize / __GB);
+			result.Format(_T("%.2fGB"), double(nSize) / double(__GB));
 		else
-			result.Format(_T("%.2fTB"), nSize / __TB);
+			result.Format(_T("%.2fTB"), double(nSize) / double(__TB));
 	}
 
 	void CFileUtils::GenerateRandomFileName(int length, CLdString* Out)

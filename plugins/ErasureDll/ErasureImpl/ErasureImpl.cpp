@@ -188,7 +188,6 @@ typedef struct ERASE_FILE_PARAM {
 
 DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 {
-	DebugOutput(L"FileAnalysis");
 
 	CDynObject result;
 
@@ -203,6 +202,9 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 		ZeroMemory(&tr, sizeof(TEST_FILE_RESULT));
 		DWORD error = 0;
 		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
+		
+		DebugOutput(L"FileAnalysis %s\n", s.GetData());
+	
 		if (s.IsEmpty())
 		{
 			error = (DWORD)-1;

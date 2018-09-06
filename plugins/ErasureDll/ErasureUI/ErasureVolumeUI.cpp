@@ -23,22 +23,7 @@ void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControl
 {
 	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
 	CDuiString str;
-//	if(pData->nStatus == efs_error)
-//	{
-//		str.Format(_T("发生错误， 错误代码%x"), pData->nErrorCode);
-//		ChildUI->SetBkColor(0xFFFF0000);
-//	}
-//	else
-//	{
-//		DWORD t = (GetTickCount() - time) / 1000;
-//		if (Percent < 100)
-//			str.Format(_T("已完成%d%% 耗时%d秒，还需要%d秒"), Percent, t, t * (100 - Percent) / Percent);
-//		else
-//		{
-//			str.Format(_T("已完成 耗时%d秒"), t);
-//			ChildUI->SetBkColor(0xFF00FFFF);
-//		}
-//	}
+
 	ChildUI->SetText(str);
 	ui->SetTag(Percent);
 	ui->NeedUpdate();
@@ -136,7 +121,7 @@ DUI_BEGIN_MESSAGE_MAP(CErasureVolumeUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
-//枚举盘符暂存用于查找每个盘下的回收站文件
+//枚举盘符
 BOOL CErasureVolumeUI::EnumVolume_Callback(PVOID data, UINT_PTR Param)
 {
 	TCHAR* pData = (TCHAR*)data;

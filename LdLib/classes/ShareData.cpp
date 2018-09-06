@@ -63,8 +63,6 @@ namespace LeadowLib
 #endif // _DEBUG
 			ResetEvent(m_hReadEvent);
 
-			DebugOutput(L"begin CShareData  read...\n");
-
 			__try
 			{
 				if (m_TermateReadThread)
@@ -73,10 +71,11 @@ namespace LeadowLib
 				if (m_pFileHeader->nSize)
 					if (m_pFileHeader->id != m_ThisID)   //自己写的数据不要读
 					{
-						DebugOutput(L"read data size=%d\n", m_pFileHeader->nSize);
+						DebugOutput(L"sharedataid = %d read data size=%d\n", m_ThisID, m_pFileHeader->nSize);
 						WORD nSize = m_pFileHeader->nSize;
 						BYTE* pData = new BYTE[m_pFileHeader->nSize];
 						::MoveMemory(pData, m_pFileHeader->Data, nSize);
+						m_pFileHeader->readed = true;
 						m_TermateReadThread = !m_ReadCallback(pData, Param);
 						delete[] pData;
 					}
@@ -93,7 +92,6 @@ namespace LeadowLib
 
 		}
 		m_TermateReadThread = true;
-		DebugOutput(L"CShareData::ThreadBody out\n");
 	}
 
 	void CShareData::OnThreadInit(CThread* Sender, UINT_PTR Param)
@@ -141,10 +139,11 @@ namespace LeadowLib
 #endif // _DEBUG
 		__try
 		{
-			DebugOutput(L"write data size=%d\n", nLength);
+			DebugOutput(L"sharedataid = %d write data size=%d\n", m_ThisID, nLength);
 
 			m_pFileHeader->id = m_ThisID;
 			m_pFileHeader->nSize = nLength;
+			m_pFileHeader->readed = false;
 			MoveMemory(m_pFileHeader->Data, pData, nLength);
 			FlushViewOfFile(m_pFileHeader, m_Size);
 			::SetEvent(m_hReadEvent);

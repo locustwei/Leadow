@@ -24,7 +24,7 @@ CErasureFileUI::~CErasureFileUI()
 
 void CErasureFileUI::ExecuteFileAnalysis(CLdArray<TCHAR*>* files)
 {
-	DebugOutput(L"ExecuteFileAnalysis");
+	//DebugOutput(L"ExecuteFileAnalysis");
 
 	if (!m_Comm->IsConnected())
 		if (m_Comm->LoadHost(IMPL_PLUGIN_ID) != 0)
@@ -302,7 +302,7 @@ void CErasureFileUI::ListAFile(CDynObject FileObj)
 
 			if (filecount)
 			{
-				s.Format(_T("包含数%d个文件（文件夹），合计%s"), filecount, strSize);
+				s.Format(_T("包含数%d个文件，合计%s"), filecount, strSize);
 			}
 			//else
 			//	s.Format(_T("文件大小%s"), strSize);

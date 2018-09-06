@@ -121,13 +121,21 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "chs");
 	CoInitialize(nullptr);
 	
-	CLdArray<CLdString*> a;
-	a.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
+	
+	DWORD			dwSize = GetLogicalDriveStrings(0, NULL);
+	dwSize += 2;
+	TCHAR*			pszDrives = new TCHAR[dwSize];
+	ZeroMemory(pszDrives, (dwSize) * sizeof(TCHAR));
 
-	a.Add(new CLdString(L"aaaaaaaa"));
-	a.Add(new CLdString(L"bbbbbbbb"));
-	a.Add(new CLdString(L"cccccccc"));
-	a.Add(new CLdString(L"dddddddd"));
+	if (!GetLogicalDriveStrings((dwSize) * sizeof(TCHAR), (LPTSTR)pszDrives))
+		return GetLastError();
+	TCHAR* pstr = pszDrives;
+	while (TCHAR('\0') != *pstr)
+	{
+		if (!callback(pstr, Param))
+			break;
+		pstr += _tcslen(pstr) + 1;
+	}
 
 
 	printf("\npress any key exit");

@@ -13,6 +13,8 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen)
 {
 	m_Listener = listen;
 	m_hWaitResult = CreateEvent(nullptr, FALSE, TRUE, nullptr);
+	if (m_hWaitResult != INVALID_HANDLE_VALUE)
+		ResetEvent(m_hWaitResult);
 }
 
 CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedata)
@@ -22,7 +24,8 @@ CLdCommunication::CLdCommunication(ICommunicationListen* listen, TCHAR* sharedat
 {
 	m_Listener = listen;
 	m_hWaitResult = CreateEvent(nullptr, FALSE, TRUE, nullptr);
-
+	if (m_hWaitResult != INVALID_HANDLE_VALUE)
+		ResetEvent(m_hWaitResult);
 	m_Data = new CShareData(sharedata);
 	m_Data->StartReadThread(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::ShareData_Callback), 0);
 }
@@ -136,6 +139,7 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 	}
 
 	//发送调用参数。
+	DebugOutput(L"CallMethod %x %s\n", this, Param.ToString());
 	m_Data->Write(call_param, len);
 	
 	delete[] (PBYTE)call_param;
@@ -144,6 +148,7 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 	{
 		m_ResultObj = result;
 		WaitForSingleObject(m_hWaitResult, INFINITE);
+		DebugOutput(L"CallMethod return %d\n", dwId);
 	}
 	return true;
 }
@@ -197,7 +202,7 @@ INT_PTR CLdCommunication::ShareData_Callback(void* pData, UINT_PTR Param)
 {
 	PCOMMUNICATE_DATA  data = (PCOMMUNICATE_DATA)pData;
 	
-	DebugOutput(L"ShareData_Callback id=%d, paramsize=%d\n", data->commid, data->nSize);
+	DebugOutput(L"ShareData_Callback %x, param=%s\n", this, (TCHAR*)data->data);
 
 	if (data->refer != 0)
 	{

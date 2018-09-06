@@ -18,6 +18,9 @@ namespace LeadowLib {
 				break;
 			pstr += _tcslen(pstr) + 1;
 		}
+
+		delete pszDrives;
+
 		return 0;
 	}
 

@@ -342,10 +342,13 @@ namespace LeadowLib {
 		pFile->m_Folder = this;
 		GetFileBasicInfo();
 		m_AttributeData.nFileSize += pFile->GetDataSize();
-		if (pFile->GetFileType() == vft_file)
-			m_AttributeData.nFileCount++;
-		else
+		if (pFile->GetFileType() == vft_folder)
+		{
 			m_AttributeData.nFolderCount++;
+			m_AttributeData.nFileCount += pFile->m_AttributeData.nFileCount;
+		}
+		else
+			m_AttributeData.nFileCount++;
 
 		return m_Files.Add(pFile);
 	}

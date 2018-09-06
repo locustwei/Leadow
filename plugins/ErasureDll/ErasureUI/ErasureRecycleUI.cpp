@@ -18,11 +18,14 @@ CControlUI * CErasureRecycleUI::AddFile(TCHAR * lpFullName)
 	{
 		CControlUI * row = lstFile->GetItemAt(i);
 		CLdString* s = (CLdString*)row->GetTag();
+		if (!s)
+			continue;
 		TCHAR* p = _tcsrchr(lpFullName, '\\');
 		if (p)
 			p++;
 		if (p && *s == p)
 		{
+			row->SetTag(0);
 			delete s;
 			return row;
 		}
