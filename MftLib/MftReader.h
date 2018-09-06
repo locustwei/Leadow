@@ -51,6 +51,7 @@ public:
 		m_Reader = reader;
 	};
 	virtual ~CMftFile() {};
+
 	PMFT_FILE_DATA GetFileData()
 	{
 		return &m_FileInfo;
@@ -88,13 +89,14 @@ public:
 
 	BOOL IsValid(); 
 
+	static CMftReader* CreateReader(HANDLE hVolume, UINT fs);
 public:
 	CMftReader(HANDLE hVolume);
 	virtual ~CMftReader(void);
 protected:
 	USHORT m_BytesPerSector;
 	USHORT m_SectorsPerCluster;
-	UINT m_TotalCluster;
+	UINT64 m_TotalCluster;
 
 	HANDLE m_Handle;
 	IMftReaderHandler* m_Holder;

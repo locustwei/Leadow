@@ -42,6 +42,18 @@
     <ClInclude Include="LdMft.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="exFatReader.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Fat.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="ntfs.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="ntfsfile.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -56,5 +68,14 @@
     <ClCompile Include="NtfsMtfReader.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
+    <ClCompile Include="exFatReader.cpp">
+      <Filter>Mft</Filter>
+    </ClCompile>
+    <ClCompile Include="NtfsFile.cpp">
+      <Filter>Mft</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

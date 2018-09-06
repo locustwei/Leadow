@@ -1,11 +1,12 @@
 #include "stdafx.h"
 #include "MftChangeListener.h"
+#include "NtfsUSN.h"
 
 
-CMftChangeListener::CMftChangeListener(HANDLE hVoluem)
+CMftChangeListener::CMftChangeListener(TCHAR* VolumePath)
 {
 	m_USN = 0;
-	m_Handle = hVoluem;
+	m_Path = VolumePath;
 }
 
 
@@ -13,36 +14,38 @@ CMftChangeListener::~CMftChangeListener()
 {
 }
 
-USN CMftChangeListener::ListenUpdate(IMftChangeListenerHandler* handler, PVOID param)
+USN CMftChangeListener::ListenUpdate(HANDLE hStopEvent, IMftChangeListenerHandler* handler, UINT_PTR param)
 {
 	m_Handler = handler;
 	m_Param = param;
-
-	//HANDLE hMonitor = INVALID_HANDLE_VALUE;
-	//if (!m_VolumePath.IsEmpty()) {
-	//	CLdString path = m_VolumePath;
-	//	path += '\\';
-	//	hMonitor = FindFirstChangeNotification(path, TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_SIZE);
-	//}
-	do 
-	{
-		m_USN = UpdateFiles();
-		if (handler->ListenerStop())
-			break;
-
-		//if (hMonitor != INVALID_HANDLE_VALUE)
-		//{
-		//	WaitForSingleObject(hMonitor, INFINITE);
-		//	if (FALSE == FindNextChangeNotification(hMonitor))
-		//		break;
-		//}
-		Sleep(10 * 1000);
-	} while (TRUE);
-
-	//if (hMonitor != INVALID_HANDLE_VALUE)
-	//	FindCloseChangeNotification(hMonitor);
-
 	return 0;
+}
+
+CMftChangeListener* CMftChangeListener::CreateListener(TCHAR* VolumePath, UINT fs)
+{
+	if (VolumePath == nullptr)
+	{
+		return nullptr;
+	}
+
+	CMftChangeListener* Listener = nullptr;
+
+	switch (fs)
+	{
+	case FILESYSTEM_STATISTICS_TYPE_NTFS:
+		Listener = new CNtfsUSN(VolumePath);
+		break;
+	case FILESYSTEM_STATISTICS_TYPE_FAT:
+		//Listener = new CFatMftReader(hVolume);
+		break;
+	case FILESYSTEM_STATISTICS_TYPE_EXFAT:
+		//Listener = new CExFatReader(hVolume);
+		break;
+	default:
+		return nullptr;
+	}
+
+	return Listener;
 }
 
 USN CMftChangeListener::GetLastUsn()

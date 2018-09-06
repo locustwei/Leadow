@@ -22,7 +22,6 @@ BOOL CFatMftReader::ReadCluster(UINT64 Cluster, UINT count, PVOID buffer)
 
 bool CFatMftReader::Init()
 {
-	ClearCatch();
 
 	if (m_Inited)
 		return true;
@@ -32,7 +31,7 @@ bool CFatMftReader::Init()
 
 	if(result)
 	{
-		PUCHAR pBpb = new UCHAR[m_BytesPerSector];
+		PFAT_BPB pBpb = (PFAT_BPB)new UCHAR[m_BytesPerSector];
 		if(!ReadSector(0, 1, pBpb))
 			return false;
 
@@ -80,15 +79,21 @@ UINT64 CFatMftReader::EnumFiles(IMftReaderHandler* hander, PVOID Param)
 {
 	__super::EnumFiles(hander, Param);
 	
-	return EnumDirectoryFiles(&m_Root);
+	UINT64 result = EnumDirectoryFiles(&m_Root);
+	ClearCatch();
+
+	return result;
 }
 
 UINT64 CFatMftReader::EnumDeleteFiles(IMftDeleteReaderHandler* hanlder, PVOID Param)
 {
 	__super::EnumDeleteFiles(hanlder, Param);
 
-//	EnumDirectoryFiles(&m_Root, 1);
+	InitClusterBitmap();
+
 	UINT64 result = EnumDirectoryFiles(&m_Root, 2);
+
+	ClearCatch();
 
 	return result;
 }
@@ -103,9 +108,11 @@ void CFatMftReader::ZeroMember()
 	m_TotalSectors = 0;
 	m_EntrySize = 0;
 	m_TotalCluster = 0;
+	m_FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
 
 	ZeroMemory(&m_Root, sizeof m_Root);
 	ZeroMemory(&m_fatCache, sizeof(m_fatCache));
+	ZeroMemory(&m_ClusterBitmap, sizeof(m_ClusterBitmap));
 }
 
 //************************************
@@ -149,8 +156,11 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 			if(!ReadSector(m_FirstDataSector - m_SectorsPerRootDirectory, m_SectorsPerRootDirectory, Buffer))
 				break;
 		}else{
+			if(op == 2 && IsClusterUser(ClusterNumber))
+				break;
 			if(!ReadCluster(ClusterNumber, ClusterCount, Buffer))
 				break;
+
 		}
 		
 		UCHAR Checksum; //长文件名校验。
@@ -187,21 +197,13 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 					continue;    //错误
 				break;
 			default: //FAT 文件记录
-				//ZeroMemory(aFileInfo, sizeof(MFT_FILE_INFO) + MAX_FILE);
 
 				if (pParentDir->Order == DELETE_FLAG)  //在已删除的文件夹里找文件存在很大几率是“脏读”，这里特殊处理一下
 				{
-					//if ((pFatFile->Attr & 0x7) == 0 //- 只读  
-					//	//&& pFatFile->Attr != 0x02 //- 隐藏  
-					//	//&& pFatFile->Attr != 0x04 //- 系统文件  
-					//	&& pFatFile->Attr != 0x10 //- 目录 
-					//	&& pFatFile->Attr != 0x20 //- 存档
-					//	)
-					//{
-					//	ZeroMemory(FileName, (MAX_PATH + 1) * sizeof(WCHAR));
-					//	nNamePos = MAX_PATH;
-					//	continue;
-					//}
+					if(nNamePos==MAX_PATH && pFatFile->Order < 32)  //如果没有长文件名，Order应为可见字符
+						goto exit;
+					if(pFatFile->Attr > 0x2F)    //属性无效
+						goto exit;
 				}
 
 				if(nNamePos == MAX_PATH){  //没有长文件名
@@ -237,7 +239,8 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 					switch (op)
 					{
 					case 0:
-						DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir);
+						if (!DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir))
+							goto exit;
 						break;
 					case 1:
 						//DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir);
@@ -249,7 +252,8 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 							pFatFile->IsDeleted = (pFatFile->Order == DELETE_FLAG);
 
 						if (pFatFile->IsDeleted || (pFatFile->Attr & FFT_DIRECTORY) == FFT_DIRECTORY)
-							DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir, true);
+							if (!DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir, true))
+								goto exit;
 					default:
 						break;
 					}
@@ -270,10 +274,16 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 		if(m_EntrySize != 32 && pParentDir == &m_Root)  //FAT16根目录固定(m_SectorsPerRootDirectory)
 			ClusterNumber = 0;
 		else
-			ClusterNumber = GetNextClusterNumber(ClusterNumber);  //目录下一Cluster数据
+		{
+			if (op == 2 && pParentDir->Order == DELETE_FLAG)       //已删除的目录不能找到下一个数据簇。因为FAT已经被置0
+				ClusterNumber = 0;
+			else
+				ClusterNumber = GetNextClusterNumber(ClusterNumber);  //目录下一Cluster数据
+		}
 
 	}
 
+exit:
 	delete FileName;
 	delete Buffer;
 	//delete aFileInfo;
@@ -310,12 +320,24 @@ UINT CFatMftReader::DataClusterStartSector(UINT ClusterNumber)
 UINT CFatMftReader::GetNextClusterNumber(UINT ClusterNumber, PUINT count)
 {
 	UINT Result = 0;
-	UINT64 bitOffset = ClusterNumber * m_EntrySize;
-	UINT64 byteOffset = bitOffset / 8; 
+	UINT64 byteOffset = ClusterNumber * (m_EntrySize / 8);
+	//UINT64 byteOffset = bitOffset / 8; 
 
 	UINT sectorOffset = (UINT)(byteOffset / m_BytesPerSector);
+	if (sectorOffset > m_SectorsPerFAT)
+		return 0;
 
-	PUCHAR pFAT = ReadFat(sectorOffset, 1024, TRUE);
+	PUCHAR pFAT = nullptr;
+
+	if (m_fatCache.buffer) {
+		if (m_fatCache.beginSector <= sectorOffset && m_fatCache.beginSector + m_fatCache.sectorCount >= sectorOffset)
+			pFAT = m_fatCache.buffer + (sectorOffset - m_fatCache.beginSector)*m_BytesPerSector;
+	}
+	if(pFAT == nullptr)
+		pFAT = CacheFat(sectorOffset, 1024, TRUE);
+	if (pFAT == nullptr)
+		return 0;
+
 	switch(m_EntrySize){
 	case 32:
 		Result = *(UINT*)(pFAT+byteOffset % m_BytesPerSector);
@@ -329,7 +351,7 @@ UINT CFatMftReader::GetNextClusterNumber(UINT ClusterNumber, PUINT count)
 		break;
 	case 12:
 		Result = *(UINT*)(pFAT+byteOffset % m_BytesPerSector);
-		Result = Result << bitOffset % 8;
+		Result = Result << byteOffset % 8;
 		Result &= 0xFFF00000;
 		Result >>= 20;
 		if(Result == EOC12 || Result == BAD12 || Result == RES12)
@@ -344,67 +366,51 @@ UINT CFatMftReader::GetNextClusterNumber(UINT ClusterNumber, PUINT count)
 	return Result;
 }
 
-//************************************
-// Method:    ReadFat
-// FullName:  读取FAT扇区数据并缓存
-// Access:    protected 
-// Returns:   PUCHAR
-// Qualifier:
-// Parameter: UINT sector 起始扇区
-// Parameter: UINT count  扇区数
-// Parameter: BOOL cache  使用缓存数据
-//************************************
-PUCHAR CFatMftReader::ReadFat(UINT sector, UINT count, BOOL cache)
-{
-	if(cache && m_fatCache.pFAT){
-		if(m_fatCache.beginSector <= sector && m_fatCache.beginSector + m_fatCache.sectorCount >= sector + count)
-			return m_fatCache.pFAT + (sector - m_fatCache.beginSector)*m_BytesPerSector;
-	}
 
-	if(m_fatCache.pFAT){
-		delete m_fatCache.pFAT;
-		m_fatCache.pFAT = NULL;
+PUCHAR CFatMftReader::CacheFat(UINT sector, UINT count, BOOL cache)
+{
+
+	if(m_fatCache.buffer){
+		delete m_fatCache.buffer;
+		m_fatCache.buffer = nullptr;
 	}
 	if (sector + count > m_SectorsPerFAT)
 		count = m_SectorsPerFAT - sector;
 
 	PBYTE Buffer = new BYTE[m_BytesPerSector * count];
+
 	if(!ReadSector(m_FirstFatSector + sector, count, Buffer)){
 		delete Buffer;
-		return NULL;
+		return nullptr;
 	}
 
 	m_fatCache.beginSector = sector;
 	m_fatCache.sectorCount = count;
-	m_fatCache.pFAT = Buffer;
+	m_fatCache.buffer = Buffer;
 
 	return Buffer;
 }
 
 BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, bool deleted)
 {
-	static UINT FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
-
-	static MFT_FILE_DATA aFileInfo;// = (PMFT_FILE_DATA) new UCHAR[sizeof(MFT_FILE_DATA) + MAX_PATH * sizeof(WCHAR)];
-
-	ZeroMemory(&aFileInfo, sizeof(MFT_FILE_DATA) + MAX_PATH * sizeof(WCHAR));
+	ZeroMemory(&m_FileInfo, sizeof(MFT_FILE_DATA));
 
 	if(pParentDir == &m_Root)
-		aFileInfo.DirectoryFileReferenceNumber = 5;
+		m_FileInfo.DirectoryFileReferenceNumber = 5;
 	else
-		aFileInfo.DirectoryFileReferenceNumber = pParentDir->ReferenceNumber;// MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh);
+		m_FileInfo.DirectoryFileReferenceNumber = pParentDir->ReferenceNumber;// MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh);
 
-	aFileInfo.NameLength = (UCHAR)wcslen(FileName);
-	wcscat_s(aFileInfo.Name, FileName);
-	aFileInfo.FileAttributes = pFatFile->Attr;
-	aFileInfo.DataSize = pFatFile->FileSize;
+	m_FileInfo.NameLength = (UCHAR)wcslen(FileName);
+	wcscat_s(m_FileInfo.Name, FileName);
+	m_FileInfo.FileAttributes = pFatFile->Attr;
+	m_FileInfo.DataSize = pFatFile->FileSize;
 	//ULARGE_INTEGER l = {  pFatFile->ReferenceNumber, MAKELONG(pParentDir->ClusterNumberLow, pParentDir->ClusterNumberHigh) };
-	aFileInfo.FileReferenceNumber = FileReferenceNumber++;
-	pFatFile->ReferenceNumber = aFileInfo.FileReferenceNumber;
+	m_FileInfo.FileReferenceNumber = m_FileReferenceNumber++;
+	pFatFile->ReferenceNumber = m_FileInfo.FileReferenceNumber;
 
-	DosDateTimeToFileTime(pFatFile->CreateDate, pFatFile->CreateTime, &aFileInfo.CreationTime);
-	//DosDateTimeToFileTime(pFatFile->LastAccessDate, 0, &aFileInfo->LastAccessTime);
-	DosDateTimeToFileTime(pFatFile->WriteDate, pFatFile->WriteTime, &aFileInfo.LastWriteTime);
+	DosDateTimeToFileTime(pFatFile->CreateDate, pFatFile->CreateTime, &m_FileInfo.CreationTime);
+	//DosDateTimeToFileTime(pFatFile->LastAccessDate, 0, &m_FileInfo->LastAccessTime);
+	DosDateTimeToFileTime(pFatFile->WriteDate, pFatFile->WriteTime, &m_FileInfo.LastWriteTime);
 
 	if (deleted)
 	{
@@ -437,13 +443,13 @@ BOOL CFatMftReader::DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pP
 			}
 
 		}
-		BOOL result = DelCallback(FileReferenceNumber, &aFileInfo, &aDataStream);
+		BOOL result = DelCallback(m_FileReferenceNumber, &m_FileInfo, &aDataStream);
 		if (aDataStream.Lcns)
 			delete[]aDataStream.Lcns;
 		return result;
 	}
 	else
-		return Callback(aFileInfo.FileReferenceNumber, &aFileInfo);
+		return Callback(m_FileInfo.FileReferenceNumber, &m_FileInfo);
 }
 
 CMftFile* CFatMftReader::GetFile(UINT64 FileNumber, bool OnlyName /*= false*/)
@@ -453,10 +459,36 @@ CMftFile* CFatMftReader::GetFile(UINT64 FileNumber, bool OnlyName /*= false*/)
 
 void CFatMftReader::ClearCatch()
 {
-	if (m_fatCache.pFAT)
-		delete m_fatCache.pFAT;
-	m_fatCache.pFAT = nullptr;
-	m_fatCache.beginSector = 0;
-	m_fatCache.sectorCount = 0;
+	if (m_fatCache.buffer)
+		delete m_fatCache.buffer;
+	ZeroMemory(&m_fatCache, sizeof(m_fatCache));
+	if (m_ClusterBitmap.buffer)
+		free(m_ClusterBitmap.buffer);
+	ZeroMemory(&m_ClusterBitmap, sizeof(m_ClusterBitmap));
+}
+
+bool CFatMftReader::IsClusterUser(UINT ClusterNumber)
+{       //没有真正建立簇位图，只是为了防止删除目录循环脏读（记录已经读取的簇不再重复读取）。
+	for (UINT i = 0; i < m_ClusterBitmap.beginSector; i++)
+		if (PUINT(m_ClusterBitmap.buffer)[i] == ClusterNumber)
+			return true;
+	if (m_ClusterBitmap.beginSector >= m_ClusterBitmap.sectorCount)
+	{
+		m_ClusterBitmap.buffer = (PUCHAR)realloc(m_ClusterBitmap.buffer, (m_ClusterBitmap.sectorCount + 1024) * sizeof(UINT));
+		m_ClusterBitmap.sectorCount += 1024;
+	}
+	PUINT(m_ClusterBitmap.buffer)[m_ClusterBitmap.beginSector++] = ClusterNumber;
+	return false;
+}
+
+void CFatMftReader::InitClusterBitmap()
+{
+	if (!m_ClusterBitmap.buffer)
+	{
+		m_ClusterBitmap.buffer = (PUCHAR)malloc(1024 * sizeof(UINT));
+		m_ClusterBitmap.beginSector = 0;
+		m_ClusterBitmap.sectorCount = 1024;
+	}
+	//ZeroMemory(m_ClusterBitmap.buffer, m_ClusterBitmap.sectorCount * sizeof(UINT));
 }
 

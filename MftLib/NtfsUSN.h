@@ -4,7 +4,7 @@
 class CNtfsUSN : public CMftChangeListener
 {
 public:
-	CNtfsUSN(HANDLE hVoluem);
+	CNtfsUSN(TCHAR*);
 	~CNtfsUSN();
 
 	static BOOL QueryUsnStatus(HANDLE hVolume, PUSN_JOURNAL_DATA outStatus);
@@ -12,6 +12,9 @@ public:
 	static BOOL DeleteUsnJournal(HANDLE hVolume);
 protected:
 	USN UpdateFiles() override;
+	USN ListenUpdate(HANDLE hStopEvent, IMftChangeListenerHandler*, UINT_PTR param) override;
 
+private:
+	HANDLE m_Handle;
 };
 

@@ -168,9 +168,7 @@
     <ClInclude Include="utils\DlgGetFileName.h" />
     <ClInclude Include="utils\FormatSettings.h" />
     <ClInclude Include="utils\SHFolders.h" />
-    <ClInclude Include="volume\Fat.h" />
     <ClInclude Include="volume\FatUtils.h" />
-    <ClInclude Include="volume\ntfs.h" />
     <ClInclude Include="volume\NtfsUtils.h" />
     <ClInclude Include="volume\VolumeInfo.h" />
     <ClInclude Include="volume\VolumeUtils.h" />

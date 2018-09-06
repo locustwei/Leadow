@@ -52,5 +52,6 @@ private:
 	void ClearCatch();
 	PUCHAR CactchClusterBitmap(UINT StartCluster);
 	bool IsClusterUsed(UINT ClusterNumber);
+	UINT m_FileReferenceNumber;
 };
 

@@ -86,6 +86,7 @@ void CExFatReader::ZeroMember()
 	m_TotalCluster = 0;
 	m_ClusterBitmapStartSector = 0;
 	m_ClusterBitmapSectors = 0;
+	m_FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
 
 	ZeroMemory(&m_BitmapCache, sizeof(m_BitmapCache));
 	ZeroMemory(&m_Root, sizeof(m_Root));
@@ -335,12 +336,9 @@ PUCHAR CExFatReader::CacheFat(UINT sector, UINT count)
 
 BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, bool deleted)
 {
-	static UINT FileReferenceNumber = 15;  
-
-
 	m_FileInfo.DirectoryFileReferenceNumber = pParentDir->CUSTOM.ReferenceNumber;
 
-	m_FileInfo.FileReferenceNumber = FileReferenceNumber++;
+	m_FileInfo.FileReferenceNumber = m_FileReferenceNumber++;
 
 
 	if (deleted)
@@ -377,7 +375,7 @@ BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, bool de
 			}
 
 		}
-		BOOL result = DelCallback(FileReferenceNumber, &m_FileInfo, &aDataStream);
+		BOOL result = DelCallback(m_FileReferenceNumber, &m_FileInfo, &aDataStream);
 		if (aDataStream.Lcns)
 			delete[]aDataStream.Lcns;
 		return result;

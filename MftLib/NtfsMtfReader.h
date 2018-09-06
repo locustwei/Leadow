@@ -36,16 +36,16 @@ protected:
 private:
 
 	typedef struct CACHE_INFO{
-		UINT64 StartLcn;
+		UINT64 StartVcn;
 		UINT Count;
 		BYTE* Buffer;
 	};
 	CACHE_INFO m_FatCache;
 	CACHE_INFO m_ClusterBitmapCache;
 
+	UINT m_BytesPerCluster;
 	UINT m_BytesPerFileRecord;
 	UINT64 m_FileCount;
-	UINT m_ClustersPerFileRecord;
 	//UINT m_BytesPerClusters;
 
 	//PNTFS_FILE_RECORD_HEADER m_MftRecord;
@@ -58,7 +58,7 @@ private:
 
 	VOID FixupUpdateSequenceArray(PNTFS_FILE_RECORD_HEADER file);
 	
-	BOOL ReadFileData(CNtfsFile* file, UINT64 vcn, UINT count, PVOID buffer, bool cache = true);
+	BOOL ReadFileData(CNtfsFile* file, UINT64 vcn, UINT count, PVOID buffer);
 	BOOL CacheFileData(CNtfsFile*, UINT64, UINT);
 	UINT CanReadFromCache(UINT64 lcn, UINT count);
 	BOOL bitset(PUCHAR bitmap, UINT64 i);

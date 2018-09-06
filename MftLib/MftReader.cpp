@@ -2,6 +2,7 @@
 #include "MftReader.h"
 #include "NtfsMtfReader.h"
 #include "FatMftReader.h"
+#include "exFatReader.h"
 
 
 CMftReader::CMftReader(HANDLE hVolume)
@@ -133,4 +134,32 @@ BOOL CMftReader::DelCallback(UINT64 ReferenceNumber, PMFT_FILE_DATA pFileInfo, P
 		return m_DelHolder->EnumMftDeleteFileCallback(pFileInfo, datastream, m_Param);
 	else
 		return FALSE;
+}
+
+
+CMftReader* CMftReader::CreateReader(HANDLE hVolume, UINT fs)
+{
+	if (hVolume == INVALID_HANDLE_VALUE)
+	{
+		return nullptr;
+	}
+
+	CMftReader* Reader = nullptr;
+
+	switch (fs)
+	{
+	case FILESYSTEM_STATISTICS_TYPE_NTFS:
+		Reader = new CNtfsMtfReader(hVolume);
+		break;
+	case FILESYSTEM_STATISTICS_TYPE_FAT:
+		Reader = new CFatMftReader(hVolume);
+		break;
+	case FILESYSTEM_STATISTICS_TYPE_EXFAT:
+		Reader = new CExFatReader(hVolume);
+		break;
+	default:
+		return nullptr;
+	}
+
+	return Reader;
 }

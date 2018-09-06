@@ -89,13 +89,7 @@
     <ClInclude Include="classes\Thread.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="volume\Fat.h">
-      <Filter>volume</Filter>
-    </ClInclude>
     <ClInclude Include="volume\FatUtils.h">
-      <Filter>volume</Filter>
-    </ClInclude>
-    <ClInclude Include="volume\ntfs.h">
       <Filter>volume</Filter>
     </ClInclude>
     <ClInclude Include="volume\NtfsUtils.h">

@@ -25,9 +25,10 @@ private:
 	typedef struct FAT_CACHE{
 		UINT beginSector;
 		UINT sectorCount;
-		BYTE* pFAT;
+		BYTE* buffer;
 	};
 	FAT_CACHE m_fatCache;
+	FAT_CACHE m_ClusterBitmap;
 
 	USHORT m_SectorsPerRootDirectory;
 	UINT m_SectorsPerFAT;
@@ -37,14 +38,18 @@ private:
 
 	UCHAR m_EntrySize;
 	FAT_FILE m_Root;
+	UINT64 m_FileReferenceNumber;        //自增长的文件号
+	MFT_FILE_DATA m_FileInfo;            //临时使用的中间变量
 
 	INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, int op = 0);
 	UINT DataClusterStartSector(UINT ClusterNumber);
 	UINT GetNextClusterNumber(UINT ClusterNumber, PUINT count = nullptr);
-	PUCHAR ReadFat(UINT sector, UINT count, BOOL cache);
+	PUCHAR CacheFat(UINT sector, UINT count, BOOL cache);
 	BOOL DoAFatFile(PFAT_FILE pFatFile, PWCHAR FileName, PFAT_FILE pParentDir, bool deleted = false);
 
 	virtual CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = false) override;
 	void ClearCatch();
+	bool IsClusterUser(UINT ClusterNumber);
+	void InitClusterBitmap();
 };
 

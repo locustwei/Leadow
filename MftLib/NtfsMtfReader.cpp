@@ -15,7 +15,7 @@ CNtfsMtfReader::CNtfsMtfReader(HANDLE hVolume)
 	,m_ClusterBitmap(this)
 {
 	ZeroMember();
-	m_Inited = Init();
+	//m_Inited = Init();
 }
 
 
@@ -77,7 +77,7 @@ UINT64 CNtfsMtfReader::EnumFiles(IMftReaderHandler* hander, PVOID Param)
 	UINT64 result = 0;	
 	CNtfsFile file(this);
 
-	for(UINT64 i = 16; i < m_FileCount; i++)
+	for(UINT64 i = 15; i < m_FileCount; i++)
 	{
 
 		if( !bitset(m_MftBitmap, i))
@@ -156,7 +156,7 @@ UINT64 CNtfsMtfReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Pa
 				if (!attr->IsNonresident())          //
 				{
 					UINT64 lcn = GetFileLcn(i);
-					UINT offset = (i % ((m_SectorsPerCluster * m_BytesPerSector) / m_BytesPerFileRecord)) * m_BytesPerFileRecord;
+					UINT offset = ((i * m_BytesPerFileRecord) % (m_BytesPerCluster));  //
 					datastream.Offset = offset + attr->GetOffset() + attr->GetValueOffset();
 					datastream.LcnCount = 1;						
 					datastream.Lcns[0] = lcn;
@@ -234,103 +234,93 @@ VOID CNtfsMtfReader::FixupUpdateSequenceArray(PNTFS_FILE_RECORD_HEADER file)
 		}
 		sector[index] = usa[i];
 		index += X;
+
+		if (index > m_BytesPerFileRecord / sizeof(USHORT))
+			return;
 	}
 }
 
 CMftFile* CNtfsMtfReader::GetFile(UINT64 FileNumber, bool OnlyName)
 {
+	/*if (!bitset(m_MftBitmap, FileNumber))
+		return nullptr;*/
+
 	CNtfsFile* result = nullptr;
 	PNTFS_FILE_RECORD_HEADER file = (PNTFS_FILE_RECORD_HEADER)new PUCHAR[m_BytesPerFileRecord];
-	ZeroMemory(file, m_BytesPerFileRecord);
-	do 
+	do
 	{
 		if (!ReadFileRecord(FileNumber, file, false))
 			break;
+		if (file->Ntfs.Type != 'ELIF')
+			break;;
+		/*if ((file->Flags & 0x1) == 0)
+			break;*/
 		result = new CNtfsFile(this);
 		result->LoadAttributes(FileNumber, file, OnlyName);
 	} while (false);
+
 
 	delete file;
 
 	return (CMftFile*)result;
 }
 
-BOOL CNtfsMtfReader::ReadFileData(CNtfsFile* file, UINT64 vcn, UINT count, PVOID buffer, bool cache)
+BOOL CNtfsMtfReader::ReadFileData(CNtfsFile* file, UINT64 vcn, UINT count, PVOID buffer)
 {
 	
-#define MAX_CACH_CLUMSTER_COUNT 400
-
-	UINT64 lcn;
 	UINT n = 0;
-	lcn = file->Vcn2Lcn(vcn, &n);
-	if (cache)
+	UINT64 lcn = file->Vcn2Lcn(vcn, &n);
+
+	while (lcn != 0 && n != 0)
 	{
-		UINT cachVcn = CanReadFromCache(lcn, count);
+		UINT nRead;
+		if (n > count)
+			nRead = count;
+		else
+			nRead = n;
 
-		if (!cachVcn)
-		{
-			if (CacheFileData(file, lcn, n > MAX_CACH_CLUMSTER_COUNT ? MAX_CACH_CLUMSTER_COUNT : n))
-				cachVcn = 1;
-		}
-		if (cachVcn)
-			MoveMemory(buffer, m_FatCache.Buffer + (cachVcn - 1) * m_BytesPerSector * m_SectorsPerCluster, count * m_BytesPerSector * m_SectorsPerCluster);
-	}
-	else
-	{
-		while (true)
-		{
-			UINT nRead;
-			if (n > count)
-				nRead = count;
-			else
-				nRead = n;
+		if (!ReadCluster(lcn, nRead, buffer))
+			return FALSE;
+		buffer = (PUCHAR)buffer + nRead * m_BytesPerCluster;
 
-			if (!ReadCluster(lcn, nRead, buffer))
-				break;
-			buffer = (PUCHAR)buffer + nRead * m_BytesPerSector * m_SectorsPerCluster;
+		if (count <= nRead)
+			break;
 
-			if(count <= nRead)
-				break;
-
-			count -= nRead;
-			lcn = file->Vcn2Lcn(vcn + nRead, &n);
-
-			if(lcn == 0)
-				break;
-		}
+		count -= nRead;
+		lcn = file->Vcn2Lcn(vcn + nRead, &n);
 	}
 	
 	return TRUE;
 }
 
-BOOL CNtfsMtfReader::CacheFileData(CNtfsFile* file, UINT64 lcn, UINT count)
+BOOL CNtfsMtfReader::CacheFileData(CNtfsFile* file, UINT64 vcn, UINT count)
 {
 	if (!m_FatCache.Buffer)
 	{
-		m_FatCache.Buffer = new BYTE[count * m_SectorsPerCluster * m_BytesPerSector];
+		m_FatCache.Buffer = new BYTE[count * m_BytesPerCluster];
 	}
 	else if(m_FatCache.Count < count)
 	{
 		delete m_FatCache.Buffer;
-		m_FatCache.Buffer = new BYTE[count * m_SectorsPerCluster * m_BytesPerSector];
+		m_FatCache.Buffer = new BYTE[count * m_BytesPerCluster];
 	}
 
-	if (!ReadCluster(lcn, count, m_FatCache.Buffer))
+	if (!ReadFileData(file, vcn, count, m_FatCache.Buffer))
 	{
 		ClearCache();
 		return FALSE;
 	}
 
-	m_FatCache.StartLcn = lcn;
+	m_FatCache.StartVcn = vcn;
 	m_FatCache.Count = count;
 	return TRUE;
 }
 
 UINT CNtfsMtfReader::CanReadFromCache(UINT64 lcn, UINT count)
 {
-	if (m_FatCache.Buffer && lcn >= m_FatCache.StartLcn && lcn + count <= m_FatCache.StartLcn + m_FatCache.Count)
+	if (m_FatCache.Buffer && lcn >= m_FatCache.StartVcn && lcn + count <= m_FatCache.StartVcn + m_FatCache.Count)
 	{
-		return (UINT)(lcn - m_FatCache.StartLcn + 1);
+		return (UINT)(lcn - m_FatCache.StartVcn + 1);
 	}
 
 	return 0;
@@ -343,38 +333,67 @@ BOOL CNtfsMtfReader::bitset(PUCHAR bitmap, UINT64 i)
 
 BOOL CNtfsMtfReader::ReadFileRecord(UINT64 index, PNTFS_FILE_RECORD_HEADER file, bool cache)
 {
-	UINT clusters = m_ClustersPerFileRecord;
+	UINT cluster = m_BytesPerFileRecord /m_BytesPerCluster + 1;
+	UINT MAX_CACH_CLUMSTER_COUNT = (1024 * 1024 * 6) / m_BytesPerCluster;
+
 	BOOL result = FALSE;
 
-	if (clusters > 0x80)
-		clusters = 1;
+	PUCHAR p = nullptr;// new UCHAR[m_BytesPerFileRecord];
+	UINT64 vcn = (UINT64)(index * m_BytesPerFileRecord)/m_BytesPerCluster;
+	UINT byteOffset = index * m_BytesPerFileRecord - vcn * m_BytesPerCluster;
 
-	PUCHAR p = new UCHAR[m_BytesPerSector* m_SectorsPerCluster * clusters];
-	UINT64 vcn = UINT64(index) * m_BytesPerFileRecord/m_BytesPerSector/m_SectorsPerCluster;
+	//UINT n = 0;
+	//UINT64 lcn = m_MftFile.Vcn2Lcn(vcn, &n);
 
-
-	if(ReadFileData(&m_MftFile, vcn, clusters, p, cache))
+	UINT cachVcn = CanReadFromCache(vcn, cluster);
+	if (cachVcn)
 	{
-		LONG m = (m_SectorsPerCluster * m_BytesPerSector / m_BytesPerFileRecord) - 1;
-		UINT n = m > 0 ? (index & m) : 0;
-		memcpy(file, p + n * m_BytesPerFileRecord, m_BytesPerFileRecord);
-
-		FixupUpdateSequenceArray(file);
+		p = m_FatCache.Buffer + (cachVcn - 1) * m_BytesPerCluster;
+		MoveMemory(file, p + byteOffset, m_BytesPerFileRecord);
 		result = TRUE;
-	}else
+	}
+	else if (cache)
+	{
+		if (CacheFileData(&m_MftFile, vcn, MAX_CACH_CLUMSTER_COUNT))
+		{
+			p = m_FatCache.Buffer;
+			MoveMemory(file, p + byteOffset, m_BytesPerFileRecord);
+			result = TRUE;
+		}
+	}
+	else
+	{
+		p = new UCHAR[cluster * m_BytesPerCluster];
+
+		if (ReadFileData(&m_MftFile, vcn, cluster, p))
+		{
+			MoveMemory(file, p + byteOffset, m_BytesPerFileRecord);
+			result = TRUE;
+		}
+		delete[] p;
+	}
+
+	if (result)
+		FixupUpdateSequenceArray(file);
+	else 
 	{
 		NTFS_FILE_RECORD_INPUT_BUFFER mftRecordInput = {0};
 		DWORD dwCB;
 		mftRecordInput.FileReferenceNumber.QuadPart = index;
+		
+		p = new UCHAR[sizeof(NTFS_FILE_RECORD_OUTPUT_BUFFER) + m_BytesPerFileRecord];
+
 		if (DeviceIoControl(m_Handle, FSCTL_GET_NTFS_FILE_RECORD, &mftRecordInput, sizeof(mftRecordInput), p, sizeof(NTFS_FILE_RECORD_OUTPUT_BUFFER) + m_BytesPerFileRecord, &dwCB, NULL)
 			&& PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileReferenceNumber.QuadPart == index)
 		{
 			memcpy(file, PNTFS_FILE_RECORD_OUTPUT_BUFFER(p)->FileRecordBuffer, m_BytesPerFileRecord);
 			result = TRUE;
 		}
+
+		delete[] p;
 	}
 
-	delete [] p;
+
 	return result;
 }
 
@@ -393,8 +412,8 @@ UINT64 CNtfsMtfReader::ReadFileAttributeData(CNtfsFile* File, CNtfsFileAttribute
 	}
 	else
 	{
-		UINT count = Size / m_BytesPerSector / m_SectorsPerCluster;
-		if (count*m_BytesPerSector * m_SectorsPerCluster < Size)
+		UINT count = Size / m_BytesPerCluster;
+		if (count*m_BytesPerCluster < Size)
 			count++;
 
 		//UINT nReaded = 0;
@@ -408,14 +427,14 @@ UINT64 CNtfsMtfReader::ReadFileAttributeData(CNtfsFile* File, CNtfsFileAttribute
 				nCopy = attr->GetLcnBlock(i)->nCount;
 
 			ReadCluster(attr->GetLcnBlock(i)->startLcn, nCopy, buffer);
-			buffer += nCopy * m_BytesPerSector * m_SectorsPerCluster;
+			buffer += nCopy * m_BytesPerCluster;
 
 			count -= nCopy;
 			if(count == 0)
 				break;
 		}
 
-		return Size - count * m_BytesPerSector * m_SectorsPerCluster;
+		return Size - count * m_BytesPerCluster;
 	}
 }
 
@@ -425,6 +444,7 @@ bool CNtfsMtfReader::GetBitmapFile()
 		return false;
 	m_ClusterBitmap.LoadAttributes(6, m_FileCanche, false);
 	CactchClusterBitmap(0);
+	return true;
 }
 
 bool CNtfsMtfReader::IsClusterUsed(UINT64 ClusterNumber)
@@ -432,17 +452,17 @@ bool CNtfsMtfReader::IsClusterUsed(UINT64 ClusterNumber)
 	UCHAR Result = 0;
 	UINT64 byteOffset = ClusterNumber / 8;
 
-	UINT64 vcn = byteOffset / (m_BytesPerSector * m_SectorsPerCluster);
+	UINT64 vcn = byteOffset / m_BytesPerCluster;
 
-	if (m_ClusterBitmapCache.Buffer && m_ClusterBitmapCache.StartLcn <= vcn && m_ClusterBitmapCache.StartLcn + m_ClusterBitmapCache.Count > vcn)
+	if (m_ClusterBitmapCache.Buffer && m_ClusterBitmapCache.StartVcn <= vcn && m_ClusterBitmapCache.StartVcn + m_ClusterBitmapCache.Count > vcn)
 	{
-		Result = *(PUCHAR)(m_ClusterBitmapCache.Buffer + (vcn - m_ClusterBitmapCache.StartLcn) * m_BytesPerSector * m_SectorsPerCluster + byteOffset % m_BytesPerSector);
+		Result = *(PUCHAR)(m_ClusterBitmapCache.Buffer + (vcn - m_ClusterBitmapCache.StartVcn) * m_BytesPerCluster + byteOffset % m_BytesPerCluster);
 	}
 	else
 	{
 		PUCHAR pFAT = CactchClusterBitmap(vcn);
 		if (pFAT)
-			Result = *(PUCHAR)(pFAT + byteOffset);
+			Result = *(PUCHAR)(pFAT + byteOffset % m_BytesPerCluster);
 	}
 	return Result & (1 << ClusterNumber % 8);
 }
@@ -455,20 +475,18 @@ PUCHAR CNtfsMtfReader::CactchClusterBitmap(UINT64 vcn)
 		m_ClusterBitmapCache.Buffer = nullptr;
 	}
 
-	UINT count = 1024 * 1024 * 10 / (m_BytesPerSector * m_SectorsPerCluster);
-	if (count == 0)
-		count = 1;
-	
+	UINT count = (1024 * 1024 * 9) / m_BytesPerCluster + 1;
 
-	m_ClusterBitmapCache.Buffer = new BYTE[count * m_BytesPerSector * m_SectorsPerCluster];
 
-	if(!ReadFileData(&m_ClusterBitmap, vcn, count, m_ClusterBitmapCache.Buffer, false))
+	m_ClusterBitmapCache.Buffer = new BYTE[count * m_BytesPerCluster];
+
+	if(!ReadFileData(&m_ClusterBitmap, vcn, count, m_ClusterBitmapCache.Buffer))
 	{
 		delete[] m_ClusterBitmapCache.Buffer;
 		m_ClusterBitmapCache.Buffer = nullptr;
 	}
 
-	m_ClusterBitmapCache.StartLcn = vcn;
+	m_ClusterBitmapCache.StartVcn = vcn;
 	m_ClusterBitmapCache.Count = count;
 	return m_ClusterBitmapCache.Buffer;
 }
@@ -478,15 +496,16 @@ void CNtfsMtfReader::ClearCache()
 	if (m_FatCache.Buffer)
 	{
 		delete[] m_FatCache.Buffer;
-		m_FatCache.Buffer = NULL;
 	}
-	m_FatCache.StartLcn = 0;
-	m_FatCache.Count = 0;
+	ZeroMemory(&m_FatCache, sizeof(m_FatCache));
+	if (m_ClusterBitmapCache.Buffer)
+		delete[] m_ClusterBitmapCache.Buffer;
+	ZeroMemory(&m_ClusterBitmapCache, sizeof(m_ClusterBitmapCache));
 }
 
 UINT64 CNtfsMtfReader::GetFileLcn(UINT64 FileReferenceNumber)
 {
-	UINT64 vcn = UINT64(FileReferenceNumber) * m_BytesPerFileRecord / m_BytesPerSector / m_SectorsPerCluster;
+	UINT64 vcn = UINT64(FileReferenceNumber) * m_BytesPerFileRecord / m_BytesPerCluster;
 	UINT64 lcn = m_MftFile.Vcn2Lcn(vcn, nullptr);
 	return lcn;
 }
@@ -502,7 +521,6 @@ void CNtfsMtfReader::ZeroMember()
 	m_FileCount = 0;
 	m_SectorsPerCluster = 0;
 	m_BytesPerFileRecord = 0;
-	m_ClustersPerFileRecord = 0;
 	//m_BytesPerClusters = 0;
 
 	ZeroMemory(&m_FatCache, sizeof(m_FatCache));	
@@ -523,15 +541,14 @@ bool CNtfsMtfReader::Init()
 		if(!ReadSector(0, 1, pBpb))
 			break;
 		
-		m_BytesPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord < 0x80
-			? ((PNTFS_BPB)pBpb)->ClustersPerFileRecord * ((PNTFS_BPB)pBpb)->SectorsPerCluster
-			* ((PNTFS_BPB)pBpb)->BytesPerSector: 1 << (0x100 - ((PNTFS_BPB)pBpb)->ClustersPerFileRecord);
-
 		m_SectorsPerCluster = ((PNTFS_BPB)pBpb)->SectorsPerCluster;
-		m_ClustersPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord;
+		m_BytesPerCluster = m_BytesPerSector * m_SectorsPerCluster;
+
 		m_TotalCluster = pBpb->TotalSectors / pBpb->SectorsPerCluster;
 
-		//m_BytesPerClusters = m_BytesPerSector * m_SectorsPerCluster;
+		m_BytesPerFileRecord = ((PNTFS_BPB)pBpb)->ClustersPerFileRecord < 0x80
+			? ((PNTFS_BPB)pBpb)->ClustersPerFileRecord * ((PNTFS_BPB)pBpb)->SectorsPerCluster
+			* ((PNTFS_BPB)pBpb)->BytesPerSector : 1 << (0x100 - ((PNTFS_BPB)pBpb)->ClustersPerFileRecord);
 
 		PNTFS_FILE_RECORD_HEADER MftRecord = PNTFS_FILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
 		ZeroMemory(MftRecord, m_BytesPerFileRecord);
@@ -561,16 +578,19 @@ bool CNtfsMtfReader::Init()
 
 	delete[] pBpb;
 
-	//DebugOutput(L"BytesPerFileRecord = %d\nSectorsPerCluster = %d\nTotalCluster = %lld\nFileCount = %lld\n", 
-	//	m_BytesPerFileRecord, m_SectorsPerCluster, m_TotalCluster, m_FileCount);
+#ifdef _DEBUG
+	DebugOutput(L"BytesPerFileRecord = %d\nSectorsPerCluster = %d\nTotalCluster = %lld\nFileCount = %lld\n", 
+		m_BytesPerFileRecord, m_SectorsPerCluster, m_TotalCluster, m_FileCount);
 
-	//for (int j = 0; j < m_MftFile.GetDataStreamCount(); j++)
-	//{
-	//	for (int i = 0; i < m_MftFile.GetDataStream(j)->GetBlockCount(); i++)
-	//	{
-	//		DebugOutput(L"MFT Data strart = %lld count = %d\n", m_MftFile.GetDataStream(j)->GetLcnBlock(i)->startLcn, m_MftFile.GetDataStream(j)->GetLcnBlock(i)->startLcn);
-	//	}
-	//}
+	for (int j = 0; j < m_MftFile.GetDataStreamCount(); j++)
+	{
+		for (int i = 0; i < m_MftFile.GetDataStream(j)->GetBlockCount(); i++)
+		{
+			DebugOutput(L"MFT Data strart = %lld count = %d\n", m_MftFile.GetDataStream(j)->GetLcnBlock(i)->startLcn, m_MftFile.GetDataStream(j)->GetLcnBlock(i)->startLcn);
+		}
+	}
+#endif // _DEBUG
+
 	return result;
 }
 

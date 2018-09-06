@@ -108,17 +108,13 @@ VOID CNtfsFile::LoadAttributes(UINT64 FileReferenceNumber, PNTFS_FILE_RECORD_HEA
 		case AttributeLoggedUtilityStream:
 			break;
 		default:
-			//DebugOutput(L"error read file attribute %s\n", m_FileInfo.Name);
-
 			return;   //¶ÁÈ¡´íÎó
-
 		}
 
 		
 		Offset += attr->Length;
 		if (Offset % 8 != 0)  //8×Ö½Ú¶ÔÆë£»
 		{
-			//DebugOutput(L"%s\n", m_FileInfo.Name);
 			Offset = (Offset / 8 + 1) * 8;
 		}
 	}
