@@ -26,18 +26,6 @@
     <ClCompile Include="classes\Thread.cpp">
       <Filter>classes</Filter>
     </ClCompile>
-    <ClCompile Include="volume\FatUtils.cpp">
-      <Filter>volume</Filter>
-    </ClCompile>
-    <ClCompile Include="volume\NtfsUtils.cpp">
-      <Filter>volume</Filter>
-    </ClCompile>
-    <ClCompile Include="volume\VolumeInfo.cpp">
-      <Filter>volume</Filter>
-    </ClCompile>
-    <ClCompile Include="volume\VolumeUtils.cpp">
-      <Filter>volume</Filter>
-    </ClCompile>
     <ClCompile Include="classes\DynObject.cpp">
       <Filter>classes</Filter>
     </ClCompile>
@@ -89,18 +77,6 @@
     <ClInclude Include="classes\Thread.h">
       <Filter>classes</Filter>
     </ClInclude>
-    <ClInclude Include="volume\FatUtils.h">
-      <Filter>volume</Filter>
-    </ClInclude>
-    <ClInclude Include="volume\NtfsUtils.h">
-      <Filter>volume</Filter>
-    </ClInclude>
-    <ClInclude Include="volume\VolumeInfo.h">
-      <Filter>volume</Filter>
-    </ClInclude>
-    <ClInclude Include="volume\VolumeUtils.h">
-      <Filter>volume</Filter>
-    </ClInclude>
     <ClInclude Include="classes\DynObject.h">
       <Filter>classes</Filter>
     </ClInclude>
@@ -123,9 +99,6 @@
     </Filter>
     <Filter Include="classes">
       <UniqueIdentifier>{98ff1b42-62d1-4062-9914-259d35faff37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="volume">
-      <UniqueIdentifier>{2dba6579-275d-404d-9b5b-c71c4814df11}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

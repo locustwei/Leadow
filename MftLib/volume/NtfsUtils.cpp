@@ -1,8 +1,7 @@
 #include "stdafx.h"
 #include "NtfsUtils.h"
-#include "ntfs.h"
 
-namespace LeadowLib {
+namespace LeadowDisk {
 
 	DWORD CNtfsUtils::GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData)
 	{

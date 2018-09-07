@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "FatUtils.h"
-#include "fat.h"
+#include "..\Mft\Fat.h"
 
-namespace LeadowLib {
+namespace LeadowDisk {
 	DWORD CFatUtils::GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData)
 	{
 		DWORD result = 0;

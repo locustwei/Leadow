@@ -90,6 +90,10 @@
     <Lib>
       <TargetMachine>
       </TargetMachine>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -168,10 +172,6 @@
     <ClInclude Include="utils\DlgGetFileName.h" />
     <ClInclude Include="utils\FormatSettings.h" />
     <ClInclude Include="utils\SHFolders.h" />
-    <ClInclude Include="volume\FatUtils.h" />
-    <ClInclude Include="volume\NtfsUtils.h" />
-    <ClInclude Include="volume\VolumeInfo.h" />
-    <ClInclude Include="volume\VolumeUtils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="classes\DynObject.cpp" />
@@ -192,10 +192,6 @@
     <ClCompile Include="utils\DlgGetFileName.cpp" />
     <ClCompile Include="utils\FormatSettings.cpp" />
     <ClCompile Include="utils\SHFolders.cpp" />
-    <ClCompile Include="volume\FatUtils.cpp" />
-    <ClCompile Include="volume\NtfsUtils.cpp" />
-    <ClCompile Include="volume\VolumeInfo.cpp" />
-    <ClCompile Include="volume\VolumeUtils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />

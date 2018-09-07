@@ -24,9 +24,6 @@
 
 #include "file/FileInfo.h"
 #include "file/FileUtils.h"
-#include "volume/VolumeInfo.h"
-#include "volume/VolumeUtils.h"
-#include "volume/NtfsUtils.h"
 
 #include "utils/DateTimeUtils.h"
 #include "utils/DlgGetFileName.h"

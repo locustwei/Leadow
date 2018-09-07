@@ -229,54 +229,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="ExportFunction.cpp" />
     <ClCompile Include="Impl\CWJSLib.cpp" />
     <ClCompile Include="Impl\WJMftFileImpl.cpp" />
     <ClCompile Include="Impl\WJMftIndexFile.cpp" />
     <ClCompile Include="Impl\WJMftReader.cpp" />
     <ClCompile Include="Impl\WJVolume.cpp" />
-    <ClCompile Include="LdString.cpp" />
     <ClCompile Include="MD5.cpp" />
-    <ClCompile Include="MFT\exFatReader.cpp" />
-    <ClCompile Include="MFT\FatMftReader.cpp" />
-    <ClCompile Include="MFT\MftReader.cpp" />
-    <ClCompile Include="MFT\NtfsFile.cpp" />
-    <ClCompile Include="MFT\NtfsMtfReader.cpp" />
-    <ClCompile Include="MFT\MftChangeListener.cpp" />
-    <ClCompile Include="MFT\NtfsUSN.cpp" />
-    <ClCompile Include="RecordFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='CONSON|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="test.cpp" />
-    <ClCompile Include="Thread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExportFunction.h" />
     <ClInclude Include="Impl\CWJSLib.h" />
     <ClInclude Include="Impl\WJMftFileImpl.h" />
     <ClInclude Include="Impl\WJMftIndexFile.h" />
     <ClInclude Include="Impl\WJMftReader.h" />
     <ClInclude Include="Impl\WJVolume.h" />
-    <ClInclude Include="LdArray.h" />
-    <ClInclude Include="LdString.h" />
     <ClInclude Include="MD5.h" />
-    <ClInclude Include="MFT\exFatReader.h" />
-    <ClInclude Include="MFT\Fat.h" />
-    <ClInclude Include="MFT\FatMftReader.h" />
-    <ClInclude Include="MFT\MftReader.h" />
-    <ClInclude Include="MFT\ntfs.h" />
-    <ClInclude Include="MFT\NtfsFile.h" />
-    <ClInclude Include="MFT\NtfsMtfReader.h" />
-    <ClInclude Include="MFT\MftChangeListener.h" />
-    <ClInclude Include="MFT\NtfsUSN.h" />
-    <ClInclude Include="RecordFile.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="WJDefines.h" />
-    <ClInclude Include="Thread.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DllExport.def" />

@@ -30,52 +30,85 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FatMftReader.h">
-      <Filter>Mft</Filter>
-    </ClInclude>
-    <ClInclude Include="MftReader.h">
-      <Filter>Mft</Filter>
-    </ClInclude>
-    <ClInclude Include="NtfsMtfReader.h">
-      <Filter>Mft</Filter>
-    </ClInclude>
     <ClInclude Include="LdMft.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="exFatReader.h">
+    <ClInclude Include="Mft\exFatReader.h">
       <Filter>Mft</Filter>
     </ClInclude>
-    <ClInclude Include="Fat.h">
+    <ClInclude Include="Mft\Fat.h">
       <Filter>Mft</Filter>
     </ClInclude>
-    <ClInclude Include="ntfs.h">
+    <ClInclude Include="Mft\FatMftReader.h">
       <Filter>Mft</Filter>
     </ClInclude>
-    <ClInclude Include="ntfsfile.h">
+    <ClInclude Include="Mft\MftChangeListener.h">
       <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Mft\MftReader.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Mft\ntfs.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Mft\ntfsfile.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Mft\NtfsMtfReader.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="Mft\NtfsUSN.h">
+      <Filter>Mft</Filter>
+    </ClInclude>
+    <ClInclude Include="volume\FatUtils.h">
+      <Filter>Volume</Filter>
+    </ClInclude>
+    <ClInclude Include="volume\NtfsUtils.h">
+      <Filter>Volume</Filter>
+    </ClInclude>
+    <ClInclude Include="volume\VolumeInfo.h">
+      <Filter>Volume</Filter>
+    </ClInclude>
+    <ClInclude Include="volume\VolumeUtils.h">
+      <Filter>Volume</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="FatMftReader.cpp">
+    <ClCompile Include="Mft\exFatReader.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
-    <ClCompile Include="MftReader.cpp">
+    <ClCompile Include="Mft\FatMftReader.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
-    <ClCompile Include="NtfsMtfReader.cpp">
+    <ClCompile Include="Mft\MftChangeListener.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
-    <ClCompile Include="exFatReader.cpp">
+    <ClCompile Include="Mft\MftReader.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
-    <ClCompile Include="NtfsFile.cpp">
+    <ClCompile Include="Mft\NtfsFile.cpp">
       <Filter>Mft</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClCompile Include="Mft\NtfsMtfReader.cpp">
+      <Filter>Mft</Filter>
+    </ClCompile>
+    <ClCompile Include="Mft\NtfsUSN.cpp">
+      <Filter>Mft</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\FatUtils.cpp">
+      <Filter>Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\NtfsUtils.cpp">
+      <Filter>Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\VolumeInfo.cpp">
+      <Filter>Volume</Filter>
+    </ClCompile>
+    <ClCompile Include="volume\VolumeUtils.cpp">
+      <Filter>Volume</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

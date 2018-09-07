@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "VolumeUtils.h"
 
-namespace LeadowLib {
+namespace LeadowDisk {
 	DWORD CVolumeUtils::MountedVolumes(CLdMethodDelegate callback, UINT_PTR Param)
 	{
 		DWORD			dwSize = GetLogicalDriveStrings(0, NULL);
@@ -25,7 +25,7 @@ namespace LeadowLib {
 	}
 
 
-	DWORD CVolumeUtils::EnumVolumeNames(IGernalCallback<TCHAR*>* callback, UINT_PTR Param)
+	DWORD CVolumeUtils::EnumVolumeNames(CLdMethodDelegate callback, UINT_PTR Param)
 	{
 		TCHAR Volume[MAX_PATH] = { 0 };
 		ULONG CharCount = MAX_PATH;
@@ -49,7 +49,7 @@ namespace LeadowLib {
 				break;
 			}
 
-			if (!callback->GernalCallback_Callback(Volume, Param))
+			if (!callback(Volume, Param))
 				break;
 
 			ZeroMemory(Volume, ARRAYSIZE(Volume) * sizeof(TCHAR));
@@ -70,14 +70,18 @@ namespace LeadowLib {
 		if (GetVolumeInformation(szPath, nullptr, 0, nullptr, &MaxFilenameLength, nullptr, FileSystemNameBuffer, MAX_PATH))
 		{
 			if (FileSystemNameBuffer == _T("NTFS"))
-				return FS_NTFS;
+				return FILESYSTEM_TYPE_NTFS;
 			else if (FileSystemNameBuffer == _T("FAT32"))
-				return FS_FAT32;
+				return FILESYSTEM_TYPE_FAT;
+			else if (FileSystemNameBuffer == _T("exFAT"))
+				return FILESYSTEM_TYPE_EXFAT;
+			else if (FileSystemNameBuffer == _T("UDF"))
+				return FILESYSTEM_TYPE_UDF;
 			else if (FileSystemNameBuffer == _T("FAT"))
 			{
-				return FS_FAT16;
+				return FILESYSTEM_TYPE_FAT;
 			}
 		}
-		return FS_UNKNOW;
+		return FILESYSTEM_TYPE_UNKNOWN;
 	}
 }

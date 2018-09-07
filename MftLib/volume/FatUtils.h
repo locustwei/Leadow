@@ -4,8 +4,8 @@
 #include "VolumeUtils.h"
 #include "VolumeInfo.h"
 
-namespace LeadowLib {
-	class CNtfsUtils
+namespace LeadowDisk {
+	class CFatUtils
 	{
 	public:
 		static DWORD GetBpbData(CVolumeInfo* Volume, PVOLUME_BPB_DATA pBpbData);

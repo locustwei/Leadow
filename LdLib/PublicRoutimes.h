@@ -21,6 +21,18 @@ namespace LeadowLib {
 	DWORD RunProcess(TCHAR* cmd, TCHAR* param, bool admin, PPROCESS_INFORMATION out);
 
 	CLdString NewGuidString();
+	//XP不没有这个函数所以要动态加载
+	BOOL GetVolumeInformationByHandle_(
+		HANDLE hFile,
+		LPWSTR lpVolumeNameBuffer,
+		DWORD nVolumeNameSize,
+		LPDWORD lpVolumeSerialNumber,
+		LPDWORD lpMaximumComponentLength,
+		LPDWORD lpFileSystemFlags,
+		LPWSTR lpFileSystemNameBuffer,
+		DWORD nFileSystemNameSize
+	);
+
 #pragma region Window 版本
 	enum WIN_OS_TYPE
 	{

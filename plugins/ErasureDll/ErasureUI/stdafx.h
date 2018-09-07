@@ -38,13 +38,13 @@ using namespace JsonBox;
 #ifdef WIN64
 #pragma comment(lib,"LdLib_d64.lib")
 #pragma comment(lib,"DuiLib_d64.lib")
-#pragma comment(lib,"MftLib_d64.lib")
+#pragma comment(lib,"DiskLib_d64.lib")
 #pragma comment(lib,"JsonLib_d64.lib")
 #pragma comment(lib,"LdApp_d64.lib")
 #else
 #pragma comment(lib,"LdLib_d32.lib")
 #pragma comment(lib,"DuiLib_d32.lib")
-#pragma comment(lib,"MftLib_d32.lib")
+#pragma comment(lib,"DiskLib_d32.lib")
 #pragma comment(lib,"JsonLib_d32.lib")
 #pragma comment(lib,"LdApp_d32.lib")
 #endif
@@ -52,10 +52,10 @@ using namespace JsonBox;
 #ifdef _X64
 #pragma comment(lib,"LdLib.lib")
 #pragma comment(lib,"DuiLib.lib")
-#pragma comment(lib,"MftLib.lib")
+#pragma comment(lib,"DiskLib.lib")
 #else
 #pragma comment(lib,"LdLib.lib")
 #pragma comment(lib,"DuiLib.lib")
-#pragma comment(lib,"MftLib.lib")
+#pragma comment(lib,"DiskLib.lib")
 #endif
 #endif

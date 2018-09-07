@@ -16,61 +16,22 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{0e6ef4e0-478c-4b6a-8567-30f854f8af9e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MFT">
-      <UniqueIdentifier>{52251c22-e51d-4f7c-986a-48ac987ccf6f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MFT\FAT">
-      <UniqueIdentifier>{5cdcc0e7-6f95-4f2b-b637-776b7448d2d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MFT\NTFS">
-      <UniqueIdentifier>{a7108318-da94-4780-a704-7b5e00f5ac42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Impl">
       <UniqueIdentifier>{77a0c5ff-65f0-4401-8592-95e69e10179a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MFT\RecordFile">
-      <UniqueIdentifier>{215943f5-77f2-481c-afb5-d427fd10d05d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Thread.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="MD5.cpp">
       <Filter>Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="ExportFunction.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="LdString.cpp">
-      <Filter>Utils</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\MftReader.cpp">
-      <Filter>MFT</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\MftChangeListener.cpp">
-      <Filter>MFT</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\FatMftReader.cpp">
-      <Filter>MFT\FAT</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\NtfsMtfReader.cpp">
-      <Filter>MFT\NTFS</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\NtfsUSN.cpp">
-      <Filter>MFT\NTFS</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\NtfsFile.cpp">
-      <Filter>MFT\NTFS</Filter>
     </ClCompile>
     <ClCompile Include="Impl\CWJSLib.cpp">
       <Filter>Impl</Filter>
@@ -81,14 +42,8 @@
     <ClCompile Include="Impl\WJVolume.cpp">
       <Filter>Impl</Filter>
     </ClCompile>
-    <ClCompile Include="RecordFile.cpp">
-      <Filter>MFT\RecordFile</Filter>
-    </ClCompile>
     <ClCompile Include="Impl\WJMftReader.cpp">
       <Filter>Impl</Filter>
-    </ClCompile>
-    <ClCompile Include="MFT\exFatReader.cpp">
-      <Filter>MFT\FAT</Filter>
     </ClCompile>
     <ClCompile Include="Impl\WJMftIndexFile.cpp">
       <Filter>Impl</Filter>
@@ -98,46 +53,10 @@
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Thread.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="MD5.h">
       <Filter>Utils</Filter>
     </ClInclude>
-    <ClInclude Include="LdString.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="LdArray.h">
-      <Filter>Utils</Filter>
-    </ClInclude>
     <ClInclude Include="WJDefines.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\MftReader.h">
-      <Filter>MFT</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\MftChangeListener.h">
-      <Filter>MFT</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\Fat.h">
-      <Filter>MFT\FAT</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\FatMftReader.h">
-      <Filter>MFT\FAT</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\ntfs.h">
-      <Filter>MFT\NTFS</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\NtfsMtfReader.h">
-      <Filter>MFT\NTFS</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\NtfsUSN.h">
-      <Filter>MFT\NTFS</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\NtfsFile.h">
-      <Filter>MFT\NTFS</Filter>
-    </ClInclude>
-    <ClInclude Include="ExportFunction.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -152,14 +71,8 @@
     <ClInclude Include="Impl\WJVolume.h">
       <Filter>Impl</Filter>
     </ClInclude>
-    <ClInclude Include="RecordFile.h">
-      <Filter>MFT\RecordFile</Filter>
-    </ClInclude>
     <ClInclude Include="Impl\WJMftReader.h">
       <Filter>Impl</Filter>
-    </ClInclude>
-    <ClInclude Include="MFT\exFatReader.h">
-      <Filter>MFT\FAT</Filter>
     </ClInclude>
     <ClInclude Include="Impl\WJMftIndexFile.h">
       <Filter>Impl</Filter>

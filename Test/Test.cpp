@@ -132,8 +132,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	TCHAR* pstr = pszDrives;
 	while (TCHAR('\0') != *pstr)
 	{
-		if (!callback(pstr, Param))
-			break;
+		printf("%S\n", pstr);
 		pstr += _tcslen(pstr) + 1;
 	}
 

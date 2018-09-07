@@ -232,15 +232,35 @@ namespace LeadowLib {
 		CoTaskMemFree(p);
 		return result;
 	}
+
+	BOOL GetVolumeInformationByHandle_(
+		HANDLE hFile, 
+		LPWSTR lpVolumeNameBuffer, 
+		DWORD nVolumeNameSize, 
+		LPDWORD lpVolumeSerialNumber, 
+		LPDWORD lpMaximumComponentLength,
+		LPDWORD lpFileSystemFlags, 
+		LPWSTR lpFileSystemNameBuffer, 
+		DWORD nFileSystemNameSize)
+	{
+		typedef BOOL(WINAPI *GETVOLUMEINFORMATIONBYHANDLE)(__in      HANDLE hFile,
+			__out_ecount_opt(nVolumeNameSize) LPWSTR lpVolumeNameBuffer,
+			__in      DWORD nVolumeNameSize,
+			__out_opt LPDWORD lpVolumeSerialNumber,
+			__out_opt LPDWORD lpMaximumComponentLength,
+			__out_opt LPDWORD lpFileSystemFlags,
+			__out_ecount_opt(nFileSystemNameSize) LPWSTR lpFileSystemNameBuffer,
+			__in      DWORD nFileSystemNameSize);
+
+		static GETVOLUMEINFORMATIONBYHANDLE fn = (GETVOLUMEINFORMATIONBYHANDLE)GetProcAddress(GetModuleHandle(_T("Kernel32.dll")), "GetVolumeInformationByHandleW");
+		if (fn)
+			return fn(hFile, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber, lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
+		else
+			return FALSE;
+	}
 #pragma region Î´¹«¿ªAPI
 
 	//SYSTEM_INFORMATION_CLASS SystemHandleInformation = (SYSTEM_INFORMATION_CLASS)16;
-
-	typedef NTSTATUS(WINAPI *NTQUERYSYSTEMINFORMATION)(
-		IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
-		OUT PVOID SystemInformation,
-		IN ULONG SystemInformationLength,
-		OUT PULONG ReturnLength OPTIONAL);
 
 	NTSTATUS WINAPI ZwQuerySystemInformation(
 		IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
@@ -248,6 +268,12 @@ namespace LeadowLib {
 		IN ULONG SystemInformationLength,
 		OUT PULONG ReturnLength OPTIONAL)
 	{
+		typedef NTSTATUS(WINAPI *NTQUERYSYSTEMINFORMATION)(
+			IN SYSTEM_INFORMATION_CLASS SystemInformationClass,
+			OUT PVOID SystemInformation,
+			IN ULONG SystemInformationLength,
+			OUT PULONG ReturnLength OPTIONAL);
+
 		static NTQUERYSYSTEMINFORMATION fpZwQuerySystemInformation =
 			(NTQUERYSYSTEMINFORMATION)GetProcAddress(GetModuleHandle(_T("ntdll")), "ZwQuerySystemInformation");
 
@@ -258,13 +284,6 @@ namespace LeadowLib {
 		return fpZwQuerySystemInformation(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
 	}
 
-	typedef NTSTATUS(WINAPI *NTQUERYOBJECT)(
-		_In_opt_ HANDLE Handle,
-		_In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,
-		_Out_opt_ PVOID ObjectInformation,
-		_In_ ULONG ObjectInformationLength,
-		_Out_opt_ PULONG ReturnLength);
-
 	NTSTATUS WINAPI NtQueryObject_(
 		_In_opt_ HANDLE Handle,
 		_In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,
@@ -272,6 +291,13 @@ namespace LeadowLib {
 		_In_ ULONG ObjectInformationLength,
 		_Out_opt_ PULONG ReturnLength)
 	{
+		typedef NTSTATUS(WINAPI *NTQUERYOBJECT)(
+			_In_opt_ HANDLE Handle,
+			_In_ OBJECT_INFORMATION_CLASS ObjectInformationClass,
+			_Out_opt_ PVOID ObjectInformation,
+			_In_ ULONG ObjectInformationLength,
+			_Out_opt_ PULONG ReturnLength);
+
 		static NTQUERYOBJECT fpNtQueryObject =
 			(NTQUERYOBJECT)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryObject");
 
@@ -283,19 +309,19 @@ namespace LeadowLib {
 
 	}
 
-	typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONFILE)(
-		IN HANDLE FileHandle,
-		OUT PIO_STATUS_BLOCK IoStatusBlock,
-		OUT PVOID FileInformation,
-		IN ULONG Length,
-		IN FILE_INFORMATION_CLASS FileInformationClass);
-
 	NTSTATUS WINAPI NtQueryInformationFile(
 		IN HANDLE FileHandle,
 		OUT PVOID FileInformation,
 		IN ULONG Length,
 		IN FILE_INFORMATION_CLASS FileInformationClass)
 	{
+		typedef NTSTATUS(WINAPI *NTQUERYINFORMATIONFILE)(
+			IN HANDLE FileHandle,
+			OUT PIO_STATUS_BLOCK IoStatusBlock,
+			OUT PVOID FileInformation,
+			IN ULONG Length,
+			IN FILE_INFORMATION_CLASS FileInformationClass);
+
 		static NTQUERYINFORMATIONFILE fpNtQueryInformationFile =
 			(NTQUERYINFORMATIONFILE)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryInformationFile");
 
@@ -309,20 +335,20 @@ namespace LeadowLib {
 
 	}
 
-	typedef NTSTATUS(WINAPI *NTSETINFORMATIONFILE)(
-		HANDLE FileHandle,
-		PIO_STATUS_BLOCK IoStatusBlock,
-		PVOID FileInformation,
-		ULONG Length,
-		FILE_INFORMATION_CLASS FileInformationClass
-		);
-
 	NTSTATUS NtSetInformationFile(
 		HANDLE FileHandle,
 		PVOID FileInformation,
 		ULONG Length,
 		FILE_INFORMATION_CLASS FileInformationClass)
 	{
+		typedef NTSTATUS(WINAPI *NTSETINFORMATIONFILE)(
+			HANDLE FileHandle,
+			PIO_STATUS_BLOCK IoStatusBlock,
+			PVOID FileInformation,
+			ULONG Length,
+			FILE_INFORMATION_CLASS FileInformationClass
+			);
+
 		static NTSETINFORMATIONFILE fpNtSetInformationFile =
 			(NTSETINFORMATIONFILE)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtSetInformationFile");
 		if (fpNtSetInformationFile == NULL)
@@ -333,19 +359,19 @@ namespace LeadowLib {
 		return fpNtSetInformationFile(FileHandle, &IoStatusBlock, FileInformation, Length, FileInformationClass);
 	}
 
-	typedef NTSTATUS (WINAPI *NtQueryInformationProcess_)(
-		_In_ HANDLE ProcessHandle,
-		_In_ PROCESSINFOCLASS ProcessInformationClass,
-		_Out_ PVOID ProcessInformation,
-		_In_ ULONG ProcessInformationLength,
-		_Out_opt_ PULONG ReturnLength
-	);
-
 	NTSTATUS NtQueryInformationProcess(
 		_In_ HANDLE ProcessHandle,
 		_Out_ PVOID ProcessInformation,
 		_In_ ULONG ProcessInformationLength)
 	{
+		typedef NTSTATUS(WINAPI *NtQueryInformationProcess_)(
+			_In_ HANDLE ProcessHandle,
+			_In_ PROCESSINFOCLASS ProcessInformationClass,
+			_Out_ PVOID ProcessInformation,
+			_In_ ULONG ProcessInformationLength,
+			_Out_opt_ PULONG ReturnLength
+			);
+
 		static NtQueryInformationProcess_ fpNtQueryInformationProcess =
 			(NtQueryInformationProcess_)GetProcAddress(GetModuleHandle(_T("ntdll")), "NtQueryInformationProcess");
 		if (fpNtQueryInformationProcess == NULL)
