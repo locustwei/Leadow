@@ -27,12 +27,13 @@
 #include <LdLib.h>
 #include <Uilib.h>
 #include <JsonBox.h>
-#include <LdMft.h>
 #include <LdApp.h>
+#include <LdMft.h>
 
 using namespace DuiLib;
 using namespace LeadowLib;
 using namespace JsonBox;
+using namespace LeadowDisk;
 
 #ifdef _DEBUG
 #ifdef WIN64

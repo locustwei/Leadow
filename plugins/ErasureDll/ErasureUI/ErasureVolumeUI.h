@@ -30,7 +30,7 @@ private:
 	void StatErase();     //磁盘擦除  
 	void OnClick(TNotifyUI& msg);
 	void UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time);  //
-	void ShowAnalysisResult(CVolumeInfo* pVolume, CControlUI* ui); //分析数据在列表中显示
+	void ShowAnalysisResult(TCHAR*, CControlUI* ui); //分析数据在列表中显示
 	bool OnAfterColumePaint(PVOID Param);
 protected:
 	void AttanchControl(CControlUI* pCtrl) override;

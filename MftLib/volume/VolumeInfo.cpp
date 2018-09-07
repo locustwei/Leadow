@@ -265,5 +265,8 @@ const TCHAR* LeadowDisk::CVolumeInfo::GetVolumePath()
 		if (GetVolumePathNamesForVolumeName(m_VolumeGuid, Names, MAX_PATH, &cb))
 			m_VolumePath = Names;
 	}
-	return m_VolumePath;
+	if (m_VolumePath.IsEmpty())
+		return nullptr;
+	else
+		return m_VolumePath;
 }

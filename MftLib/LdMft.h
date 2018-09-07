@@ -1,5 +1,6 @@
 #pragma once
 
-#include "MftReader.h"
+#include "mft\MftReader.h"
+#include "volume\VolumeInfo.h"
 
 using namespace LeadowLib;

@@ -98,19 +98,23 @@ void CErasureRecycleUI::EnumRecyleFiels()
 	WIN_OS_TYPE os = GetOsType();
 	if (GetCurrentUserSID(sid) != 0)
 		return;
-	CVolumeUtils::MountedVolumes(CLdMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
+	CVolumeUtils::EnumVolumeNames(CLdMethodDelegate::MakeDelegate(this, &CErasureRecycleUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
 
 	for(int i=0; i<Volumes.GetCount(); i++)
 	{
-		recyclePath = Volumes[i]->GetData();
+		CVolumeInfo volume(Volumes[i]->GetData());
+		recyclePath = volume.GetVolumePath();
+		if(recyclePath.IsEmpty())
+			continue;
+
 		if (os >= Windows_Vista)
 			recyclePath += _T("$RECYCLE.BIN");
 		else
 			recyclePath += _T("RECYCLE");
 
-		switch (CVolumeUtils::GetVolumeFileSystem(Volumes[i]->GetData()))
+		switch (volume.GetFileSystem(nullptr))
 		{
-		case FS_NTFS:
+		case FILESYSTEM_TYPE_NTFS:
 			if (os < Windows_Vista)
 				recyclePath += _T("R");
 			recyclePath += '\\';
