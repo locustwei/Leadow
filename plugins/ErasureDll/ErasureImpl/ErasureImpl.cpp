@@ -164,8 +164,7 @@ DWORD CErasureImpl::EraseVolume(CDynObject& Param)
 		if (s.IsEmpty())
 			continue;
 
-		CVolumeInfo* info = new CVolumeInfo();
-		info->SetFileName(s);
+		CVolumeInfo* info = new CVolumeInfo(nullptr);
 
 	}
 
@@ -247,9 +246,8 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param)
 		if (s.IsEmpty())
 			continue;
 
-		CVolumeInfo* info = new CVolumeInfo();
-		info->SetFileName(s);
-		m_Files.Add(info);
+		CVolumeInfo* info = new CVolumeInfo(nullptr);
+		//m_Files.Add(info);
 	}
 
 //	m_EraseThread.SetCallback(callback);

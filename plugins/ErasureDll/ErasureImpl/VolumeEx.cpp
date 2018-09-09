@@ -4,6 +4,7 @@
 #define TEST_temp_path _T("___Leadow_Test_tmp\\")
 
 CVolumeEx::CVolumeEx():
+	CVolumeInfo(nullptr),
 	m_FileCount(0),
 	m_FileTrackCount(0),
 	m_Writespeed(0),
@@ -56,7 +57,7 @@ DWORD CVolumeEx::StatisticsFileStatus()
 	result = CountFiles();
 	if (result == 0)
 	{
-		m_TempPath = GetFullName();
+		m_TempPath = GetVolumePath();
 		m_TempPath += TEST_temp_path;
 		result = CFileUtils::ForceDirectories(m_TempPath);
 	}
@@ -85,7 +86,7 @@ DWORD CVolumeEx::CreateTempFile(CLdString& FileName)
 	if (hFile == INVALID_HANDLE_VALUE)
 		return GetLastError();
 
-	CloseHandle(hFile);
+	::CloseHandle(hFile);
 	FileName = tmpName;
 
 	return 0;

@@ -39,7 +39,7 @@ DWORD CErasure::UnuseSpaceErasure(CVolumeInfo* pvolume, CErasureMothed* method, 
 		if(result == 0)
 		{
 			if (wCompressStatus & COMPRESSION_FORMAT_NONE)
-				CFileUtils::SetCompression(m_Volume->GetFullName(), FALSE);
+				CFileUtils::SetCompression((TCHAR*)m_Volume->GetVolumePath(), FALSE);
 		}
 
 		result = CreateTempDirectory();
@@ -207,7 +207,7 @@ DWORD CErasure::EraseFreeDataSpace(IErasureCallback* callback)
 	else
 		nFileSize = nFreeSpace;
 	nFileCount = nFreeSpace / nFileSize + 1;  //余数也算一个
-	if (m_Volume->GetFileSystem() == FS_NTFS)
+	if (m_Volume->GetFileSystem() == FILESYSTEM_TYPE_NTFS)
 		nFileCount++; //NTFS 需擦除MFT中的空闲空间
 	nFileCount++;  //删除产生的临时文件算一个
 
@@ -338,16 +338,12 @@ DWORD CErasure::EraseFreeMftSpace(IErasureCallback* callback)
 
 	switch (fs)
 	{
-	case FS_NTFS:
+	case FILESYSTEM_TYPE_NTFS:
 		result = EraseNtfsFreeSpace(callback);
 		break;
-	case FS_FAT32:
+	case FILESYSTEM_TYPE_FAT:
 		result = EraseFatFreeSpace(callback);
 		break;
-	case FS_UNKNOW: break;
-	case FS_FAT16: break;
-	case FS_FAT12: break;
-	case FS_EXFAT: break;
 	default: break;
 	}
 
@@ -504,7 +500,7 @@ DWORD CErasure::DeleteTempFiles(IErasureCallback* callback)
 
 DWORD CErasure::CreateTempDirectory()
 {
-	m_tmpDir = m_Volume->GetFullName();
+	m_tmpDir = m_Volume->GetVolumePath();
 	m_tmpDir += Erasure_temp_path;
 	m_tmpDir += _T("\\");
 	return CFileUtils::ForceDirectories(m_tmpDir);
@@ -608,16 +604,12 @@ DWORD CErasure::EraseDelFileTrace(IErasureCallback* callback)
 
 	switch (fs)
 	{
-	case FS_NTFS:
+	case FILESYSTEM_TYPE_NTFS:
 		result = EraseNtfsTrace(callback);
 		break;
-	case FS_FAT32:
+	case FILESYSTEM_TYPE_FAT:
 		result = EraseFatTrace(callback);
 		break;
-	case FS_UNKNOW: break;
-	case FS_FAT16: break;
-	case FS_FAT12: break;
-	case FS_EXFAT: break;
 	default: break;
 	}
 
