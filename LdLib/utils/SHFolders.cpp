@@ -168,6 +168,7 @@ namespace LeadowLib {
 					break;
 				}
 				CoTaskMemFree(colInfo.szName);
+				colInfo.szName = nullptr;
 			}
 			else
 				break;

@@ -16,7 +16,6 @@ CErasureVolumeUI::CErasureVolumeUI():
 
 CErasureVolumeUI::~CErasureVolumeUI()
 {
-	//m_EreaserThreads.StopThreads();
 }
 
 void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)
@@ -221,7 +220,47 @@ bool CErasureVolumeUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, D
 
 bool CErasureVolumeUI::GetViewHeader()
 {
-	return CSHFolders::EnumFolderColumes(CSIDL_DRIVES, this, 0) == 0;
+	PSH_HEAD_INFO p = new SH_HEAD_INFO;
+	p->cxChar = 20;
+	p->fmt = 0;
+	CLdString s = _T("名称");
+	p->szName = new TCHAR[s.GetLength() + 1];
+	s.CopyTo(p->szName);
+	m_Columes.Add(p);
+
+	p = new SH_HEAD_INFO;
+	p->cxChar = 25;
+	p->fmt = 0;
+	s = _T("类型");
+	p->szName = new TCHAR[s.GetLength() + 1];
+	s.CopyTo(p->szName);
+	m_Columes.Add(p);
+
+	p = new SH_HEAD_INFO;
+	p->cxChar = 16;
+	p->fmt = 1;
+	s = _T("总大小");
+	p->szName = new TCHAR[s.GetLength() + 1];
+	s.CopyTo(p->szName);
+	m_Columes.Add(p);
+
+	p = new SH_HEAD_INFO;
+	p->cxChar = 16;
+	p->fmt = 1;
+	s = _T("可用空间");
+	p->szName = new TCHAR[s.GetLength() + 1];
+	s.CopyTo(p->szName);
+	m_Columes.Add(p);
+
+	p = new SH_HEAD_INFO;
+	p->cxChar = 15;
+	p->fmt = 0;
+	s = _T("文件系统");
+	p->szName = new TCHAR[s.GetLength() + 1];
+	s.CopyTo(p->szName);
+	m_Columes.Add(p);
+
+	return true;
 }
 
 bool CErasureVolumeUI::AnalyResult(TCHAR* FileName, PVOID pData)
@@ -231,6 +270,7 @@ bool CErasureVolumeUI::AnalyResult(TCHAR* FileName, PVOID pData)
 
 void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 {
+	
 	__super::AttanchControl(pCtrl);
 	btnOk = (CButtonUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0);
 
@@ -282,7 +322,6 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 	}
 	//AddFolder(CSIDL_DRIVES);
 	StatAnalysis();
-	
 }
 
 

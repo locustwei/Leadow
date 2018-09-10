@@ -28,9 +28,9 @@ public:
 private:
 	boolean m_HeaderAdded;
 
-	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView 列头
 
 protected:
+	CLdArray<PSH_HEAD_INFO> m_Columes;   //ShellView 列头
 	CListUI* lstFile;
 	TCHAR* m_ItemSkin;
 

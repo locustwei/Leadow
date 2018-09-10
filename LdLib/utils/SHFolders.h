@@ -5,12 +5,23 @@
 #include "../LdDelegate.h"
 
 namespace LeadowLib {
-	typedef struct _SH_HEAD_INFO
+	typedef struct SH_HEAD_INFO
 	{
 		int fmt;  //align
 		int cxChar; //¿í¶È£¨×Ö·ûÊý£©
 		TCHAR* szName; //Ãû³Æ
-	}SH_HEAD_INFO, *PSH_HEAD_INFO;
+		SH_HEAD_INFO()
+		{
+			fmt = 0;
+			cxChar = 0;
+			szName = nullptr;
+		};
+		~SH_HEAD_INFO()
+		{
+			if (szName)
+				delete szName;
+		}
+	}*PSH_HEAD_INFO;
 
 	class CSHFolders
 	{

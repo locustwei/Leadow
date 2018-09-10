@@ -7,16 +7,13 @@ CShFileViewUI::CShFileViewUI():
 	lstFile = nullptr;
 	m_HeaderAdded = false;
 	m_ItemSkin = nullptr;
+	m_Columes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<PSH_HEAD_INFO>);
 }
 
 
 CShFileViewUI::~CShFileViewUI()
 {
-	for(int i=0; i<m_Columes.GetCount();i++)
-	{
-		delete m_Columes[i]->szName;
-		delete m_Columes[i];
-	}
+	
 }
 
 CControlUI* CShFileViewUI::AddRecord(CLdArray<TCHAR*>* values)
@@ -110,7 +107,7 @@ void CShFileViewUI::AttanchControl(CControlUI * pCtrl)
 	__super::AttanchControl(pCtrl);
 	lstFile = (CListUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("listview"), 0);
 }
-//找到虚拟文件并与实际文件对应，
+
 BOOL CShFileViewUI::GernalCallback_Callback(CLdArray<TCHAR*>* pData, UINT_PTR Param)
 {
 	if (pData->GetCount() == 0 || pData->Get(0) == nullptr)
@@ -132,18 +129,4 @@ BOOL CShFileViewUI::GernalCallback_Callback(PSH_HEAD_INFO pData, UINT_PTR Param)
 	m_Columes.Add(p);
 	return true;
 }
-
-//bool CShFileViewUI::OnCreate()
-//{
-//	return true;
-//}
-//
-//void CShFileViewUI::OnTerminate(DWORD exitcode)
-//{
-//}
-//
-//void CShFileViewUI::OnCommand(WORD id, PVOID data, WORD nSize)
-//{
-//};
-
 
