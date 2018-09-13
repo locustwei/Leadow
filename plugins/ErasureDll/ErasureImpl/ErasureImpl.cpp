@@ -237,7 +237,7 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 	return 0;
 }
 
-DWORD CErasureImpl::AnaVolume(CDynObject& Param)
+DWORD CErasureImpl::VolumeAnalysis(CDynObject& Param)
 {
 	int k = Param.GetArrayCount(EPN_FILES);
 	for (int i = 0; i<k; i++)
@@ -249,10 +249,6 @@ DWORD CErasureImpl::AnaVolume(CDynObject& Param)
 		CVolumeInfo* info = new CVolumeInfo(nullptr);
 		//m_Files.Add(info);
 	}
-
-//	m_EraseThread.SetCallback(callback);
-	m_EraseThread.SetEreaureFiles(&m_Files);
-	//m_EraseThread.StartAnalysis(k);
 
 	return 0;
 }
@@ -286,6 +282,9 @@ void CErasureImpl::OnCommand(WORD id, CDynObject& Param)
 	{
 	case eci_anafiles:
 		FileAnalysis(Param);
+		break;
+	case eci_anavolume:
+		VolumeAnalysis(Param);
 		break;
 	case eci_erasefiles:
 		EraseFiles(Param);

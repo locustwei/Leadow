@@ -44,10 +44,7 @@ public:
 		BOOL bRemoveFolder,         //是否删除空文件夹(擦除文件夹中文件但不删除文件夹)
 		PTEST_FILE_RESULT
 	);
-	//测试目录
-	TEST_FILE_RESULT TestDirectory(
-		TCHAR* lpDirName         //文件名
-	);
+
 private:
 	DWORD StatisticsFileStatus(); //统计磁盘文件数据
 

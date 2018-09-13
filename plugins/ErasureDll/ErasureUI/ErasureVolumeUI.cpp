@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ErasureVolumeUI.h"
+#include "..\ErasureConfig.h"
 //#include "../LdFileEraser/ErasureLibrary.h"
 
 //#include "../eraser/VolumeEx.h"
@@ -11,22 +12,40 @@ CErasureVolumeUI::CErasureVolumeUI():
 	btnOk = nullptr;
 	m_Name = _T("ErasureVolumeUI");
 	m_ItemSkin = _T("erasure/listitem_volume.xml");            //
+	m_Volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<CEraseVolumeData*>);
+	m_Comm = new CLdCommunication(this, COMM_PIPE_NAME);
+
 }
 
 
 CErasureVolumeUI::~CErasureVolumeUI()
 {
+	if (m_Comm)
+		delete m_Comm;
 }
 
-void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)
+bool CErasureVolumeUI::OnCreate()
 {
-	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
-	CDuiString str;
-
-	ChildUI->SetText(str);
-	ui->SetTag(Percent);
-	ui->NeedUpdate();
+	return true;
 }
+
+void CErasureVolumeUI::OnTerminate(DWORD exitcode)
+{
+}
+
+void CErasureVolumeUI::OnCommand(WORD id, CDynObject& Param)
+{
+}
+
+//void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)
+//{
+//	CControlUI* ChildUI = ui->FindControl(CDuiUtils::FindControlByNameProc, _T("desc"), 0);
+//	CDuiString str;
+//
+//	ChildUI->SetText(str);
+//	ui->SetTag(Percent);
+//	ui->NeedUpdate();
+//}
 
 void CErasureVolumeUI::ShowAnalysisResult(TCHAR* Volume, CControlUI* ui)
 {
@@ -121,6 +140,95 @@ DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
 //枚举盘符
+
+void CErasureVolumeUI::AddDiskVolumes()
+{
+	CLdArray<CLdString*> Volumes;
+	Volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
+
+	CVolumeUtils::EnumVolumeNames(CLdMethodDelegate::MakeDelegate(this, &CErasureVolumeUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
+
+	for (int i = Volumes.GetCount() - 1; i >= 0; i--)
+	{
+		CVolumeInfo volume(Volumes[i]->GetData());
+		if (volume.GetVolumePath() == nullptr)
+			continue;
+		DWORD dwError;
+		VOLUME_FILE_SYSTEM fs = volume.GetFileSystem(&dwError);
+		if (dwError != 0)
+			continue;
+
+		CLdString s4;
+		switch (fs)
+		{
+		case LeadowDisk::FILESYSTEM_TYPE_NTFS:
+			s4 = _T("NTFS");
+			break;
+		case LeadowDisk::FILESYSTEM_TYPE_FAT:
+			s4 = _T("FAT32");
+			break;
+		case LeadowDisk::FILESYSTEM_TYPE_EXFAT:
+			s4 = _T("EXFAT");
+			break;
+		default:
+			continue;
+		}
+
+		CLdString s1;
+		UINT type = GetDriveType(volume.GetVolumeGuid());
+		switch (type)
+		{
+		case DRIVE_REMOVABLE:
+			s1 = _T("可移动磁盘");
+			break;
+		case DRIVE_FIXED:
+			s1 = _T("本地磁盘");
+			break;
+		default:
+			continue;
+		}
+
+		CLdArray<TCHAR*> atts;
+
+		CLdString s = volume.GetShlDisplayName();
+		CLdString s2;
+		CFileUtils::FormatFileSize(volume.GetTotalSize(nullptr), s2);
+		CLdString s3;
+		CFileUtils::FormatFileSize(volume.GetAvailableFreeSpace(nullptr), s3);
+		atts.Add(nullptr);
+		atts.Add(s);
+		atts.Add(s1);
+		atts.Add(s2);
+		atts.Add(s3);
+		atts.Add(s4);
+
+		CEraseVolumeData* p = new CEraseVolumeData;
+		p->volume = new CLdString(volume.GetVolumePath());
+		p->ui = AddRecord(&atts);
+		//p->ui->SetTag((UINT_PTR)volume);
+		CControlUI* col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+		if (col)
+		{
+			col->SetTag(0);
+			col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
+		}
+		col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
+		if (col)
+		{
+			col->SetTag(0);
+			col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
+		}
+		col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
+		if (col)
+		{
+			col->SetTag(0);
+			col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
+		}
+		m_Volumes.Add(p);
+	}
+
+}
+
 BOOL CErasureVolumeUI::EnumVolume_Callback(PVOID data, UINT_PTR Param)
 {
 	TCHAR* pData = (TCHAR*)data;
@@ -130,93 +238,93 @@ BOOL CErasureVolumeUI::EnumVolume_Callback(PVOID data, UINT_PTR Param)
 	return TRUE;
 }
 
-bool CErasureVolumeUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
-{
-	PFILE_ERASURE_DATA pEraserData;
-	CVirtualFile* pFile = nullptr;
-	switch (op)
-	{
-	case eto_start:  //总进度开始
-		btnOk->SetTag(1);
-		btnOk->SetText(L"Cancel");
-		break;
-	case eto_analy:
-		break;
-	case eto_analied:
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue != 0)
-		{
-			pEraserData->nStatus = efs_error;
-			pEraserData->nErrorCode = dwValue;
-		}
-		
-		//ShowAnalysisResult((CVolumeInfo*)pFile, pEraserData->ui);
-
-		break;
-	case eto_begin:  //单个文件开始
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (pEraserData && pEraserData->ui)
-		{
-			CCheckBoxUI* checkbox = (CCheckBoxUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByClassProc, DUI_CTR_CHECKBOX, 0);
-			if (!checkbox || !checkbox->GetCheck())
-				return false;
-		}
-		break;
-	case eto_completed: //单个文件擦除完成
-						//设置擦除状态
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue == 0)
-		{
-			pEraserData->nStatus = efs_erasured;
-		}
-		else
-		{
-			pEraserData->nStatus = efs_error;
-			pEraserData->nErrorCode = dwValue;
-		}
-		break;
-	case eto_progress: //单个文件进度
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (pEraserData && pEraserData->ui)
-		{
-			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-			if (col)
-			{
-				col->SetTag(dwValue % 100);
-				col->NeedUpdate();
-			}
-		}
-		break;
-	case eto_finished:
-		btnOk->SetTag(0);
-		btnOk->SetEnabled(true);
-		btnOk->SetText(L"OK");
-		break;
-	case eto_freespace: 
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue == 0)
-			pEraserData->FreespaceTime = GetTickCount(); //开始擦除时间
-		else
-		{
-			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
-			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->FreespaceTime);
-		}
-		break;
-	case eto_track: 
-		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
-		if (dwValue == 0)
-			pEraserData->TrackTime = GetTickCount();  //开始擦除时间
-		else
-		{
-			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
-			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->TrackTime);  
-		}
-		break;
-	default: 
-		break;
-	}
-	return true;
-}
+//bool CErasureVolumeUI::EraserReprotStatus(TCHAR* FileName, E_THREAD_OPTION op, DWORD dwValue)
+//{
+//	PFILE_ERASURE_DATA pEraserData;
+//	CVirtualFile* pFile = nullptr;
+//	switch (op)
+//	{
+//	case eto_start:  //总进度开始
+//		btnOk->SetTag(1);
+//		btnOk->SetText(L"Cancel");
+//		break;
+//	case eto_analy:
+//		break;
+//	case eto_analied:
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (dwValue != 0)
+//		{
+//			pEraserData->nStatus = efs_error;
+//			pEraserData->nErrorCode = dwValue;
+//		}
+//		
+//		//ShowAnalysisResult((CVolumeInfo*)pFile, pEraserData->ui);
+//
+//		break;
+//	case eto_begin:  //单个文件开始
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (pEraserData && pEraserData->ui)
+//		{
+//			CCheckBoxUI* checkbox = (CCheckBoxUI*)pEraserData->ui->FindControl(CDuiUtils::FindControlByClassProc, DUI_CTR_CHECKBOX, 0);
+//			if (!checkbox || !checkbox->GetCheck())
+//				return false;
+//		}
+//		break;
+//	case eto_completed: //单个文件擦除完成
+//						//设置擦除状态
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (dwValue == 0)
+//		{
+//			pEraserData->nStatus = efs_erasured;
+//		}
+//		else
+//		{
+//			pEraserData->nStatus = efs_error;
+//			pEraserData->nErrorCode = dwValue;
+//		}
+//		break;
+//	case eto_progress: //单个文件进度
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (pEraserData && pEraserData->ui)
+//		{
+//			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
+//			if (col)
+//			{
+//				col->SetTag(dwValue % 100);
+//				col->NeedUpdate();
+//			}
+//		}
+//		break;
+//	case eto_finished:
+//		btnOk->SetTag(0);
+//		btnOk->SetEnabled(true);
+//		btnOk->SetText(L"OK");
+//		break;
+//	case eto_freespace: 
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (dwValue == 0)
+//			pEraserData->FreespaceTime = GetTickCount(); //开始擦除时间
+//		else
+//		{
+//			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
+//			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->FreespaceTime);
+//		}
+//		break;
+//	case eto_track: 
+//		pEraserData = (PFILE_ERASURE_DATA)(pFile->GetTag());
+//		if (dwValue == 0)
+//			pEraserData->TrackTime = GetTickCount();  //开始擦除时间
+//		else
+//		{
+//			CControlUI* col = pEraserData->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
+//			UpdateEraseProgressMsg(pEraserData, col, dwValue, pEraserData->TrackTime);  
+//		}
+//		break;
+//	default: 
+//		break;
+//	}
+//	return true;
+//}
 
 bool CErasureVolumeUI::GetViewHeader()
 {
@@ -274,74 +382,40 @@ void CErasureVolumeUI::AttanchControl(CControlUI* pCtrl)
 	__super::AttanchControl(pCtrl);
 	btnOk = (CButtonUI*)m_Ctrl->FindControl(CDuiUtils::FindControlByNameProc, _T("btnOk"), 0);
 
-	CLdArray<CLdString*> Volumes;
-	Volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(&ArrayDeleteObjectMethod<CLdString*>);
+	AddDiskVolumes();
 
-	CVolumeUtils::EnumVolumeNames(CLdMethodDelegate::MakeDelegate(this, &CErasureVolumeUI::EnumVolume_Callback), (UINT_PTR)&Volumes);
-
-	for (int i = Volumes.GetCount() - 1; i>=0; i--)
-	{
-		CVolumeInfo volume(Volumes[i]->GetData());
-		if(volume.GetVolumePath()==nullptr)
-			continue;
-		DWORD dwError;
-		VOLUME_FILE_SYSTEM fs = volume.GetFileSystem(&dwError);
-		if (dwError != 0 || fs == FILESYSTEM_TYPE_UNKNOWN)
-			continue;
-
-		////CSHFolders::GetFileAttributeValue(volume->GetFullName(), &atts);
-		//atts.Insert(0, nullptr);
-
-		//PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
-		//ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
-		//p->ui = AddRecord(&atts);
-		//p->ui->SetTag((UINT_PTR)volume);
-		//CControlUI* col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume1"), 0);
-		//if(col)
-		//{
-		//	col->SetTag(0);
-		//	col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
-		//}
-		//col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume4"), 0);
-		//if (col)
-		//{
-		//	col->SetTag(0);
-		//	col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
-		//}
-		//col = p->ui->FindControl(CDuiUtils::FindControlByNameProc, _T("colume3"), 0);
-		//if (col)
-		//{
-		//	col->SetTag(0);
-		//	col->OnAfterPaint += MakeDelegate(this, &CErasureVolumeUI::OnAfterColumePaint);
-		//}
-		//volume->SetTag((UINT_PTR)p);
-
-		//for (int j = 1; j < atts.GetCount(); j++)
-		//	delete atts[j];
-		//atts.Clear();
-	}
-	//AddFolder(CSIDL_DRIVES);
+	
 	StatAnalysis();
 }
 
 
 void CErasureVolumeUI::StatAnalysis()
 {
-	CLdArray<TCHAR*> files;
-	for(int i=0; i<m_Volumes.GetCount();i++)
+	
+	if (!m_Comm->IsConnected())
+		if (m_Comm->LoadHost(IMPL_PLUGIN_ID) != 0)
+			return;
+
+	CDynObject param;
+	param.AddObjectAttribute(EPN_OP_REMOVEDIR, ErasureConfig.IsRemoveFolder());
+	param.AddObjectAttribute(EPN_OP_METHOD, ErasureConfig.GetFileErasureMothed());
+
+	for (int i = 0; i < m_Volumes.GetCount(); i++)
 	{
-		files.Add(m_Volumes.Get(i)->GetFullName());
+		param.AddArrayValue(EPN_FILES, m_Volumes.Get(i)->volume->GetData());
 	}
-	//ExecuteVolumeAnalysis(this, &files);
+
+	m_Comm->CallMethod(eci_anavolume, param);
+	
 }
 
 void CErasureVolumeUI::StatErase()
 {
-	CLdArray<TCHAR*> files;
-	for (int i = 0; i<m_Volumes.GetCount(); i++)
-	{
-		files.Add(m_Volumes.Get(i)->GetFullName());
-	}
+	//CLdArray<TCHAR*> files;
+	//for (int i = 0; i<m_Volumes.GetCount(); i++)
+	//{
+	//	files.Add(m_Volumes.Get(i)->GetFullName());
+	//}
 	//ExecuteFileErase(this, &files);
 }
 

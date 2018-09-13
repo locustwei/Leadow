@@ -53,6 +53,11 @@ CEraseTest::~CEraseTest()
 {
 }
 
+TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR * VolumePath, CErasureMothed * method, BOOL bSkipSpace, BOOL bSkipTrack)
+{
+	return TEST_VOLUME_RESULT();
+}
+
 //TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR* VolumePath)
 //{
 //	TEST_VOLUME_RESULT result;
@@ -101,9 +106,3 @@ DWORD CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder, PTEST_FILE_RES
 	return result;
 }
 
-TEST_FILE_RESULT CEraseTest::TestDirectory(TCHAR* lpDirName)
-{
-	TEST_FILE_RESULT result = { 0 };
-
-	return result;
-}

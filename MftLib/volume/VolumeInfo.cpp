@@ -270,3 +270,16 @@ const TCHAR* LeadowDisk::CVolumeInfo::GetVolumePath()
 	else
 		return m_VolumePath;
 }
+
+const TCHAR * LeadowDisk::CVolumeInfo::GetShlDisplayName()
+{
+	if (m_VolumePath.IsEmpty())
+		GetVolumePath();
+	if (m_DisplayName.IsEmpty())
+	{
+		SHFILEINFOW info = { 0 };
+		SHGetFileInfo(m_VolumePath, 0, &info, sizeof(info), SHGFI_DISPLAYNAME);
+		m_DisplayName = info.szDisplayName;
+	}
+	return m_DisplayName;
+}

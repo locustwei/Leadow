@@ -39,7 +39,7 @@ private:
 	DWORD EraseFiles(CDynObject& Param);
 	DWORD EraseVolume(CDynObject& Param);
 	DWORD FileAnalysis(CDynObject& Param);
-	DWORD AnaVolume(CDynObject& Param);
+	DWORD VolumeAnalysis(CDynObject& Param);
 	
 };
 
