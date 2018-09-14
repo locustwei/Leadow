@@ -299,7 +299,7 @@ BOOL CWJMftReader::FilterFile(PMFT_FILE_DATA pFileInfo)
 	{
 		while (*p)
 		{
-			if (wcschr(*p, '\\') && !m_PathName.IsEmpty())  //需要路径匹配
+			if (wcschr(*p, '\\') && m_PathName.IsEmpty())  //需要路径匹配
 			{
 				if (!GetPathName(pFileInfo->DirectoryFileReferenceNumber))       //这个动作尽量拖后，因为很费时间
 					return FALSE;

@@ -153,7 +153,7 @@ bool CLdCommunication::CallMethod(WORD dwId, CDynObject& Param, CDynObject* resu
 	return true;
 }
 
-bool CLdCommunication::SendResult(WORD dwId, /*·½·¨ID */ CDynObject& Param)
+bool CLdCommunication::SendResult(WORD dwId, CDynObject& Param)
 {
 	CLdString tmp = Param.ToString();
 	int len = sizeof(COMMUNICATE_DATA) + (tmp.GetLength() + 1) * sizeof(TCHAR);

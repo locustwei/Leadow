@@ -34,41 +34,17 @@ API_Register();
 
 CErasureImpl::CErasureImpl()
 	: m_hModule(nullptr)
-	, m_EraseThread()
-	, m_Files()
 	, m_Comm(nullptr)
 {
 	m_hModule = (HMODULE)ThisModule;
-	m_EraseThread.SetCallback(this);
 }
 
 CErasureImpl::~CErasureImpl()
 {
-	FreeEraseFiles(&m_Files);
 	if (m_Comm)
 		delete m_Comm;
 
 	ErasureImpl = nullptr;
-}
-
-void CErasureImpl::FreeEraseFiles(CLdArray<CVirtualFile*>* files)
-{
-	for (int i = 0; i<files->GetCount(); i++)
-	{
-		CVirtualFile * file = files->Get(i);
-		if (file)
-		{
-			PFILE_ERASURE_DATA pData = (PFILE_ERASURE_DATA)file->GetTag();
-			if (pData)
-			{
-				delete pData;
-			}
-			file->SetTag(0);
-			if (file->GetFileType() == vft_folder)
-				FreeEraseFiles(((CFolderInfo*)file)->GetFiles());
-			//delete file;
-		}
-	}
 }
 
 HMODULE CErasureImpl::GetModuleHandle()
@@ -94,33 +70,11 @@ bool CErasureImpl::AnalyResult(TCHAR* FileName, PVOID pData)
 	return true;
 }
 
-//设置文件的目录指向，擦除时更新隶属文件夹的进度
-DWORD CErasureImpl::SetFolderFilesData(CVirtualFile* pFile)
-{
-	DWORD nCount = 1;
-
-	PFILE_ERASURE_DATA p = new FILE_ERASURE_DATA;
-	ZeroMemory(p, sizeof(FILE_ERASURE_DATA));
-	pFile->SetTag((UINT_PTR)p);
-	if (pFile->GetFileType() == vft_folder)
-	{
-		//nCount = pFile->GetFiles()->GetCount();
-		for (int i = 0; i < ((CFolderInfo*)pFile)->GetFiles()->GetCount(); i++)
-		{
-			CVirtualFile* file = ((CFolderInfo*)pFile)->GetFiles()->Get(i);
-			nCount += SetFolderFilesData(file);
-		}
-	}
-
-	p->nCount = nCount;
-
-	return nCount;
-}
-
 DWORD CErasureImpl::EraseFiles(CDynObject& Param)
 {
 
 	CDynObject result;
+	CLdArray<TCHAR*> Files;
 
 	bool removedir = Param.GetBoolean(EPN_OP_REMOVEDIR);
 	int k = Param.GetArrayCount(EPN_FILES);
@@ -129,30 +83,14 @@ DWORD CErasureImpl::EraseFiles(CDynObject& Param)
 		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
 		if (s.IsEmpty())
 			continue;
+		Files.Add(s);
 
-		CFileInfo* info;
-		if (CFileUtils::IsDirectoryExists(s))
-		{
-			info = new CFolderInfo();
-			info->SetFileName(s);
-			((CFolderInfo*)info)->FindFiles(true);
-		}
-		else
-		{
-			info = new CFileInfo();
-			info->SetFileName(s);
-		}
-
-		m_Files.Add(info);
-
-		SetFolderFilesData(info);
 	}
-
-//	m_EraseThread.SetCallback(callback);
-	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
-	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
-	m_EraseThread.SetEreaureFiles(&m_Files);
-	return m_EraseThread.StartEreasure(10);
+	CEreaserThrads* EraseThread = new CEreaserThrads();
+	EraseThread->SetCallback(this);
+	EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
+	EraseThread->GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
+	return EraseThread->StartEraseFiles(&Files, 10);
 }
 
 DWORD CErasureImpl::EraseVolume(CDynObject& Param)
@@ -168,22 +106,9 @@ DWORD CErasureImpl::EraseVolume(CDynObject& Param)
 
 	}
 
-//	m_EraseThread.SetCallback(callback);
-	m_EraseThread.GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
-	m_EraseThread.GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
-	m_EraseThread.SetEreaureFiles(&m_Files);
-	m_EraseThread.StartEreasure(k);
-
 	return 0;
 
 }
-
-typedef struct ERASE_FILE_PARAM {
-	CLdString progress;
-	
-	BOOL bRemoveFolder;
-}*PERASE_FILE_PARAM;
-
 
 DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 {
@@ -239,6 +164,8 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 
 DWORD CErasureImpl::VolumeAnalysis(CDynObject& Param)
 {
+	CLdArray<TCHAR*> volumes;
+
 	int k = Param.GetArrayCount(EPN_FILES);
 	for (int i = 0; i<k; i++)
 	{
@@ -246,11 +173,14 @@ DWORD CErasureImpl::VolumeAnalysis(CDynObject& Param)
 		if (s.IsEmpty())
 			continue;
 
-		CVolumeInfo* info = new CVolumeInfo(nullptr);
-		//m_Files.Add(info);
+		volumes.Add(s);
 	}
 
-	return 0;
+	CEreaserThrads* EraseThread = new CEreaserThrads();
+	EraseThread->SetCallback(this);
+	EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
+	EraseThread->GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
+	return EraseThread->StartVolumeAnalysis(&volumes, volumes.GetCount());
 }
 
 CFramNotifyPump* CErasureImpl::CreateUI()

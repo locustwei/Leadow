@@ -31,11 +31,11 @@ protected: //IEraserListen
 	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) override;
 private:
 	HMODULE m_hModule;
-	CEreaserThrads m_EraseThread;
-	CLdArray<CVirtualFile*> m_Files;
+	//CEreaserThrads m_EraseThread;
+	//CLdArray<CVirtualFile*> m_Files;
 	CLdCommunication* m_Comm;
-	DWORD SetFolderFilesData(CVirtualFile * pFile);
-	void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
+	//DWORD SetFolderFilesData(CVirtualFile * pFile);
+	//void FreeEraseFiles(CLdArray<CVirtualFile*>* files);
 	DWORD EraseFiles(CDynObject& Param);
 	DWORD EraseVolume(CDynObject& Param);
 	DWORD FileAnalysis(CDynObject& Param);

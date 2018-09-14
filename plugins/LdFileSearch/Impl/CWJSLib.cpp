@@ -55,6 +55,33 @@ WJ_ERROR_CODE CWJSLib::VolumeCanReader(IWJVolume* volume)
 	return WJERROR_SUCCEED;
 }
 
+class CSortVolume : public ISortCompare<CWJVolume*>
+{
+public:
+	CSortVolume() {};
+	~CSortVolume() {};
+	
+	int ArraySortCompare(CWJVolume** it1, CWJVolume** it2) override
+	{
+		if (it1 == nullptr || *it1 == nullptr)
+			return -1;
+		if (it2 == nullptr || *it2 == nullptr)
+			return 1;
+
+		const TCHAR* p1 = (*it1)->GetVolumePath();
+		const TCHAR* p2 = (*it2)->GetVolumePath();
+		if (p1 == nullptr)
+			return -1;
+		else if (p2 == nullptr)
+			return 1;
+		else
+			return _tcscmp(p1, p2);
+	}
+
+private:
+
+};
+
 VOID CWJSLib::EnumDiskVolumes()
 {
 	TCHAR Volume[MAX_PATH] = {0};
@@ -85,6 +112,9 @@ VOID CWJSLib::EnumDiskVolumes()
 			break;
 		}
 	}
+
+	CSortVolume comp;
+	m_Volumes.Sort(&comp);
 
 	FindVolumeClose(hFind);
 
