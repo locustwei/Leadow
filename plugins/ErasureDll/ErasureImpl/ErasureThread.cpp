@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ErasureThread.h"
 #include "EraseTest.h"
+#include "VolumeEx.h"
 
 #define THREAD_ERASE_FILES 0
 #define THREAD_ERASE_VOLUMES 1
@@ -16,7 +17,9 @@ CEreaserThrads::CEreaserThrads()
 	m_MaxThreadCount = 1;
 
 	m_Files.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<CFileInfo*>);
-	m_FileMothed = nullptr;
+	m_Volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<CLdString*>);
+
+	m_EraseMothed = nullptr;
 	m_VolumeMothed = nullptr;
 	m_ThreadCount = 0;
 	ZeroMemory(&m_Options, sizeof(ERASER_OPTIONS));
@@ -37,8 +40,8 @@ CEreaserThrads::~CEreaserThrads()
 		CloseHandle(m_hEvent);
 		m_hEvent = NULL;
 	}
-	if (m_FileMothed)
-		delete m_FileMothed;
+	if (m_EraseMothed)
+		delete m_EraseMothed;
 	if (m_VolumeMothed)
 		delete m_VolumeMothed;
 }
@@ -88,34 +91,12 @@ DWORD CEreaserThrads::StartVolumeAnalysis(CLdArray<TCHAR*>* Volumes, UINT nMaxCo
 
 	for (int i = 0; i < Volumes->GetCount(); i++)
 	{
-
-
+		m_Volumes.Add(new CLdString(Volumes->Get(i)));
 	}
 
 	Start(THREAD_ANALY_VOLUME);
-
+	return 0;
 }
-
-//磁盘状态分析
-//DWORD CEreaserThrads::StartAnalysis(UINT nMaxCount)
-//{
-//	if (m_ControlThread)  //上一次擦除还没有结束
-//		return (DWORD)-1;
-//
-//	if (m_hEvent == NULL)
-//		m_hEvent = CreateEvent(nullptr, true, false, nullptr);
-//	else
-//		ResetEvent(m_hEvent);
-//
-//	m_Abort = false;
-//
-//	m_MaxThreadCount = nMaxCount;
-//	m_ControlThread = new CThread();
-//	m_ControlThread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::VolumeAnalyThread), 0);
-////	m_ControlThread->Start(1);
-//
-//	return 0;
-//}
 
 //递归文件夹，为每个文件创建擦除线程。
 bool CEreaserThrads::EresareFiles(CLdArray<CVirtualFile*>* files)
@@ -147,7 +128,7 @@ bool CEreaserThrads::EresareFiles(CLdArray<CVirtualFile*>* files)
 		//LONG nTemp = *pCount;
 		CThread* thread = new CThread(this);
 		thread->SetTag((UINT_PTR)pCount);
-		thread->Start((UINT_PTR)file);
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::ErasureAFile), (PVOID)file, *pCount);
 		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
 			//Sleep(10);
 	}
@@ -193,27 +174,13 @@ bool CEreaserThrads::EresareFiles(CLdArray<CVirtualFile*>* files)
 //	return 0;
 //}
 
-//擦除控制线程,创建单个文件擦除线程，控制文件擦除线程数。
-INT_PTR CEreaserThrads::EraseFile_Thread()
-{
-	m_ThreadCount = 0;
-	m_callback->EraserReprotStatus(nullptr, nullptr, eto_start, 0);
-	EresareFiles(&m_Files);
-	Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
-
-	while (m_ThreadCount>0)
-	{
-		Sleep(20);
-	}
-	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, 0);
-
-	return 0;
-}
 //单个文件擦除
-INT_PTR CEreaserThrads::ErasureAFile(CVirtualFile* pFile)
+INT_PTR CEreaserThrads::ErasureAFile(PVOID pData, UINT_PTR Param)
 {
 	if (m_Abort)
 		return 0;
+
+	CVirtualFile* pFile = (CVirtualFile*)pData;
 
 	CErasure erasure;
 
@@ -223,7 +190,7 @@ INT_PTR CEreaserThrads::ErasureAFile(CVirtualFile* pFile)
 	switch (pFile->GetFileType())
 	{
 	case vft_file:
-		erasure.FileErasure(pFile->GetFullName(), m_FileMothed, &impl);
+		erasure.FileErasure(pFile->GetFullName(), m_EraseMothed, &impl);
 		break;
 	case vft_folder:
 		if(m_Options.bRemoveFolder)
@@ -241,7 +208,7 @@ INT_PTR CEreaserThrads::ErasureAFile(CVirtualFile* pFile)
 
 DWORD CEreaserThrads::InitThread(UINT nMaxCount)
 {
-	m_FileMothed = new CErasureMothed(m_Options.FileMothed);
+	m_EraseMothed = new CErasureMothed(m_Options.FileMothed);
 	m_VolumeMothed = new CErasureMothed(m_Options.VolumeMothed);
 
 	m_hEvent = CreateEvent(nullptr, true, false, nullptr);
@@ -253,56 +220,93 @@ DWORD CEreaserThrads::InitThread(UINT nMaxCount)
 	return 0;
 }
 
-//INT_PTR CEreaserThrads::VolumeAnalyThread(PVOID pData, UINT_PTR Param)
-//{
-//	if (m_Abort)
-//		return 0;
+void CEreaserThrads::AanlysisVolumes(CLdArray<CLdString *>* Volumes)
+{
 
-	//CVolumeInfo* pVolume = (CVolumeInfo*)Param;
+	LONG volatile* pCount = (LONG volatile*)GlobalAlloc(GPTR, sizeof(LONG));
+	*pCount = 0;
 
-	//DWORD error;
-	//if (!m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analy, 0))
-	//	error = ERROR_CANCELED;
-	//else
-	//{
-	//	CEraseTest Test;
-	//	error = Test.TestVolume(pVolume->GetFullName(), nullptr);
-	//	//error = pVolume->StatisticsFileStatus();
-	//}
-	//m_callback->EraserReprotStatus(pVolume->GetFullName(), eto_analied, error);
+	for (int i = 0; i < Volumes->GetCount(); i++)
+	{
+		if (m_Abort)
+			return false;
 
-//	return 0;
-//}
+		//DebugOutput(L"main thread %d start %s\n", m_ThreadCount, file->GetFullName());
 
-//INT_PTR CEreaserThrads::FileAnalyThread(PVOID pData, UINT_PTR Param)
-//{
-//	CVirtualFile* pFile = (CVirtualFile*)Param;
-//	if(pFile->GetFileType()==vft_folder)
-//	{
-//		((CFolderInfo*)pFile)->FindFiles(true);
-//	}
-//	return 0;
-//}
+		int n = WaitForThread();
+		if (n == 0) //停止
+			break;
+
+		if (m_Abort)
+			return false;
+
+		//LONG nTemp = *pCount;
+		CThread* thread = new CThread(this);
+		thread->SetTag((UINT_PTR)pCount);
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::AanlysisAVolume), (PVOID)Volumes->Get(i), *pCount);
+		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
+		//Sleep(10);
+	}
+	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
+	while (*pCount > 0)
+	{
+		Sleep(20);
+	}
+	GlobalFree((HGLOBAL)pCount);
+	if (m_Abort)
+		return false;
+	return true;
+}
+
+INT_PTR CEreaserThrads::AanlysisAVolume(PVOID pData, UINT_PTR Param)
+{
+	if (m_Abort)
+		return 0;
+
+	CLdString* pVolume = (CLdString*)pData;
+
+	DWORD error;
+	if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, 0))
+		error = ERROR_CANCELED;
+	else
+	{
+		CEraseTest test;
+		test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE);
+	}
+	m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, error);
+
+	return 0;
+}
 
 void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 {
+
+	m_ThreadCount = 0;
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_start, 0);
+
 	if (Sender == this)
 	{
 		switch (Param)
 		{
 		case THREAD_ERASE_FILES:
-			EraseFile_Thread();
+			EresareFiles(&m_Files);
 			break;
 		case THREAD_ANALY_VOLUME:
-			
+			AanlysisVolumes(&m_Volumes);
 			break;
 		default:
 			break;
 		}
 
 	}
-	else
-		ErasureAFile((CVirtualFile*)Param);
+
+	Sleep(10); //防止线程还没开始控制线程就认为所有线程都结束了
+
+	while (m_ThreadCount > 0)
+	{
+		Sleep(20);
+	}
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, 0);
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)

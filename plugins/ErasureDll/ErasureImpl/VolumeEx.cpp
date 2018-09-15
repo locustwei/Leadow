@@ -3,8 +3,8 @@
 
 #define TEST_temp_path _T("___Leadow_Test_tmp\\")
 
-CVolumeEx::CVolumeEx():
-	CVolumeInfo(nullptr),
+CVolumeEx::CVolumeEx(TCHAR* volume):
+	CVolumeInfo(volume),
 	m_FileCount(0),
 	m_FileTrackCount(0),
 	m_Writespeed(0),

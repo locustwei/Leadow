@@ -19,7 +19,7 @@ public:
 class CVolumeEx : public CVolumeInfo, public IMftReaderHandler
 {
 public:
-	CVolumeEx();
+	CVolumeEx(TCHAR* volume);
 	~CVolumeEx();
 
 	UINT64 GetFileCount();

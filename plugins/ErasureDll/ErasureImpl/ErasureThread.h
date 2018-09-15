@@ -32,8 +32,7 @@ typedef struct ERASER_OPTIONS
 	BOOL bSkipSpace;         //跳过空闲空间
 	BOOL bSkipTrack;         //跳过删除痕迹
 	BOOL bFreeFileSpace;     //擦除文件空闲
-	ErasureMothedType FileMothed;    //文件擦除方法索引
-	ErasureMothedType VolumeMothed;  //磁盘擦除方法索引
+	ErasureMothedType Mothed;    //文件擦除方法索引
 }*PERASER_OPTIONS;
 
 //文件擦除线程（同时创建多个文件擦除线程）
@@ -62,20 +61,23 @@ private:
 	int m_MaxThreadCount;              //最多线程数
 
 	ERASER_OPTIONS m_Options;          //
-	CErasureMothed* m_FileMothed;
-	CErasureMothed* m_VolumeMothed;
+	CErasureMothed* m_EraseMothed;
 
 	IEraserListen* m_callback;         //擦除过程回掉函数，用于调用者界面操作
 	CLdArray<CVirtualFile*> m_Files;   //待擦除的文件
+	CLdArray<CLdString*> m_Volumes;    //待擦除的磁盘（GUID）
 	LONG volatile m_ThreadCount;       //当前正在运行的线程数量
 
 	int WaitForThread();               //当擦除线程达到最大线程数时等待其中一个线程结束
-	
-	INT_PTR EraseFile_Thread();        //文件擦除控制线程，为每个文件创建擦除线程，并控制同时运行的线程数。
-	bool EresareFiles(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
-	INT_PTR ErasureAFile(CVirtualFile* pFile);           //单个文件擦除线程
+	DWORD InitThread(UINT nMaxCount);
 
-	//CEreaser 擦除操作回掉函数
+	bool EresareFiles(CLdArray<CVirtualFile*>* files);   //遍历待擦除文件，一一创建擦除线程
+	INT_PTR ErasureAFile(PVOID pData, UINT_PTR Param);   //单个文件擦除线程
+
+	INT_PTR AanlysisAVolume(PVOID pData, UINT_PTR Param);
+	void AanlysisVolumes(CLdArray<CLdString *>* Volumes);
+
+		//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      
 		public IErasureCallback
 	{
@@ -92,5 +94,4 @@ private:
 	private:
 		CVirtualFile* m_Folder;
 	};
-	DWORD InitThread(UINT nMaxCount);
 };
