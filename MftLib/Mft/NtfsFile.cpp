@@ -57,9 +57,13 @@ VOID CNtfsFile::LoadAttributes(UINT64 FileReferenceNumber, PNTFS_FILE_RECORD_HEA
 	PATTRIBUTE attr = nullptr;
 	ULONG Offset = FileHeader->AttributesOffset;
 
+	//DebugOutput(L"AttributesOffset = %d BytesAllocated = %d Offset = %d BytesInUse = %d\n", FileHeader->AttributesOffset, FileHeader->BytesAllocated, Offset, FileHeader->BytesInUse);
+
 	for (attr = PATTRIBUTE(Padd(FileHeader, FileHeader->AttributesOffset)); attr->AttributeType != -1; attr = (PATTRIBUTE)Padd(FileHeader, Offset))
 	{
-		if (attr->Length == 0) break;
+		//DebugOutput(L"AttributeType = %x Length = %d Offset = %d BytesInUse = %d\n", attr->AttributeType, attr->Length, Offset, FileHeader->BytesInUse);
+
+		if (attr->Length == 0 || attr->Length + Offset > FileHeader->BytesInUse) break;
 		
 		switch (attr->AttributeType)
 		{

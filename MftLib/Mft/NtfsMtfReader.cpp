@@ -221,22 +221,18 @@ VOID CNtfsMtfReader::FixupUpdateSequenceArray(PNTFS_FILE_RECORD_HEADER file)
 	if(file->Ntfs.UsaCount == 0)
 		return;
 
-	UINT i = 0;
+	//DebugOutput(L"UsaOffset=%d UsaCount=%d", file->Ntfs.UsaOffset, file->Ntfs.UsaCount);
+
 	PUSHORT usa = PUSHORT(Padd(file, file->Ntfs.UsaOffset));
 	PUSHORT sector = PUSHORT(file);
-	UINT X = m_BytesPerSector / sizeof(USHORT), index;
-	index = X -1;
-	for (i = 1; i < file->Ntfs.UsaCount; i++)
-	{
-		if (sector[index] != usa[0])
-		{
-			return;
-		}
-		sector[index] = usa[i];
-		index += X;
 
-		if (index > m_BytesPerFileRecord / sizeof(USHORT))
-			return;
+	for (UINT i = 1; i < file->Ntfs.UsaCount; i++)
+	{
+		if (PUCHAR(sector + 255) - PUCHAR(file) > m_BytesPerFileRecord)
+			break;
+
+		sector[255] = usa[i];
+		sector += 256;
 	}
 }
 
@@ -550,37 +546,49 @@ bool CNtfsMtfReader::Init()
 			? ((PNTFS_BPB)pBpb)->ClustersPerFileRecord * ((PNTFS_BPB)pBpb)->SectorsPerCluster
 			* ((PNTFS_BPB)pBpb)->BytesPerSector : 1 << (0x100 - ((PNTFS_BPB)pBpb)->ClustersPerFileRecord);
 
-		PNTFS_FILE_RECORD_HEADER MftRecord = PNTFS_FILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
-		ZeroMemory(MftRecord, m_BytesPerFileRecord);
-		if(!ReadSector((((PNTFS_BPB)pBpb)->MftStartLcn)*(m_SectorsPerCluster), (m_BytesPerFileRecord)/(m_BytesPerSector), MftRecord))
-			break;
-		FixupUpdateSequenceArray(MftRecord);
-
-		m_MftFile.LoadAttributes(0, MftRecord, false);
-		delete[] MftRecord;
-
-		if (m_MftFile.GetBitmapAttribute())
+		UINT t = m_BytesPerFileRecord > m_BytesPerSector ? m_BytesPerFileRecord : m_BytesPerSector;
+		if (!m_FileCanche)
 		{
-			if (!m_MftBitmap)
-				delete[] m_MftBitmap;
-			m_MftBitmap = new UCHAR[(UINT)m_MftFile.GetBitmapAttribute()->GetAllocSize()];
-
-			ReadFileAttributeData(&m_MftFile, m_MftFile.GetBitmapAttribute(), m_MftBitmap, m_MftFile.GetBitmapAttribute()->GetAllocSize());
+			m_FileCanche = PNTFS_FILE_RECORD_HEADER(new UCHAR[t]);
 		}
 
-		if(!m_FileCanche)
-			m_FileCanche = PNTFS_FILE_RECORD_HEADER(new UCHAR[m_BytesPerFileRecord]);
+		UINT n = (m_BytesPerFileRecord) / (m_BytesPerSector);
+		if(!ReadSector((((PNTFS_BPB)pBpb)->MftStartLcn)*(m_SectorsPerCluster), n == 0 ? 1 : n, m_FileCanche))
+			break;
 
-		m_FileCount = m_MftFile.GetDataStream()->GetSize()/m_BytesPerFileRecord; //MTF的总项数
+		FixupUpdateSequenceArray(m_FileCanche);
+
+		m_MftFile.LoadAttributes(0, m_FileCanche, false);
+
+		if (!m_MftFile.GetBitmapAttribute())
+			break;
+
+		if (!m_MftBitmap)
+			delete[] m_MftBitmap;
+
+		m_MftBitmap = new UCHAR[(UINT)m_MftFile.GetBitmapAttribute()->GetAllocSize()];
+
+		ReadFileAttributeData(&m_MftFile, m_MftFile.GetBitmapAttribute(), m_MftBitmap, m_MftFile.GetBitmapAttribute()->GetAllocSize());
+
+		if (m_MftFile.GetDataStream() == nullptr)
+			break;
+
+		m_FileCount = m_MftFile.GetFileData()->DataSize/m_BytesPerFileRecord; //MTF的总项数
 
 		result = true;
 	} while (FALSE);
 
-	delete[] pBpb;
 
 #ifdef _DEBUG
-	DebugOutput(L"BytesPerFileRecord = %d\nSectorsPerCluster = %d\nTotalCluster = %lld\nFileCount = %lld\n", 
-		m_BytesPerFileRecord, m_SectorsPerCluster, m_TotalCluster, m_FileCount);
+	DebugOutput(L"m_BytesPerSector =%d\nBytesPerFileRecord = %d\nSectorsPerCluster = %d\nTotalCluster = %lld\nFileCount = %lld\n", 
+		m_BytesPerSector, m_BytesPerFileRecord, m_SectorsPerCluster, m_TotalCluster, m_FileCount);
+
+	/*FILE *stream = fopen("e:\\abc.dat", "w");
+	if (stream)
+	{
+		fwrite(pBpb, m_BytesPerSector, 1, stream);
+		fclose(stream);
+	}*/
 
 	for (int j = 0; j < m_MftFile.GetDataStreamCount(); j++)
 	{
@@ -591,6 +599,8 @@ bool CNtfsMtfReader::Init()
 	}
 #endif // _DEBUG
 
+	delete[] pBpb;
+	
 	return result;
 }
 
