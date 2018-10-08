@@ -88,7 +88,7 @@ DWORD CErasureImpl::EraseFiles(CDynObject& Param)
 	}
 	CEreaserThrads* EraseThread = new CEreaserThrads();
 	EraseThread->SetCallback(this);
-	EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
+	//EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
 	EraseThread->GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	return EraseThread->StartEraseFiles(&Files, 10);
 }
@@ -175,10 +175,10 @@ DWORD CErasureImpl::VolumeAnalysis(CDynObject& Param)
 
 		volumes.Add(s);
 	}
-
+	
 	CEreaserThrads* EraseThread = new CEreaserThrads();
 	EraseThread->SetCallback(this);
-	EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
+	//EraseThread->GetOptions()->FileMothed = (ErasureMothedType)Param.GetInteger(EPN_OP_METHOD);
 	EraseThread->GetOptions()->bRemoveFolder = Param.GetBoolean(EPN_UNDELFOLDER);
 	return EraseThread->StartVolumeAnalysis(&volumes, volumes.GetCount());
 }

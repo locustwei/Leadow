@@ -41,7 +41,7 @@ namespace LeadowLib {
 		Param 回传到线程回掉函数
 		*/
 		virtual HANDLE Start(UINT_PTR Param);
-		virtual HANDLE Start(CLdMethodDelegate method, UINT_PTR Param);
+		virtual HANDLE Start(CLdMethodDelegate method, PVOID, UINT_PTR Param);
 		/*
 		结束线程
 		dwWaitTime 等待线程结束时间，然后强制结束
@@ -75,6 +75,7 @@ namespace LeadowLib {
 		VOID ResetHandle();
 		static DWORD WINAPI ThreadProcedure(LPVOID pParam);
 		void DoTerminated();
+		PVOID m_Data;
 	};
 
 };

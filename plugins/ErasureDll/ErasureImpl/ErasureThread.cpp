@@ -20,15 +20,15 @@ CEreaserThrads::CEreaserThrads()
 	m_Volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<CLdString*>);
 
 	m_EraseMothed = nullptr;
-	m_VolumeMothed = nullptr;
+	//m_VolumeMothed = nullptr;
 	m_ThreadCount = 0;
 	ZeroMemory(&m_Options, sizeof(ERASER_OPTIONS));
 	m_Options.bRemoveFolder = true;
 	m_Options.bSkipSpace = false;
 	m_Options.bSkipTrack = false;
 	m_Options.bFreeFileSpace = false;
-	m_Options.FileMothed = em_DoD_E;
-	m_Options.VolumeMothed = em_Pseudorandom;
+	//m_Options.FileMothed = em_DoD_E;
+	//m_Options.VolumeMothed = em_Pseudorandom;
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -42,8 +42,8 @@ CEreaserThrads::~CEreaserThrads()
 	}
 	if (m_EraseMothed)
 		delete m_EraseMothed;
-	if (m_VolumeMothed)
-		delete m_VolumeMothed;
+	//if (m_VolumeMothed)
+		//delete m_VolumeMothed;
 }
 
 void CEreaserThrads::StopThreads()
@@ -197,7 +197,7 @@ INT_PTR CEreaserThrads::ErasureAFile(PVOID pData, UINT_PTR Param)
 			erasure.DirectoryErasure(pFile->GetFullName(), &impl);
 		break;
 	case vft_volume:
-		erasure.UnuseSpaceErasure((CVolumeInfo*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);
+		//erasure.UnuseSpaceErasure((CVolumeInfo*)pFile, m_VolumeMothed, &impl, m_Options.bSkipSpace, m_Options.bSkipTrack);
 		break;
 	default:
 		break;
@@ -208,8 +208,8 @@ INT_PTR CEreaserThrads::ErasureAFile(PVOID pData, UINT_PTR Param)
 
 DWORD CEreaserThrads::InitThread(UINT nMaxCount)
 {
-	m_EraseMothed = new CErasureMothed(m_Options.FileMothed);
-	m_VolumeMothed = new CErasureMothed(m_Options.VolumeMothed);
+	//m_EraseMothed = new CErasureMothed(m_Options.FileMothed);
+	//m_VolumeMothed = new CErasureMothed(m_Options.VolumeMothed);
 
 	m_hEvent = CreateEvent(nullptr, true, false, nullptr);
 
@@ -220,7 +220,7 @@ DWORD CEreaserThrads::InitThread(UINT nMaxCount)
 	return 0;
 }
 
-void CEreaserThrads::AanlysisVolumes(CLdArray<CLdString *>* Volumes)
+bool CEreaserThrads::AanlysisVolumes(CLdArray<CLdString *>* Volumes)
 {
 
 	LONG volatile* pCount = (LONG volatile*)GlobalAlloc(GPTR, sizeof(LONG));

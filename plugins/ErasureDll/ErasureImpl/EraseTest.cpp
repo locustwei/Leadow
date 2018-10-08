@@ -55,20 +55,11 @@ CEraseTest::~CEraseTest()
 
 TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR * VolumePath, CErasureMothed * method, BOOL bSkipSpace, BOOL bSkipTrack)
 {
+	CVolumeInfo volume(VolumePath);
+	CMftReader* reader = CMftReader::CreateReader(volume.OpenVolumeHandle(), volume.GetFileSystem());
+	reader->EnumFiles(this, nullptr);
 	return TEST_VOLUME_RESULT();
 }
-
-//TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR* VolumePath)
-//{
-//	TEST_VOLUME_RESULT result;
-//	CVolumeInfo volume;
-//	volume.SetFileName(VolumePath);
-//	volume.SetTag((UINT_PTR)&result);
-//	CLdString TempPath;
-//	result.ErrorCode = CountVolumeFiles(&volume);
-//
-//	return result;
-//}
 
 DWORD CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder, PTEST_FILE_RESULT tr)
 {

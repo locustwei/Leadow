@@ -75,7 +75,7 @@ private:
 	INT_PTR ErasureAFile(PVOID pData, UINT_PTR Param);   //单个文件擦除线程
 
 	INT_PTR AanlysisAVolume(PVOID pData, UINT_PTR Param);
-	void AanlysisVolumes(CLdArray<CLdString *>* Volumes);
+	bool AanlysisVolumes(CLdArray<CLdString *>* Volumes);
 
 		//CEreaser 擦除操作回掉函数
 	class CErasureCallbackImpl :      

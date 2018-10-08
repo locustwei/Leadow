@@ -93,7 +93,7 @@ DWORD CLdCommunication::LoadHost(TCHAR* plugid)
 			break;
 
 		CThread* thread = new CThread();
-		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), (UINT_PTR)m_hProcess);
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CLdCommunication::WaitHost), nullptr, (UINT_PTR)m_hProcess);
 		result = 0;
 
 	} while (false);

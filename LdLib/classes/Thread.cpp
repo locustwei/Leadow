@@ -68,12 +68,13 @@ namespace LeadowLib {
 		return hThread;
 	}
 
-	HANDLE CThread::Start(CLdMethodDelegate method, UINT_PTR Param)
+	HANDLE CThread::Start(CLdMethodDelegate method, PVOID pData, UINT_PTR Param)
 	{
 		if (m_hThread != INVALID_HANDLE_VALUE)
 			return INVALID_HANDLE_VALUE;
 
 		m_Param = Param;
+		m_Data = pData;
 		m_Terminated = false;
 
 		m_Delegate = method;
@@ -197,7 +198,7 @@ namespace LeadowLib {
 		if (m_Runer)
 			m_Runer->ThreadBody(this, m_Param);
 		else
-			m_Delegate(this, m_Param);
+			m_Delegate(m_Data, m_Param);
 		return 0;
 	}
 

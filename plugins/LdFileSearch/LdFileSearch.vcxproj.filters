@@ -30,6 +30,9 @@
     <ClCompile Include="SearchLibrary.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="WJMftReader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -42,6 +45,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="SearchLibrary.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="WJMftReader.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
