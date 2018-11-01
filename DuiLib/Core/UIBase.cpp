@@ -2,7 +2,6 @@
 
 #ifdef _DEBUG
 #include <shlwapi.h>
-#include "UIBase.h"
 #pragma comment(lib, "shlwapi.lib")
 #endif
 
@@ -122,22 +121,22 @@ static const DUI_MSGMAP_ENTRY* DuiFindMessageEntry(const DUI_MSGMAP_ENTRY* lpEnt
 	return pMsgTypeEntry;
 }
 
-	CNotifyPump::~CNotifyPump()
-	{
-		if (m_Parent)
-			m_Parent->RemoveVirtualWnd(m_Name);
-	}
+CNotifyPump::~CNotifyPump()
+{
+	if (m_Parent)
+		m_Parent->RemoveVirtualWnd(m_Name);
+}
 
-	bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
+bool CNotifyPump::AddVirtualWnd(CDuiString strName,CNotifyPump* pObject)
+{
+	if( m_VirtualWndMap.Find(strName) == NULL )
 	{
-		if( m_VirtualWndMap.Find(strName) == NULL )
-		{
-			m_VirtualWndMap.Insert(strName.GetData(),(LPVOID)pObject);
-			pObject->m_Parent = this;
-			return true;
-		}
-		return false;
+		m_VirtualWndMap.Insert(strName.GetData(),(LPVOID)pObject);
+		pObject->m_Parent = this;
+		return true;
 	}
+	return false;
+}
 
 bool CNotifyPump::RemoveVirtualWnd(CDuiString strName)
 {
@@ -220,14 +219,19 @@ CNotifyPump* CNotifyPump::FindNotify(LPCTSTR key)
 	}
 	return NULL;
 }
-
 void CNotifyPump::NotifyPump(TNotifyUI& msg)
 {
 	///遍历虚拟窗口
 	if( !msg.sVirtualWnd.IsEmpty() ){
-		CNotifyPump* pObject = FindNotify(msg.sVirtualWnd.GetData());
-		if( pObject && pObject->LoopDispatch(msg) )
-			return;
+		for( int i = 0; i< m_VirtualWndMap.GetSize(); i++ ) {
+			if( LPCTSTR key = m_VirtualWndMap.GetAt(i) ) {
+				if( _tcsicmp(key, msg.sVirtualWnd.GetData()) == 0 ){
+					CNotifyPump* pObject = static_cast<CNotifyPump*>(m_VirtualWndMap.Find(key, false));
+					if( pObject && pObject->LoopDispatch(msg) )
+						return;
+				}
+			}
+		}
 	}
 
 	///
@@ -312,7 +316,7 @@ void CWindowWnd::ShowWindow(bool bShow /*= true*/, bool bTakeFocus /*= false*/)
 UINT CWindowWnd::ShowModal()
 {
     ASSERT(::IsWindow(m_hWnd));
-    UINT_PTR nRet = 0;
+    UINT nRet = 0;
     HWND hWndParent = GetWindowOwner(m_hWnd);
     ::ShowWindow(m_hWnd, SW_SHOWNORMAL);
     ::EnableWindow(hWndParent, FALSE);
@@ -331,8 +335,8 @@ UINT CWindowWnd::ShowModal()
     }
     ::EnableWindow(hWndParent, TRUE);
     ::SetFocus(hWndParent);
-    if( msg.message == WM_QUIT ) ::PostQuitMessage((int)msg.wParam);
-    return (UINT)nRet;
+    if( msg.message == WM_QUIT ) ::PostQuitMessage(msg.wParam);
+    return nRet;
 }
 
 void CWindowWnd::Close(UINT nRet)
@@ -384,10 +388,14 @@ void CWindowWnd::CenterWindow()
 
 void CWindowWnd::SetIcon(UINT nRes)
 {
-    HICON hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
+    // UMU: 防止某些 DPI 设置下图标模糊
+    //HICON hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTCOLOR);
+    HICON hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, (::GetSystemMetrics(SM_CXICON) + 15) & ~15, (::GetSystemMetrics(SM_CYICON)+ 15) & ~15, LR_DEFAULTCOLOR);
     ASSERT(hIcon);
     ::SendMessage(m_hWnd, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
-    hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
+    // UMU: 防止某些 DPI 设置下图标模糊
+    //hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTCOLOR);
+    hIcon = (HICON)::LoadImage(CPaintManagerUI::GetInstance(), MAKEINTRESOURCE(nRes), IMAGE_ICON, (::GetSystemMetrics(SM_CXSMICON) + 15) & ~15, (::GetSystemMetrics(SM_CYSMICON) + 15) & ~15, LR_DEFAULTCOLOR);
     ASSERT(hIcon);
     ::SendMessage(m_hWnd, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
 }

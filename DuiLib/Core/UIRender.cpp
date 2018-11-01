@@ -1,8 +1,8 @@
 #include "StdAfx.h"
 #include "../Utils/unzip.h"
 
-/*
 ///////////////////////////////////////////////////////////////////////////////////////
+/*
 DECLARE_HANDLE(HZIP);	// An HZIP identifies a zip file that has been opened
 typedef DWORD ZRESULT;
 typedef struct
@@ -40,8 +40,8 @@ extern ZRESULT GetZipItemW(HZIP hz, int index, ZIPENTRYW *ze);
 extern ZRESULT FindZipItemA(HZIP hz, const TCHAR *name, bool ic, int *index, ZIPENTRY *ze);
 extern ZRESULT FindZipItemW(HZIP hz, const TCHAR *name, bool ic, int *index, ZIPENTRYW *ze);
 extern ZRESULT UnzipItem(HZIP hz, int index, void *dst, unsigned int len, DWORD flags);
-///////////////////////////////////////////////////////////////////////////////////////
 */
+///////////////////////////////////////////////////////////////////////////////////////
 
 #define RES_TYPE_COLOR _T("*COLOR*")
 
@@ -77,7 +77,8 @@ void CRenderClip::GenerateClip(HDC hDC, RECT rc, CRenderClip& clip)
     ::GetClipBox(hDC, &rcClip);
     clip.hOldRgn = ::CreateRectRgnIndirect(&rcClip);
     clip.hRgn = ::CreateRectRgnIndirect(&rc);
-    ::ExtSelectClipRgn(hDC, clip.hRgn, RGN_AND);
+    ::CombineRgn(clip.hRgn, clip.hRgn, clip.hOldRgn, RGN_AND);
+    ::SelectClipRgn(hDC, clip.hRgn);
     clip.hDC = hDC;
     clip.rcItem = rc;
 }
@@ -90,7 +91,8 @@ void CRenderClip::GenerateRoundClip(HDC hDC, RECT rc, RECT rcItem, int width, in
     clip.hRgn = ::CreateRectRgnIndirect(&rc);
     HRGN hRgnItem = ::CreateRoundRectRgn(rcItem.left, rcItem.top, rcItem.right + 1, rcItem.bottom + 1, width, height);
     ::CombineRgn(clip.hRgn, clip.hRgn, hRgnItem, RGN_AND);
-    ::ExtSelectClipRgn(hDC, clip.hRgn, RGN_AND);
+    ::CombineRgn(clip.hRgn, clip.hRgn, clip.hOldRgn, RGN_AND);
+    ::SelectClipRgn(hDC, clip.hRgn);
     clip.hDC = hDC;
     clip.rcItem = rc;
     ::DeleteObject(hRgnItem);

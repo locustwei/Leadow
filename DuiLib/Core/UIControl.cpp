@@ -889,19 +889,19 @@ CDuiString CControlUI::GetVirtualWnd() const
 	return str;
 }
 
-	CControlUI* CControlUI::FindParentControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)
+CControlUI* CControlUI::FindParentControl(FINDCONTROLPROC Proc, LPVOID pData, UINT uFlags)
+{
+	if (GetParent())
 	{
-		if (GetParent())
-		{
-			CControlUI* pctrl_ui = Proc(GetParent(), pData);
-			if (pctrl_ui)
-				return pctrl_ui;
-			else
-				return GetParent()->FindParentControl(Proc, pData, uFlags);
-		}
+		CControlUI* pctrl_ui = Proc(GetParent(), pData);
+		if (pctrl_ui)
+			return pctrl_ui;
 		else
-			return nullptr;
+			return GetParent()->FindParentControl(Proc, pData, uFlags);
 	}
+	else
+		return nullptr;
+}
 
 	CDuiString CControlUI::GetAttribute(LPCTSTR pstrName)
 {
@@ -1145,10 +1145,8 @@ void CControlUI::PaintBkColor(HDC hDC)
             else 
                 CRenderEngine::DrawGradient(hDC, m_rcItem, GetAdjustColor(m_dwBackColor), GetAdjustColor(m_dwBackColor2), true, 16);
         }
-        else if( m_dwBackColor >= 0xFF000000 ) 
-			CRenderEngine::DrawColor(hDC, m_rcPaint, GetAdjustColor(m_dwBackColor));
-        else 
-			CRenderEngine::DrawColor(hDC, m_rcItem, GetAdjustColor(m_dwBackColor));
+        else if( m_dwBackColor >= 0xFF000000 ) CRenderEngine::DrawColor(hDC, m_rcPaint, GetAdjustColor(m_dwBackColor));
+        else CRenderEngine::DrawColor(hDC, m_rcItem, GetAdjustColor(m_dwBackColor));
     }
 }
 

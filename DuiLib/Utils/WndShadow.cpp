@@ -162,7 +162,7 @@ void CWndShadow::Create(HWND hParentWnd)
 
 	// Create the shadow window
 	m_hWnd = CreateWindowEx(WS_EX_LAYERED | WS_EX_TRANSPARENT, strWndClassName, NULL,
-		/*WS_VISIBLE | WS_CAPTION |*/ WS_POPUPWINDOW,
+		/*WS_VISIBLE | *//*WS_CAPTION | */WS_POPUPWINDOW,
 		CW_USEDEFAULT, 0, 0, 0, hParentWnd, NULL, s_hInstance, NULL);
 
 	// Determine the initial show state of shadow according to parent window's state
@@ -348,7 +348,7 @@ BOOL  SaveBmp(HBITMAP     hBitmap, CDuiString  FileName)
 	HANDLE     fh, hDib, hPal, hOldPal = NULL;
 
 	//计算位图文件每个像素所占字节数           
-	hDC = CreateDC(L"DISPLAY", NULL, NULL, NULL);
+	hDC = CreateDC(_T("DISPLAY"), NULL, NULL, NULL);
 	iBits = GetDeviceCaps(hDC, BITSPIXEL)     *     GetDeviceCaps(hDC, PLANES);
 	DeleteDC(hDC);
 	if (iBits <= 1)
@@ -426,7 +426,6 @@ BOOL  SaveBmp(HBITMAP     hBitmap, CDuiString  FileName)
 
 	return     TRUE;
 }
-
 void CWndShadow::Update(HWND hParent)
 {
 	//int ShadSize = 5;
@@ -434,8 +433,8 @@ void CWndShadow::Update(HWND hParent)
 
 	RECT WndRect;
 	GetWindowRect(hParent, &WndRect);
-	int nShadWndWid = WndRect.right - WndRect.left + m_nSize * 2 + 100;
-	int nShadWndHei = WndRect.bottom - WndRect.top + m_nSize * 2 + 100;
+	int nShadWndWid = WndRect.right - WndRect.left + m_nSize * 2;
+	int nShadWndHei = WndRect.bottom - WndRect.top + m_nSize * 2;
 	if (m_pImageInfo) {
 		nShadWndWid = WndRect.right - WndRect.left + m_rcCorner.left + m_rcCorner.right;
 		nShadWndHei = WndRect.bottom - WndRect.top + m_rcCorner.top + m_rcCorner.bottom;
@@ -473,6 +472,8 @@ void CWndShadow::Update(HWND hParent)
 		hOriBmp = (HBITMAP)SelectObject(hMemDC, hbitmap);
 	}
 
+	//SaveBmp(hbitmap, _T("g:\\ssss.bmp"));
+
 	POINT ptDst = {WndRect.left + m_nxOffset - m_nSize, WndRect.top + m_nyOffset - m_nSize};
 	if (m_pImageInfo) {
 		ptDst.x = WndRect.left - m_rcCorner.left;
@@ -504,12 +505,11 @@ void CWndShadow::MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent)
 	// The algorithm is optimized by assuming parent window is just "one piece" and without "wholes" on it
 
 	// Get the region of parent window,
-	
-	HRGN hParentRgn = CreateRectRgn(0, 0, 0, 0);
+	HRGN hParentRgn = CreateRectRgn(0, 0, rcParent->right - rcParent->left, rcParent->bottom - rcParent->top);
 	GetWindowRgn(hParent, hParentRgn);
 
 	// Determine the Start and end point of each horizontal scan line
-	SIZE szParent = {rcParent->right - rcParent->left - 100, rcParent->bottom - rcParent->top - 100};
+	SIZE szParent = {rcParent->right - rcParent->left, rcParent->bottom - rcParent->top};
 	SIZE szShadow = {szParent.cx + 2 * m_nSize, szParent.cy + 2 * m_nSize};
 	// Extra 2 lines (set to be empty) in ptAnchors are used in dilation
 	int nAnchors = max(szParent.cy, szShadow.cy);	// # of anchor points pares
@@ -708,7 +708,6 @@ void CWndShadow::MakeShadow(UINT32 *pShadBits, HWND hParent, RECT *rcParent)
 	delete[] ptAnchorsOri;
 	delete[] pKernel;
 	DeleteObject(hParentRgn);
-	
 }
 
 bool CWndShadow::SetImage(LPCTSTR image, RECT rcCorner, RECT rcHoleOffset)

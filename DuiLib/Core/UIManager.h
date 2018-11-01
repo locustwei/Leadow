@@ -13,7 +13,7 @@ class CControlUI;
 /////////////////////////////////////////////////////////////////////////////////////
 //
 
-enum EVENTTYPE_UI
+typedef enum EVENTTYPE_UI
 {
     UIEVENT__FIRST = 1,
     UIEVENT__KEYBEGIN,
@@ -392,7 +392,7 @@ public:
     CControlUI* FindSubControlByClass(CControlUI* pParent, LPCTSTR pstrClass, int iIndex = 0);
     CDuiPtrArray* FindSubControlsByClass(CControlUI* pParent, LPCTSTR pstrClass);
 
-    static void MessageLoop();
+    static int MessageLoop();
     static bool TranslateMessage(const LPMSG pMsg);
 	static void Term();
 
