@@ -27,6 +27,7 @@ public:
 
 	UINT64 EnumFiles(IMftReaderHandler*, PVOID Param) override;
 	UINT64 EnumDeleteFiles(IMftDeleteReaderHandler*, PVOID) override;
+	BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks) override;
 
 	BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) override;
 	CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = true) override;

@@ -9,31 +9,40 @@
 
 CWJMftReader::CWJMftReader()
 {
+	m_Freed = false;
 	m_Reader = nullptr;
 	m_FolderCachFile = nullptr;
 	m_SearchHandler = nullptr;
-	m_Volume = nullptr;
+	InitializeCriticalSection(&m_CriticalSection);
 }
 
 CWJMftReader::~CWJMftReader()
 {
+	m_Freed = true;
+	EnterCriticalSection(&m_CriticalSection);
+
 	if (m_FolderCachFile)
 		delete m_FolderCachFile;
+	if (m_Reader)
+		delete m_Reader;
+	LeaveCriticalSection(&m_CriticalSection);
+	DeleteCriticalSection(&m_CriticalSection);
 }
 
-IWJVolume* CWJMftReader::GetVolume()
+const TCHAR* CWJMftReader::GetVolumePath()
 {
-	return m_Volume;
+	return m_VolumePath;
 }
 
 class CEnumMftFilesThread :
 	public IThreadRunable
 {
 public:
-	CEnumMftFilesThread(CWJMftReader* Owner, int Op)
+	CEnumMftFilesThread(CWJMftReader* Owner, int Op, IWJMftSearchHandler* handler)
 	{
 		m_Owner = Owner;
 		m_Op = Op;
+		m_handler = handler;
 	};
 	~CEnumMftFilesThread()
 	{
@@ -42,6 +51,10 @@ public:
 public:
 	virtual VOID ThreadBody(CThread* Sender, UINT_PTR Param) override
 	{
+		EnterCriticalSection(&m_Owner->m_CriticalSection);
+		
+		m_Owner->m_SearchHandler = m_handler;
+
 		m_Owner->m_SearchHandler->OnBegin(nullptr);
 		
 		switch (m_Op)
@@ -54,20 +67,21 @@ public:
 		default:
 			break;
 		}
-
-		m_Owner->m_SearchHandler->OnEnd(nullptr);
+		if(!m_Owner->m_Freed)     //free过程中，主线程等待线程结束，如果OnEnd有界面操作将会互锁
+			m_Owner->m_SearchHandler->OnEnd(nullptr);
 	};
 
 	virtual VOID OnThreadInit(CThread* Sender, UINT_PTR Param) override
 	{
-
 	};
 	virtual VOID OnThreadTerminated(CThread* Sender, UINT_PTR Param) override
 	{
+		LeaveCriticalSection(&m_Owner->m_CriticalSection);
 		delete this;
 	};
 private:
 	int m_Op;
+	IWJMftSearchHandler* m_handler;
 	CWJMftReader* m_Owner;
 };
 
@@ -77,14 +91,13 @@ WJ_ERROR_CODE CWJMftReader::EnumMftFiles(IWJMftSearchHandler* handler, PVOID Par
 	if (m_FolderCachFile == nullptr)
 	{
 		m_FolderCachFile = new CRecordFile();
-		//m_FolderCachFile->SetVolumePath(m_Volume->GetVolumePath());
 		if (!m_FolderCachFile->OpenFile(nullptr))
 			error = WJERROR_CAN_NOT_OPEN_INDEX_FILE;
 	}
 	if (error != WJERROR_SUCCEED)
 		return error;
-	m_SearchHandler = handler;
-	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 0);
+	//m_SearchHandler = handler;
+	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 0, handler);
 	CThread* thread = new CThread(threadbody);
 	thread->Start((UINT_PTR)Param);
 	return WJERROR_SUCCEED;
@@ -96,14 +109,13 @@ WJ_ERROR_CODE CWJMftReader::EnumDeleteFiles(IWJMftSearchHandler* handler, PVOID 
 	if (m_FolderCachFile == nullptr)
 	{
 		m_FolderCachFile = new CRecordFile();
-		//m_FolderCachFile->SetVolumePath(m_Volume->GetVolumePath());
 		if (!m_FolderCachFile->OpenFile(nullptr))
 			error = WJERROR_CAN_NOT_OPEN_INDEX_FILE;
 	}
 	if (error != WJERROR_SUCCEED)
 		return error;
-	m_SearchHandler = handler;
-	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 1);
+	//m_SearchHandler = handler;
+	CEnumMftFilesThread* threadbody = new CEnumMftFilesThread(this, 1, handler);
 	CThread* thread = new CThread(threadbody);
 	thread->Start((UINT_PTR)Param);
 	return WJERROR_SUCCEED;
@@ -138,28 +150,25 @@ CWJMftReader* CWJMftReader::CreateReader(IWJVolume* volume)
 		return nullptr;
 	}
 
-	CMftReader* Reader = nullptr;
-
-	switch (volume->GetFileSystem())
-	{
-	case FILESYSTEM_TYPE_NTFS:
-		Reader = new CNtfsMtfReader(volume->OpenHandle());
-		break;
-	case FILESYSTEM_TYPE_FAT:
-		Reader = new CFatMftReader(volume->OpenHandle());
-		break;
-	case FILESYSTEM_TYPE_EXFAT:
-		Reader = new CExFatReader(volume->OpenHandle());
-		break;
-	default:
+	CMftReader* Reader = CMftReader::CreateReader(volume->OpenHandle(), volume->GetFileSystem());
+	if (Reader == nullptr)
 		return nullptr;
-	}
 
 	CWJMftReader* result = new CWJMftReader();
 	result->m_Reader = Reader;
-	result->m_Volume = volume;
+	result->m_VolumePath = volume->GetVolumePath();
+	if (result->m_VolumePath.IsEmpty())
+		result->m_VolumePath = volume->GetVolumeGuid();
 	return result;
 }
+
+//CWJMftReader * CWJMftReader::CreateReader(CWJMftIndexFile * idxfile)
+//{
+//	CWJMftReader* result = new CWJMftReader();
+//	result->m_FolderCachFile = idxfile->GetRecordFile();
+//	result->m_VolumePath = volume->GetVolumePath();
+//	return result;;
+//}
 
 USHORT CWJMftReader::GetBytesPerSector()
 {
@@ -187,6 +196,9 @@ UINT64 CWJMftReader::GetTotalCluster()
 
 BOOL CWJMftReader::EnumMftDeleteFileCallback(PMFT_FILE_DATA pFileInfo, PFILE_DATA_STREAM stream, PVOID Param)
 {
+	if (m_Freed)
+		return FALSE;
+
 	if ((pFileInfo->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 		m_FolderCachFile->WriteRecord(pFileInfo->FileReferenceNumber, (PUCHAR)pFileInfo, sizeof(MFT_FILE_DATA) - sizeof(pFileInfo->Name) + (pFileInfo->NameLength + 1) * sizeof(WCHAR));
 	else
@@ -195,25 +207,18 @@ BOOL CWJMftReader::EnumMftDeleteFileCallback(PMFT_FILE_DATA pFileInfo, PFILE_DAT
 		{
 			m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));
 			m_File.SetDataInfo(stream);
-			if (m_PathName.IsEmpty())
-			{
-				m_PathName.Format(_T("%sFolder%lld\\"), m_Volume->GetVolumePath(), pFileInfo->DirectoryFileReferenceNumber);
-			}
 			m_SearchHandler->OnMftFileInfo(&m_File, m_PathName, Param);
 		}
 	}
-	/*else
-	{
-	GetPathName(pFileInfo->DirectoryFileReferenceNumber);
-	m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));
-	m_File.SetDataInfo(stream);
-	m_SearchHandler->OnMftFileInfo(&m_File, m_PathName, Param);
-	}*/
+
 	return !m_SearchHandler->Stop(Param);
 }
 
 BOOL CWJMftReader::EnumMftFileCallback(PMFT_FILE_DATA pFileInfo, PVOID Param)
 {
+	if (m_Freed)
+		return FALSE;
+
 	if (FilterFile(pFileInfo))
 	{
 		m_File.SetFileInfo(pFileInfo, sizeof(MFT_FILE_DATA));
@@ -233,7 +238,10 @@ UINT CWJMftReader::GetPathName(UINT64 FileReferenceNumber, bool read)
 	while (FileReferenceNumber != 5 && FileReferenceNumber != 0)
 	{
 		if (FileReferenceNumber < 15)      //排除$Extend文件夹下的所以文件。
+		{
+			m_PathName.Empty();
 			return 0;
+		}
 
 		if (!m_FolderCachFile->ReadRecord(FileReferenceNumber, &file, sizeof(MFT_FILE_DATA)))
 		{
@@ -248,13 +256,21 @@ UINT CWJMftReader::GetPathName(UINT64 FileReferenceNumber, bool read)
 			}
 		}
 
-		FileReferenceNumber = file.DirectoryFileReferenceNumber;
-		file.Name[file.NameLength] = '\\';
-		file.Name[file.NameLength + 1] = '\0';
+		if ((file.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+			m_PathName.Empty();
+			return 0;
+		}
 
-		m_PathName.Insert(0, file.Name);
+		FileReferenceNumber = file.DirectoryFileReferenceNumber;
+		if (file.NameLength)
+		{
+			file.Name[file.NameLength] = '\\';
+			file.Name[file.NameLength + 1] = '\0';
+			m_PathName.Insert(0, file.Name);
+		}
 	}
-	m_PathName.Insert(0, (TCHAR*)m_Volume->GetVolumePath());
+	m_PathName.Insert(0, (TCHAR*)m_VolumePath);
 
 	return m_PathName.GetLength();
 }
@@ -283,7 +299,7 @@ BOOL CWJMftReader::FilterFile(PMFT_FILE_DATA pFileInfo)
 	{
 		while (*p)
 		{
-			if (wcschr(*p, '\\') && !m_PathName.IsEmpty())  //需要路径匹配
+			if (wcschr(*p, '\\') && m_PathName.IsEmpty())  //需要路径匹配
 			{
 				if (!GetPathName(pFileInfo->DirectoryFileReferenceNumber))       //这个动作尽量拖后，因为很费时间
 					return FALSE;
@@ -348,11 +364,10 @@ BOOL CWJMftReader::FilterDelFile(PMFT_FILE_DATA pFileInfo)
 		{
 			if (wcschr(*p, '\\') && !m_PathName.IsEmpty())  //需要路径匹配
 			{
-				if (GetPathName(pFileInfo->DirectoryFileReferenceNumber, false))       //这个动作尽量拖后，因为很费时间
-				{
-					fullname = m_PathName;
-					fullname += pFileInfo->Name;
-				}
+				if (!GetPathName(pFileInfo->DirectoryFileReferenceNumber)) 				
+					m_PathName.Format(_T("%sFolder%lld\\"), m_VolumePath, pFileInfo->DirectoryFileReferenceNumber);
+				fullname = m_PathName;
+				fullname += pFileInfo->Name;
 			}
 			if (PathMatchSpec(fullname, *p) || _tcsicmp(pFileInfo->Name, *p) == 0)
 			{
@@ -368,11 +383,10 @@ BOOL CWJMftReader::FilterDelFile(PMFT_FILE_DATA pFileInfo)
 
 	if (m_PathName.IsEmpty())
 	{
-		if (GetPathName(pFileInfo->DirectoryFileReferenceNumber, false))
-		{
-			fullname = m_PathName;
-			fullname += pFileInfo->Name;
-		}
+		if (!GetPathName(pFileInfo->DirectoryFileReferenceNumber))
+			m_PathName.Format(_T("%sFolder%lld\\"), m_VolumePath, pFileInfo->DirectoryFileReferenceNumber);
+		fullname = m_PathName;
+		fullname += pFileInfo->Name;
 
 	}
 

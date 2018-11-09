@@ -6,6 +6,8 @@
 #include <shlwapi.h>
 #include "WJMftFileImpl.h"
 #include "WJMftReader.h"
+#include "WJMftIndexFile.h"
+#include <tchar.h>
 
 
 CWJSLib::CWJSLib():
@@ -16,12 +18,13 @@ CWJSLib::CWJSLib():
 
 CWJSLib::~CWJSLib()
 {
-	for (int i = 0; i < m_Volumes.GetCount(); i++)
+
+	for (int i = 0; i < m_VolumeIndexFiles.GetCount(); i++)
 	{
-		if(m_Volumes[i])
-			delete m_Volumes[i];
+		if (m_VolumeIndexFiles[i])
+			delete m_VolumeIndexFiles[i];
 	}
-	m_Volumes.Clear();
+	m_VolumeIndexFiles.Clear();
 
 	for (int i = 0; i < m_VolumeReaders.GetCount(); i++)
 	{
@@ -29,6 +32,14 @@ CWJSLib::~CWJSLib()
 			delete m_VolumeReaders[i];
 	}
 	m_VolumeReaders.Clear();
+
+	for (int i = 0; i < m_Volumes.GetCount(); i++)
+	{
+		if(m_Volumes[i])
+			delete m_Volumes[i];
+	}
+	m_Volumes.Clear();
+
 }
 
 WJ_ERROR_CODE CWJSLib::VolumeCanReader(IWJVolume* volume)
@@ -43,6 +54,33 @@ WJ_ERROR_CODE CWJSLib::VolumeCanReader(IWJVolume* volume)
 		return WJERROR_FILE_SYSTEM_NOT_SUPPORT;
 	return WJERROR_SUCCEED;
 }
+
+class CSortVolume : public ISortCompare<CWJVolume*>
+{
+public:
+	CSortVolume() {};
+	~CSortVolume() {};
+	
+	int ArraySortCompare(CWJVolume** it1, CWJVolume** it2) override
+	{
+		if (it1 == nullptr || *it1 == nullptr)
+			return -1;
+		if (it2 == nullptr || *it2 == nullptr)
+			return 1;
+
+		const TCHAR* p1 = (*it1)->GetVolumePath();
+		const TCHAR* p2 = (*it2)->GetVolumePath();
+		if (p1 == nullptr)
+			return -1;
+		else if (p2 == nullptr)
+			return 1;
+		else
+			return _tcscmp(p1, p2);
+	}
+
+private:
+
+};
 
 VOID CWJSLib::EnumDiskVolumes()
 {
@@ -75,15 +113,34 @@ VOID CWJSLib::EnumDiskVolumes()
 		}
 	}
 
+	CSortVolume comp;
+	m_Volumes.Sort(&comp);
+
 	FindVolumeClose(hFind);
 
 }
 
 CWJMftReader * CWJSLib::FindReader(IWJVolume * volume)
 {
+	if (volume == nullptr)
+		return nullptr;
+	CLdString s = (TCHAR*)volume->GetVolumePath();
+	if (s.IsEmpty())
+		s = (TCHAR*)volume->GetVolumeGuid();
 	for(int i=0; i<m_VolumeReaders.GetCount(); i++)
-		if(m_VolumeReaders[i]->GetVolume()==volume)
+		if(s == m_VolumeReaders[i]->GetVolumePath())
 			return m_VolumeReaders[i];
+	return nullptr;
+}
+
+CWJMftIndexFile * CWJSLib::FindIndexFile(IWJVolume * volume)
+{
+	if (volume == nullptr)
+		return nullptr;
+	
+	for (int i = 0; i < m_VolumeIndexFiles.GetCount(); i++)
+		if (volume == m_VolumeIndexFiles[i]->GetVolume())
+			return m_VolumeIndexFiles[i];
 	return nullptr;
 }
 
@@ -112,40 +169,6 @@ IWJVolume* CWJSLib::GetVolume(int idx)
 		return m_Volumes[idx];
 }
 
-//WJ_ERROR_CODE CreateReader(IWJVolume* volume, CMftReader** OutReader)
-//{
-//	WJ_ERROR_CODE error = WJERROR_UNKNOWN;
-//
-//	//DebugOutput(L"volume path = %s\n", volume->GetVolumePath());
-//
-//	if (volume->OpenHandle() == INVALID_HANDLE_VALUE)
-//	{
-//		return WJERROR_CAN_OPEN_VOLUME_HANDLE;
-//	}
-//
-//	CMftReader* Reader = nullptr;
-//
-//	switch (volume->GetFileSystem())
-//	{
-//	case FILESYSTEM_TYPE_NTFS:
-//		Reader = new CNtfsMtfReader(volume->OpenHandle());
-//		break;
-//	case FILESYSTEM_TYPE_FAT:
-//		Reader = new CFatMftReader(volume->OpenHandle());
-//		break;
-//	default:
-//		return WJERROR_FILE_SYSTEM_NOT_SUPPORT;
-//	}
-//
-//	/*if (!Reader->IsValid())
-//	{
-//	delete Reader;
-//	return WJERROR_INIT_MFT_READER;
-//	}*/
-//
-//	*OutReader = Reader;
-//	return WJERROR_SUCCEED;
-//}
 
 WJ_ERROR_CODE  CWJSLib::SearchVolume(IWJVolume* volume, IWJMftSearchHandler* handler)
 {
@@ -164,4 +187,28 @@ WJ_ERROR_CODE  CWJSLib::SearchDeletedFile(IWJVolume* volume, IWJMftSearchHandler
 		return reader->EnumDeleteFiles(handler, nullptr);
 	else
 		return WJERROR_FILE_SYSTEM_NOT_SUPPORT;
+}
+
+IWJMftIndexFile* CWJSLib::CreateIndexFile(IWJVolume* volume, const TCHAR* Filename, IWJSHandler* hander, BOOL ListenChange)
+{
+	CWJMftIndexFile* file = FindIndexFile(volume);
+	if (file == nullptr)
+	{
+		file = new CWJMftIndexFile(Filename);
+		if (!file->CreateIndexFile(volume, hander, ListenChange))
+		{
+			delete file;
+			return nullptr;
+		}
+		m_VolumeIndexFiles.Add(file);
+	}
+		
+	return file;
+}
+
+WJ_ERROR_CODE CWJSLib::SearchIndexFile(IWJMftIndexFile* idxfile, IWJMftSearchHandler* hander)
+{
+	CWJMftIndexFile* file = static_cast<CWJMftIndexFile*>(idxfile);
+	file->EnumFiles(hander, nullptr);
+	return WJERROR_SUCCEED;
 }

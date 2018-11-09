@@ -136,7 +136,6 @@ UINT64 CNtfsMtfReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Pa
 
 		if ((m_FileCanche->Flags & 0x2) != 0)    //Ŀ¼
 		{
-			continue;
 			file.LoadAttributes(i, m_FileCanche, true);
 		}
 		else
@@ -214,6 +213,49 @@ UINT64 CNtfsMtfReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Pa
 
 	return result;
 
+}
+
+BOOL CNtfsMtfReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+{
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	
+	if (!m_MftBitmap)
+		return FALSE;
+
+	for (UINT64 i = 15; i < m_FileCount; i++)
+	{
+
+		if (!bitset(m_MftBitmap, i))
+		{
+			if (DeletedFileTracks)
+				*DeletedFileTracks++;
+			continue;
+		}
+
+		if (!ReadFileRecord(i, m_FileCanche))
+			continue;
+
+		if (m_FileCanche->Ntfs.Type != 'ELIF')
+			continue;
+
+		if ((m_FileCanche->Flags & 0x1) == 0)
+		{
+			if (DeletedFileTracks)
+				*DeletedFileTracks++;
+			continue;
+		}
+
+		if ((m_FileCanche->Flags & 0x2) != 0)    //Ŀ¼
+		{
+			if(FolderCount)
+				*FolderCount++;
+		}
+		else
+			if (FileCount)
+				*FileCount++;
+
+	}
+	return TRUE;
 }
 
 VOID CNtfsMtfReader::FixupUpdateSequenceArray(PNTFS_FILE_RECORD_HEADER file)

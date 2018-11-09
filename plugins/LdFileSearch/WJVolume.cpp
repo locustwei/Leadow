@@ -50,7 +50,10 @@ HANDLE  CWJVolume::OpenHandle()
 			path += m_VolumePath;
 			path.SetAt(path.GetLength() - 1, '\0');
 		}
-		if(!path.IsEmpty())
+		else
+			return INVALID_HANDLE_VALUE;
+		
+		if (!path.IsEmpty())
 			m_hVolume = CreateFile(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_SEQUENTIAL_SCAN, 0);
 	}
 	return m_hVolume;
@@ -94,33 +97,79 @@ const TCHAR*  CWJVolume::GetVolumePath()
 	return m_VolumePath;
 }
 
+BOOL IsWindowsVersionOrGreater_(WORD wMajorVersion, WORD wMinorVersion, WORD wServicePackMajor)
+{
+	OSVERSIONINFOEXW osvi = { sizeof(osvi), 0, 0, 0, 0,{ 0 }, 0, 0 };
+	DWORDLONG        const dwlConditionMask = VerSetConditionMask(
+		VerSetConditionMask(
+			VerSetConditionMask(
+				0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+			VER_MINORVERSION, VER_GREATER_EQUAL),
+		VER_SERVICEPACKMAJOR, VER_GREATER_EQUAL);
+
+	osvi.dwMajorVersion = wMajorVersion;
+	osvi.dwMinorVersion = wMinorVersion;
+	osvi.wServicePackMajor = wServicePackMajor;
+
+	return VerifyVersionInfo(&osvi, VER_MAJORVERSION | VER_MINORVERSION | VER_SERVICEPACKMAJOR, dwlConditionMask) != FALSE;
+}
+
+BOOL GetVolumeInformationByHandle(
+	HANDLE hFile,
+	LPWSTR lpVolumeNameBuffer,
+	DWORD nVolumeNameSize,
+	LPDWORD lpVolumeSerialNumber,
+	LPDWORD lpMaximumComponentLength,
+	LPDWORD lpFileSystemFlags,
+	LPWSTR lpFileSystemNameBuffer,
+	DWORD nFileSystemNameSize
+) 
+{
+	if (!IsWindowsVersionOrGreater_(6, 0, 0))
+		return FALSE;
+	typedef BOOL(WINAPI *GetByHandle)(__in      HANDLE hFile,
+		__out_ecount_opt(nVolumeNameSize) LPWSTR lpVolumeNameBuffer,
+		__in      DWORD nVolumeNameSize,
+		__out_opt LPDWORD lpVolumeSerialNumber,
+		__out_opt LPDWORD lpMaximumComponentLength,
+		__out_opt LPDWORD lpFileSystemFlags,
+		__out_ecount_opt(nFileSystemNameSize) LPWSTR lpFileSystemNameBuffer,
+		__in      DWORD nFileSystemNameSize);
+
+	static GetByHandle fn = (GetByHandle)GetProcAddress(GetModuleHandle(_T("Kernel32.dll")), "GetVolumeInformationByHandleW");
+	if (fn)
+		return fn(hFile, lpVolumeNameBuffer, nVolumeNameSize, lpVolumeSerialNumber, lpMaximumComponentLength, lpFileSystemFlags, lpFileSystemNameBuffer, nFileSystemNameSize);
+	else
+		return FALSE;
+}
+
 VOID CWJVolume::GetVolumeInfo()
 {
 	GetVolumePath();
 
+	DWORD MaxFilenameLength;
+	TCHAR FileSystemNameBuffer[MAX_PATH] = { 0 };
+	TCHAR VolumeName[MAX_PATH] = { 0 };
+
 	if (!m_VolumePath.IsEmpty())
 	{
-		DWORD MaxFilenameLength;
-		TCHAR FileSystemNameBuffer[MAX_PATH] = { 0 };
-		TCHAR VolumeName[MAX_PATH] = { 0 };
-		if (GetVolumeInformation(m_VolumePath, VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
-		{
-			if (_tcscmp(FileSystemNameBuffer, _T("NTFS"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_NTFS;
-			else if (_tcscmp(FileSystemNameBuffer, _T("FAT32"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_FAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("FAT"))==0)
-				m_FileSystem = FILESYSTEM_TYPE_FAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("exFAT")) == 0)
-				m_FileSystem = FILESYSTEM_TYPE_EXFAT;
-			else if (_tcscmp(FileSystemNameBuffer, _T("UDF")) == 0)
-				m_FileSystem = FILESYSTEM_TYPE_UDF;
-			m_VolumeName = VolumeName;
-
-			//DebugOutput(L"FileSystemFlags = %d\nFileSystemNameBuffer = %s\n", m_FileSystemFlags, FileSystemNameBuffer);
-		}
+		if (!GetVolumeInformation(m_VolumePath, VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
+			return;
 	}
+	else if (!GetVolumeInformationByHandle(OpenHandle(), VolumeName, MAX_PATH, &m_VolumeSerialNumber, &MaxFilenameLength, &m_FileSystemFlags, FileSystemNameBuffer, MAX_PATH))
+		return;
 
+	if (_tcscmp(FileSystemNameBuffer, _T("NTFS")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_NTFS;
+	else if (_tcscmp(FileSystemNameBuffer, _T("FAT32")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_FAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("FAT")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_FAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("exFAT")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_EXFAT;
+	else if (_tcscmp(FileSystemNameBuffer, _T("UDF")) == 0)
+		m_FileSystem = FILESYSTEM_TYPE_UDF;
+	m_VolumeName = VolumeName;
 }
 
 VOID  CWJVolume::CloseHandle()

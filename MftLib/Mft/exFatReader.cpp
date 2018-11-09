@@ -75,6 +75,17 @@ UINT64 CExFatReader::EnumDeleteFiles(IMftDeleteReaderHandler* hanlder, PVOID Par
 	return result;
 }
 
+BOOL CExFatReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+{
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	m_FileCount_Stats = FileCount;
+	m_FolderCount_Stats = FolderCount;
+	m_DeleteFileTracks_Stats = DeletedFileTracks;
+
+	UINT64 result = EnumDirectoryFiles(&m_Root, 1);
+	return result > 0;
+}
+
 void CExFatReader::ZeroMember()
 {
 	__super::ZeroMember();
@@ -114,7 +125,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 	EXFAT_FILE tmpDir;      
 	PEXFAT_FILE tmpFile2;
 
-	if (op == 2 && pParentDir->CUSTOM.IsDel)
+	if (op != 0 && pParentDir->CUSTOM.IsDel)
 	{
 		if (IsClusterUsed(pParentDir->CUSTOM.StartCluster))
 			return 0;
@@ -165,7 +176,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 			case 0x82:
 				continue; //大写字符文件
 			case 0x5:        //删除
-				if (op != 2)
+				if (op == 0)
 					continue;
 			case 0x85:
 				DosDateTimeToFileTime(LOWORD(pFatFile->FILE1.CreateTime), HIWORD(pFatFile->FILE1.CreateTime), &m_FileInfo.CreationTime);
@@ -173,7 +184,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 				m_FileInfo.FileAttributes = pFatFile->FILE1.Attribute;
 				break;    //目录
 			case 0x40:      //删除文件属性
-				if (op != 2)
+				if (op == 0)
 					continue;
 			case 0xC0:      //正常文件属性
 				m_FileInfo.NameLength = pFatFile->FILE2.NameLength;
@@ -189,7 +200,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 				tmpFile2 = pFatFile;
 				break;
 			case 0x41:        //删除文件名
-				if (op != 2)
+				if (op == 0)
 					continue;
 			case 0xC1:        //正常文件名
 				//CopyMemory(&m_FileInfo.Name[m_FileInfo.NameLength - nNamePos], pFatFile->DIR_ATTRIBUTE3.Name, (nNamePos >= 15?15:nNamePos) * sizeof(WCHAR));
@@ -209,9 +220,11 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 					m_FileInfo.Name[m_FileInfo.NameLength] = '\0';
 					tmpDir.CUSTOM.IsDel = pFatFile->type == 0x41;
 
-					if((op != 2 && !tmpDir.CUSTOM.IsDel) ||
-						((op == 2 && tmpDir.CUSTOM.IsDel) || m_FileInfo.FileAttributes & FFT_DIRECTORY) )
-						DoAFatFile(pParentDir, tmpFile2, op==2);
+					if((op == 0 && !tmpDir.CUSTOM.IsDel) ||
+						(op == 1) ||
+						((op == 2 && tmpDir.CUSTOM.IsDel) || m_FileInfo.FileAttributes & FFT_DIRECTORY) 
+						)
+						DoAFatFile(pParentDir, tmpFile2, op);
 
 					if ((m_FileInfo.FileAttributes & FFT_DIRECTORY) == FFT_DIRECTORY)
 					{
@@ -334,14 +347,14 @@ PUCHAR CExFatReader::CacheFat(UINT sector, UINT count)
 	return Buffer;
 }
 
-BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, bool deleted)
+BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, int op)
 {
 	m_FileInfo.DirectoryFileReferenceNumber = pParentDir->CUSTOM.ReferenceNumber;
 
 	m_FileInfo.FileReferenceNumber = m_FileReferenceNumber++;
 
 
-	if (deleted)
+	if (op == 2)
 	{
 		FILE_DATA_STREAM aDataStream = { 0 };
 
@@ -380,7 +393,27 @@ BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, bool de
 			delete[]aDataStream.Lcns;
 		return result;
 	}
-	else
+	else if (op == 1)
+	{
+		if (pFile->CUSTOM.IsDel)
+		{
+			if (m_DeleteFileTracks_Stats)
+				*m_DeleteFileTracks_Stats++;
+		}
+		else
+		{
+			if ((m_FileInfo.FileAttributes & FFT_DIRECTORY) == FFT_DIRECTORY)
+			{
+				if (m_FolderCount_Stats)
+					*m_FolderCount_Stats++;
+			}
+			else
+				if (m_FileCount_Stats)
+					*m_FileCount_Stats++;
+		}
+
+	}
+	else if(op == 0)
 		return Callback(m_FileInfo.FileReferenceNumber, &m_FileInfo);
 }
 

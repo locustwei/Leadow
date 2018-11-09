@@ -40,7 +40,9 @@ private:
 
 	typedef struct RECORD_POINTER{  //记录在文件中位置、长度（字节数）
 		USHORT Length;       //记录字节数
-		UINT64 Pointer;    //在文件中的位置
+		DWORD Deleted : 8;
+		DWORD reserve : 24;
+		DWORD Pointer;    //在文件中的位置
 	}*PRECORD_POINTER;
 
 	typedef struct FILE_HEADER{  //文件头
@@ -113,7 +115,7 @@ private:
 	void FreeIndex();                      
 
 	PRECORD_POINTER GetRecordPointer(UINT64 ReferenceNumber);   
-	void SetRecordPointer(UINT64 ReferenceNumber, ULONG Pointer, USHORT Length);
+	//void SetRecordPointer(UINT64 ReferenceNumber, ULONG Pointer, USHORT Length);
 	ULONG WriteRecord(PRECORD_POINTER rs, PUCHAR pRecord, USHORT Length);
 	USHORT ReadRecord(PRECORD_POINTER rs, PVOID Buffer, USHORT Length);
 

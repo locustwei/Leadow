@@ -98,6 +98,17 @@ UINT64 CFatMftReader::EnumDeleteFiles(IMftDeleteReaderHandler* hanlder, PVOID Pa
 	return result;
 }
 
+BOOL CFatMftReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+{
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	m_FileCount_Stats = FileCount;
+	m_FolderCount_Stats = FolderCount;
+	m_DeleteFileTracks_Stats = DeletedFileTracks;
+
+	UINT64 result = EnumDirectoryFiles(&m_Root, 1);
+	return result > 0;
+}
+
 void CFatMftReader::ZeroMember()
 {
 	__super::ZeroMember();
@@ -172,7 +183,7 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 			if (pFatFile->Order == 0)
 				break;
 
-			if(op != 2 && pFatFile->Order == DELETE_FLAG) 
+			if(op == 0 && pFatFile->Order == DELETE_FLAG) 
 				continue;
 
 			switch(pFatFile->Attr){
@@ -243,6 +254,26 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 							goto exit;
 						break;
 					case 1:
+						if (pParentDir->IsDeleted)
+							pFatFile->IsDeleted = 1;
+						else
+							pFatFile->IsDeleted = (pFatFile->Order == DELETE_FLAG);
+						if (pFatFile->IsDeleted)
+						{
+							if (m_DeleteFileTracks_Stats)
+								*m_DeleteFileTracks_Stats++;
+						}
+						else
+						{
+							if ((pFatFile->Attr & FFT_DIRECTORY) == FFT_DIRECTORY)
+							{
+								if (m_FolderCount_Stats)
+									*m_FolderCount_Stats++;
+							}
+							else
+								if (m_FileCount_Stats)
+									*m_FileCount_Stats++;
+						}
 						//DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir);
 						break;
 					case 2:

@@ -95,10 +95,14 @@ USN CNtfsUSN::UpdateFiles()
 		}
 		rujd.StartUsn = *(USN*)buffer;
 
-		USN_RECORD *pUsnRecord = (PUSN_RECORD)&buffer[sizeof(USN)];
+		USN_RECORD *pUsnRecord = (PUSN_RECORD)(buffer + sizeof(USN));
+		cb -= sizeof(USN);
 
 		while (true) 
 		{
+			if (cb < sizeof(USN_RECORD) || cb < pUsnRecord->RecordLength || pUsnRecord->RecordLength == 0)
+				break;
+			cb -= pUsnRecord->RecordLength;
 
 			if (pUsnRecord->Reason & USN_REASON_CLOSE)
 			{
@@ -111,8 +115,8 @@ USN CNtfsUSN::UpdateFiles()
 					reason = USN_FILE_CREATE;
 					tmpData.FileAttributes = pUsnRecord->FileAttributes;
 					tmpData.DirectoryFileReferenceNumber = pUsnRecord->ParentFileReferenceNumber & 0x0000FFFFFFFFFFFF;
-					tmpData.NameLength = pUsnRecord->FileNameLength;
-					CopyMemory(tmpData.Name, (PUCHAR)pUsnRecord + pUsnRecord->FileNameOffset, tmpData.NameLength * sizeof(WCHAR));
+					tmpData.NameLength = pUsnRecord->FileNameLength / sizeof(WCHAR);
+					CopyMemory(tmpData.Name, (PUCHAR)pUsnRecord + pUsnRecord->FileNameOffset, pUsnRecord->FileNameLength);
 					tmpData.Name[tmpData.NameLength] = '\0';
 				}
 				else if ((pUsnRecord->Reason & USN_REASON_RENAME_NEW_NAME) && ((pUsnRecord->Reason & USN_REASON_RENAME_OLD_NAME) == 0))//¸üÃû
@@ -120,8 +124,8 @@ USN CNtfsUSN::UpdateFiles()
 					reason = USN_RENAME_NEW_NAME;
 					tmpData.FileAttributes = pUsnRecord->FileAttributes;
 					tmpData.DirectoryFileReferenceNumber = pUsnRecord->ParentFileReferenceNumber & 0x0000FFFFFFFFFFFF;
-					tmpData.NameLength = pUsnRecord->FileNameLength;
-					CopyMemory(tmpData.Name, (PUCHAR)pUsnRecord + pUsnRecord->FileNameOffset, tmpData.NameLength * sizeof(WCHAR));
+					tmpData.NameLength = pUsnRecord->FileNameLength / sizeof(WCHAR);
+					CopyMemory(tmpData.Name, (PUCHAR)pUsnRecord + pUsnRecord->FileNameOffset, pUsnRecord->FileNameLength);
 					tmpData.Name[tmpData.NameLength] = '\0';
 				}
 				else if (pUsnRecord->Reason & (USN_REASON_DATA_OVERWRITE | USN_REASON_DATA_TRUNCATION | USN_REASON_DATA_EXTEND))
@@ -137,9 +141,7 @@ USN CNtfsUSN::UpdateFiles()
 			}
 
 			pUsnRecord = (PUSN_RECORD)((PBYTE)pUsnRecord + pUsnRecord->RecordLength);
-			if(pUsnRecord->RecordLength == 0 || cb <= pUsnRecord->RecordLength )
-				break;
-			cb -= pUsnRecord->RecordLength;
+
 		}
 			
 		ret = rujd.StartUsn;

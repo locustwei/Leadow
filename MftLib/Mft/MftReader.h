@@ -77,6 +77,7 @@ class CMftReader
 public:
 	virtual UINT64 EnumFiles(IMftReaderHandler*, PVOID);
 	virtual UINT64 EnumDeleteFiles(IMftDeleteReaderHandler*, PVOID);
+	virtual BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks);
 	virtual BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) = 0;  //读取文件信息，文件序号
 	virtual CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = true) = 0;
 

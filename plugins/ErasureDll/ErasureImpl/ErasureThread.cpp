@@ -29,6 +29,7 @@ CEreaserThrads::CEreaserThrads()
 	m_Options.bFreeFileSpace = false;
 	//m_Options.FileMothed = em_DoD_E;
 	//m_Options.VolumeMothed = em_Pseudorandom;
+	SetFreeOnTerminate(false);
 }
 
 CEreaserThrads::~CEreaserThrads()
@@ -223,38 +224,15 @@ DWORD CEreaserThrads::InitThread(UINT nMaxCount)
 bool CEreaserThrads::AanlysisVolumes(CLdArray<CLdString *>* Volumes)
 {
 
-	LONG volatile* pCount = (LONG volatile*)GlobalAlloc(GPTR, sizeof(LONG));
-	*pCount = 0;
-
 	for (int i = 0; i < Volumes->GetCount(); i++)
 	{
 		if (m_Abort)
 			return false;
 
-		//DebugOutput(L"main thread %d start %s\n", m_ThreadCount, file->GetFullName());
-
-		int n = WaitForThread();
-		if (n == 0) //停止
-			break;
-
-		if (m_Abort)
-			return false;
-
-		//LONG nTemp = *pCount;
-		CThread* thread = new CThread(this);
-		thread->SetTag((UINT_PTR)pCount);
-		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::AanlysisAVolume), (PVOID)Volumes->Get(i), *pCount);
-		//while (nTemp == *pCount)  //等待这个擦除线程真正运行，否则在线程还没运行起来又创建了多余的线程。
-		//Sleep(10);
+		CThread* thread = new CThread();
+		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::AanlysisAVolume), (PVOID)Volumes->Get(i), 0);
 	}
-	//等等当前目录的擦除线程都结束，以防擦除目录时出错。
-	while (*pCount > 0)
-	{
-		Sleep(20);
-	}
-	GlobalFree((HGLOBAL)pCount);
-	if (m_Abort)
-		return false;
+
 	return true;
 }
 
@@ -262,19 +240,28 @@ INT_PTR CEreaserThrads::AanlysisAVolume(PVOID pData, UINT_PTR Param)
 {
 	if (m_Abort)
 		return 0;
-
-	CLdString* pVolume = (CLdString*)pData;
-
-	DWORD error;
-	if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, 0))
-		error = ERROR_CANCELED;
-	else
+	
+	m_ThreadCount++;
+	try
 	{
-		CEraseTest test;
-		test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE);
-	}
-	m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, error);
+		CLdString* pVolume = (CLdString*)pData;
 
+		DWORD error;
+		if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, 0))
+			error = ERROR_CANCELED;
+		else
+		{
+			CEraseTest test;
+			test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE);
+		}
+		m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, error);
+
+		m_ThreadCount--;
+	}
+	catch(...)
+	{
+		m_ThreadCount--;
+	}
 	return 0;
 }
 
@@ -306,6 +293,7 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 	{
 		Sleep(20);
 	}
+
 	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, 0);
 }
 

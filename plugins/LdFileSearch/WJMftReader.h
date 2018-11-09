@@ -5,20 +5,19 @@
 #include "WJMftFileImpl.h"
 #include "..\RecordFile.h"
 
-class CWJMftReader 
-	: public IWJMftReader
+class CWJMftReader : public IWJMftReader
 	, IMftReaderHandler
 	, IMftDeleteReaderHandler
+
 {
 	friend class CEnumMftFilesThread;
 
 public:
 	~CWJMftReader();
-	IWJVolume* GetVolume();
+	const TCHAR* GetVolumePath();
 
 	static CWJMftReader* CreateReader(IWJVolume* volume);
-
-
+	//static CWJMftReader* CreateReader(CWJMftIndexFile* idxfile);
 
 protected:
 	virtual BOOL EnumMftDeleteFileCallback(PMFT_FILE_DATA, PFILE_DATA_STREAM, PVOID) override;
@@ -50,14 +49,17 @@ protected:
 
 	virtual UINT64 GetTotalCluster() override;
 private:
-	CWJMftReader();
+	bool m_Freed;                      //free是等待线程结束
+	CRITICAL_SECTION m_CriticalSection;//free是等待线程结束
+
 	CMftReader* m_Reader;
 	CRecordFile* m_FolderCachFile;
 	CLdString m_PathName;      //
 	CWJMftFileImpl m_File;
 	IWJMftSearchHandler* m_SearchHandler;
-	IWJVolume* m_Volume;
+	CLdString m_VolumePath;
 
+	CWJMftReader();
 	UINT GetPathName(UINT64 FileReferenceNumber, bool read = true);
 	BOOL FilterFile(PMFT_FILE_DATA pFileInfo);
 	BOOL FilterDelFile(PMFT_FILE_DATA pFileInfo);

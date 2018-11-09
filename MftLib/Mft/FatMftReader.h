@@ -9,6 +9,7 @@ public:
 	UINT64 EnumFiles(IMftReaderHandler*, PVOID Param) override;
 
 	UINT64 EnumDeleteFiles(IMftDeleteReaderHandler*, PVOID) override;
+	BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks) override;
 
 public:
 	CFatMftReader(HANDLE hVolume);
@@ -40,6 +41,11 @@ private:
 	FAT_FILE m_Root;
 	UINT64 m_FileReferenceNumber;        //自增长的文件号
 	MFT_FILE_DATA m_FileInfo;            //临时使用的中间变量
+
+	//GetFileStats 函数参数
+	PUINT64 m_FileCount_Stats;
+	PUINT64 m_FolderCount_Stats;
+	PUINT64 m_DeleteFileTracks_Stats;
 
 	INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, int op = 0);
 	UINT DataClusterStartSector(UINT ClusterNumber);
