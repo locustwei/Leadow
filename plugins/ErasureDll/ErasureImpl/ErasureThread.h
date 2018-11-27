@@ -21,8 +21,8 @@ typedef struct FILE_ERASURE_DATA
 interface IEraserListen
 {
 	//public:
-	virtual bool EraserReprotStatus(TCHAR* FileName, TCHAR*, E_THREAD_OPTION op, DWORD dwValue) = 0;
-	virtual bool AnalyResult(TCHAR* FileName, PVOID pData) = 0;
+	virtual bool EraserReprotStatus(TCHAR* FileName, TCHAR*, E_THREAD_OPTION op, LD_ERROR_CODE, INT_PTR Value) = 0;
+	//virtual bool AnalyResult(E_THREAD_OPTION, TCHAR* FileName, PVOID pData) = 0;
 };
 
 //擦除选项。
@@ -47,7 +47,7 @@ public:
 	void StopThreads();                                      //终止线程
 
 	DWORD StartEraseFiles(CLdArray<TCHAR*>* Files, UINT nMaxCount);
-	DWORD StartVolumeAnalysis(CLdArray<TCHAR*>* Volumes, UINT nMaxCount);            //开始擦除
+	DWORD StartVolumeAnalysis(CLdArray<CLdString*>* Volumes, UINT nMaxCount);            //开始擦除
 
 	PERASER_OPTIONS GetOptions();                    //获取、修改选项擦除选项
 	void SetCallback(IEraserListen* callback);

@@ -75,13 +75,22 @@ interface IMftDeleteReaderHandler
 class CMftReader
 {
 public:
+	//枚举文件信息
 	virtual UINT64 EnumFiles(IMftReaderHandler*, PVOID);
+	//枚举已删除文件
 	virtual UINT64 EnumDeleteFiles(IMftDeleteReaderHandler*, PVOID);
-	virtual BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks);
-	virtual BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) = 0;  //读取文件信息，文件序号
+	//统计文件数量
+	virtual BOOL GetFileStats(
+		PUINT64 FileCount,                //文件数（返回值）
+		PUINT64 FolderCount,              //目录数（返回值）
+		PUINT64 DeletedFileTracks,        //已删除文件痕迹数，包含文件夹、可恢复文件、0字节文件（返回值）
+		PUINT64 DeleteFileCount);         //可恢复已删除文件数（返回值）
+    //读取文件序号的文件信息
+	virtual BOOL GetFileInfo(UINT64 ReferenceNumber, PMFT_FILE_DATA aFileInfo) = 0;  
 	virtual CMftFile* GetFile(UINT64 FileNumber, bool OnlyName = true) = 0;
-
+	//读取磁盘扇区数据
 	BOOL ReadSector(UINT64 sector, UINT count, PVOID buffer);
+	//读取簇数据
 	virtual BOOL ReadCluster(UINT64 Cluster, UINT count, PVOID buffer);
 
 	USHORT GetBytesPerSector();

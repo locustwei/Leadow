@@ -52,21 +52,46 @@ HMODULE CErasureImpl::GetModuleHandle()
 	return m_hModule;
 }
 
-bool CErasureImpl::EraserReprotStatus(TCHAR* FileName, TCHAR* subfile, E_THREAD_OPTION op, DWORD dwValue)
+bool CErasureImpl::EraserReprotStatus(TCHAR* FileName, TCHAR* subfile, E_THREAD_OPTION op, LD_ERROR_CODE err, INT_PTR Value)
 {
+	switch (op)
+	{
+	case eto_none:
+		break;
+	case eto_start:
+		break;
+	case eto_begin:
+		break;
+	case eto_completed:
+		break;
+	case eto_progress:
+		break;
+	case eto_freespace:
+		break;
+	case eto_track:
+		break;
+	case eto_finished:
+		break;
+	case eto_analy:
+		break;
+	case eto_analied:
+		break;
+	case eto_error:
+		break;
+	case eto_abort:
+		break;
+	default:
+		break;
+	}
+
 	CDynObject param;
 	if(FileName)
 		param.AddObjectAttribute(_T("name"), FileName);
 	if(subfile)
 		param.AddObjectAttribute(_T("subfile"), subfile);
 	param.AddObjectAttribute(_T("op"), op);
-	param.AddObjectAttribute(_T("value"), (UINT)dwValue);
+	param.AddObjectAttribute(_T("value"), (UINT)Value);
 	m_Comm->CallMethod(eci_filestatus, param);
-	return true;
-}
-
-bool CErasureImpl::AnalyResult(TCHAR* FileName, PVOID pData)
-{
 	return true;
 }
 
@@ -164,13 +189,14 @@ DWORD CErasureImpl::FileAnalysis(CDynObject& Param)
 
 DWORD CErasureImpl::VolumeAnalysis(CDynObject& Param)
 {
-	CLdArray<TCHAR*> volumes;
+	CLdArray<CLdString*> volumes;
+	volumes.ObjectFreeMethod = CLdMethodDelegate::MakeDelegate(ArrayDeleteObjectMethod<CLdString*>);
 
 	int k = Param.GetArrayCount(EPN_FILES);
 	for (int i = 0; i<k; i++)
 	{
-		CLdString s = Param.GetString(EPN_FILES, nullptr, i);
-		if (s.IsEmpty())
+		CLdString* s = new CLdString(Param.GetString(EPN_FILES, nullptr, i));
+		if (s->IsEmpty())
 			continue;
 
 		volumes.Add(s);

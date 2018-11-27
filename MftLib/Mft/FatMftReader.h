@@ -9,7 +9,7 @@ public:
 	UINT64 EnumFiles(IMftReaderHandler*, PVOID Param) override;
 
 	UINT64 EnumDeleteFiles(IMftDeleteReaderHandler*, PVOID) override;
-	BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks) override;
+	BOOL GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks, PUINT64 DeleteFileCount) override;
 
 public:
 	CFatMftReader(HANDLE hVolume);
@@ -46,6 +46,7 @@ private:
 	PUINT64 m_FileCount_Stats;
 	PUINT64 m_FolderCount_Stats;
 	PUINT64 m_DeleteFileTracks_Stats;
+	PUINT64 m_DeleteFileCount_Stats;
 
 	INT64 EnumDirectoryFiles(PFAT_FILE pParentDir, int op = 0);
 	UINT DataClusterStartSector(UINT ClusterNumber);

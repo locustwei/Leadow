@@ -31,7 +31,7 @@ UINT64 CMftReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Param)
 	return 0;
 }
 
-BOOL CMftReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+BOOL CMftReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks, PUINT64 DeleteFileCount)
 {
 	m_Inited = Init();
 	return 0;

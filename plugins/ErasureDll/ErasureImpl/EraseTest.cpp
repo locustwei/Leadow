@@ -24,16 +24,27 @@ CEraseTest::~CEraseTest()
 {
 }
 
-TEST_VOLUME_RESULT CEraseTest::TestVolume(TCHAR * VolumePath, CErasureMothed * method, BOOL bSkipSpace, BOOL bSkipTrack)
+DWORD CEraseTest::TestVolume(TCHAR * VolumePath, CErasureMothed * method, BOOL bSkipSpace, BOOL bSkipTrack, PTEST_VOLUME_RESULT tr)
 {
+	DWORD result = 0;
+
 	CVolumeInfo volume(VolumePath);
+	tr->TotalSize = volume.GetTotalSize(&result);
+	if (result != 0)
+		return result;
+	tr->FreeSpaceSize = volume.GetAvailableFreeSpace();
+	if (result != 0)
+		return result;
+
 	CMftReader* reader = CMftReader::CreateReader(volume.OpenVolumeHandle(), volume.GetFileSystem());
 	if (reader)
 	{
-		reader->GetFileStats(nullptr, nullptr, nullptr);
+		if(!reader->GetFileStats(&tr->FileCount, &tr->DirectoryCount, &tr->FileTrackCount))
+			result = GetLastError();
 		delete reader;
 	}
-	return TEST_VOLUME_RESULT();
+
+	return result;
 }
 
 DWORD CEraseTest::TestFile(TCHAR* lpFileName, BOOL bRemoveFolder, PTEST_FILE_RESULT tr)

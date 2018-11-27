@@ -75,12 +75,13 @@ UINT64 CExFatReader::EnumDeleteFiles(IMftDeleteReaderHandler* hanlder, PVOID Par
 	return result;
 }
 
-BOOL CExFatReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+BOOL CExFatReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks, PUINT64 DeleteFileCount)
 {
-	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks, DeleteFileCount);
 	m_FileCount_Stats = FileCount;
 	m_FolderCount_Stats = FolderCount;
 	m_DeleteFileTracks_Stats = DeletedFileTracks;
+	m_DeleteFileCount_Stats = DeleteFileCount;
 
 	UINT64 result = EnumDirectoryFiles(&m_Root, 1);
 	return result > 0;
@@ -98,6 +99,11 @@ void CExFatReader::ZeroMember()
 	m_ClusterBitmapStartSector = 0;
 	m_ClusterBitmapSectors = 0;
 	m_FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
+
+	m_FolderCount_Stats = nullptr;
+	m_FileCount_Stats = nullptr;
+	m_DeleteFileTracks_Stats = nullptr;
+	m_DeleteFileCount_Stats = nullptr;
 
 	ZeroMemory(&m_BitmapCache, sizeof(m_BitmapCache));
 	ZeroMemory(&m_Root, sizeof(m_Root));
@@ -141,7 +147,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 
 		if (pParentDir->CUSTOM.Size < ClusterCount * m_SectorsPerCluster * m_BytesPerSector)
 		{
-			ClusterCount = pParentDir->CUSTOM.Size / (m_SectorsPerCluster * m_BytesPerSector);
+			ClusterCount = pParentDir->CUSTOM.Size / UINT64(m_SectorsPerCluster * m_BytesPerSector);
 			if (ClusterCount * m_SectorsPerCluster * m_BytesPerSector < pParentDir->CUSTOM.Size)
 				ClusterCount++;
 		}
@@ -171,7 +177,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 				continue; //卷标
 			case 0x81:
 				m_ClusterBitmapStartSector = DataClusterStartSector(pFatFile->CLUBIT.StartCluster);
-				m_ClusterBitmapSectors = pFatFile->CLUBIT.Size / m_BytesPerSector;
+				m_ClusterBitmapSectors = pFatFile->CLUBIT.Size / UINT64(m_BytesPerSector);
 				continue; //族位图
 			case 0x82:
 				continue; //大写字符文件
@@ -220,11 +226,12 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 					m_FileInfo.Name[m_FileInfo.NameLength] = '\0';
 					tmpDir.CUSTOM.IsDel = pFatFile->type == 0x41;
 
-					if((op == 0 && !tmpDir.CUSTOM.IsDel) ||
+					if ((op == 0 && !tmpDir.CUSTOM.IsDel) ||
 						(op == 1) ||
-						((op == 2 && tmpDir.CUSTOM.IsDel) || m_FileInfo.FileAttributes & FFT_DIRECTORY) 
+						((op == 2 && tmpDir.CUSTOM.IsDel) || m_FileInfo.FileAttributes & FFT_DIRECTORY)
 						)
-						DoAFatFile(pParentDir, tmpFile2, op);
+						if (!DoAFatFile(pParentDir, tmpFile2, op))
+							goto exit;
 
 					if ((m_FileInfo.FileAttributes & FFT_DIRECTORY) == FFT_DIRECTORY)
 					{
@@ -250,7 +257,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 
 				if (pParentDir->CUSTOM.Size < ClusterCount * m_SectorsPerCluster * m_BytesPerSector)
 				{
-					ClusterCount = pParentDir->CUSTOM.Size / (m_SectorsPerCluster * m_BytesPerSector);
+					ClusterCount = pParentDir->CUSTOM.Size / UINT64(m_SectorsPerCluster * m_BytesPerSector);
 					if (ClusterCount * m_SectorsPerCluster * m_BytesPerSector < pParentDir->CUSTOM.Size)
 						ClusterCount++;
 				}
@@ -262,6 +269,7 @@ INT64 CExFatReader::EnumDirectoryFiles(PEXFAT_FILE pParentDir, int op)
 		}
 	}
 
+exit:
 	delete Buffer;
 
 	return Result;
@@ -300,19 +308,19 @@ UINT CExFatReader::GetNextClusterNumber(UINT ClusterNumber)
 
 	UINT sectorOffset = (UINT)(byteOffset / m_BytesPerSector);
 
-	if (m_fatCache.buffer && m_fatCache.beginSector <= sectorOffset && m_fatCache.beginSector + m_fatCache.sectorCount > sectorOffset)
-	{
-		Result = *(UINT*)(m_fatCache.buffer + (sectorOffset - m_fatCache.beginSector) * m_BytesPerSector + byteOffset % m_BytesPerSector);
-	}
-	else
-	{
-		PUCHAR pFAT = CacheFat(sectorOffset, 1024);
-		if (pFAT)
-			Result = *(UINT*)(pFAT + byteOffset % m_BytesPerSector);
-	}
-	if (Result == 0xFFFFFFFF)
-		Result = 0;
-	return Result;
+if (m_fatCache.buffer && m_fatCache.beginSector <= sectorOffset && m_fatCache.beginSector + m_fatCache.sectorCount > sectorOffset)
+{
+	Result = *(UINT*)(m_fatCache.buffer + (sectorOffset - m_fatCache.beginSector) * m_BytesPerSector + byteOffset % m_BytesPerSector);
+}
+else
+{
+	PUCHAR pFAT = CacheFat(sectorOffset, 1024);
+	if (pFAT)
+		Result = *(UINT*)(pFAT + byteOffset % m_BytesPerSector);
+}
+if (Result == 0xFFFFFFFF)
+Result = 0;
+return Result;
 }
 
 //************************************
@@ -327,7 +335,7 @@ UINT CExFatReader::GetNextClusterNumber(UINT ClusterNumber)
 //************************************
 PUCHAR CExFatReader::CacheFat(UINT sector, UINT count)
 {
-	if(m_fatCache.buffer){
+	if (m_fatCache.buffer) {
 		delete m_fatCache.buffer;
 		m_fatCache.buffer = NULL;
 	}
@@ -335,7 +343,7 @@ PUCHAR CExFatReader::CacheFat(UINT sector, UINT count)
 		count = m_SectorsPerFAT - sector;
 
 	PBYTE Buffer = new BYTE[m_BytesPerSector * count];
-	if(!ReadSector(m_FirstFatSector + sector, count, Buffer)){
+	if (!ReadSector(m_FirstFatSector + sector, count, Buffer)) {
 		delete Buffer;
 		return NULL;
 	}
@@ -366,7 +374,7 @@ BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, int op)
 				return TRUE;  //脏读 或者是重命名文件名。
 
 			aDataStream.Size = m_FileInfo.DataSize;
-			aDataStream.LcnCount = m_FileInfo.DataSize / (m_BytesPerSector * m_SectorsPerCluster);
+			aDataStream.LcnCount = m_FileInfo.DataSize / UINT64(m_BytesPerSector * m_SectorsPerCluster);
 			if (aDataStream.LcnCount * m_BytesPerSector * m_SectorsPerCluster < m_FileInfo.DataSize)
 				aDataStream.LcnCount++;
 			aDataStream.Lcns = new UINT64[aDataStream.LcnCount];
@@ -398,23 +406,27 @@ BOOL CExFatReader::DoAFatFile(PEXFAT_FILE pParentDir, PEXFAT_FILE pFile, int op)
 		if (pFile->CUSTOM.IsDel)
 		{
 			if (m_DeleteFileTracks_Stats)
-				*m_DeleteFileTracks_Stats++;
+				(*m_DeleteFileTracks_Stats)++;
+			if (m_DeleteFileCount_Stats && (m_FileInfo.FileAttributes & FFT_DIRECTORY) == 0 && m_FileInfo.DataSize > 0)
+				(*m_DeleteFileCount_Stats)++;
 		}
 		else
 		{
 			if ((m_FileInfo.FileAttributes & FFT_DIRECTORY) == FFT_DIRECTORY)
 			{
 				if (m_FolderCount_Stats)
-					*m_FolderCount_Stats++;
+					(*m_FolderCount_Stats)++;
 			}
 			else
 				if (m_FileCount_Stats)
-					*m_FileCount_Stats++;
+					(*m_FileCount_Stats)++;
 		}
-
+		return TRUE;
 	}
-	else if(op == 0)
+	else if (op == 0)
 		return Callback(m_FileInfo.FileReferenceNumber, &m_FileInfo);
+	else
+		return FALSE;
 }
 
 CMftFile* CExFatReader::GetFile(UINT64 FileNumber, bool OnlyName /*= false*/)
@@ -477,7 +489,7 @@ bool CExFatReader::IsClusterUsed(UINT ClusterNumber)
 		if (pFAT)
 			Result = *(PUCHAR)(pFAT + byteOffset);
 	}
-	return Result & (1 << ClusterNumber % 8);
+	return (Result & (1 << ClusterNumber % 8))>0;
 
 }
 

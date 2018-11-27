@@ -179,21 +179,22 @@ namespace LeadowDisk {
 		else if (pErrorCode)
 		{
 			*pErrorCode = GetLastError();
-			return 0;
 		}
+		return 0;
 	}
 
 	UINT64 CVolumeInfo::GetTotalFreeSpace(PDWORD pErrorCode)
 	{
-		if (m_VolumeGuid.IsEmpty())
+		GetVolumePath();
+		/*if (m_VolumeGuid.IsEmpty())
 		{
 			if (pErrorCode)
 				*pErrorCode = -1;
 			return 0;
-		}
+		}*/
 		ULARGE_INTEGER TotalFreeSpace;
 
-		if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, NULL, &TotalFreeSpace))
+		if (GetDiskFreeSpaceEx(m_VolumePath, NULL, NULL, &TotalFreeSpace))
 		{
 			if (pErrorCode)
 				*pErrorCode = 0;
@@ -206,14 +207,15 @@ namespace LeadowDisk {
 
 	UINT64 CVolumeInfo::GetTotalSize(PDWORD pErrorCode)
 	{
-		if (m_VolumeGuid.IsEmpty())
+		GetVolumePath();
+		/*if (m_VolumeGuid.IsEmpty())
 		{
 			if (pErrorCode)
 				*pErrorCode = -1;
 			return 0;
-		}
+		}*/
 		ULARGE_INTEGER TotalSize;
-		if (GetDiskFreeSpaceEx(m_VolumeGuid, NULL, &TotalSize, NULL))
+		if (GetDiskFreeSpaceEx(m_VolumePath, NULL, &TotalSize, NULL))
 		{
 			if (pErrorCode)
 				*pErrorCode = 0;
@@ -226,10 +228,12 @@ namespace LeadowDisk {
 
 	BOOL CVolumeInfo::HasQuota()
 	{
-		if (m_VolumeGuid.IsEmpty())
-			return 0;
+		GetVolumePath();
+
+		/*if (m_VolumeGuid.IsEmpty())
+			return 0;*/
 		ULARGE_INTEGER FreeBytesAvailable, lpTotalNumberOfFreeBytes;
-		if (GetDiskFreeSpaceEx(m_VolumeGuid, &FreeBytesAvailable, NULL, &lpTotalNumberOfFreeBytes))
+		if (GetDiskFreeSpaceEx(m_VolumePath, &FreeBytesAvailable, NULL, &lpTotalNumberOfFreeBytes))
 			return lpTotalNumberOfFreeBytes.QuadPart > FreeBytesAvailable.QuadPart;
 		else
 			return 0;
@@ -237,6 +241,7 @@ namespace LeadowDisk {
 
 	BOOL CVolumeInfo::IsMounted()
 	{
+		GetVolumePath();
 		return !m_VolumePath.IsEmpty();
 	}
 
@@ -273,8 +278,7 @@ const TCHAR* LeadowDisk::CVolumeInfo::GetVolumePath()
 
 const TCHAR * LeadowDisk::CVolumeInfo::GetShlDisplayName()
 {
-	if (m_VolumePath.IsEmpty())
-		GetVolumePath();
+	GetVolumePath();
 	if (m_DisplayName.IsEmpty())
 	{
 		SHFILEINFOW info = { 0 };

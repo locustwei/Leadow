@@ -177,7 +177,7 @@ UINT64 CNtfsMtfReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Pa
 							datastream.Lcns = (PUINT64)realloc(datastream.Lcns, maxCount * sizeof(UINT64));
 						}
 
-						for (int x = 0; x < block->nCount; x++)
+						for (UINT x = 0; x < block->nCount; x++)
 						{
 							if (IsClusterUsed(block->startLcn + x))
 							{
@@ -215,9 +215,9 @@ UINT64 CNtfsMtfReader::EnumDeleteFiles(IMftDeleteReaderHandler* hander, PVOID Pa
 
 }
 
-BOOL CNtfsMtfReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+BOOL CNtfsMtfReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks, PUINT64 DeleteFileCount)
 {
-	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks, DeleteFileCount);
 	
 	if (!m_MftBitmap)
 		return FALSE;
@@ -228,8 +228,7 @@ BOOL CNtfsMtfReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT6
 		if (!bitset(m_MftBitmap, i))
 		{
 			if (DeletedFileTracks)
-				*DeletedFileTracks++;
-			continue;
+				(*DeletedFileTracks)++;
 		}
 
 		if (!ReadFileRecord(i, m_FileCanche))
@@ -241,18 +240,25 @@ BOOL CNtfsMtfReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT6
 		if ((m_FileCanche->Flags & 0x1) == 0)
 		{
 			if (DeletedFileTracks)
-				*DeletedFileTracks++;
+				(*DeletedFileTracks)++;
+			if (DeleteFileCount && (m_FileCanche->Flags & 0x2) == 0)
+			{
+				CNtfsFile file(this);
+				file.LoadAttributes(i, m_FileCanche, false);
+				if (file.GetFileData()->DataSize)
+					(*DeleteFileCount)++;
+			}
 			continue;
 		}
 
 		if ((m_FileCanche->Flags & 0x2) != 0)    //Ŀ¼
 		{
 			if(FolderCount)
-				*FolderCount++;
+				(*FolderCount)++;
 		}
 		else
 			if (FileCount)
-				*FileCount++;
+				(*FileCount)++;
 
 	}
 	return TRUE;
@@ -455,7 +461,7 @@ UINT64 CNtfsMtfReader::ReadFileAttributeData(CNtfsFile* File, CNtfsFileAttribute
 			count++;
 
 		//UINT nReaded = 0;
-		for (UINT i = 0; i < attr->GetBlockCount(); i++)
+		for (int i = 0; i < attr->GetBlockCount(); i++)
 		{
 			UINT nCopy;
 
@@ -502,7 +508,7 @@ bool CNtfsMtfReader::IsClusterUsed(UINT64 ClusterNumber)
 		if (pFAT)
 			Result = *(PUCHAR)(pFAT + byteOffset % m_BytesPerCluster);
 	}
-	return Result & (1 << ClusterNumber % 8);
+	return (Result & (1 << ClusterNumber % 8))>0;
 }
 
 PUCHAR CNtfsMtfReader::CactchClusterBitmap(UINT64 vcn)

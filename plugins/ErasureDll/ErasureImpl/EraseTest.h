@@ -29,11 +29,12 @@ public:
 	~CEraseTest();
 
 	// 测试分区
-	TEST_VOLUME_RESULT TestVolume(
+	DWORD TestVolume(
 		TCHAR* VolumePath,           //待擦除磁盘法
 		CErasureMothed* method,      //擦除算法
 		BOOL bSkipSpace,             //是否跳过未使用空间擦除(不擦除磁盘空闲空间)
-		BOOL bSkipTrack
+		BOOL bSkipTrack,
+		PTEST_VOLUME_RESULT
 	);
 
 	// 测试文件

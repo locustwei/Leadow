@@ -32,6 +32,7 @@ enum E_FILE_STATE
 	efs_error,      //擦除失败（有错误）
 	efs_abort       //取消操作
 };
+
 //擦除线程动作
 enum E_THREAD_OPTION
 {
@@ -50,10 +51,12 @@ enum E_THREAD_OPTION
 };
 
 typedef struct TEST_VOLUME_RESULT {
+	UINT64 TotalSize;        //总字节数
+	UINT64 FreeSpaceSize;    //空闲字节数
 	UINT64 FileCount;        //文件数
 	UINT64 DirectoryCount;   //目录数
 	UINT64 FileTrackCount;   //MFT中删除文件的痕迹数
-	UINT64 RecoverableCount; //删除文可以被恢复文件数（粗略数字及文件大小不为0）
+	//UINT64 RecoverableCount; //删除文可以被恢复文件数（粗略数字即文件大小不为0）
 	UINT   Writespeed;       //写文件速度（1G字节所用时间，单位毫秒）
 	UINT   Cratespeed;       //创建0字节文件速度（100个文件所用时间，单位毫秒）
 	UINT   Deletespeed;      //删除0字节文件的速度（100个文件所用时间，单位毫秒）

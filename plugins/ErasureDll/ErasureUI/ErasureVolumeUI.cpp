@@ -35,6 +35,17 @@ void CErasureVolumeUI::OnTerminate(DWORD exitcode)
 
 void CErasureVolumeUI::OnCommand(WORD id, CDynObject& Param)
 {
+	switch (id)
+	{
+	case eci_anafiles:
+		//ListFiles(Param);
+		break;
+	case eci_filestatus:
+		//OnEraseFileStatus(Param);
+		break;
+	default:
+		break;
+	}
 }
 
 //void CErasureVolumeUI::UpdateEraseProgressMsg(PFILE_ERASURE_DATA pData, CControlUI* ui, int Percent, DWORD time)

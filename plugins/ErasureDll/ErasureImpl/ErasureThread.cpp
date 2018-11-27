@@ -84,7 +84,7 @@ DWORD CEreaserThrads::StartEraseFiles(CLdArray<TCHAR*>* Files, UINT nMaxCount)
 	return 0;
 }
 
-DWORD CEreaserThrads::StartVolumeAnalysis(CLdArray<TCHAR*>* Volumes, UINT nMaxCount)
+DWORD CEreaserThrads::StartVolumeAnalysis(CLdArray<CLdString*>* Volumes, UINT nMaxCount)
 {
 	DWORD result = InitThread(nMaxCount);
 	if (result != 0)
@@ -92,7 +92,7 @@ DWORD CEreaserThrads::StartVolumeAnalysis(CLdArray<TCHAR*>* Volumes, UINT nMaxCo
 
 	for (int i = 0; i < Volumes->GetCount(); i++)
 	{
-		m_Volumes.Add(new CLdString(Volumes->Get(i)));
+		m_Volumes.Add(new CLdString(Volumes->Get(i)->GetData()));
 	}
 
 	Start(THREAD_ANALY_VOLUME);
@@ -229,8 +229,11 @@ bool CEreaserThrads::AanlysisVolumes(CLdArray<CLdString *>* Volumes)
 		if (m_Abort)
 			return false;
 
+		DebugOutput(L"AanlysisAVolume ------ %s\n", Volumes->Get(i)->GetData());
+
 		CThread* thread = new CThread();
 		thread->Start(CLdMethodDelegate::MakeDelegate(this, &CEreaserThrads::AanlysisAVolume), (PVOID)Volumes->Get(i), 0);
+
 	}
 
 	return true;
@@ -245,16 +248,24 @@ INT_PTR CEreaserThrads::AanlysisAVolume(PVOID pData, UINT_PTR Param)
 	try
 	{
 		CLdString* pVolume = (CLdString*)pData;
+		
+		DebugOutput(L"AanlysisAVolume %s\n", pVolume->GetData());
 
-		DWORD error;
+		DWORD error = 0;
+
+		TEST_VOLUME_RESULT result = { 0 };
+
 		if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, 0))
 			error = ERROR_CANCELED;
 		else
 		{
 			CEraseTest test;
-			test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE);
+			test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE, &result);
 		}
+
 		m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, error);
+		if(error==0)
+			m_callback->AnalyResult(eto_start, pVolume->GetData, (PVOID)&result);
 
 		m_ThreadCount--;
 	}

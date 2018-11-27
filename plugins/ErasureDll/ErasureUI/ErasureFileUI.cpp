@@ -73,19 +73,8 @@ void CErasureFileUI::AttanchControl(CControlUI* pCtrl)
 
 	AddLstViewHeader(8);
 }
-//擦除完成后从m_ErasureFile中删除
-//void CErasureFileUI::DeleteErasuredFile(CVirtualFile* pFile)
-//{
-//	if (!pFile)
-//		return;
-//	if (pFile->GetFileType() == vft_folder)
-//		FreeEraseFiles(((CFolderInfo*)pFile)->GetFiles());
-//	if (pFile->GetTag() != 0)
-//		delete (PFILE_EX_DATA)pFile->GetTag();
-//	delete pFile;
-//}
-//擦除过程更新文件擦除状态信息
 
+//擦除过程更新文件擦除状态信息
 void CErasureFileUI::UpdateEraseProgressMsg(CEreaseFileData* pData, bool bRoot)
 {
 	if (!pData)
@@ -169,6 +158,7 @@ void CErasureFileUI::OnTerminate(DWORD exitcode)
 {
 }
 
+
 void CErasureFileUI::OnCommand(WORD id, CDynObject& Param)
 {
 	switch (id)
@@ -188,6 +178,7 @@ DUI_BEGIN_MESSAGE_MAP(CErasureFileUI, CShFileViewUI)
 DUI_ON_MSGTYPE(DUI_MSGTYPE_CLICK, OnClick)
 DUI_END_MESSAGE_MAP()
 
+//文件信息添加到列表中
 void CErasureFileUI::ListFiles(CDynObject & files)
 {
 	for (int i = 0; i < files.GetArrayCount(EPN_FILES); i++)
@@ -197,6 +188,7 @@ void CErasureFileUI::ListFiles(CDynObject & files)
 
 }
 
+//更新文件擦除状态
 void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 {
 	E_THREAD_OPTION op = (E_THREAD_OPTION)fileStatus.GetInteger(_T("op"), eto_none);
@@ -249,16 +241,7 @@ void CErasureFileUI::OnEraseFileStatus(CDynObject& fileStatus)
 	}
 }
 
-//bool CErasureFileUI::IsSelecteFile(TCHAR* filename)
-//{
-//	for (int i = 0; i < m_ErasureFile.GetCount(); i++)
-//	{
-//		if (*m_ErasureFile[i] == filename)
-//			return true;
-//	}
-//	return false;
-//}
-
+//文件信息添加到列表中
 void CErasureFileUI::ListAFile(CDynObject FileObj)
 {
 	CEreaseFileData* p = new CEreaseFileData();

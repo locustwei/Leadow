@@ -98,12 +98,13 @@ UINT64 CFatMftReader::EnumDeleteFiles(IMftDeleteReaderHandler* hanlder, PVOID Pa
 	return result;
 }
 
-BOOL CFatMftReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks)
+BOOL CFatMftReader::GetFileStats(PUINT64 FileCount, PUINT64 FolderCount, PUINT64 DeletedFileTracks, PUINT64 DeleteFileCount)
 {
-	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks);
+	__super::GetFileStats(FileCount, FolderCount, DeletedFileTracks, DeleteFileCount);
 	m_FileCount_Stats = FileCount;
 	m_FolderCount_Stats = FolderCount;
 	m_DeleteFileTracks_Stats = DeletedFileTracks;
+	m_DeleteFileCount_Stats = DeleteFileCount;
 
 	UINT64 result = EnumDirectoryFiles(&m_Root, 1);
 	return result > 0;
@@ -120,6 +121,11 @@ void CFatMftReader::ZeroMember()
 	m_EntrySize = 0;
 	m_TotalCluster = 0;
 	m_FileReferenceNumber = 15;  //为ntfs兼容，ID从15开始，ntfs根目录为5, $Extend为11
+
+	m_FolderCount_Stats = nullptr;
+	m_FileCount_Stats = nullptr;
+	m_DeleteFileTracks_Stats = nullptr;
+	m_DeleteFileCount_Stats = nullptr;
 
 	ZeroMemory(&m_Root, sizeof m_Root);
 	ZeroMemory(&m_fatCache, sizeof(m_fatCache));
@@ -261,18 +267,20 @@ INT64 CFatMftReader::EnumDirectoryFiles(PFAT_FILE pParentDir, int op)
 						if (pFatFile->IsDeleted)
 						{
 							if (m_DeleteFileTracks_Stats)
-								*m_DeleteFileTracks_Stats++;
+								(*m_DeleteFileTracks_Stats)++;
+							if (m_DeleteFileCount_Stats && pFatFile->FileSize)
+								(*m_DeleteFileCount_Stats)++;
 						}
 						else
 						{
 							if ((pFatFile->Attr & FFT_DIRECTORY) == FFT_DIRECTORY)
 							{
 								if (m_FolderCount_Stats)
-									*m_FolderCount_Stats++;
+									(*m_FolderCount_Stats)++;
 							}
 							else
 								if (m_FileCount_Stats)
-									*m_FileCount_Stats++;
+									(*m_FileCount_Stats)++;
 						}
 						//DoAFatFile(pFatFile, &FileName[nNamePos], pParentDir);
 						break;
