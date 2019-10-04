@@ -39,7 +39,7 @@ DWORD CEraseTest::TestVolume(TCHAR * VolumePath, CErasureMothed * method, BOOL b
 	CMftReader* reader = CMftReader::CreateReader(volume.OpenVolumeHandle(), volume.GetFileSystem());
 	if (reader)
 	{
-		if(!reader->GetFileStats(&tr->FileCount, &tr->DirectoryCount, &tr->FileTrackCount))
+		if(!reader->GetFileStats(&tr->FileCount, &tr->DirectoryCount, &tr->FileTrackCount, nullptr))
 			result = GetLastError();
 		delete reader;
 	}

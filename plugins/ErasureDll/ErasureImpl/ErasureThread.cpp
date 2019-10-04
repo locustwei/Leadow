@@ -255,7 +255,7 @@ INT_PTR CEreaserThrads::AanlysisAVolume(PVOID pData, UINT_PTR Param)
 
 		TEST_VOLUME_RESULT result = { 0 };
 
-		if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, 0))
+		if (!m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analy, LD_ERROR_SUCESS, 0))
 			error = ERROR_CANCELED;
 		else
 		{
@@ -263,9 +263,9 @@ INT_PTR CEreaserThrads::AanlysisAVolume(PVOID pData, UINT_PTR Param)
 			test.TestVolume(pVolume->GetData(), m_EraseMothed, FALSE, FALSE, &result);
 		}
 
-		m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, error);
-		if(error==0)
-			m_callback->AnalyResult(eto_start, pVolume->GetData, (PVOID)&result);
+		m_callback->EraserReprotStatus(pVolume->GetData(), nullptr, eto_analied, LD_ERROR_SUCESS, 0);
+		/*if(error==0)
+			m_callback->AnalyResult(pVolume->GetData, (PVOID)&result);*/
 
 		m_ThreadCount--;
 	}
@@ -280,7 +280,7 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 {
 
 	m_ThreadCount = 0;
-	m_callback->EraserReprotStatus(nullptr, nullptr, eto_start, 0);
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_start, LD_ERROR_SUCESS, 0);
 
 	if (Sender == this)
 	{
@@ -305,7 +305,7 @@ void CEreaserThrads::ThreadBody(CThread * Sender, UINT_PTR Param)
 		Sleep(20);
 	}
 
-	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, 0);
+	m_callback->EraserReprotStatus(nullptr, nullptr, eto_finished, LD_ERROR_SUCESS, 0);
 }
 
 void CEreaserThrads::OnThreadInit(CThread * Sender, UINT_PTR Param)
@@ -383,7 +383,7 @@ CEreaserThrads::CErasureCallbackImpl::~CErasureCallbackImpl()
 BOOL CEreaserThrads::CErasureCallbackImpl::ErasureStart()
 {
 
-	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_begin, 0);
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_begin, LD_ERROR_SUCESS, 0);
 	return !m_Control->m_Abort;
 }
 
@@ -391,11 +391,11 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 {
 	if (dwErroCode == 0)
 	{
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr? m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?nullptr:m_File->GetFullName(), eto_completed, dwErroCode);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr? m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?nullptr:m_File->GetFullName(), eto_completed, LD_ERROR_SUCESS, dwErroCode);
 	}
 	else
 	{
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_error, dwErroCode);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder == nullptr ? m_File->GetFullName() : m_Folder->GetFullName(), m_Folder == nullptr ? nullptr : m_File->GetFullName(), eto_error, LD_ERROR_SUCESS, dwErroCode);
 		DebugOutput(L"ErasureCompleted %s %d", m_File->GetFileName(), dwErroCode);
 	}
 
@@ -414,7 +414,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureCompleted(DWORD dwErroCode)
 			percent = (int)ceil(pEraserData->nErasued * 100 / pEraserData->nCount);
 		}
 
-		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder->GetFullName(),nullptr, eto_progress, percent);
+		m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder->GetFullName(),nullptr, eto_progress, LD_ERROR_SUCESS, percent);
 	}
 
 	return !m_Control->m_Abort;
@@ -445,7 +445,7 @@ BOOL CEreaserThrads::CErasureCallbackImpl::ErasureProgress(ERASE_STEP nStep, UIN
 		break;
 	}
 
-	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr?m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?m_File->GetFullName():nullptr, option, (DWORD)ceil(nCurent * 100 / nMaxCount));
+	m_Control->m_Abort = !m_Control->m_callback->EraserReprotStatus(m_Folder==nullptr?m_File->GetFullName():m_Folder->GetFullName(), m_Folder==nullptr?m_File->GetFullName():nullptr, option, LD_ERROR_SUCESS, (DWORD)ceil(nCurent * 100 / nMaxCount));
 
 	return !m_Control->m_Abort;
 }
